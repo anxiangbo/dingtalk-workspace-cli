@@ -394,6 +394,8 @@ dws chat message send-by-bot --robot-code BOT_CODE --group GROUP_ID \
   --title "Weekly Report" --text @-
 ```
 
+> **Note**: `@` is treated as the `@<path>` file-injection prefix only when the next character is an ASCII path-shaped character (`A-Z` / `a-z` / `0-9` / `.` / `/` / `~` / `_` / `-`), or `@-` for stdin. Chat-bot payloads like `--text "@所有人 周报"` or `--text "@张三 看一下"` pass through unchanged, so literal mentions reach the API as-is.
+
 </details>
 
 ## Key Services
@@ -401,7 +403,7 @@ dws chat message send-by-bot --robot-code BOT_CODE --group GROUP_ID \
 | Service | Command | Commands | Subcommands | Description |
 |---------|---------|:--------:|-------------|-------------|
 | Contact | `contact` | 6 | `user` `dept` | Search users by name/mobile, batch query, departments, current user profile |
-| Chat / IM | `chat` (alias `im`) | 23 | `message` `group` `bot` `conversation-info` `search` `search-common` `list-top-conversations` | Messages (send / list / list-all / by-sender / mentions / focused / unread / topic replies / search), group CRUD + member management (incl. `add-bot`), bot-identity messaging (`send-by-bot` / `recall-by-bot` / `send-by-webhook`), conversation info, common groups lookup |
+| Chat / IM | `chat` (alias `im`) | 57 | `message` `group` `bot` `conversation-info` `search` `search-common` `list-top-conversations` `group-mute` `group-mute-member` `mute` `set-top` `list-categories` `list-conversations` | Messages (send / reply / list / list-all / by-sender / mentions / focused / unread / topic replies / search / advanced search / forward / cards / emoji & text-emotion reactions / recall / read & send status queries), group CRUD + member management (members add / remove / list / `add-bot`, member-role CRUD, invite URL, icon, settings, transfer-owner, set-admin, quit), bot-identity messaging (`send-by-bot` / `recall-by-bot` / `send-by-webhook`), conversation info, common-groups lookup, group/member/conversation mute, conversation set-top, conversation categories |
 | Calendar | `calendar` | 14 | `event` `room` `participant` `busy` | Events CRUD + suggested times + attachments, meeting room booking, free-busy query, participant management |
 | Todo | `todo` | 6 | `task` | Create, list, update, done, get detail, delete |
 | Approval | `oa` | 9 | `approval` | Approve / reject / revoke, pending / initiated instances, process list, operation records |
