@@ -21,7 +21,7 @@
 > [!IMPORTANT]
 > **共创阶段**：本项目涉及钉钉企业数据访问，需企业管理员授权后方可使用。欢迎加入钉钉 DWS 共创群获取支持与最新动态。详见下方 [开始使用](#开始使用)。
 >
-> <a href="https://qr.dingtalk.com/action/joingroup?code=v1,k1,v9/YMJG9qXhvFk5juktYnQziN70rF7QHebC/JLztTVRuRVJIwrSsXmL8oFqU5ajJ&_dt_no_comment=1&origin=11"><img src="https://img.alicdn.com/imgextra/i4/O1CN01Rijgk81gKqVSKMzdx_!!6000000004124-2-tps-654-644.png" alt="DingTalk Group QR Code" width="150"></a>
+> <img src="https://img.alicdn.com/imgextra/i1/O1CN01WJyAsJ1prD2ovQACM_!!6000000005413-2-tps-718-720.png" alt="dws 开源沟通群二维码" width="150">
 
 <details>
 <summary><strong>目录</strong></summary>
@@ -394,6 +394,8 @@ dws chat message send-by-bot --robot-code BOT_CODE --group GROUP_ID \
   --title "周报" --text @-
 ```
 
+> **说明**：`@` 仅在其后是 ASCII 路径前缀字符（`A-Z` / `a-z` / `0-9` / `.` / `/` / `~` / `_` / `-`）或 `@-`（stdin）时，才会被识别为 `@<path>` 文件注入语法。`--text "@所有人 周报"` / `--text "@张三 看一下"` 这类机器人消息中的字面 `@` 提及会原样透传到 API。
+
 </details>
 
 ## 核心服务
@@ -401,7 +403,7 @@ dws chat message send-by-bot --robot-code BOT_CODE --group GROUP_ID \
 | 服务 | 命令 | 命令数 | 子命令 | 描述 |
 |------|------|:------:|--------|------|
 | 通讯录 | `contact` | 6 | `user` `dept` | 按姓名/手机号搜索、批量查询、部门树、当前用户信息 |
-| 群聊 | `chat`（别名 `im`）| 23 | `message` `group` `bot` `conversation-info` `search` `search-common` `list-top-conversations` | 消息（发送 / 列表 / list-all / 按发送者 / @我 / 关注 / 未读 / 话题回复 / 搜索）、群增删改 + 成员管理（含 `add-bot`）、机器人身份消息（`send-by-bot` / `recall-by-bot` / `send-by-webhook`）、会话信息查询、共同群聊 |
+| 群聊 | `chat`（别名 `im`）| 57 | `message` `group` `bot` `conversation-info` `search` `search-common` `list-top-conversations` `group-mute` `group-mute-member` `mute` `set-top` `list-categories` `list-conversations` | 消息（发送 / 回复 / 列表 / list-all / 按发送者 / @我 / 关注 / 未读 / 话题回复 / 搜索 / 高级搜索 / 转发 / 卡片 / 表情与文本表情反应 / 撤回 / 已读与发送状态查询）、群增删改 + 成员管理（成员增 / 删 / 查 / `add-bot`、成员角色增删改查、邀请链接、群图标、群设置、转让群主、设置管理员、退群）、机器人身份消息（`send-by-bot` / `recall-by-bot` / `send-by-webhook`）、会话信息查询、共同群聊、群/成员/会话免打扰、会话置顶、会话分类 |
 | 日历 | `calendar` | 14 | `event` `room` `participant` `busy` | 日程 CRUD + 建议时间 + 附件、会议室预订、闲忙查询、参与者管理 |
 | 待办 | `todo` | 6 | `task` | 创建、列表、修改、完成、详情、删除 |
 | 审批 | `oa` | 9 | `approval` | 同意 / 拒绝 / 撤销、待我审批 / 我发起的、流程列表、操作记录 |
@@ -410,22 +412,25 @@ dws chat message send-by-bot --robot-code BOT_CODE --group GROUP_ID \
 | 日志 | `report` | 7 | `create` `list` `detail` `template` `stats` `sent` | 创建日志、收发列表、模版、详情、统计 |
 | AI 表格 | `aitable` | 41 | `base` `table` `record` `field` `view` `dashboard` `chart` `import` `export` `attachment` `template` | Base / 数据表 / 记录 / 字段 / 视图 全量 CRUD；图表 + 仪表盘（含分享配置）；数据导入导出；附件；模板 |
 | 文档 | `doc` | 21 | `search` `list` `info` `read` `create` `update` `upload` `download` `copy` `move` `rename` `file` `folder` `block` `comment` | 搜索 / 读写文档、文件与文件夹创建、块级编辑、评论（list / create / reply / create-inline）、上传 / 下载 |
-| 钉盘 | `drive` | 6 | `list` `info` `download` `mkdir` `upload-info` `commit` | 钉盘文件操作：列表、详情、下载、创建文件夹、两阶段上传 |
+| 钉盘 | `drive` | 9 | `list` `list-spaces` `info` `download` `mkdir` `upload` `upload-info` `commit` `delete` | 钉盘文件操作：列出空间、文件列表 / 详情 / 下载、创建文件夹、一键 `upload`（三步合成）或两阶段 `upload-info` + `commit`、删除 |
 | AI 听记 | `minutes` | 19 | `list` `get` `update` `mind-graph` `speaker` `hot-word` `upload` | 听记列表（我创建 / 共享给我）、详情（info / summary / keywords / transcription / todos / batch）、标题/摘要更新、思维导图、发言人替换、热词、上传会话 |
 | 邮箱 | `mail` | 4 | `mailbox` `message` | 邮箱地址列表、KQL 邮件搜索、邮件详情、发送邮件 |
 | 在线电子表格 | `sheet` | 34 | `range` `filter-view`（顶层：`create` `new` `list` `info` `find` `replace` `append` `merge-cells` `unmerge-cells` `add-dimension` `insert-dimension` `delete-dimension` `move-dimension` `update-dimension` `write-image` `copy_sheet` `update_sheet` `submit_export_job` `query_export_job` `create_filter` `get_filter` `update_filter` `delete_filter` `set_filter_criteria` `clear_filter_criteria` `sort_filter`） | 在线电子表格（`contentType=ALIDOC`、`extension=axls`）：工作表 CRUD、区域读写/追加、行列操作、合并、查找替换、命名筛选视图 + 表级筛选、写入图片、异步导出（`submit_export_job` + `query_export_job`，v1.0.25 暂无合并的 `export` 命令） |
 | 知识库 | `wiki` | 7 | `space` `member` | 知识库管理：空间 `create` / `get` / `list` / `search` + 成员 `add` / `list` / `update` |
 | 开发者文档 | `devdoc` | 1 | `article` | 搜索钉钉开放平台文档 |
+| AI 搜问 | `aisearch` | 1 | `person` | 企业人员搜索：按姓名 / 部门 / 职位 / 职责 / 上级 / 下级 / 手机号 / 工号 多维度过滤（单命令） |
+| AI 应用 | `aiapp` | 3 | — | AI 应用生命周期：`create`（含 prompt / attachments / skills）/ `query`（按任务 ID）/ `modify`（按 thread ID） |
+| 直播 | `live` | 1 | `stream` | 钉钉直播：查看我的直播列表 |
 | Raw API | `api` | 1 | — | 直接调用任意钉钉 OpenAPI（api / oapi 双形态），自动管理应用级 Token |
 
-> **16 个产品，204 条命令。** 完整命令清单（带描述与使用场景）：[`docs/command-index.md`](./docs/command-index.md)。运行 `dws --help` 查看顶层命令树，或 `dws <service> --help` 查看子命令。
+> **19 个产品，212 条命令。** 完整命令清单（带描述与使用场景）：[`docs/command-index.md`](./docs/command-index.md)。运行 `dws --help` 查看顶层命令树，或 `dws <service> --help` 查看子命令。
 
 > **关于 `chat bot`**：机器人能力（`send-by-bot` / `recall-by-bot` / `add-bot` / `send-by-webhook` / bot 搜索）已合并到对应的 `chat` 子树下（例如 `dws chat message send-by-bot`、`dws chat group members add-bot`），保持 agent 视角下的命令面扁平易发现。不再有独立的顶层 `bot` 产品。
 
 <details>
 <summary>即将推出</summary>
 
-`conference`（视频会议）· `aiapp`（AI 应用）· `live`（直播）
+`conference`（视频会议）
 
 </details>
 

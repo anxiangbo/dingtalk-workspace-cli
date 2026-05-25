@@ -15,6 +15,7 @@ package helpers
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/cli"
@@ -30,6 +31,12 @@ func init() {
 	})
 }
 
+// chatHandler retains only the chat commands that carry real business logic
+// (intelligent tool routing, current-user resolution, response normalization,
+// or stdin/@file input support that dynamic commands do not yet provide).
+// Thin wrappers — search, group rename, group members list/add/remove/add-bot,
+// bot search — are now produced by the dynamic service-discovery envelope
+// (envelope/pre-discovery.json) so the helper does not have to duplicate them.
 type chatHandler struct{}
 
 func (chatHandler) Name() string {
@@ -40,7 +47,7 @@ func (chatHandler) Command(runner executor.Runner) *cobra.Command {
 	root := &cobra.Command{
 		Use:               "chat",
 		Short:             "群聊 / 消息 / 机器人",
-		Long:              "管理钉钉会话与群聊：创建群、搜索群、查看群成员、添加机器人到群、修改群名称、拉取会话消息、发送群消息、机器人消息与 Webhook。",
+		Long:              "钉钉会话与群聊：发送消息（用户/机器人/Webhook）、撤回机器人消息、创建群。其余命令由服务发现 envelope 提供。",
 		Args:              cobra.NoArgs,
 		TraverseChildren:  true,
 		DisableAutoGenTag: true,
@@ -64,11 +71,12 @@ func (chatHandler) Command(runner executor.Runner) *cobra.Command {
 		newChatMessageSendByBotCommand(runner),
 		newChatMessageRecallByBotCommand(runner),
 		newChatMessageSendByWebhookCommand(runner),
+		newChatMessageReplyCommand(runner),
 	)
 
-	bot := &cobra.Command{
-		Use:               "bot",
-		Short:             "机器人管理",
+	group := &cobra.Command{
+		Use:               "group",
+		Short:             "群组管理",
 		Args:              cobra.NoArgs,
 		TraverseChildren:  true,
 		DisableAutoGenTag: true,
@@ -76,9 +84,9 @@ func (chatHandler) Command(runner executor.Runner) *cobra.Command {
 			return cmd.Help()
 		},
 	}
-	bot.AddCommand(newChatBotSearchCommand(runner))
+	group.AddCommand(newChatGroupCreateCommand(runner))
 
-	root.AddCommand(message, newChatSearchCommand(runner), newChatGroupCommand(runner), bot)
+	root.AddCommand(message, group)
 	return root
 }
 
@@ -93,11 +101,11 @@ func newChatMessageSendCommand(runner executor.Runner) *cobra.Command {
 三者只能选其一，不能同时指定。
 
 消息内容通过 --text 传入，也可作为位置参数；支持 Markdown。
-单聊消息（--user / --open-dingtalk-id）必须提供 --title 作为消息标题；群聊可选。
+--title 是消息标题，群聊与单聊都必填（API 强制要求；缺失时返回误导性的 "发群服务窗会话消息失败"）。
 
 群聊场景下可用 --at-all / --at-users / --at-mobiles 进行 @ 提醒（仅 --group 时生效）。
 注意 --text 中需包含对应的 <@userId> / <@all> 占位符才能在客户端渲染出 @ 效果。`,
-		Example: `  dws chat message send --group <openconversation_id> --text "hello"
+		Example: `  dws chat message send --group <openconversation_id> --title "周报" --text "请提交本周日报"
   dws chat message send --user <userId> --title "提醒" --text "请查收"
   dws chat message send --open-dingtalk-id <openDingTalkId> --title "提醒" --text "请确认"
   dws chat message send --group <openconversation_id> --title "拉群通知" --text "<@uid> 你被 @ 了" --at-users uid`,
@@ -128,7 +136,7 @@ func newChatMessageSendCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("user", "", "接收人 userId (单聊三选一)")
 	cmd.Flags().String("open-dingtalk-id", "", "接收人 openDingTalkId (单聊三选一)")
 	cmd.Flags().String("text", "", "消息内容，支持 Markdown (也可作位置参数)")
-	cmd.Flags().String("title", "", "消息标题 (单聊必填，群聊可选)")
+	cmd.Flags().String("title", "", "消息标题 (必填，群聊与单聊都必填)")
 	cmd.Flags().Bool("at-all", false, "@所有人 (仅 --group 群聊生效)")
 	cmd.Flags().String("at-users", "", "按 userId @ 指定成员，逗号分隔 (仅 --group 群聊生效)")
 	cmd.Flags().String("at-mobiles", "", "按手机号 @ 指定成员，逗号分隔 (仅 --group 群聊生效)")
@@ -196,10 +204,14 @@ func buildChatMessageSendInvocation(cmd *cobra.Command, args []string) (map[stri
 	if !hasGroup && (atAll || hasAtUsers || hasAtMobiles) {
 		return nil, "", apperrors.NewValidation("--at-all / --at-users / --at-mobiles only apply when --group is set")
 	}
-	// Direct-message tools (send_direct_message_as_user) reject an empty title at
-	// the API level with a misleading "发群服务窗会话消息失败" error, so fail loudly
-	// here instead. Group messages do not require a title.
-	if (hasUser || hasOpenID) && strings.TrimSpace(title) == "" {
+	// Both send_message_as_user (group) and send_direct_message_as_user (direct)
+	// reject an empty title at the API level with a misleading
+	// "发群服务窗会话消息失败" error, so fail loudly here instead. The schema
+	// declares title as a required parameter on both tools.
+	if strings.TrimSpace(title) == "" {
+		if hasGroup {
+			return nil, "", apperrors.NewValidation("--title is required for group messages (--group)")
+		}
 		return nil, "", apperrors.NewValidation("--title is required for direct messages (--user / --open-dingtalk-id)")
 	}
 
@@ -264,94 +276,6 @@ func newChatMessageSendByBotCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("title", "", "消息标题 (必填)")
 	cmd.Flags().String("users", "", "接收者 userId 列表，逗号分隔，最多 20 个 (单聊必填)")
 	return cmd
-}
-
-func newChatSearchCommand(runner executor.Runner) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:               "search",
-		Short:             "根据名称搜索会话列表",
-		Example:           `  dws chat search --query "项目冲刺"`,
-		Args:              cobra.NoArgs,
-		DisableAutoGenTag: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			query, err := cmd.Flags().GetString("query")
-			if err != nil {
-				return apperrors.NewInternal("failed to read --query")
-			}
-			query = strings.TrimSpace(query)
-			if query == "" {
-				return apperrors.NewValidation("--query is required")
-			}
-
-			searchReq := map[string]any{"query": query}
-			cursor, err := cmd.Flags().GetString("cursor")
-			if err != nil {
-				return apperrors.NewInternal("failed to read --cursor")
-			}
-			if strings.TrimSpace(cursor) != "" {
-				searchReq["cursor"] = cursor
-			}
-
-			result, err := runner.Run(cmd.Context(), executor.NewHelperInvocation(
-				cobracmd.LegacyCommandPath(cmd),
-				"chat",
-				"search_groups_by_keyword",
-				map[string]any{"OpenSearchRequest": searchReq},
-			))
-			if err != nil {
-				return err
-			}
-			return writeCommandPayload(cmd, result)
-		},
-	}
-	preferLegacyLeaf(cmd)
-
-	cmd.Flags().String("query", "", "搜索关键词 (必填)")
-	cmd.Flags().String("cursor", "", "分页游标 (首页留空)")
-	return cmd
-}
-
-func newChatGroupCommand(runner executor.Runner) *cobra.Command {
-	root := &cobra.Command{
-		Use:               "group",
-		Short:             "群组管理",
-		Args:              cobra.NoArgs,
-		TraverseChildren:  true,
-		DisableAutoGenTag: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return cmd.Help()
-		},
-	}
-
-	members := &cobra.Command{
-		Use:               "members",
-		Short:             "群成员管理",
-		Args:              cobra.NoArgs,
-		TraverseChildren:  true,
-		DisableAutoGenTag: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return cmd.Help()
-		},
-	}
-	// Keeps the helper-restructured group winning over the dynamic envelope's
-	// `members` leaf (which only exposes `get_group_members`); without this
-	// the merge layer treats the shape mismatch as "envelope is authority"
-	// and drops the entire helper subtree (issue #164).
-	preferLegacyLeaf(members)
-
-	members.AddCommand(
-		newChatGroupMembersListCommand(runner),
-		newChatGroupMemberAddCommand(runner),
-		newChatGroupMemberRemoveCommand(runner),
-		newChatGroupMembersAddBotCommand(runner),
-	)
-
-	root.AddCommand(
-		newChatGroupCreateCommand(runner),
-		members,
-		newChatGroupRenameCommand(runner),
-	)
-	return root
 }
 
 func newChatGroupCreateCommand(runner executor.Runner) *cobra.Command {
@@ -643,6 +567,10 @@ func newChatMessageRecallByBotCommand(runner executor.Runner) *cobra.Command {
 }
 
 // ── message send-by-webhook ────────────────────────────────
+//
+// Kept as a helper (rather than delegating to the dynamic envelope) because
+// it needs --text @file / stdin pipe support via resolveStringFlag, which the
+// dynamic-command layer does not yet provide.
 
 func newChatMessageSendByWebhookCommand(runner executor.Runner) *cobra.Command {
 	cmd := &cobra.Command{
@@ -709,65 +637,63 @@ func newChatMessageSendByWebhookCommand(runner executor.Runner) *cobra.Command {
 	return cmd
 }
 
-// ── group members list ─────────────────────────────────────
+// ── message reply ────────────────────────────────────────
+//
+// Kept as a helper because the underlying MCP tool send_personal_message
+// requires the reply payload to be a JSON-encoded string assembled from
+// --ref-msg-id / --ref-sender / --text. Envelope toolOverride does flat
+// flag→param mapping only and cannot construct nested JSON, so this
+// orchestration must live in CLI code.
 
-func newChatGroupMembersListCommand(runner executor.Runner) *cobra.Command {
+func newChatMessageReplyCommand(runner executor.Runner) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:               "list",
-		Short:             "查询群成员列表",
-		Example:           `  dws chat group members list --id <openconversation_id>`,
+		Use:               "reply",
+		Short:             "引用回复消息（支持单聊/群聊）",
+		Long:              "以当前用户身份引用某条消息并回复。需 --conversation-id 会话 ID、--ref-msg-id 被引用消息 ID、--ref-sender 原发送者 openDingTalkId、--text 回复内容。",
+		Example:           `  dws chat message reply --conversation-id <openConversationId> --ref-msg-id <openMessageId> --ref-sender <openDingTalkId> --text "收到，马上处理"`,
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			groupID, _ := cmd.Flags().GetString("id")
-			if strings.TrimSpace(groupID) == "" {
-				return apperrors.NewValidation("--id is required")
+			convID, _ := cmd.Flags().GetString("conversation-id")
+			refMsgID, _ := cmd.Flags().GetString("ref-msg-id")
+			refSender, _ := cmd.Flags().GetString("ref-sender")
+			text, _ := cmd.Flags().GetString("text")
+			if strings.TrimSpace(convID) == "" {
+				return apperrors.NewValidation("--conversation-id is required")
 			}
-			params := map[string]any{
-				"openconversation_id": groupID,
+			if strings.TrimSpace(refMsgID) == "" {
+				return apperrors.NewValidation("--ref-msg-id is required")
 			}
-			if v, _ := cmd.Flags().GetString("cursor"); v != "" {
-				params["cursor"] = v
+			if strings.TrimSpace(refSender) == "" {
+				return apperrors.NewValidation("--ref-sender is required")
 			}
-			result, err := runner.Run(cmd.Context(), executor.NewHelperInvocation(
-				cobracmd.LegacyCommandPath(cmd), "chat", "get_group_members", params,
-			))
+			if strings.TrimSpace(text) == "" {
+				return apperrors.NewValidation("--text is required")
+			}
+			replyContent := map[string]any{
+				"referenceOpenMessageId":   refMsgID,
+				"srcMsgSendOpenDingTalkId": refSender,
+				"replyMsgType":             "text",
+				"content":                  text,
+			}
+			contentJSON, err := jsonMarshal(replyContent)
 			if err != nil {
-				return err
-			}
-			return writeCommandPayload(cmd, result)
-		},
-	}
-	preferLegacyLeaf(cmd)
-	cmd.Flags().String("id", "", "群 ID / openconversation_id (必填)")
-	cmd.Flags().String("cursor", "", "分页游标 (首页留空)")
-	return cmd
-}
-
-// ── group rename ───────────────────────────────────────────
-
-func newChatGroupRenameCommand(runner executor.Runner) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:               "rename",
-		Short:             "更新群名称",
-		Example:           `  dws chat group rename --id <openconversation_id> --name "新群名"`,
-		Args:              cobra.NoArgs,
-		DisableAutoGenTag: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			groupID, _ := cmd.Flags().GetString("id")
-			name, _ := cmd.Flags().GetString("name")
-			if strings.TrimSpace(groupID) == "" {
-				return apperrors.NewValidation("--id is required")
-			}
-			if strings.TrimSpace(name) == "" {
-				return apperrors.NewValidation("--name is required")
+				return apperrors.NewInternal("marshal reply content: " + err.Error())
 			}
 			params := map[string]any{
-				"openconversation_id": groupID,
-				"group_name":          name,
+				"openConversationId": convID,
+				"msgType":            "reply",
+				"content":            contentJSON,
+				"clawType":           "wukong",
+			}
+			if uuid, _ := cmd.Flags().GetString("uuid"); strings.TrimSpace(uuid) != "" {
+				params["uuid"] = uuid
 			}
 			inv := executor.NewHelperInvocation(
-				cobracmd.LegacyCommandPath(cmd), "chat", "update_group_name", params,
+				cobracmd.LegacyCommandPath(cmd),
+				"group-chat",
+				"send_personal_message",
+				params,
 			)
 			inv.DryRun = commandDryRun(cmd)
 			result, err := runner.Run(cmd.Context(), inv)
@@ -778,160 +704,18 @@ func newChatGroupRenameCommand(runner executor.Runner) *cobra.Command {
 		},
 	}
 	preferLegacyLeaf(cmd)
-	cmd.Flags().String("id", "", "群 ID / openconversation_id (必填)")
-	cmd.Flags().String("name", "", "新群名称 (必填)")
+	cmd.Flags().String("conversation-id", "", "会话 openConversationId (必填，支持单聊/群聊)")
+	cmd.Flags().String("ref-msg-id", "", "被引用的消息 openMessageId (必填)")
+	cmd.Flags().String("ref-sender", "", "被引用消息发送者 openDingTalkId (必填)")
+	cmd.Flags().String("text", "", "回复正文 (必填)")
+	cmd.Flags().String("uuid", "", "可选 uuid（幂等标识）")
 	return cmd
 }
 
-// ── group members add ──────────────────────────────────────
-
-func newChatGroupMemberAddCommand(runner executor.Runner) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:               "add",
-		Short:             "添加群成员",
-		Example:           `  dws chat group members add --id <openconversation_id> --users userId1,userId2`,
-		Args:              cobra.NoArgs,
-		DisableAutoGenTag: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			groupID, _ := cmd.Flags().GetString("id")
-			usersStr, _ := cmd.Flags().GetString("users")
-			if strings.TrimSpace(groupID) == "" {
-				return apperrors.NewValidation("--id is required")
-			}
-			if strings.TrimSpace(usersStr) == "" {
-				return apperrors.NewValidation("--users is required")
-			}
-			params := map[string]any{
-				"openconversation_id": groupID,
-				"userId":              splitCSV(usersStr),
-			}
-			inv := executor.NewHelperInvocation(
-				cobracmd.LegacyCommandPath(cmd), "chat", "add_group_member", params,
-			)
-			inv.DryRun = commandDryRun(cmd)
-			result, err := runner.Run(cmd.Context(), inv)
-			if err != nil {
-				return err
-			}
-			return writeCommandPayload(cmd, result)
-		},
+func jsonMarshal(v any) (string, error) {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return "", err
 	}
-	preferLegacyLeaf(cmd)
-	cmd.Flags().String("id", "", "群 ID / openconversation_id (必填)")
-	cmd.Flags().String("users", "", "要添加的 userId 列表，逗号分隔 (必填)")
-	return cmd
-}
-
-// ── group members remove ───────────────────────────────────
-
-func newChatGroupMemberRemoveCommand(runner executor.Runner) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:               "remove",
-		Short:             "移除群成员",
-		Example:           `  dws chat group members remove --id <openconversation_id> --users userId1,userId2`,
-		Args:              cobra.NoArgs,
-		DisableAutoGenTag: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			groupID, _ := cmd.Flags().GetString("id")
-			usersStr, _ := cmd.Flags().GetString("users")
-			if strings.TrimSpace(groupID) == "" {
-				return apperrors.NewValidation("--id is required")
-			}
-			if strings.TrimSpace(usersStr) == "" {
-				return apperrors.NewValidation("--users is required")
-			}
-			params := map[string]any{
-				"openconversationId": groupID,
-				"userIdList":         splitCSV(usersStr),
-			}
-			inv := executor.NewHelperInvocation(
-				cobracmd.LegacyCommandPath(cmd), "chat", "remove_group_member", params,
-			)
-			inv.DryRun = commandDryRun(cmd)
-			result, err := runner.Run(cmd.Context(), inv)
-			if err != nil {
-				return err
-			}
-			return writeCommandPayload(cmd, result)
-		},
-	}
-	preferLegacyLeaf(cmd)
-	cmd.Flags().String("id", "", "Group ID / openconversation_id (required)")
-	cmd.Flags().String("users", "", "Comma-separated userId list to remove (required)")
-	return cmd
-}
-
-// ── group members add-bot ──────────────────────────────────
-
-func newChatGroupMembersAddBotCommand(runner executor.Runner) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:               "add-bot",
-		Short:             "Add bot to group",
-		Example:           `  dws chat group members add-bot --robot-code <robot-code> --id <openconversation_id>`,
-		Args:              cobra.NoArgs,
-		DisableAutoGenTag: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			robotCode, _ := cmd.Flags().GetString("robot-code")
-			groupID, _ := cmd.Flags().GetString("id")
-			if strings.TrimSpace(robotCode) == "" {
-				return apperrors.NewValidation("--robot-code is required")
-			}
-			if strings.TrimSpace(groupID) == "" {
-				return apperrors.NewValidation("--id is required")
-			}
-			params := map[string]any{
-				"robotCode":          robotCode,
-				"openConversationId": groupID,
-			}
-			inv := executor.NewHelperInvocation(
-				cobracmd.LegacyCommandPath(cmd), "bot", "add_robot_to_group", params,
-			)
-			inv.DryRun = commandDryRun(cmd)
-			result, err := runner.Run(cmd.Context(), inv)
-			if err != nil {
-				return err
-			}
-			return writeCommandPayload(cmd, result)
-		},
-	}
-	preferLegacyLeaf(cmd)
-	cmd.Flags().String("robot-code", "", "Bot code (required)")
-	cmd.Flags().String("id", "", "Group openConversationId (required)")
-	return cmd
-}
-
-// ── bot search ─────────────────────────────────────────────
-
-func newChatBotSearchCommand(runner executor.Runner) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:               "search",
-		Short:             "Search my bots",
-		Example:           "  dws chat bot search --page 1\n  dws chat bot search --page 1 --size 10 --name \"日报\"",
-		Args:              cobra.NoArgs,
-		DisableAutoGenTag: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			page, _ := cmd.Flags().GetInt("page")
-			params := map[string]any{
-				"currentPage": page,
-			}
-			if v, _ := cmd.Flags().GetInt("size"); v > 0 {
-				params["pageSize"] = v
-			}
-			if v, _ := cmd.Flags().GetString("name"); v != "" {
-				params["robotName"] = v
-			}
-			result, err := runner.Run(cmd.Context(), executor.NewHelperInvocation(
-				cobracmd.LegacyCommandPath(cmd), "bot", "search_my_robots", params,
-			))
-			if err != nil {
-				return err
-			}
-			return writeCommandPayload(cmd, result)
-		},
-	}
-	preferLegacyLeaf(cmd)
-	cmd.Flags().Int("page", 1, "Page number, starting from 1")
-	cmd.Flags().Int("size", 0, "Items per page (default 50)")
-	cmd.Flags().String("name", "", "Search by name")
-	return cmd
+	return string(b), nil
 }

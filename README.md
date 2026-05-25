@@ -21,7 +21,7 @@
 > [!IMPORTANT]
 > **Co-creation Phase**: This project accesses DingTalk enterprise data and requires enterprise admin authorization. Join the DingTalk DWS co-creation group for support and updates. See [Getting Started](#getting-started) below.
 >
-> <a href="https://qr.dingtalk.com/action/joingroup?code=v1,k1,v9/YMJG9qXhvFk5juktYnQziN70rF7QHebC/JLztTVRuRVJIwrSsXmL8oFqU5ajJ&_dt_no_comment=1&origin=11"><img src="https://img.alicdn.com/imgextra/i4/O1CN01Rijgk81gKqVSKMzdx_!!6000000004124-2-tps-654-644.png" alt="DingTalk Group QR Code" width="150"></a>
+> <img src="https://img.alicdn.com/imgextra/i1/O1CN01WJyAsJ1prD2ovQACM_!!6000000005413-2-tps-718-720.png" alt="dws Open Source Community DingTalk Group QR Code" width="150">
 
 <details>
 <summary><strong>Table of Contents</strong></summary>
@@ -394,6 +394,8 @@ dws chat message send-by-bot --robot-code BOT_CODE --group GROUP_ID \
   --title "Weekly Report" --text @-
 ```
 
+> **Note**: `@` is treated as the `@<path>` file-injection prefix only when the next character is an ASCII path-shaped character (`A-Z` / `a-z` / `0-9` / `.` / `/` / `~` / `_` / `-`), or `@-` for stdin. Chat-bot payloads like `--text "@所有人 周报"` or `--text "@张三 看一下"` pass through unchanged, so literal mentions reach the API as-is.
+
 </details>
 
 ## Key Services
@@ -401,7 +403,7 @@ dws chat message send-by-bot --robot-code BOT_CODE --group GROUP_ID \
 | Service | Command | Commands | Subcommands | Description |
 |---------|---------|:--------:|-------------|-------------|
 | Contact | `contact` | 6 | `user` `dept` | Search users by name/mobile, batch query, departments, current user profile |
-| Chat / IM | `chat` (alias `im`) | 23 | `message` `group` `bot` `conversation-info` `search` `search-common` `list-top-conversations` | Messages (send / list / list-all / by-sender / mentions / focused / unread / topic replies / search), group CRUD + member management (incl. `add-bot`), bot-identity messaging (`send-by-bot` / `recall-by-bot` / `send-by-webhook`), conversation info, common groups lookup |
+| Chat / IM | `chat` (alias `im`) | 57 | `message` `group` `bot` `conversation-info` `search` `search-common` `list-top-conversations` `group-mute` `group-mute-member` `mute` `set-top` `list-categories` `list-conversations` | Messages (send / reply / list / list-all / by-sender / mentions / focused / unread / topic replies / search / advanced search / forward / cards / emoji & text-emotion reactions / recall / read & send status queries), group CRUD + member management (members add / remove / list / `add-bot`, member-role CRUD, invite URL, icon, settings, transfer-owner, set-admin, quit), bot-identity messaging (`send-by-bot` / `recall-by-bot` / `send-by-webhook`), conversation info, common-groups lookup, group/member/conversation mute, conversation set-top, conversation categories |
 | Calendar | `calendar` | 14 | `event` `room` `participant` `busy` | Events CRUD + suggested times + attachments, meeting room booking, free-busy query, participant management |
 | Todo | `todo` | 6 | `task` | Create, list, update, done, get detail, delete |
 | Approval | `oa` | 9 | `approval` | Approve / reject / revoke, pending / initiated instances, process list, operation records |
@@ -410,22 +412,25 @@ dws chat message send-by-bot --robot-code BOT_CODE --group GROUP_ID \
 | Report | `report` | 7 | `create` `list` `detail` `template` `stats` `sent` | Create reports, sent/received list, templates, statistics |
 | AI Tables | `aitable` | 41 | `base` `table` `record` `field` `view` `dashboard` `chart` `import` `export` `attachment` `template` | Full CRUD for Bases / datasheets / records / fields / views; charts & dashboards with public-share configs; data import/export; attachments; templates |
 | Doc | `doc` | 21 | `search` `list` `info` `read` `create` `update` `upload` `download` `copy` `move` `rename` `file` `folder` `block` `comment` | Search / read / write docs, file & folder create, block-level editing, comments (list / create / reply / create-inline), upload / download |
-| Drive | `drive` | 6 | `list` `info` `download` `mkdir` `upload-info` `commit` | DingTalk drive file ops: list, info, download, create folders, two-phase upload |
+| Drive | `drive` | 9 | `list` `list-spaces` `info` `download` `mkdir` `upload` `upload-info` `commit` `delete` | DingTalk drive file ops: list spaces, list / info / download, create folders, one-shot `upload` (three-step composite) or two-phase `upload-info` + `commit`, delete |
 | Minutes | `minutes` | 19 | `list` `get` `update` `mind-graph` `speaker` `hot-word` `upload` | List AI meeting notes (mine / shared), details (info / summary / keywords / transcription / todos / batch), title/summary updates, mind map, speaker replace, hot-word, upload session |
 | Mail | `mail` | 4 | `mailbox` `message` | List mailbox addresses, KQL message search, get full message content, send email |
 | Sheet | `sheet` | 34 | `range` `filter-view` (top-level: `create` `new` `list` `info` `find` `replace` `append` `merge-cells` `unmerge-cells` `add-dimension` `insert-dimension` `delete-dimension` `move-dimension` `update-dimension` `write-image` `copy_sheet` `update_sheet` `submit_export_job` `query_export_job` `create_filter` `get_filter` `update_filter` `delete_filter` `set_filter_criteria` `clear_filter_criteria` `sort_filter`) | Online spreadsheet (`contentType=ALIDOC`, `extension=axls`): worksheet CRUD, range read/write/append, dimension ops, cell merge, find/replace, named filter views + sheet-level filters, image write, async export (`submit_export_job` + `query_export_job` — no consolidated `export` in v1.0.25) |
 | Wiki | `wiki` | 7 | `space` `member` | Knowledge base management: space `create` / `get` / `list` / `search` + member `add` / `list` / `update` |
 | DevDoc | `devdoc` | 1 | `article` | Search the DingTalk Open Platform documentation |
+| AI Search | `aisearch` | 1 | `person` | Enterprise people search by name / department / position / duty / supervisor / subordinate / phone / job-number (single command, multi-dimension filter) |
+| AI App | `aiapp` | 3 | — | AI application lifecycle: `create` (with prompt / attachments / skills) / `query` (by task ID) / `modify` (by thread ID) |
+| Live | `live` | 1 | `stream` | DingTalk live streaming: list my lives |
 | Raw API | `api` | 1 | — | Call any DingTalk OpenAPI directly (api / oapi dual-form), with automatic app-level token management |
 
-> **204 commands across 16 products.** Full listing with descriptions and usage scenarios: [`docs/command-index.md`](./docs/command-index.md). Run `dws --help` for the top-level tree, or `dws <service> --help` for subcommands.
+> **212 commands across 19 products.** Full listing with descriptions and usage scenarios: [`docs/command-index.md`](./docs/command-index.md). Run `dws --help` for the top-level tree, or `dws <service> --help` for subcommands.
 
 > **Note on `chat bot`**: bot capabilities (`send-by-bot` / `recall-by-bot` / `add-bot` / `send-by-webhook` / bot search) are merged into the relevant `chat` subtrees (e.g. `dws chat message send-by-bot`, `dws chat group members add-bot`) so the agent-facing command surface stays flat and discoverable. There is no longer a separate top-level `bot` product.
 
 <details>
 <summary>Coming soon</summary>
 
-`conference` (video) · `aiapp` (AI apps) · `live` (streaming)
+`conference` (video meetings)
 
 </details>
 

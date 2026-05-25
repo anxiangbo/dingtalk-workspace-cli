@@ -15,6 +15,8 @@ package compat
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -1944,4 +1946,284 @@ func TestBuildDynamicCommands_ParentMergeLeafCollision(t *testing.T) {
 	if sendCount != 1 {
 		t.Fatalf("expected exactly one 'send' leaf, got %d", sendCount)
 	}
+}
+
+// TestBuildFlagsFromDetailSchema_FormatEnumAnnotations verifies that the
+// JSON Schema "format" and "enum" hints are copied onto the cobra flag's
+// pflag annotations under x-cli-format / x-cli-enum, so PreParse
+// handlers can use them when deciding whether to split glued tokens.
+func TestBuildFlagsFromDetailSchema_FormatEnumAnnotations(t *testing.T) {
+	t.Parallel()
+
+	servers := []market.ServerDescriptor{
+		{
+			Endpoint: "https://endpoint-calendar",
+			CLI: market.CLIOverlay{
+				ID:      "calendar",
+				Command: "calendar",
+				ToolOverrides: map[string]market.CLIToolOverride{
+					"event_list": {CLIName: "list"},
+				},
+			},
+		},
+	}
+
+	details := map[string][]market.DetailTool{
+		"calendar": {
+			{
+				ToolName: "event_list",
+				ToolRequest: `{"properties":{` +
+					`"start":{"type":"string","format":"date-time","description":"开始时间"},` +
+					`"end":{"type":"string","format":"date-time","description":"结束时间"},` +
+					`"status":{"type":"string","enum":["confirmed","tentative","cancelled"]}` +
+					`}}`,
+			},
+		},
+	}
+
+	cmds := BuildDynamicCommands(servers, executor.EchoRunner{}, details)
+	list := findChild(cmds[0], "list")
+	if list == nil {
+		t.Fatal("list leaf not found")
+	}
+
+	startFlag := list.Flags().Lookup("start")
+	if startFlag == nil {
+		t.Fatal("--start flag missing")
+	}
+	if got := startFlag.Annotations["x-cli-format"]; len(got) != 1 || got[0] != "date-time" {
+		t.Errorf("--start x-cli-format = %v, want [date-time]", got)
+	}
+
+	endFlag := list.Flags().Lookup("end")
+	if endFlag == nil {
+		t.Fatal("--end flag missing")
+	}
+	if got := endFlag.Annotations["x-cli-format"]; len(got) != 1 || got[0] != "date-time" {
+		t.Errorf("--end x-cli-format = %v, want [date-time]", got)
+	}
+
+	statusFlag := list.Flags().Lookup("status")
+	if statusFlag == nil {
+		t.Fatal("--status flag missing")
+	}
+	gotEnum := statusFlag.Annotations["x-cli-enum"]
+	wantEnum := []string{"confirmed", "tentative", "cancelled"}
+	if !equalStringSlice(gotEnum, wantEnum) {
+		t.Errorf("--status x-cli-enum = %v, want %v", gotEnum, wantEnum)
+	}
+	// Status has no format and should not carry x-cli-format.
+	if got := statusFlag.Annotations["x-cli-format"]; len(got) != 0 {
+		t.Errorf("--status should not have x-cli-format, got %v", got)
+	}
+}
+
+// TestBuildDynamicCommands_MapsTo_WithoutTransform verifies that a flag
+// carrying only MapsTo (no transform) moves its literal value to the
+// target MCP parameter slot and drops the source key. The canonical use
+// case is exposing --content as a sibling of --markdown that both feed
+// the same upstream `markdown` parameter.
+func TestBuildDynamicCommands_MapsTo_WithoutTransform(t *testing.T) {
+	t.Parallel()
+
+	runner := &captureRunner{}
+	servers := []market.ServerDescriptor{
+		{
+			Endpoint: "https://endpoint-doc",
+			CLI: market.CLIOverlay{
+				ID:      "doc",
+				Command: "doc",
+				ToolOverrides: map[string]market.CLIToolOverride{
+					"update_document": {
+						CLIName: "update",
+						Flags: map[string]market.CLIFlagOverride{
+							"nodeId":  {Alias: "node"},
+							"content": {Alias: "content", MapsTo: "markdown"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	cmds := BuildDynamicCommands(servers, runner, nil)
+	cmds[0].SetArgs([]string{"update", "--node", "n1", "--content", "# 标题"})
+	cmds[0].SilenceErrors = true
+	cmds[0].SilenceUsage = true
+	if err := cmds[0].Execute(); err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+
+	if runner.lastParams["markdown"] != "# 标题" {
+		t.Errorf("params[markdown] = %v, want '# 标题'", runner.lastParams["markdown"])
+	}
+	if _, leftover := runner.lastParams["content"]; leftover {
+		t.Errorf("source key 'content' must be deleted after mapsTo, got params=%+v", runner.lastParams)
+	}
+}
+
+// TestBuildDynamicCommands_MapsTo_WithFileReadTransform verifies the full
+// envelope shape that #277 needs: a path-typed flag (--content-file) that
+// reads the file via the file_read transform AND routes the resulting
+// string into a sibling MCP parameter (markdown). End-to-end: user types
+// a path, the upstream tool receives file contents under the right key.
+func TestBuildDynamicCommands_MapsTo_WithFileReadTransform(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "note.md")
+	contents := "# 项目周报\n\n- 完成 A\n- 完成 B\n"
+	if err := os.WriteFile(path, []byte(contents), 0o600); err != nil {
+		t.Fatalf("setup: %v", err)
+	}
+
+	runner := &captureRunner{}
+	servers := []market.ServerDescriptor{
+		{
+			Endpoint: "https://endpoint-doc",
+			CLI: market.CLIOverlay{
+				ID:      "doc",
+				Command: "doc",
+				ToolOverrides: map[string]market.CLIToolOverride{
+					"update_document": {
+						CLIName: "update",
+						Flags: map[string]market.CLIFlagOverride{
+							"nodeId": {Alias: "node"},
+							"contentFile": {
+								Alias:     "content-file",
+								MapsTo:    "markdown",
+								Transform: "file_read",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	cmds := BuildDynamicCommands(servers, runner, nil)
+	cmds[0].SetArgs([]string{"update", "--node", "n1", "--content-file", path})
+	cmds[0].SilenceErrors = true
+	cmds[0].SilenceUsage = true
+	if err := cmds[0].Execute(); err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+
+	if runner.lastParams["markdown"] != contents {
+		t.Errorf("params[markdown] = %v, want file contents", runner.lastParams["markdown"])
+	}
+	if _, leftover := runner.lastParams["contentFile"]; leftover {
+		t.Errorf("source key 'contentFile' must be deleted after mapsTo, got params=%+v", runner.lastParams)
+	}
+}
+
+// TestBuildDynamicCommands_MapsTo_SiblingFlagsExclusiveSetOne verifies the
+// realistic pre-prod shape: two sibling flags (--content literal and
+// --content-file path) both mapsTo "markdown", guarded by the existing
+// tool-level cobra MutuallyExclusive constraint. When the user sets only
+// one, it routes through cleanly; the other source key is absent.
+func TestBuildDynamicCommands_MapsTo_SiblingFlagsExclusiveSetOne(t *testing.T) {
+	t.Parallel()
+
+	runner := &captureRunner{}
+	servers := []market.ServerDescriptor{
+		{
+			Endpoint: "https://endpoint-doc",
+			CLI: market.CLIOverlay{
+				ID:      "doc",
+				Command: "doc",
+				ToolOverrides: map[string]market.CLIToolOverride{
+					"update_document": {
+						CLIName: "update",
+						Flags: map[string]market.CLIFlagOverride{
+							"nodeId":  {Alias: "node"},
+							"content": {Alias: "content", MapsTo: "markdown"},
+							"contentFile": {
+								Alias:     "content-file",
+								MapsTo:    "markdown",
+								Transform: "file_read",
+							},
+						},
+						MutuallyExclusive: [][]string{{"content", "content-file"}},
+					},
+				},
+			},
+		},
+	}
+
+	cmds := BuildDynamicCommands(servers, runner, nil)
+	cmds[0].SetArgs([]string{"update", "--node", "n1", "--content", "literal body"})
+	cmds[0].SilenceErrors = true
+	cmds[0].SilenceUsage = true
+	if err := cmds[0].Execute(); err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+
+	if runner.lastParams["markdown"] != "literal body" {
+		t.Errorf("params[markdown] = %v, want 'literal body'", runner.lastParams["markdown"])
+	}
+	if _, leftover := runner.lastParams["content"]; leftover {
+		t.Errorf("source key 'content' must be deleted, got params=%+v", runner.lastParams)
+	}
+	if _, leftover := runner.lastParams["contentFile"]; leftover {
+		t.Errorf("untouched sibling key 'contentFile' must not appear, got params=%+v", runner.lastParams)
+	}
+}
+
+// TestBuildDynamicCommands_MapsTo_BothSetIsRejectedByCobra verifies that
+// when both mapsTo siblings are set, the existing tool-level
+// MutuallyExclusive constraint produces a cobra error before dispatch
+// runs. This is a sanity regression check — the cobra mechanism is
+// pre-existing, but combining it with mapsTo is the realistic envelope
+// shape #277 needs.
+func TestBuildDynamicCommands_MapsTo_BothSetIsRejectedByCobra(t *testing.T) {
+	t.Parallel()
+
+	runner := &captureRunner{}
+	servers := []market.ServerDescriptor{
+		{
+			Endpoint: "https://endpoint-doc",
+			CLI: market.CLIOverlay{
+				ID:      "doc",
+				Command: "doc",
+				ToolOverrides: map[string]market.CLIToolOverride{
+					"update_document": {
+						CLIName: "update",
+						Flags: map[string]market.CLIFlagOverride{
+							"nodeId":      {Alias: "node"},
+							"content":     {Alias: "content", MapsTo: "markdown"},
+							"contentFile": {Alias: "content-file", MapsTo: "markdown", Transform: "file_read"},
+						},
+						MutuallyExclusive: [][]string{{"content", "content-file"}},
+					},
+				},
+			},
+		},
+	}
+
+	cmds := BuildDynamicCommands(servers, runner, nil)
+	cmds[0].SetArgs([]string{"update", "--node", "n1", "--content", "x", "--content-file", "/tmp/y"})
+	cmds[0].SilenceErrors = true
+	cmds[0].SilenceUsage = true
+	err := cmds[0].Execute()
+	if err == nil {
+		t.Fatal("expected mutually-exclusive error, got nil")
+	}
+	msg := err.Error()
+	if !strings.Contains(msg, "none of the others") && !strings.Contains(msg, "mutually") && !strings.Contains(msg, "exclusive") {
+		t.Fatalf("expected mutually-exclusive error, got %v", err)
+	}
+}
+
+// equalStringSlice is a small helper for slice comparison in tests.
+func equalStringSlice(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }

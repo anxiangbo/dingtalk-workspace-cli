@@ -236,10 +236,18 @@ func BuildDynamicCommands(servers []market.ServerDescriptor, runner executor.Run
 	for _, b := range built {
 		if b.parent == "" {
 			name := b.cmd.Name()
-			if _, exists := topLevel[name]; !exists {
+			if existing, exists := topLevel[name]; exists {
+				// Multiple servers contribute the same top-level command
+				// (e.g. group-chat and im both register `dws chat`). Move
+				// the incoming command's *children* into the existing top-
+				// level command instead of attaching the whole command (which
+				// would create `dws chat chat` because attachOrMerge would
+				// AddCommand(b.cmd) when no same-named sub exists).
+				mergeSubcommandsInto(existing, b.cmd)
+			} else {
 				topOrder = append(topOrder, name)
+				topLevel[name] = b.cmd
 			}
-			topLevel[name] = b.cmd
 		} else {
 			children = append(children, b)
 		}
@@ -248,12 +256,16 @@ func BuildDynamicCommands(servers []market.ServerDescriptor, runner executor.Run
 		if parent, ok := topLevel[child.parent]; ok {
 			attachOrMerge(parent, child.cmd)
 		} else {
-			// Parent not found among dynamic commands; emit as top-level.
+			// Parent not found among dynamic commands; emit as top-level,
+			// merging into an existing same-named top-level command if one
+			// is already registered (same reasoning as the loop above).
 			name := child.cmd.Name()
-			if _, exists := topLevel[name]; !exists {
+			if existing, exists := topLevel[name]; exists {
+				mergeSubcommandsInto(existing, child.cmd)
+			} else {
 				topOrder = append(topOrder, name)
+				topLevel[name] = child.cmd
 			}
-			topLevel[name] = child.cmd
 		}
 	}
 
@@ -283,10 +295,12 @@ type toolRequestSchema struct {
 }
 
 type toolRequestProp struct {
-	Type        string `json:"type"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Default     string `json:"default,omitempty"`
+	Type        string   `json:"type"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Default     string   `json:"default,omitempty"`
+	Format      string   `json:"format,omitempty"`
+	Enum        []string `json:"enum,omitempty"`
 }
 
 // buildFlagsFromDetailSchema adds properly-typed cobra flags to cmd based on
@@ -369,6 +383,17 @@ func buildFlagsFromDetailSchema(cmd *cobra.Command, schemaJSON string, flagOverr
 		default: // "string", "object", or unknown → string
 			defaultVal := prop.Default
 			cmd.Flags().String(flagName, defaultVal, help)
+		}
+
+		// Carry schema "format" / "enum" hints onto the cobra flag via
+		// pflag annotations so PreParse handlers (e.g. StickyHandler)
+		// can reason about whether a glued suffix looks like a real
+		// value. The annotation keys are read by FlagInfoFromCommand.
+		if prop.Format != "" {
+			_ = cmd.Flags().SetAnnotation(flagName, "x-cli-format", []string{prop.Format})
+		}
+		if len(prop.Enum) > 0 {
+			_ = cmd.Flags().SetAnnotation(flagName, "x-cli-enum", append([]string{}, prop.Enum...))
 		}
 
 		if requiredSet[key] {
@@ -478,6 +503,24 @@ func resolveNestedGroup(root *cobra.Command, groupPath string, registry map[stri
 	return ensureNestedGroup(root, groupPath, groupPath, registry)
 }
 
+// mergeSubcommandsInto moves all sub-commands of src into dst, using
+// attachOrMerge so subtree merges happen recursively. src itself is left
+// empty after the call. Used when two envelope entries register the same
+// top-level command (e.g. group-chat and im both `cli.command="chat"`):
+// we want their *children* to coexist under one chat root, not have one
+// nested inside the other.
+func mergeSubcommandsInto(dst, src *cobra.Command) {
+	if dst == nil || src == nil {
+		return
+	}
+	subs := make([]*cobra.Command, len(src.Commands()))
+	copy(subs, src.Commands())
+	for _, sub := range subs {
+		src.RemoveCommand(sub)
+		attachOrMerge(dst, sub)
+	}
+}
+
 // attachOrMerge adds child as a sub-command of parent. If parent already has a
 // sub-command with the same Name(), the two are merged recursively: child's
 // sub-commands are moved onto the existing one and child itself is discarded.
@@ -532,10 +575,19 @@ func buildOverrideBindings(override market.CLIToolOverride) ([]FlagBinding, Norm
 	var bindings []FlagBinding
 	type transformEntry struct {
 		paramName     string
+		mapsTo        string
 		transform     string
 		transformArgs map[string]any
 	}
 	var transforms []transformEntry
+	// mapsToRoutes captures flags that only need value-routing (no transform)
+	// — e.g. a literal --content flag that mapsTo "markdown". The dispatch
+	// loop moves params[paramName] → params[mapsTo] after CLI binding.
+	type mapsToRoute struct {
+		paramName string
+		mapsTo    string
+	}
+	var mapsToRoutes []mapsToRoute
 	type envDefaultEntry struct {
 		paramName string
 		envVar    string
@@ -664,8 +716,18 @@ func buildOverrideBindings(override market.CLIToolOverride) ([]FlagBinding, Norm
 		if flagOverride.Transform != "" {
 			transforms = append(transforms, transformEntry{
 				paramName:     paramName,
+				mapsTo:        strings.TrimSpace(flagOverride.MapsTo),
 				transform:     flagOverride.Transform,
 				transformArgs: flagOverride.TransformArgs,
+			})
+		} else if mt := strings.TrimSpace(flagOverride.MapsTo); mt != "" {
+			// mapsTo without transform: just route the literal value into a
+			// different MCP parameter slot. Common case is --content (literal
+			// string) mapping to MCP parameter markdown, alongside a sibling
+			// --content-file (transform: file_read) mapping to the same slot.
+			mapsToRoutes = append(mapsToRoutes, mapsToRoute{
+				paramName: paramName,
+				mapsTo:    mt,
 			})
 		}
 		if flagOverride.EnvDefault != "" {
@@ -699,12 +761,15 @@ func buildOverrideBindings(override market.CLIToolOverride) ([]FlagBinding, Norm
 		}
 	}
 	bodyWrapper := strings.TrimSpace(override.BodyWrapper)
-	if len(transforms) == 0 && len(envDefaults) == 0 && len(defaultInjects) == 0 && len(runtimeDefaults) == 0 && len(omits) == 0 && !needsDottedNesting && bodyWrapper == "" {
+	if len(transforms) == 0 && len(envDefaults) == 0 && len(defaultInjects) == 0 && len(runtimeDefaults) == 0 && len(omits) == 0 && len(mapsToRoutes) == 0 && !needsDottedNesting && bodyWrapper == "" {
 		return bindings, nil
 	}
 
-	// Build a normalizer that applies default injections + env defaults + runtime defaults
-	// + transforms + omitWhen + nesting + body wrap.
+	// Build a normalizer that applies default injections + env defaults +
+	// runtime defaults + transforms + mapsTo routing + omitWhen + nesting +
+	// body wrap. Tool-level cobra constraints (MutuallyExclusive /
+	// RequireOneOf) are wired separately via applyFlagConstraints and don't
+	// belong in this closure.
 	normalizer := func(cmd *cobra.Command, params map[string]any) error {
 		// §v3.2: Apply envelope flag.default for parameters not explicitly set.
 		// Coerce by Kind so number-typed schemas don't reject string defaults.
@@ -756,14 +821,21 @@ func buildOverrideBindings(override market.CLIToolOverride) ([]FlagBinding, Norm
 			}
 		}
 
-		// §3: Apply transforms
+		// §3: Apply transforms. When MapsTo is set, the transformed value is
+		// routed to params[MapsTo] and the original params[paramName] is
+		// dropped, so the MCP body carries a single (post-transform) entry
+		// at the target slot.
 		for _, t := range transforms {
 			val, exists := params[t.paramName]
 			if !exists {
 				// For enum_map with _default, apply default even when flag is omitted
 				if t.transform == "enum_map" && t.transformArgs != nil {
 					if defaultVal, hasDefault := t.transformArgs["_default"]; hasDefault {
-						params[t.paramName] = defaultVal
+						target := t.paramName
+						if t.mapsTo != "" {
+							target = t.mapsTo
+						}
+						params[target] = defaultVal
 					}
 				}
 				continue
@@ -772,7 +844,25 @@ func buildOverrideBindings(override market.CLIToolOverride) ([]FlagBinding, Norm
 			if err != nil {
 				return err
 			}
-			params[t.paramName] = transformed
+			if t.mapsTo != "" {
+				params[t.mapsTo] = transformed
+				delete(params, t.paramName)
+			} else {
+				params[t.paramName] = transformed
+			}
+		}
+
+		// §3b: mapsTo-only routes (no transform). Move params[paramName] →
+		// params[mapsTo] verbatim. Common pattern: a literal --content flag
+		// that routes to MCP parameter `markdown`, alongside a sibling
+		// --content-file flag that transforms + routes to the same slot.
+		for _, r := range mapsToRoutes {
+			val, exists := params[r.paramName]
+			if !exists {
+				continue
+			}
+			params[r.mapsTo] = val
+			delete(params, r.paramName)
 		}
 
 		// §v3.2.2: Apply omitWhen — drop keys whose value meets the omit
