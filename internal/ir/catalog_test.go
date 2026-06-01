@@ -216,6 +216,55 @@ func TestBuildCatalogFallsBackToRuntimeSensitiveMetadata(t *testing.T) {
 	}
 }
 
+func TestBuildCatalogCarriesDingTalkAuthMetadata(t *testing.T) {
+	t.Parallel()
+
+	catalog := BuildCatalog([]discovery.RuntimeServer{
+		{
+			Server: market.ServerDescriptor{
+				Key:         "calendar-key",
+				DisplayName: "日历",
+				Endpoint:    "https://example.com/server/calendar",
+			},
+			Tools: []transport.ToolDescriptor{
+				{
+					Name: "createEvent",
+					InputSchema: map[string]any{
+						"type": "object",
+						"x-dingtalk-auth": map[string]any{
+							"version":              "v1",
+							"productCode":          "calendar",
+							"domain":               "calendar",
+							"clientObservedScopes": []any{"Calendar.Event.Write"},
+							"requiredPermissions":  []any{"Calendar.Event.Write"},
+							"grantProductCodes":    []any{"calendar"},
+							"riskAction":           "write",
+							"authMetaHash":         "sha256:test",
+						},
+					},
+				},
+			},
+		},
+	})
+
+	tool, ok := catalog.Products[0].FindTool("createEvent")
+	if !ok {
+		t.Fatalf("FindTool(createEvent) = not found")
+	}
+	if tool.Auth == nil {
+		t.Fatal("tool.Auth = nil")
+	}
+	if tool.Auth.ProductCode != "calendar" {
+		t.Fatalf("ProductCode = %q, want calendar", tool.Auth.ProductCode)
+	}
+	if got := tool.Auth.RequiredPermissions; len(got) != 1 || got[0] != "Calendar.Event.Write" {
+		t.Fatalf("RequiredPermissions = %#v, want Calendar.Event.Write", got)
+	}
+	if got := tool.Auth.GrantProductCodes; len(got) != 1 || got[0] != "calendar" {
+		t.Fatalf("GrantProductCodes = %#v, want calendar", got)
+	}
+}
+
 func TestBuildCatalogCarriesToolOverrideGroupAndFlagOverlay(t *testing.T) {
 	t.Parallel()
 
