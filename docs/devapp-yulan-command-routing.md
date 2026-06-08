@@ -121,7 +121,7 @@ Do not send confirmation fields such as `confirmCreate`, `confirmUpdate`, `confi
 | App update | `devapp update` | `update_inner_app` | `OpenInnerAppManageFacade.update` | Implemented | Hardcoded helper |
 | App delete | `devapp delete` | `delete_inner_app` | `OpenInnerAppManageFacade.delete` | Implemented | Hardcoded helper |
 | Credentials | `devapp credentials get` | `get_open_dev_app_credentials` | Credential facade pending | Pending | Spec only |
-| Web app | `devapp webapp get/config` | `get_webapp_config`/`set_webapp_config` | Webapp facade | Implemented | Hardcoded helper; current pre MCP output mapping only returns `agentId`, needs `h5PageType/homepageLink/pcHomepageLink/ompLink` mapping fix |
+| Web app | `devapp webapp get/config` | `get_webapp_config`/`set_webapp_config` | Webapp facade | Implemented | Hardcoded helper; verified `config` then `get` returns `agentId/h5PageType/homepageLink/pcHomepageLink/ompLink`; before config, `get` may only return `agentId`. |
 | Permission list | `devapp permission list/search/detail` | `list_open_dev_app_permissions` | `OpenInnerAppPermissionFacade.list` | Implemented | Hardcoded helper |
 | Permission apply | `devapp permission add` | `apply_open_dev_app_permissions` | `OpenInnerAppPermissionFacade.apply` | Implemented | Hardcoded helper |
 | Permission remove | `devapp permission remove` | `remove_open_dev_app_permission` | `OpenInnerAppPermissionFacade.remove` | Implemented | Hardcoded helper |

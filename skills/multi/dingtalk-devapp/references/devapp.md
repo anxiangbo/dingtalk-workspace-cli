@@ -114,7 +114,7 @@ MCP tool: `create_inner_app`
 | 类型 | 支持 | 说明 |
 | --- | --- | --- |
 | `internal` | 是 | 默认企业内部应用；`--type internal` 只做 CLI guard，不下发 MCP。 |
-| `h5` | 否 | 当前 helper 不通过创建接口直接创建 H5 类型；网页应用当前仅有 `webapp get` 查询入口，配置能力未上架。 |
+| `h5` | 否 | 当前 helper 不通过创建接口直接创建 H5 类型；网页应用能力通过 `webapp config` 单独配置，再用 `webapp get` 查询。 |
 | `robot` | 否 | 机器人配置是独立能力。 |
 | `miniapp/isv/connector` | 否 | 不属于 yulan P0 创建。 |
 
@@ -150,6 +150,23 @@ dws devapp credentials get --unified-app-id UNIFIED_APP_ID --show-secret --yes -
 目标 MCP tool: `get_open_dev_app_credentials`
 
 当前后端 facade 待补。默认输出应为脱敏值；完整 `clientSecret/appSecret` 需要显式确认和审计。
+
+## 网页应用配置
+
+```bash
+dws devapp webapp get --agent-id AGENT_ID --format json
+dws devapp webapp config --agent-id AGENT_ID --homepage-link https://example.com/mobile --pc-homepage-link https://example.com/pc --omp-link https://example.com/admin --dry-run --format json
+dws devapp webapp config --agent-id AGENT_ID --homepage-link https://example.com/mobile --pc-homepage-link https://example.com/pc --omp-link https://example.com/admin --yes --format json
+```
+
+MCP tools: `get_webapp_config`, `set_webapp_config`
+
+规则：
+
+- `webapp config` 是写操作，必须先 `--dry-run`，用户确认后再 `--yes`。
+- `webapp get` 在未配置网页应用前可能只返回 `agentId`。
+- `webapp config` 成功后再调用 `webapp get`，应返回 `agentId/h5PageType/homepageLink/pcHomepageLink/ompLink`。
+- `h5PageType` 未显式传入时，后端实测默认返回 `all`。
 
 ## 权限列表 / 搜索 / 详情
 
