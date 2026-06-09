@@ -20,14 +20,25 @@
    dws devapp webapp config --agent-id <agentId> --homepage-link <URL> --dry-run --format json
    → 确认后加 --yes
 
-5. 申请权限（按需）
+5. 验证网页应用配置
+   dws devapp webapp get --agent-id <agentId> --format json
+   → 确认返回 homepageLink/pcHomepageLink 等
+
+6. 申请权限（按需）
    dws devapp permission list --unified-app-id <unifiedAppId> --keyword "关键词" --format json
    → 从返回中选择 scopeValue
    dws devapp permission add --unified-app-id <unifiedAppId> --permissions <scopeValue> --dry-run --format json
    → 确认后加 --yes
 
-6. 添加开发成员（按需）
+7. 添加开发成员（按需）
    dws devapp member add --app-id <unifiedAppId> --users <userId> --member-type DEVELOPER --dry-run --format json
+   → 确认后加 --yes
+
+8. 验证成员
+   dws devapp member list --app-id <unifiedAppId> --format json
+
+9. 配置安全设置（按需）
+   dws devapp security config --app-id <unifiedAppId> --ip-whitelist <IP> --redirect-url <URL> --dry-run --format json
    → 确认后加 --yes
 ```
 
@@ -64,10 +75,12 @@
   dws devapp get --unified-app-id <unifiedAppId> --format json     ← 确认目标
   dws devapp inactive --unified-app-id <unifiedAppId> --dry-run --format json
   → 确认后加 --yes
+  dws devapp get --unified-app-id <unifiedAppId> --format json     ← 验证状态
 
 启用（恢复已停用应用）:
   dws devapp active --unified-app-id <unifiedAppId> --dry-run --format json
   → 确认后加 --yes
+  dws devapp get --unified-app-id <unifiedAppId> --format json     ← 验证状态
 
 删除（不可逆，异步生效）:
   dws devapp get --unified-app-id <unifiedAppId> --format json     ← 展示摘要
@@ -89,6 +102,41 @@
 
 3. 验证
    dws devapp get --unified-app-id <unifiedAppId> --format json
+```
+
+## 成员管理
+
+```text
+1. 查看当前成员
+   dws devapp member list --app-id <unifiedAppId> --format json
+
+2. 添加成员
+   dws devapp member add --app-id <unifiedAppId> --users <userId1,userId2> --member-type DEVELOPER --dry-run --format json
+   → 确认后加 --yes
+
+3. 验证
+   dws devapp member list --app-id <unifiedAppId> --format json
+
+4. 移除成员
+   dws devapp member remove --app-id <unifiedAppId> --users <userId> --member-type DEVELOPER --dry-run --format json
+   → 确认后加 --yes
+
+5. 验证
+   dws devapp member list --app-id <unifiedAppId> --format json
+```
+
+## 安全配置
+
+```text
+1. 配置 IP 白名单 / 重定向 URL / 免登 URL
+   dws devapp security config --app-id <unifiedAppId> \
+     --ip-whitelist 10.0.0.1,10.0.0.2 \
+     --redirect-url https://example.com/callback \
+     --sso-url https://example.com/sso \
+     --dry-run --format json
+   → 确认后加 --yes
+
+注意：只下发显式提供的字段，未提供的不覆盖。
 ```
 
 ## 通用规则
