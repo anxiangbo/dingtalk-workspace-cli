@@ -12,12 +12,6 @@ metadata:
 
 # 钉钉开放平台应用管理 Skill
 
-> 🧪 **EXPERIMENTAL · 试验版 / Preview** — multi 模式当前未达 stable 标准。接口、命名与跨 skill 引用后续可能调整；生产 / 共享环境请优先使用 mono 模式（`dws skill setup --mode mono`）。问题请提 issue 反馈。
-
-> **PREREQUISITE:** Read the root `dws` skill first for auth, global flags, product routing, URL preflight, error codes, and safety rules. The `dws` binary must be on PATH.
-
-<!-- SAFETY_PREAMBLE_INJECT -->
-
 > `dws devapp ...` 是内置 helper 命令，不依赖 MCP 服务发现。执行前用 `dws devapp --help` 验证可用。
 
 ## 意图消歧
@@ -28,7 +22,7 @@ metadata:
 - `agentId/clientId/appKey/appSecret/customKey`
 - `应用权限/权限点/scopeValue/应用成员/安全配置/IP 白名单`
 
-不要路由到 devapp 的：接口文档→`dingtalk-devdoc`、钉钉文档→`dingtalk-doc`、工作台应用→`workbench app`、审批→`dingtalk-oa`。只说 `应用` 无上下文时先追问。
+不要路由到 devapp 的：接口文档→`devdoc`、钉钉文档→`doc`、工作台应用→`workbench app`、审批→`oa`。只说 `应用` 无上下文时先追问。
 
 ## 核心规则
 
