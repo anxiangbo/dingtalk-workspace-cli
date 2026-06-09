@@ -47,6 +47,7 @@ const (
 	defaultPATDisplayName = "行为授权"
 	defaultPATServerID    = "abc3c880fb90f04b52d1426aaf093766e5fc9ec38411688cbb74df42a584d374"
 	devappProductID       = "devapp"
+	devappEndpoint        = "https://pre-mcp-gw.dingtalk.com/server/op-app"
 )
 
 func defaultPATServerDescriptor() market.ServerDescriptor {
@@ -240,6 +241,14 @@ func directRuntimeEndpoint(productID, toolName string) (string, bool) {
 		}
 		if override, ok := productEndpointOverride(candidate); ok {
 			return override, true
+		}
+	}
+
+	// Hardcoded built-in: devapp is pinned to the open-platform app-management
+	// MCP server in source (NOT service discovery), per product decision.
+	for _, candidate := range []string{strings.TrimSpace(productID), normalized} {
+		if candidate == devappProductID {
+			return devappEndpoint, true
 		}
 	}
 

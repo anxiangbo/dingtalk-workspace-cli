@@ -39,7 +39,7 @@ metadata:
 | "这个权限覆盖哪些 API" | `dws devapp permission list --unified-app-id <UNIFIED_APP_ID> --scope <scopeValue> --format json` |
 | "申请权限 / 开通权限" | 先从列表拿 `scopeValue`，再 `dws devapp permission add --unified-app-id <UNIFIED_APP_ID> --permissions <scopeValue> --dry-run`，确认后加 `--yes` |
 | "取消权限 / 移除权限" | `dws devapp permission remove --unified-app-id <UNIFIED_APP_ID> --permission <scopeValue> --dry-run`，确认后加 `--yes` |
-| "拿 appSecret / clientSecret" | `dws devapp credentials get ...`；后端未发布时说明缺口，不能用 `get` 冒充 |
+| "拿 appSecret / clientSecret" | `dws devapp credentials get ...`；不能用 `get` 冒充 |
 
 ## 应用意图消歧
 
@@ -70,7 +70,7 @@ metadata:
 - 权限申请/取消只接受 `permissions[].scopeValue`，不要传 API 名、API uuid 或分组名。
 - 权限列表默认同时展示 APP 应用权限和 SNS 个人权限；只有用户明确要求时才加 `--scope-type APP|SNS`。
 - `requiredApproval=true` 的权限仍可申请；申请后加入当前应用版本变更，发布时继续审核。
-- `app get` 不读取完整 secret；完整 secret 只能走 `credentials get` 并按审计/确认规则处理。
+- `app get` 不读取完整 secret；完整 secret 只能走 `credentials get`，命令不额外传 `showSecret/confirmSecret`，但输出必须按敏感凭证处理。
 
 ## 跨产品协作
 

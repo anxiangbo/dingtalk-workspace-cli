@@ -94,6 +94,18 @@ func newDevAppCommand(runner executor.Runner) *cobra.Command {
 		newDevAppPermissionRemoveCommand(runner),
 	)
 
+	credentials := &cobra.Command{
+		Use:               "credentials",
+		Short:             "开放平台应用凭证",
+		Args:              cobra.NoArgs,
+		TraverseChildren:  true,
+		DisableAutoGenTag: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cmd.Help()
+		},
+	}
+	credentials.AddCommand(newDevAppCredentialsGetCommand(runner))
+
 	member := &cobra.Command{
 		Use:               "member",
 		Short:             "开放平台应用成员管理",
@@ -130,6 +142,7 @@ func newDevAppCommand(runner executor.Runner) *cobra.Command {
 		newDevAppLifecycleCommand(runner, "delete", "删除开放平台企业内部应用", "delete_inner_app"),
 		newDevAppLifecycleCommand(runner, "inactive", "停用开放平台企业内部应用", "inactive_inner_app"),
 		newDevAppLifecycleCommand(runner, "active", "启用开放平台企业内部应用", "active_inner_app"),
+		credentials,
 		webapp,
 		permission,
 		member,
@@ -273,6 +286,26 @@ func newDevAppUpdateCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("name", "", "新的应用名称")
 	cmd.Flags().String("desc", "", "新的应用描述")
 	cmd.Flags().String("icon", "", "新的应用图标 mediaId")
+	preferLegacyLeaf(cmd)
+	return cmd
+}
+
+func newDevAppCredentialsGetCommand(runner executor.Runner) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "get",
+		Short:             "读取开放平台应用凭证",
+		Example:           "  dws devapp credentials get --agent-id 123456 --format json",
+		Args:              cobra.NoArgs,
+		DisableAutoGenTag: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			params := devAppLocatorParams(cmd, false)
+			if len(params) == 0 {
+				return devAppLocatorRequired(false)
+			}
+			return runDevAppTool(runner, cmd, "get_open_dev_app_credentials", params)
+		},
+	}
+	addDevAppLocatorFlagsWithoutName(cmd)
 	preferLegacyLeaf(cmd)
 	return cmd
 }

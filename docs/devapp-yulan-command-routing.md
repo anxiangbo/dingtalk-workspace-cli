@@ -120,7 +120,7 @@ Do not send confirmation fields such as `confirmCreate`, `confirmUpdate`, `confi
 | App create | `devapp create` | `create_inner_app` | `OpenInnerAppManageFacade.create` | Implemented | Hardcoded helper |
 | App update | `devapp update` | `update_inner_app` | `OpenInnerAppManageFacade.update` | Implemented | Hardcoded helper |
 | App delete | `devapp delete` | `delete_inner_app` | `OpenInnerAppManageFacade.delete` | Implemented | Hardcoded helper |
-| Credentials | `devapp credentials get` | `get_open_dev_app_credentials` | Credential facade pending | Pending | Spec only |
+| Credentials | `devapp credentials get` | `get_open_dev_app_credentials` | `OpenInnerAppQueryFacade.getCredentials` | Implemented | Hardcoded helper |
 | Web app | `devapp webapp get/config` | `get_webapp_config`/`set_webapp_config` | Webapp facade | Implemented | Hardcoded helper; verified `config` then `get` returns `agentId/h5PageType/homepageLink/pcHomepageLink/ompLink`; before config, `get` may only return `agentId`. |
 | Permission list | `devapp permission list/search/detail` | `list_open_dev_app_permissions` | `OpenInnerAppPermissionFacade.list` | Implemented | Hardcoded helper |
 | Permission apply | `devapp permission add` | `apply_open_dev_app_permissions` | `OpenInnerAppPermissionFacade.apply` | Implemented | Hardcoded helper |
@@ -128,7 +128,7 @@ Do not send confirmation fields such as `confirmCreate`, `confirmUpdate`, `confi
 | Events | `devapp event list/config` | `list/config_open_dev_app_events` | Event facade pending | Pending | Spec only |
 | Version publish | `devapp version create/check-approval/publish/status` | `create/check/publish/get_open_dev_app_version_*` | Version facade pending | Pending | Spec only |
 
-P0 for yulan is app CRUD and permissions. Credentials and web app config are yulan-adjacent but require additional backend contract. Events and version publish are lifecycle requirements but can be owned by a separate backend slice.
+P0 for yulan is app CRUD, permissions, credentials, and web app config. Events and version publish are lifecycle requirements but can be owned by a separate backend slice.
 
 ### 3.1 P0 RPC Contract
 
@@ -755,15 +755,15 @@ Target command:
 
 ```bash
 dws devapp credentials get --unified-app-id UNIFIED_APP_ID --format json
-dws devapp credentials get --unified-app-id UNIFIED_APP_ID --show-secret --yes --format json
+dws devapp credentials get --agent-id AGENT_ID --format json
 ```
 
 Current status:
 
-1. Backend facade is pending.
-2. `devapp get` can expose ids such as `clientId/appKey`, but must not expose full secrets.
-3. Full secret read needs a dedicated audited tool.
-4. CLI default output should be masked; full reveal requires explicit confirmation.
+1. Backend facade is `OpenInnerAppQueryFacade.getCredentials`.
+2. MCP tool is `get_open_dev_app_credentials`.
+3. CLI sends only application locator fields and does not add `showSecret`, `confirmSecret`, or masking fields.
+4. The MCP response follows the backend credential contract and may include `clientSecret/appSecret`; callers must treat command output as sensitive.
 
 Target fields:
 
@@ -771,9 +771,9 @@ Target fields:
 | --- | --- |
 | `unifiedAppId/agentId/appName` | App summary. |
 | `clientId/appKey` | Non-secret identifiers. |
-| `maskedClientSecret/maskedAppSecret` | Default display. |
-| `clientSecret/appSecret` | Only when explicitly requested and allowed. |
-| `readAuditId` | Backend audit reference. |
+| `clientSecret/appSecret` | Returned by the dedicated credentials tool; treat as sensitive output. |
+| `currentSecretStatus` | Current secret state. |
+| `pendingExpireTask` | Pending secret-expiration task information when present. |
 
 ## 8. Permissions
 
@@ -1082,7 +1082,7 @@ Intent table:
 | "这个权限覆盖哪些 API" | `permission list --scope` | `list_open_dev_app_permissions` |
 | "申请权限/开通权限" | `permission add` | `apply_open_dev_app_permissions` |
 | "取消权限/移除权限" | `permission remove` | `remove_open_dev_app_permission` |
-| "拿 appSecret/clientSecret" | `credentials get` | Pending |
+| "拿 appSecret/clientSecret" | `credentials get` | `get_open_dev_app_credentials` |
 | "配置事件订阅" | `event config` | Pending |
 | "发布/审核/选审批人" | `version ...` | Pending |
 
@@ -1163,7 +1163,7 @@ Do not add confirmation booleans to MCP payloads. These belong to the CLI layer:
 | `confirmUpdate=true` | `dws devapp update ... --yes` |
 | `confirmDelete=true` | `dws devapp delete ... --yes` |
 | `confirmPermission=true` | `dws devapp permission add/remove ... --yes` |
-| `confirmSecret=true` | `dws devapp credentials get --show-secret --yes` |
+| `confirmSecret=true` | Do not send; `credentials get` has no confirm/show-secret payload field. |
 
 ### 11.3 Business Recipes
 
@@ -1178,7 +1178,7 @@ Do not add confirmation booleans to MCP payloads. These belong to the CLI layer:
 | "这个 API 需要哪个权限" | Search by API name; inspect `apiPreview`; if uncertain, use `permission list --scope SCOPE` for detail. |
 | "申请通讯录手机号权限" | Resolve app; `permission list --keyword "手机号"`; choose `scopeValue`; `permission add --permissions SCOPE --dry-run`; then `--yes`. |
 | "权限已进版本，继续发布" | `version check-approval`; choose approver if needed; `version publish --yes`; poll `version status`. |
-| "拿 clientSecret/appSecret" | Use only `credentials get`; if unsupported, report `CREDENTIALS_UNSUPPORTED`, never fall back to `devapp get`. |
+| "拿 clientSecret/appSecret" | Use only `credentials get`; never fall back to `devapp get`. |
 
 ### 11.4 Permission Candidate Selection
 
@@ -1218,8 +1218,6 @@ Agent should normalize behavior without hiding raw backend fields.
 | `PERMISSION_NOT_AUTHED` | Remove receives an unauthorized scope | Report that there is nothing to remove. |
 | `PERMISSION_NOT_EDITABLE` | `canEdit=false` or backend no-edit error | Show the no-edit reason; do not retry as a write. |
 | `VERSION_APPROVAL_REQUIRED` | `check-approval` says approver is required | Ask for approver or use returned candidate when the user gave an explicit approver. |
-| `CREDENTIALS_UNSUPPORTED` | Credential facade/tool missing | State that the credential tool is not published; do not leak or infer secrets from detail fields. |
-
 Raw `errorCode/errorMsg` must remain in JSON output or the Agent response so the
 backend owner can diagnose actual HSF failures.
 
@@ -1434,8 +1432,9 @@ the following are true:
 4. Permission list/add/remove smoke cases pass for APP and SNS scopes.
 5. `requiredApproval=true` permission add stages into version changes instead of
    being rejected by the Agent.
-6. Missing credential/event/version tools are reported as unsupported/pending,
-   not silently emulated by other commands.
+6. Credential access is handled only by `credentials get`; missing event/version
+   tools are reported as unsupported/pending, not silently emulated by other
+   commands.
 7. No repository doc, skill, log, or fixture contains MCP gateway keys, cookies,
    access tokens, full app secrets, or production app data.
 8. Existing skill setup and generator tests pass.
@@ -1455,7 +1454,7 @@ the following are true:
 | `dws devapp permission list --unified-app-id X --keyword "发送消息" --format json` | Returns candidate `permissions[]`; no automatic apply. |
 | `dws devapp permission add --unified-app-id X --permissions Contact.User.mobile --yes --format json` | Applies or stages permission; `requiredApproval=true` is allowed. |
 | `dws devapp permission remove --unified-app-id X --permission qyapi_robot_sendmsg --yes --format json` | Removes one authorized scope or returns a structured reason. |
-| `dws devapp credentials get --unified-app-id X --format json` | If backend pending, clearly reports unsupported; does not use `devapp get` as a secret fallback. |
+| `dws devapp credentials get --unified-app-id X --format json` | Calls `get_open_dev_app_credentials`; does not use `devapp get` as a secret fallback. |
 | `查应用 appXYZ 的详情` without OpenDev context | Does not blindly route to `devapp`; uses context such as `workbench app get` or asks. |
 | `查询开放平台 API 错误码` | Routes to `devdoc`, not `devapp`. |
 | `创建 MCP 服务并配置 HSF tool` | Uses OpenDev MCP platform workflow, not `dws devapp create`. |

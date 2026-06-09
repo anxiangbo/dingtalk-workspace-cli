@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"bytes"
+	"context"
 	"reflect"
 	"strings"
 	"testing"
@@ -19,6 +20,17 @@ func newDevAppTestRoot(runner executor.Runner) *cobra.Command {
 	root.PersistentFlags().Bool("yes", false, "yes")
 	root.AddCommand(newDevAppCommand(runner))
 	return root
+}
+
+type devAppResponseRunner struct {
+	last     executor.Invocation
+	response map[string]any
+}
+
+func (r *devAppResponseRunner) Run(_ context.Context, invocation executor.Invocation) (executor.Result, error) {
+	r.last = invocation
+	invocation.Implemented = true
+	return executor.Result{Invocation: invocation, Response: r.response}, nil
 }
 
 func TestDevAppMemberCommandsBuildToolParams(t *testing.T) {
@@ -102,7 +114,7 @@ func TestDevAppCommandHasAppAliasAndCoreCommands(t *testing.T) {
 	if !hasAlias {
 		t.Fatalf("Aliases = %v, want app", root.Aliases)
 	}
-	for _, name := range []string{"list", "get", "create", "update", "delete", "inactive", "active", "webapp", "permission", "member", "security"} {
+	for _, name := range []string{"list", "get", "create", "update", "delete", "inactive", "active", "credentials", "webapp", "permission", "member", "security"} {
 		if _, _, err := root.Find([]string{name}); err != nil {
 			t.Fatalf("missing command %q: %v", name, err)
 		}
@@ -207,22 +219,51 @@ func TestDevAppUpdateUsesCurrentInnerTool(t *testing.T) {
 }
 
 func TestDevAppLifecycleBuildsLocatorParams(t *testing.T) {
-	runner := &captureRunner{}
-	root := newDevAppTestRoot(runner)
-	var out bytes.Buffer
-	root.SetOut(&out)
-	root.SetErr(&out)
-	root.SetArgs([]string{"devapp", "inactive", "--unified-app-id", "u-1", "--yes"})
+	cases := []struct {
+		name       string
+		args       []string
+		wantTool   string
+		wantParams map[string]any
+	}{
+		{
+			name:       "delete by agent id",
+			args:       []string{"delete", "--agent-id", "123", "--yes"},
+			wantTool:   "delete_inner_app",
+			wantParams: map[string]any{"agentId": 123},
+		},
+		{
+			name:       "inactive by unified app id",
+			args:       []string{"inactive", "--unified-app-id", "u-1", "--yes"},
+			wantTool:   "inactive_inner_app",
+			wantParams: map[string]any{"unifiedAppId": "u-1"},
+		},
+		{
+			name:       "active by app key",
+			args:       []string{"active", "--app-key", "dingxxx", "--yes"},
+			wantTool:   "active_inner_app",
+			wantParams: map[string]any{"appKey": "dingxxx"},
+		},
+	}
 
-	if err := root.Execute(); err != nil {
-		t.Fatalf("Execute() error = %v\noutput:\n%s", err, out.String())
-	}
-	if got := runner.last.Tool; got != "inactive_inner_app" {
-		t.Fatalf("Tool = %q, want inactive_inner_app", got)
-	}
-	want := map[string]any{"unifiedAppId": "u-1"}
-	if !reflect.DeepEqual(runner.last.Params, want) {
-		t.Fatalf("Params = %#v, want %#v", runner.last.Params, want)
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			runner := &captureRunner{}
+			root := newDevAppTestRoot(runner)
+			var out bytes.Buffer
+			root.SetOut(&out)
+			root.SetErr(&out)
+			root.SetArgs(append([]string{"devapp"}, tc.args...))
+
+			if err := root.Execute(); err != nil {
+				t.Fatalf("Execute() error = %v\noutput:\n%s", err, out.String())
+			}
+			if got := runner.last.Tool; got != tc.wantTool {
+				t.Fatalf("Tool = %q, want %q", got, tc.wantTool)
+			}
+			if !reflect.DeepEqual(runner.last.Params, tc.wantParams) {
+				t.Fatalf("Params = %#v, want %#v", runner.last.Params, tc.wantParams)
+			}
+		})
 	}
 }
 
@@ -330,6 +371,54 @@ func TestDevAppPermissionCommandsBuildParams(t *testing.T) {
 				t.Fatalf("Params = %#v, want %#v", runner.last.Params, tc.wantParams)
 			}
 		})
+	}
+}
+
+func TestDevAppCredentialsGetBuildsParams(t *testing.T) {
+	runner := &captureRunner{}
+	root := newDevAppTestRoot(runner)
+	var out bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&out)
+	root.SetArgs([]string{"devapp", "credentials", "get", "--agent-id", "123"})
+
+	if err := root.Execute(); err != nil {
+		t.Fatalf("Execute() error = %v\noutput:\n%s", err, out.String())
+	}
+	if got := runner.last.Tool; got != "get_open_dev_app_credentials" {
+		t.Fatalf("Tool = %q, want get_open_dev_app_credentials", got)
+	}
+	want := map[string]any{"agentId": 123}
+	if !reflect.DeepEqual(runner.last.Params, want) {
+		t.Fatalf("Params = %#v, want %#v", runner.last.Params, want)
+	}
+}
+
+func TestDevAppCredentialsGetKeepsSecretFields(t *testing.T) {
+	runner := &devAppResponseRunner{
+		response: map[string]any{
+			"content": map[string]any{
+				"agentId":      123,
+				"appKey":       "dingxxx",
+				"appSecret":    "secret-app",
+				"clientSecret": "secret-client",
+			},
+		},
+	}
+	root := newDevAppTestRoot(runner)
+	var out bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&out)
+	root.SetArgs([]string{"devapp", "credentials", "get", "--agent-id", "123"})
+
+	if err := root.Execute(); err != nil {
+		t.Fatalf("Execute() error = %v\noutput:\n%s", err, out.String())
+	}
+	rendered := out.String()
+	for _, expected := range []string{"appSecret", "clientSecret", "secret-app", "secret-client"} {
+		if !strings.Contains(rendered, expected) {
+			t.Fatalf("credentials output missing %q:\n%s", expected, rendered)
+		}
 	}
 }
 

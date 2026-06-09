@@ -209,7 +209,7 @@ delete_inner_app
 
 ```bash
 dws devapp credentials get --unified-app-id UNIFIED_APP_ID --format json
-dws devapp credentials get --unified-app-id UNIFIED_APP_ID --show-secret --yes --format json
+dws devapp credentials get --agent-id AGENT_ID --format json
 ```
 
 目标 MCP tool:
@@ -218,7 +218,7 @@ dws devapp credentials get --unified-app-id UNIFIED_APP_ID --show-secret --yes -
 get_open_dev_app_credentials
 ```
 
-当前后端 facade 待补。默认输出应为脱敏值；完整 `clientSecret/appSecret` 需要显式确认和审计。
+当前后端 facade 为 `OpenInnerAppQueryFacade.getCredentials`。CLI 只传应用定位字段，不传 `showSecret`、`confirmSecret` 或脱敏字段；MCP 返回当前凭证契约字段，可能包含 `clientSecret/appSecret`，调用方必须按敏感输出处理。
 
 ## 网页应用配置
 
@@ -444,7 +444,7 @@ dws app --help
 | 多应用命中 | 展示 `appName/unifiedAppId/agentId/appKey/creator/gmtModified`，停止写操作。 |
 | 权限候选过多 | 加 `--keyword`、`--scope-type` 或 `--scope` 缩小；不要直接申请第一条。 |
 | `requiredApproval=true` | 可以申请；申请后进入版本变更，发布时审核。 |
-| `credentials get` 不可用 | 报告凭证工具未发布，不用 `app get` 推断 secret。 |
+| `credentials get` 不可用 | 报告缺失的 MCP tool key，不用 `app get` 推断 secret；正常构建中应已提供该工具。 |
 | `ServiceResult.success=false` | 原样透传 `errorCode/errorMsg`。 |
 
 高频意图：
@@ -464,7 +464,7 @@ dws app --help
 | 这个权限覆盖哪些 API | `devapp permission list --scope` |
 | 申请权限 | `devapp permission add` |
 | 移除权限 | `devapp permission remove` |
-| 读取 appSecret/clientSecret | `devapp credentials get`，后端未发布时直接说明缺口 |
+| 读取 appSecret/clientSecret | `devapp credentials get` |
 | 事件订阅/发布审核 | 转 `event` 或 `version` 目标链路 |
 
 ## 更多设计

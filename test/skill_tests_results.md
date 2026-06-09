@@ -1177,7 +1177,7 @@
 
 **devapp_devapp_credentials_get_001** ✅ PASS
 
-- Prompt: 查询应用 UNIFIED_APP_ID 的 clientId 和脱敏 appSecret
+- Prompt: 查询应用 UNIFIED_APP_ID 的开放平台凭证
 - Expected: `dws devapp credentials get --unified-app-id UNIFIED_APP_ID --format json`
 - Skill Reference: references/products/devapp.md
 - Command path: PASS (devapp credentials get)
@@ -1185,11 +1185,11 @@
 
 **devapp_devapp_credentials_get_002** ✅ PASS
 
-- Prompt: 我已经确认，需要读取应用 UNIFIED_APP_ID 的完整 clientSecret
-- Expected: `dws devapp credentials get --unified-app-id UNIFIED_APP_ID --show-secret --yes --format json`
+- Prompt: 查询 AgentId AGENT_ID 对应应用的开放平台凭证
+- Expected: `dws devapp credentials get --agent-id AGENT_ID --format json`
 - Skill Reference: references/products/devapp.md
 - Command path: PASS (devapp credentials get)
-- Flags: PASS (3 flags validated)
+- Flags: PASS (1 flags validated)
 
 **devapp_devapp_member_list_001** ✅ PASS
 
