@@ -467,9 +467,9 @@ func TestDevAppSecurityConfigBuildsOnlyProvidedLists(t *testing.T) {
 	root.SetArgs([]string{
 		"devapp", "security", "config",
 		"--app-id", "app-001",
-		"--ip-whitelist", "103.211.230.150,103.211.230.151",
-		"--redirect-url", "https://example.com/callback",
-		"--sso-url", "https://example.com/sso",
+		"--ip-whitelist", "192.0.2.10,192.0.2.11",
+		"--redirect-url", "https://callback.example.invalid/callback",
+		"--sso-url", "https://sso.example.invalid/sso",
 		"--dry-run",
 	})
 
@@ -485,9 +485,9 @@ func TestDevAppSecurityConfigBuildsOnlyProvidedLists(t *testing.T) {
 	}
 	want := map[string]any{
 		"unifiedAppId":  "app-001",
-		"ipWhiteList":   []string{"103.211.230.150", "103.211.230.151"},
-		"redirectUrls":  []string{"https://example.com/callback"},
-		"otherAuthUrls": []string{"https://example.com/sso"},
+		"ipWhiteList":   []string{"192.0.2.10", "192.0.2.11"},
+		"redirectUrls":  []string{"https://callback.example.invalid/callback"},
+		"otherAuthUrls": []string{"https://sso.example.invalid/sso"},
 	}
 	if !reflect.DeepEqual(runner.last.Params, want) {
 		t.Fatalf("Params = %#v, want %#v", runner.last.Params, want)
@@ -500,7 +500,7 @@ func TestDevAppSecurityConfigOmitsAbsentOptionalLists(t *testing.T) {
 	var out bytes.Buffer
 	root.SetOut(&out)
 	root.SetErr(&out)
-	root.SetArgs([]string{"devapp", "security", "config", "--app-id", "app-001", "--redirect-url", "https://example.com/callback", "--dry-run"})
+	root.SetArgs([]string{"devapp", "security", "config", "--app-id", "app-001", "--redirect-url", "https://callback.example.invalid/callback", "--dry-run"})
 
 	if err := root.Execute(); err != nil {
 		t.Fatalf("Execute() error = %v\noutput:\n%s", err, out.String())
@@ -508,7 +508,7 @@ func TestDevAppSecurityConfigOmitsAbsentOptionalLists(t *testing.T) {
 
 	want := map[string]any{
 		"unifiedAppId": "app-001",
-		"redirectUrls": []string{"https://example.com/callback"},
+		"redirectUrls": []string{"https://callback.example.invalid/callback"},
 	}
 	if !reflect.DeepEqual(runner.last.Params, want) {
 		t.Fatalf("Params = %#v, want %#v", runner.last.Params, want)
@@ -550,7 +550,7 @@ func TestDevAppMemberAndSecurityRequireWriteGuard(t *testing.T) {
 		},
 		{
 			name: "security config",
-			args: []string{"devapp", "security", "config", "--app-id", "app-001", "--redirect-url", "https://example.com/callback"},
+			args: []string{"devapp", "security", "config", "--app-id", "app-001", "--redirect-url", "https://callback.example.invalid/callback"},
 		},
 	}
 

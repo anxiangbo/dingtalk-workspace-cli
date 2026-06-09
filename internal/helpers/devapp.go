@@ -559,7 +559,7 @@ func newDevAppSecurityConfigCommand(runner executor.Runner) *cobra.Command {
 		Use:   "config",
 		Short: "更新开放平台应用安全配置",
 		Example: "  dws devapp security config --app-id <unifiedAppId> " +
-			"--ip-whitelist 103.211.230.150 --redirect-url https://example.com/callback --sso-url https://example.com/sso --dry-run",
+			"--ip-whitelist 192.0.2.10 --redirect-url https://callback.example.invalid/callback --sso-url https://sso.example.invalid/sso --dry-run",
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {

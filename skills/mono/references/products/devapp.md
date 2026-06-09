@@ -164,7 +164,7 @@ MCP tools: `list_open_dev_app_members` / `add_open_dev_app_members` / `remove_op
 ### 安全配置
 
 ```bash
-dws devapp security config --app-id UNIFIED_APP_ID --ip-whitelist 10.0.0.1 --redirect-url https://example.com/callback --dry-run --format json
+dws devapp security config --app-id UNIFIED_APP_ID --ip-whitelist 192.0.2.10 --redirect-url https://callback.example.invalid/callback --dry-run --format json
 ```
 
 MCP tool: `update_app_security_config`

@@ -35,8 +35,8 @@ MCP tool: `remove_open_dev_app_members`
 ## 安全配置
 
 ```bash
-dws devapp security config --app-id UNIFIED_APP_ID --ip-whitelist 10.0.0.1 --dry-run --format json
-dws devapp security config --app-id UNIFIED_APP_ID --redirect-url https://example.com/callback --sso-url https://example.com/sso --yes --format json
+dws devapp security config --app-id UNIFIED_APP_ID --ip-whitelist 192.0.2.10 --dry-run --format json
+dws devapp security config --app-id UNIFIED_APP_ID --redirect-url https://callback.example.invalid/callback --sso-url https://sso.example.invalid/sso --yes --format json
 ```
 
 MCP tool: `update_app_security_config`

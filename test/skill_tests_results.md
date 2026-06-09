@@ -1217,8 +1217,8 @@
 
 **devapp_devapp_security_config_001** ✅ PASS
 
-- Prompt: 给开放平台应用 UNIFIED_APP_ID 配置 IP 白名单 103.211.230.150，先预览
-- Expected: `dws devapp security config --app-id UNIFIED_APP_ID --ip-whitelist 103.211.230.150 --dry-run --format json`
+- Prompt: 给开放平台应用 UNIFIED_APP_ID 配置 IP 白名单 192.0.2.10，先预览
+- Expected: `dws devapp security config --app-id UNIFIED_APP_ID --ip-whitelist 192.0.2.10 --dry-run --format json`
 - Skill Reference: references/products/devapp.md
 - Command path: PASS (devapp security config)
 - Flags: PASS (2 flags validated)

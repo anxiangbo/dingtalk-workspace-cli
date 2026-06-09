@@ -130,9 +130,9 @@
 ```text
 1. 配置 IP 白名单 / 重定向 URL / 免登 URL
    dws devapp security config --app-id <unifiedAppId> \
-     --ip-whitelist 10.0.0.1,10.0.0.2 \
-     --redirect-url https://example.com/callback \
-     --sso-url https://example.com/sso \
+     --ip-whitelist 192.0.2.10,192.0.2.11 \
+     --redirect-url https://callback.example.invalid/callback \
+     --sso-url https://sso.example.invalid/sso \
      --dry-run --format json
    → 确认后加 --yes
 
