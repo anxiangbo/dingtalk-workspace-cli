@@ -26,6 +26,7 @@ test/cli_compat/testdata/
 *.pem
 *.key
 credentials*
+!**/credentials-webapp.md
 plans
 _docs
 dws.zip
