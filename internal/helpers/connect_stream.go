@@ -29,7 +29,31 @@ import (
 	"github.com/google/uuid"
 	"github.com/open-dingtalk/dingtalk-stream-sdk-go/chatbot"
 	"github.com/open-dingtalk/dingtalk-stream-sdk-go/client"
+	sdklogger "github.com/open-dingtalk/dingtalk-stream-sdk-go/logger"
 )
+
+// streamSDKLogger surfaces the Stream SDK's connection lifecycle on stderr.
+// The SDK's default logger is a doNothingLogger — without SetLogger the
+// operator cannot see "connect success", reconnects or read errors, making a
+// dead connector indistinguishable from a healthy idle one. Debug frames stay
+// silent (they dump every ping/pong).
+type streamSDKLogger struct{}
+
+func (streamSDKLogger) Debugf(format string, args ...interface{}) {}
+func (streamSDKLogger) Infof(format string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, "[stream] "+format+"\n", args...)
+}
+func (streamSDKLogger) Warningf(format string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, "[stream][warn] "+format+"\n", args...)
+}
+func (streamSDKLogger) Errorf(format string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, "[stream][error] "+format+"\n", args...)
+}
+func (streamSDKLogger) Fatalf(format string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, "[stream][fatal] "+format+"\n", args...)
+}
+
+var streamLoggerOnce sync.Once
 
 // forwarder feeds one user message to a channel's local agent and returns its
 // reply. Every stream-bridge channel forwards to a local agent CLI (one-shot,
@@ -464,6 +488,7 @@ func (d *msgDedup) first(id string) bool {
 // workbuddy bridge's wait), so ack-first is mandatory, not optional. Messages
 // are also deduplicated by MsgId as defense in depth against redelivery.
 func runStreamConnector(ctx context.Context, channel, clientID, clientSecret string, fwd forwarder) error {
+	streamLoggerOnce.Do(func() { sdklogger.SetLogger(streamSDKLogger{}) })
 	replier := chatbot.NewChatbotReplier()
 	dedup := newMsgDedup(10000)
 
