@@ -188,8 +188,18 @@ func launchConnector(cmd *cobra.Command, channel, clientID, clientSecret string,
 		if err != nil {
 			return err
 		}
-		fmt.Fprintf(cmd.ErrOrStderr(), "[connect] channel=%s Go 原生 Stream 建联，转发到 %s（Ctrl-C 退出）\n", channel, fwd.label())
-		return runStreamConnector(cmd.Context(), channel, clientID, clientSecret, fwd)
+		var cardCli *aiCardClient
+		replyStyle := "text/markdown"
+		if opts.ReplyCard {
+			cardCli = newAICardClient(clientID, clientSecret, opts.CardTemplate)
+			if cardCli.hasTemplate() {
+				replyStyle = "ai-card(thinking→done, 失败回退普通消息)"
+			} else {
+				replyStyle = "text/markdown + thinking/done表态（配 --card-template 升级为卡片）"
+			}
+		}
+		fmt.Fprintf(cmd.ErrOrStderr(), "[connect] channel=%s Go 原生 Stream 建联，转发到 %s，回复样式=%s（Ctrl-C 退出）\n", channel, fwd.label(), replyStyle)
+		return runStreamConnector(cmd.Context(), channel, clientID, clientSecret, fwd, cardCli)
 	}
 
 	// hermes / openclaw run their own official bot provisioning + reply logic
@@ -274,6 +284,7 @@ func newDevAppRobotConnectCommand(runner executor.Runner) *cobra.Command {
 						"credentialSource": "unified-app-id (credentials get, skipped in dry-run)",
 						"unifiedAppId":     unifiedAppID,
 						"agent":            connectAgentOptionsPayload(channel, opts),
+						"cli":              connectCliStatus(channel),
 						"connect":          buildConnectPlan(channel, "", ""),
 					})
 				}
@@ -296,6 +307,7 @@ func newDevAppRobotConnectCommand(runner executor.Runner) *cobra.Command {
 					"credentialSource": resolvedBy,
 					"clientId":         clientID,
 					"agent":            connectAgentOptionsPayload(channel, opts),
+					"cli":              connectCliStatus(channel),
 					"connect":          buildConnectPlan(channel, clientID, ""),
 				})
 			}
@@ -315,6 +327,8 @@ func newDevAppRobotConnectCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("agent-model", "", "覆盖本地 agent 模型（如 claude 的 sonnet/opus；默认用渠道内置模型，求快）；env: DWS_AGENT_MODEL")
 	cmd.Flags().String("agent-workdir", "", "本地 agent 的运行目录（放知识文件可给机器人上下文；默认空白临时目录，求快）；env: DWS_AGENT_WORKDIR")
 	cmd.Flags().Bool("agent-memory", true, "按会话续聊：同一群/单聊共享 agent 会话上下文（claudecode/codebuddy/workbuddy 支持；--agent-memory=false 关闭）")
+	cmd.Flags().Bool("reply-card", true, "用 AI 卡片回复（思考中→完成状态，同官方渠道体验）；卡片失败自动回退普通消息；--reply-card=false 关闭")
+	cmd.Flags().String("card-template", "", "AI 卡片模板 ID（开发者后台·本应用·AI 卡片设置里获取；模板按应用授权，强烈建议注册自己应用的模板）；env: DWS_CARD_TEMPLATE")
 	return cmd
 }
 
@@ -331,7 +345,23 @@ func connectAgentOptionsFromCommand(cmd *cobra.Command) connectAgentOptions {
 		workDir = strings.TrimSpace(os.Getenv("DWS_AGENT_WORKDIR"))
 	}
 	memory, _ := cmd.Flags().GetBool("agent-memory")
-	return connectAgentOptions{Model: model, WorkDir: workDir, Memory: memory}
+	replyCard, _ := cmd.Flags().GetBool("reply-card")
+	// Env kill-switch for scripted/service runs: DWS_REPLY_CARD=0 disables
+	// cards regardless of the flag default.
+	if v := strings.ToLower(strings.TrimSpace(os.Getenv("DWS_REPLY_CARD"))); v == "0" || v == "false" {
+		replyCard = false
+	}
+	cardTemplate := devAppStringFlag(cmd, "card-template")
+	if cardTemplate == "" {
+		cardTemplate = strings.TrimSpace(os.Getenv("DWS_CARD_TEMPLATE"))
+	}
+	// "public" opts into the openclaw shared template explicitly — best-effort
+	// only, since shared templates may not render for every app.
+	if strings.EqualFold(cardTemplate, "public") {
+		cardTemplate = defaultAICardTemplateID
+	}
+	return connectAgentOptions{Model: model, WorkDir: workDir, Memory: memory,
+		ReplyCard: replyCard, CardTemplate: cardTemplate}
 }
 
 // connectAgentOptionsPayload renders the effective agent tuning for the
@@ -356,7 +386,15 @@ func connectAgentOptionsPayload(channel string, opts connectAgentOptions) map[st
 	if workDir == "" {
 		workDir = "(clean temp dir)"
 	}
-	return map[string]any{"model": model, "workdir": workDir, "memory": memory}
+	replyStyle := "text/markdown"
+	if opts.ReplyCard {
+		if opts.CardTemplate != "" {
+			replyStyle = "ai-card"
+		} else {
+			replyStyle = "text/markdown + thinking/done表态（配 --card-template 升级为卡片）"
+		}
+	}
+	return map[string]any{"model": model, "workdir": workDir, "memory": memory, "replyStyle": replyStyle}
 }
 
 // devAppFetchCredentials reuses devapp's get_open_dev_app_credentials tool to

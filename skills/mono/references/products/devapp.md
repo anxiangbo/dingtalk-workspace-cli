@@ -229,6 +229,9 @@ dws devapp robot connect --robot-client-id CLIENT_ID --robot-client-secret CLIEN
 - **会话记忆 `--agent-memory`**（默认开）：同一群/单聊共享 agent 会话，追问保留上下文。仅 claudecode/codebuddy/workbuddy 支持（CLI 有 `--session-id/--resume`）；其余渠道自动无状态。`--agent-memory=false` 关闭。
 - **模型覆盖 `--agent-model`**：claudecode 默认锁 haiku 求快，可改 sonnet/opus 换聪明（env `DWS_AGENT_MODEL`）。
 - **运行目录 `--agent-workdir`**：放知识文件给机器人企业上下文；默认空白临时目录求快（env `DWS_AGENT_WORKDIR`）。
+- **富回复 `--reply-card`**（默认开）：Thinking/Done 表态永远生效；**卡片需配 `--card-template` 才启用**（同 hermes 语义：没配模板=纯文字回复+表态），失败自动回退文字（env `DWS_REPLY_CARD=0` 全关）。
+- **卡片模板 `--card-template`**：模板按应用授权，建议在开发者后台为自己应用注册 AI 卡片模板并填其 ID（env `DWS_CARD_TEMPLATE`）；默认公共模板 best-effort。
+- **依赖预检（agent 必做）**：建联前先 `--dry-run` 看输出的 `cli` 字段——`installed:false` 且 `autoInstall:true`（npm 系）告知用户会自动安装；`autoInstall:false`（桌面 App/官方渠道）**先引导用户按 `installHint` 安装**，不要直接起连接。
 - **Codex 渠道**：真实建联优先用 `DWS_AGENT_CMD="$CODEX_BIN exec --skip-git-repo-check"`，避免 Codex CLI 在默认临时目录内拒绝执行。需要固定上下文时，把可信目录写进覆盖命令：`DWS_AGENT_CMD="$CODEX_BIN exec --skip-git-repo-check -C /path/to/repo"`（路径不要包含空格）。设置 `DWS_AGENT_CMD` 后，DWS 不再自动拼接 `--agent-model/--agent-workdir/会话参数`。
 - **stream-bridge 渠道**（qoder/qoderwork/claudecode/workbuddy/codex/gemini/opencode）：Go 原生进程内 Stream 转发器，订阅 `TOPIC_ROBOT`，每条 @机器人消息起一个无头 CLI 实例（如 `claude -p`）→ stdout 回钉钉，可 7×24 无人值守。
 - **官方渠道**（openclaw/hermes）：dws 不代建机器人，输出官方 onboarding 指引（连接器自带建号 + AI 卡片回复）。
@@ -252,6 +255,7 @@ MCP tools: `create_open_dev_app_version` / `list_open_dev_app_versions` / `get_o
 - `check-approval` = `publish_open_dev_app_version` 的 `dryRun=true` 预检模式，不实际发布。
 - `publish` 设 `dryRun=false`；含高敏权限需 `--confirm-sensitive`，灰度选人模式用 `--approver USER_ID`。
 - 流程：`permission add`（requiredApproval 写入版本变更）→ `version create` → `check-approval` → `publish` → `status`。
+- **审批人选择**：`check-approval` 返回候选审批人列表（userId+姓名）→ **展示给用户让其选择（不要自行挑选或默认第一个）** → `publish --approver <选中的userId>` 自动向该审批人发起审批 → `version status` 跟踪。机器人等能力需审批通过、应用发布后才可被搜索/加群/路由消息。
 
 ---
 
