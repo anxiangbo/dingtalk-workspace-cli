@@ -169,7 +169,7 @@ func connectExternalCommand(channel string) []string {
 //  2. stream-bridge channels (qoder/qoderwork/claudecode/workbuddy) → Go-native
 //     in-process Stream + forwarder, no node/external-script dependency;
 //  3. others (hermes etc.) → no built-in linking, advise DWS_CONNECT_CMD.
-func launchConnector(cmd *cobra.Command, channel, clientID, clientSecret string) error {
+func launchConnector(cmd *cobra.Command, channel, clientID, clientSecret string, opts connectAgentOptions) error {
 	if argv := connectExternalCommand(channel); len(argv) > 0 {
 		fmt.Fprintf(cmd.ErrOrStderr(), "[connect] channel=%s 启动外部连接器: %s\n", channel, strings.Join(argv, " "))
 		proc := exec.CommandContext(cmd.Context(), argv[0], argv[1:]...)
@@ -184,7 +184,7 @@ func launchConnector(cmd *cobra.Command, channel, clientID, clientSecret string)
 	}
 
 	if isStreamBridgeChannel(channel) {
-		fwd, err := forwarderForChannel(channel)
+		fwd, err := forwarderForChannel(channel, opts)
 		if err != nil {
 			return err
 		}
@@ -256,6 +256,7 @@ func newDevAppRobotConnectCommand(runner executor.Runner) *cobra.Command {
 			clientID := devAppStringFlag(cmd, "robot-client-id")
 			clientSecret := devAppStringFlag(cmd, "robot-client-secret")
 			unifiedAppID := devAppStringFlag(cmd, "unified-app-id")
+			opts := connectAgentOptionsFromCommand(cmd)
 
 			// Credential resolution: explicit pair wins; otherwise reuse devapp's
 			// credentials get against --unified-app-id.
@@ -272,6 +273,7 @@ func newDevAppRobotConnectCommand(runner executor.Runner) *cobra.Command {
 						"dryRun":           true,
 						"credentialSource": "unified-app-id (credentials get, skipped in dry-run)",
 						"unifiedAppId":     unifiedAppID,
+						"agent":            connectAgentOptionsPayload(channel, opts),
 						"connect":          buildConnectPlan(channel, "", ""),
 					})
 				}
@@ -293,12 +295,13 @@ func newDevAppRobotConnectCommand(runner executor.Runner) *cobra.Command {
 					"dryRun":           true,
 					"credentialSource": resolvedBy,
 					"clientId":         clientID,
+					"agent":            connectAgentOptionsPayload(channel, opts),
 					"connect":          buildConnectPlan(channel, clientID, ""),
 				})
 			}
 
 			fmt.Fprintf(cmd.ErrOrStderr(), "[connect] channel=%s（%s）凭证来源=%s\n", channel, detectedBy, resolvedBy)
-			return launchConnector(cmd, channel, clientID, clientSecret)
+			return launchConnector(cmd, channel, clientID, clientSecret, opts)
 		},
 	}
 	preferLegacyLeaf(cmd)
@@ -309,7 +312,51 @@ func newDevAppRobotConnectCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("robot-client-id", "", "现成机器人 clientId（AppKey）")
 	cmd.Flags().String("robot-client-secret", "", "现成机器人 clientSecret（AppSecret）")
 	cmd.Flags().String("unified-app-id", "", "统一应用 ID：复用 devapp credentials get 自动取凭证（替代手填 robot-client-id/secret）")
+	cmd.Flags().String("agent-model", "", "覆盖本地 agent 模型（如 claude 的 sonnet/opus；默认用渠道内置模型，求快）；env: DWS_AGENT_MODEL")
+	cmd.Flags().String("agent-workdir", "", "本地 agent 的运行目录（放知识文件可给机器人上下文；默认空白临时目录，求快）；env: DWS_AGENT_WORKDIR")
+	cmd.Flags().Bool("agent-memory", true, "按会话续聊：同一群/单聊共享 agent 会话上下文（claudecode/codebuddy/workbuddy 支持；--agent-memory=false 关闭）")
 	return cmd
+}
+
+// connectAgentOptionsFromCommand reads the agent tuning flags, falling back to
+// the mirrored env vars so connectors run from scripts/services can be
+// configured without flags.
+func connectAgentOptionsFromCommand(cmd *cobra.Command) connectAgentOptions {
+	model := devAppStringFlag(cmd, "agent-model")
+	if model == "" {
+		model = strings.TrimSpace(os.Getenv("DWS_AGENT_MODEL"))
+	}
+	workDir := devAppStringFlag(cmd, "agent-workdir")
+	if workDir == "" {
+		workDir = strings.TrimSpace(os.Getenv("DWS_AGENT_WORKDIR"))
+	}
+	memory, _ := cmd.Flags().GetBool("agent-memory")
+	return connectAgentOptions{Model: model, WorkDir: workDir, Memory: memory}
+}
+
+// connectAgentOptionsPayload renders the effective agent tuning for the
+// dry-run preview, including whether session memory actually applies to the
+// chosen channel (the qoder family and codex/gemini/opencode are stateless —
+// their CLIs have no addressable session ID).
+func connectAgentOptionsPayload(channel string, opts connectAgentOptions) map[string]any {
+	spec, ok := agentSpecs[channel]
+	memory := "unsupported"
+	if ok && spec.ccSessions {
+		if opts.Memory {
+			memory = "per-conversation"
+		} else {
+			memory = "disabled"
+		}
+	}
+	model := opts.Model
+	if model == "" {
+		model = "(channel default)"
+	}
+	workDir := opts.WorkDir
+	if workDir == "" {
+		workDir = "(clean temp dir)"
+	}
+	return map[string]any{"model": model, "workdir": workDir, "memory": memory}
 }
 
 // devAppFetchCredentials reuses devapp's get_open_dev_app_credentials tool to

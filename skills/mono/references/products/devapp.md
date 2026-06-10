@@ -220,6 +220,9 @@ dws devapp robot connect --robot-client-id CLIENT_ID --robot-client-secret CLIEN
 - **凭证用 `--robot-client-id/--robot-client-secret`**（不叫 `--client-id`，那是全局 OAuth 客户端覆盖 flag，会撞名）。
 - **两种来源**：① 直接 `--robot-client-id/--robot-client-secret`；② `--unified-app-id`（内部调 `get_open_dev_app_credentials` 自动取）。⚠️ 来源②**字段名待预发真机验证**，且 clientSecret 一般仅建号时返回一次、该接口未必能返回，取不到时回退手填。
 - **渠道 `--channel`**：`auto`(默认，按运行时信号自动识别当前宿主) | `openclaw` | `qoder` | `qoderwork` | `hermes` | `workbuddy` | `claudecode` | `codebuddy` | `codex` | `gemini` | `opencode`。
+- **会话记忆 `--agent-memory`**（默认开）：同一群/单聊共享 agent 会话，追问保留上下文。仅 claudecode/codebuddy/workbuddy 支持（CLI 有 `--session-id/--resume`）；其余渠道自动无状态。`--agent-memory=false` 关闭。
+- **模型覆盖 `--agent-model`**：claudecode 默认锁 haiku 求快，可改 sonnet/opus 换聪明（env `DWS_AGENT_MODEL`）。
+- **运行目录 `--agent-workdir`**：放知识文件给机器人企业上下文；默认空白临时目录求快（env `DWS_AGENT_WORKDIR`）。
 - **stream-bridge 渠道**（qoder/qoderwork/claudecode/workbuddy/codex/gemini/opencode）：Go 原生进程内 Stream 转发器，订阅 `TOPIC_ROBOT`，每条 @机器人消息起一个无头 CLI 实例（如 `claude -p`）→ stdout 回钉钉，可 7×24 无人值守。
 - **官方渠道**（openclaw/hermes）：dws 不代建机器人，输出官方 onboarding 指引（连接器自带建号 + AI 卡片回复）。
 - 覆盖项：`DWS_AGENT_CMD`(指定 agent 可执行命令) / `DWS_CONNECT_CMD`(指定外部连接器) / `DWS_CONNECT_NO_INSTALL=1`(关闭缺包自动安装) / `DWS_AGENT_TIMEOUT_MS`。

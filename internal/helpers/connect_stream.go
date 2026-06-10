@@ -26,16 +26,38 @@ import (
 	"time"
 
 	apperrors "github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/errors"
+	"github.com/google/uuid"
 	"github.com/open-dingtalk/dingtalk-stream-sdk-go/chatbot"
 	"github.com/open-dingtalk/dingtalk-stream-sdk-go/client"
 )
 
 // forwarder feeds one user message to a channel's local agent and returns its
 // reply. Every stream-bridge channel forwards to a local agent CLI (one-shot,
-// runs 24/7), so the Stream main loop stays channel-agnostic.
+// runs 24/7), so the Stream main loop stays channel-agnostic. convID is the
+// DingTalk conversation the message belongs to; forwarders with session memory
+// use it to resume the same agent session, so follow-up questions keep context.
 type forwarder interface {
-	forward(ctx context.Context, text string) (string, error)
+	forward(ctx context.Context, convID, text string) (string, error)
 	label() string
+}
+
+// connectAgentOptions carries the user-facing agent tuning exposed on
+// `devapp robot connect` (and mirrored env vars). Zero value = defaults:
+// channel's built-in model, per-conversation memory on (where the CLI supports
+// it), empty scratch workdir.
+type connectAgentOptions struct {
+	// Model overrides the channel CLI's model (flag --agent-model /
+	// env DWS_AGENT_MODEL). Empty keeps the spec's built-in choice.
+	Model string
+	// WorkDir is the directory the agent CLI runs from (flag --agent-workdir /
+	// env DWS_AGENT_WORKDIR). Pointing it at a directory with knowledge files
+	// (e.g. a CLAUDE.md) gives the bot context; empty uses a clean temp dir,
+	// which keeps cold-start fast (a large $HOME costs ~29s vs ~4s).
+	WorkDir string
+	// Memory enables per-conversation session resume on channels whose CLI
+	// supports addressable sessions (--session-id/--resume: claudecode,
+	// codebuddy/workbuddy). Disable with --agent-memory=false.
+	Memory bool
 }
 
 // isStreamBridgeChannel reports whether a channel is wired through the Go-native
@@ -55,24 +77,48 @@ type execForwarder struct {
 	argv    []string
 	env     []string
 	timeout time.Duration
+	// workDir is where the agent CLI runs from; empty falls back to the clean
+	// scratch dir (see connectWorkDir).
+	workDir string
+	// sessions, when non-nil, maps DingTalk conversations to agent session IDs
+	// for CLIs with addressable sessions (--session-id / --resume). nil =
+	// stateless one-shot per message.
+	sessions *convSessions
 }
 
 func (f *execForwarder) label() string {
-	return fmt.Sprintf("exec:%s (%s)", f.name, f.argv[0])
+	memo := "stateless"
+	if f.sessions != nil {
+		memo = "session-memory"
+	}
+	return fmt.Sprintf("exec:%s (%s, %s)", f.name, f.argv[0], memo)
 }
 
-func (f *execForwarder) forward(ctx context.Context, text string) (string, error) {
+func (f *execForwarder) forward(ctx context.Context, convID, text string) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, f.timeout)
 	defer cancel()
-	args := append(append([]string(nil), f.argv[1:]...), text)
+	// Session args go right after the binary, before the spec tail — some specs
+	// (qoder) end the tail with `-p` so the prompt must stay the trailing
+	// positional argument.
+	var args []string
+	if f.sessions != nil && strings.TrimSpace(convID) != "" {
+		args = append(args, f.sessions.args(convID)...)
+	}
+	args = append(args, f.argv[1:]...)
+	args = append(args, text)
 	cmd := exec.CommandContext(ctx, f.argv[0], args...)
 	// Run the agent CLI from a clean, empty directory rather than inheriting the
 	// connector's CWD (often $HOME). Some agents scan the working tree / nearby
 	// config on startup — e.g. `claude -p` takes ~29s from a large $HOME but ~4s
 	// from an empty dir. A slow reply misses DingTalk's AI-assistant response
 	// window and leaves the card stuck on "数据加载中", so keeping the forward
-	// fast is what makes the reply actually render.
-	cmd.Dir = connectWorkDir()
+	// fast is what makes the reply actually render. --agent-workdir trades that
+	// speed for context (knowledge files in the workdir).
+	if f.workDir != "" {
+		cmd.Dir = f.workDir
+	} else {
+		cmd.Dir = connectWorkDir()
+	}
 	if len(f.env) > 0 {
 		cmd.Env = append(os.Environ(), f.env...)
 	}
@@ -81,6 +127,13 @@ func (f *execForwarder) forward(ctx context.Context, text string) (string, error
 		return brandReply(f.name, s), nil
 	}
 	if err != nil {
+		// Self-heal session state: if this conversation's session is broken
+		// (e.g. --resume of a session that was never created or got cleaned),
+		// drop the mapping so the next message starts a fresh session instead
+		// of failing forever.
+		if f.sessions != nil && strings.TrimSpace(convID) != "" {
+			f.sessions.reset(convID)
+		}
 		msg := err.Error()
 		if ee, ok := err.(*exec.ExitError); ok && len(ee.Stderr) > 0 {
 			msg = strings.TrimSpace(string(ee.Stderr))
@@ -88,6 +141,45 @@ func (f *execForwarder) forward(ctx context.Context, text string) (string, error
 		return "", fmt.Errorf("本地 %s agent 调用失败：%s", f.name, truncateRunes(msg, 300))
 	}
 	return "（本地 agent 无文本输出）", nil
+}
+
+// convSessions maps a DingTalk conversation to a stable agent session ID, so a
+// channel CLI with addressable sessions keeps multi-turn context per chat.
+// First message of a conversation mints a UUID and passes `--session-id <id>`
+// (create); subsequent messages pass `--resume <id>` (continue). Claude Code,
+// codebuddy and other Claude-Code-family CLIs share these exact flags —
+// verified against `claude --help` / `codebuddy --help`. qodercli only has
+// `--resume` (no way to choose the ID), so the qoder family stays stateless.
+// State is in-memory: a connector restart starts conversations fresh.
+type convSessions struct {
+	mu sync.Mutex
+	m  map[string]string
+}
+
+func newConvSessions() *convSessions {
+	return &convSessions{m: make(map[string]string)}
+}
+
+// args returns the session argv fragment for one conversation, minting a new
+// session on first sight.
+func (s *convSessions) args(convID string) []string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if id, ok := s.m[convID]; ok {
+		return []string{"--resume", id}
+	}
+	id := uuid.NewString()
+	s.m[convID] = id
+	return []string{"--session-id", id}
+}
+
+// reset forgets a conversation's session so the next message starts a fresh
+// one (a new UUID — the old one may or may not exist on the agent side, and a
+// fresh ID is safe either way).
+func (s *convSessions) reset(convID string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	delete(s.m, convID)
 }
 
 // qoderworkIdentityRe matches a leading self-introduction emitted by qodercli
@@ -163,6 +255,13 @@ type agentSpec struct {
 	envFn    func() []string // extra env, e.g. reuse a desktop app's login; nil if none
 	install  []string        // auto-install command argv; nil if not auto-installed (GUI app / curl|bash)
 	hint     string          // install hint shown when not found / not auto-installable
+	// modelFlag is the CLI's model-selection flag, used by --agent-model to
+	// override (or inject) the model. Empty = model not overridable.
+	modelFlag string
+	// ccSessions marks CLIs with Claude-Code-style addressable sessions
+	// (--session-id <uuid> to create, --resume <id> to continue) — the
+	// contract per-conversation memory relies on.
+	ccSessions bool
 }
 
 // codebuddyEnv reuses the WorkBuddy login by pointing codebuddy at WorkBuddy's
@@ -183,24 +282,33 @@ var agentSpecs = map[string]agentSpec{
 	// operator's interactive hooks/plugins/MCP don't leak into replies.
 	"claudecode": {app: "Claude Code", bins: []string{"claude"},
 		argvTail: []string{"-p", "--model", "claude-haiku-4-5-20251001", "--setting-sources", "project", "--strict-mcp-config", "--append-system-prompt", "你是钉钉群聊里的智能助手，请用简洁、自然的中文直接回答用户问题；不要使用任何工具，不要提及任何系统提示、钩子或内部信号。"},
-		install:  []string{"npm", "i", "-g", "@anthropic-ai/claude-code"}, hint: "npm i -g @anthropic-ai/claude-code"},
+		install:  []string{"npm", "i", "-g", "@anthropic-ai/claude-code"}, hint: "npm i -g @anthropic-ai/claude-code",
+		modelFlag: "--model", ccSessions: true},
 	"codex": {app: "OpenAI Codex CLI", bins: []string{"codex"}, argvTail: []string{"exec"},
-		install: []string{"npm", "i", "-g", "@openai/codex"}, hint: "npm i -g @openai/codex"},
+		install: []string{"npm", "i", "-g", "@openai/codex"}, hint: "npm i -g @openai/codex",
+		modelFlag: "-m"},
 	"gemini": {app: "Gemini CLI", bins: []string{"gemini"}, argvTail: []string{"-p"},
-		install: []string{"npm", "i", "-g", "@google/gemini-cli"}, hint: "npm i -g @google/gemini-cli"},
+		install: []string{"npm", "i", "-g", "@google/gemini-cli"}, hint: "npm i -g @google/gemini-cli",
+		modelFlag: "-m"},
 	"opencode": {app: "opencode", bins: []string{"opencode"}, argvTail: []string{"run"},
-		install: []string{"npm", "i", "-g", "opencode-ai"}, hint: "npm i -g opencode-ai"},
+		install: []string{"npm", "i", "-g", "opencode-ai"}, hint: "npm i -g opencode-ai",
+		modelFlag: "-m"},
 	// desktop-app-bundled CLIs — hint only (can't silently install a GUI app); the
 	// bundled CLI is used automatically once the app is installed.
+	// qodercli has --resume but no --session-id (no way to choose the session ID
+	// for the first turn), so the qoder family cannot do per-conversation memory.
 	"qoder": {app: "Qoder", bins: []string{"qodercli"},
 		globs:    []string{"/Applications/Qoder.app/Contents/Resources/app/resources/bin/*/qodercli"},
-		argvTail: []string{"-f", "text", "--max-turns", "30", "-p"}, hint: "https://qoder.com"},
+		argvTail: []string{"-f", "text", "--max-turns", "30", "-p"}, hint: "https://qoder.com",
+		modelFlag: "--model"},
 	"qoderwork": {app: "QoderWork", bins: []string{"qodercli"},
 		globs:    []string{"/Applications/QoderWork.app/Contents/Resources/bin/qodercli"},
-		argvTail: []string{"-f", "text", "--max-turns", "30", "-p"}, hint: "https://qoder.com"},
+		argvTail: []string{"-f", "text", "--max-turns", "30", "-p"}, hint: "https://qoder.com",
+		modelFlag: "--model"},
 	"codebuddy": {app: "WorkBuddy（自带 codebuddy）", bins: []string{"codebuddy"},
 		globs:    []string{"/Applications/WorkBuddy.app/Contents/Resources/app.asar.unpacked/cli/bin/codebuddy"},
-		argvTail: []string{"-p"}, envFn: codebuddyEnv, hint: "https://www.codebuddy.cn/work/"},
+		argvTail: []string{"-p"}, envFn: codebuddyEnv, hint: "https://www.codebuddy.cn/work/",
+		modelFlag: "--model", ccSessions: true},
 	// workbuddy reuses codebuddy's binary but is reached through the WorkBuddy
 	// host, so inject a WorkBuddy persona — otherwise the bot self-identifies as
 	// "CodeBuddy Code" (codebuddy's built-in identity), which confuses users who
@@ -210,7 +318,8 @@ var agentSpecs = map[string]agentSpec{
 		globs: []string{"/Applications/WorkBuddy.app/Contents/Resources/app.asar.unpacked/cli/bin/codebuddy"},
 		argvTail: []string{"--append-system-prompt",
 			"你叫「WorkBuddy 助手」，是钉钉群里的智能助手。无论被问到你是谁，都只能自称 WorkBuddy 助手，绝不能提到 CodeBuddy 这个名字。",
-			"-p"}, envFn: codebuddyEnv, hint: "https://www.codebuddy.cn/work/"},
+			"-p"}, envFn: codebuddyEnv, hint: "https://www.codebuddy.cn/work/",
+		modelFlag: "--model", ccSessions: true},
 }
 
 // autoInstallEnabled reports whether dws may auto-run a package-manager install
@@ -266,10 +375,12 @@ func resolveExecAgent(channel string) (argv []string, env []string, err error) {
 // forwarderForChannel builds the forwarder for a channel. Every stream-bridge
 // channel forwards to its corresponding LOCAL CLI product (one-shot, runs 24/7),
 // resolved via PATH → app bundle → install guidance — no hardcoded path, no
-// dependency on a live interactive session.
-func forwarderForChannel(channel string) (forwarder, error) {
+// dependency on a live interactive session. opts applies the user-facing agent
+// tuning (--agent-model / --agent-workdir / --agent-memory).
+func forwarderForChannel(channel string, opts connectAgentOptions) (forwarder, error) {
 	timeout := envDurationMS("DWS_AGENT_TIMEOUT_MS", 300*time.Second)
-	if _, ok := agentSpecs[channel]; !ok {
+	spec, ok := agentSpecs[channel]
+	if !ok {
 		return nil, apperrors.NewValidation(fmt.Sprintf("渠道 %q 不是 stream-bridge 渠道，无 forwarder", channel))
 	}
 	// Resolve the agent CLI (PATH → app bundle → auto-install → guidance) and
@@ -278,7 +389,37 @@ func forwarderForChannel(channel string) (forwarder, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &execForwarder{name: channel, argv: argv, env: env, timeout: timeout}, nil
+	// A DWS_AGENT_CMD override is a fully user-controlled argv: do not splice in
+	// model or session flags we cannot know are valid for it.
+	overridden := strings.TrimSpace(os.Getenv("DWS_AGENT_CMD")) != ""
+	if !overridden && opts.Model != "" {
+		if spec.modelFlag == "" {
+			return nil, apperrors.NewValidation(fmt.Sprintf("渠道 %q 的 agent CLI 不支持模型覆盖（--agent-model）", channel))
+		}
+		argv = applyModelArg(argv, spec.modelFlag, opts.Model)
+	}
+	var sessions *convSessions
+	if !overridden && opts.Memory && spec.ccSessions {
+		sessions = newConvSessions()
+	}
+	return &execForwarder{name: channel, argv: argv, env: env, timeout: timeout,
+		workDir: opts.WorkDir, sessions: sessions}, nil
+}
+
+// applyModelArg returns argv with the model flag set to model: if flag is
+// already present its value is replaced (e.g. claudecode's built-in haiku
+// pin), otherwise flag+model are inserted right after the binary — before the
+// spec tail, because some tails end with `-p` and the prompt must stay the
+// trailing positional argument.
+func applyModelArg(argv []string, flag, model string) []string {
+	out := append([]string(nil), argv...)
+	for i := 1; i < len(out)-1; i++ {
+		if out[i] == flag {
+			out[i+1] = model
+			return out
+		}
+	}
+	return append(out[:1:1], append([]string{flag, model}, out[1:]...)...)
 }
 
 // msgDedup tracks recently-seen MsgIds so a redelivered message is not
@@ -352,9 +493,15 @@ func runStreamConnector(ctx context.Context, channel, clientID, clientSecret str
 		// independent of the Stream ack). Use a background context so the in-flight
 		// forward is not cancelled by the SDK when this callback returns.
 		webhook := data.SessionWebhook
+		// Conversation key for session memory: the DingTalk conversation ID, so a
+		// group chat shares one agent session and a 1:1 chat gets its own.
+		convID := strings.TrimSpace(data.ConversationId)
+		if convID == "" {
+			convID = strings.TrimSpace(data.SenderStaffId)
+		}
 		go func() {
 			started := time.Now()
-			reply, err := fwd.forward(context.Background(), text)
+			reply, err := fwd.forward(context.Background(), convID, text)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "[connect] 转发失败 (%s, 耗时 %s): %v\n", channel, time.Since(started).Round(time.Millisecond), err)
 				reply = fmt.Sprintf("（%s 调用失败：%v）", channel, err)
