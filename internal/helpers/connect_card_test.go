@@ -110,9 +110,9 @@ func TestAICardCreateFinalizeSequence(t *testing.T) {
 	wantSeq := []string{
 		"POST /v1.0/card/instances",
 		"POST /v1.0/card/instances/deliver",
-		"PUT /v1.0/card/instances",  // INPUTING + content
-		"PUT /v1.0/card/streaming",  // finalize frame
-		"PUT /v1.0/card/instances",  // FINISHED
+		"PUT /v1.0/card/instances", // INPUTING + content
+		"PUT /v1.0/card/streaming", // finalize frame
+		"PUT /v1.0/card/instances", // FINISHED
 	}
 	if strings.Join(rec.calls, ",") != strings.Join(wantSeq, ",") {
 		t.Fatalf("call sequence = %v, want %v", rec.calls, wantSeq)

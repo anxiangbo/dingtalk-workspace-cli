@@ -244,14 +244,6 @@ func directRuntimeEndpoint(productID, toolName string) (string, bool) {
 		}
 	}
 
-	// Hardcoded built-in: devapp is pinned to the open-platform app-management
-	// MCP server in source (NOT service discovery), per product decision.
-	for _, candidate := range []string{strings.TrimSpace(productID), normalized} {
-		if candidate == devappProductID {
-			return devappEndpoint, true
-		}
-	}
-
 	dynamicMu.RLock()
 	de := dynamicEndpoints
 	te := dynamicToolEndpoints
@@ -297,6 +289,17 @@ func directRuntimeEndpoint(productID, toolName string) (string, bool) {
 	for _, candidate := range []string{strings.TrimSpace(productID), normalized} {
 		if endpoint, ok := editionServerEndpoint(candidate); ok {
 			return endpoint, true
+		}
+	}
+
+	// Priority 5 (built-in fallback): devapp ships with a hardcoded endpoint so
+	// the helper works without any discovery/edition config, but every
+	// configurable source above (env var, dynamic registration, edition
+	// static/supplement) deliberately wins over it — operators can repoint the
+	// product without rebuilding the binary.
+	for _, candidate := range []string{strings.TrimSpace(productID), normalized} {
+		if candidate == devappProductID {
+			return devappEndpoint, true
 		}
 	}
 	return "", false
