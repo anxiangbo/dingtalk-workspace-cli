@@ -700,6 +700,34 @@ func TestChmod_agentCode_compatEnvFallback(t *testing.T) {
 	}
 }
 
+func TestChmod_agentCode_envServerMismatchFails(t *testing.T) {
+	t.Setenv(agentCodeEnv, "dinglqdkz3mmw2xwvend")
+
+	fake := &sequenceToolCaller{responses: []string{
+		`{"success":true,"code":"OK","data":{"agentCode":"dingmbw5n9ktkkkbjv3g","grantType":"permanent","grantedScopes":[],"alreadyGrantedScopes":["chat.message:send"]}}`,
+	}}
+	cmd := newChmodCommand(fake)
+	_ = cmd.Flags().Set("grant-type", "permanent")
+
+	err := cmd.RunE(cmd, []string{"chat.message:send"})
+	if err == nil {
+		t.Fatal("chmod RunE error = nil, want agentCode mismatch error")
+	}
+	if !strings.Contains(err.Error(), "dingmbw5n9ktkkkbjv3g") ||
+		!strings.Contains(err.Error(), "dinglqdkz3mmw2xwvend") {
+		t.Fatalf("error = %q, want both returned and expected agentCode", err.Error())
+	}
+	if len(fake.calls) != 1 {
+		t.Fatalf("CallTool count = %d, want 1", len(fake.calls))
+	}
+	if got := fake.calls[0].args["agentCode"]; got != "dinglqdkz3mmw2xwvend" {
+		t.Fatalf("batch grant agentCode = %#v, want DINGTALK_DWS_AGENTCODE", got)
+	}
+	if got := fake.calls[0].agentEnv; got != "dinglqdkz3mmw2xwvend" {
+		t.Fatalf("%s during CallTool = %q, want DINGTALK_DWS_AGENTCODE", agentCodeEnv, got)
+	}
+}
+
 func TestChmod_withoutAgentCodeFailsBeforeMCP(t *testing.T) {
 	t.Setenv(agentCodeEnv, "")
 	t.Setenv(agentCodeEnvCompat, "")

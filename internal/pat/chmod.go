@@ -268,6 +268,9 @@ grantType 规则:
 					if err != nil {
 						return fmt.Errorf("pat chmod plan failed: %w", err)
 					}
+					if err := ensurePATResultAgentCode(result, agentCode); err != nil {
+						return err
+					}
 					return handleToolResult(cmd, c, result)
 				}
 				bold := color.New(color.FgYellow, color.Bold)
@@ -293,6 +296,9 @@ grantType 规则:
 				planResult, err := callPATBatchPlan(cmd.Context(), c, agentCode, sessionID, planArgs)
 				if err != nil {
 					return fmt.Errorf("pat chmod plan failed: %w", err)
+				}
+				if err := ensurePATResultAgentCode(planResult, agentCode); err != nil {
+					return err
 				}
 				scopes, err = extractSelectedScopes(planResult)
 				if err != nil {
@@ -342,6 +348,9 @@ grantType 规则:
 			)
 			if err != nil {
 				return fmt.Errorf("pat chmod failed: %w", err)
+			}
+			if err := ensurePATResultAgentCode(result, agentCode); err != nil {
+				return err
 			}
 
 			return handleToolResult(cmd, c, result)
@@ -525,6 +534,39 @@ func firstToolResultText(result *edition.ToolResult) string {
 		}
 	}
 	return ""
+}
+
+func ensurePATResultAgentCode(result *edition.ToolResult, expectedAgentCode string) error {
+	expectedAgentCode = strings.TrimSpace(expectedAgentCode)
+	if expectedAgentCode == "" {
+		return nil
+	}
+	actualAgentCode := patResultAgentCode(result)
+	if actualAgentCode == "" || actualAgentCode == expectedAgentCode {
+		return nil
+	}
+	return fmt.Errorf(
+		"pat chmod returned agentCode %q, want %q from --agentCode/%s; authorization was not applied to the requested agent",
+		actualAgentCode,
+		expectedAgentCode,
+		agentCodeEnv,
+	)
+}
+
+func patResultAgentCode(result *edition.ToolResult) string {
+	text := firstToolResultText(result)
+	if text == "" {
+		return ""
+	}
+	var body map[string]any
+	if json.Unmarshal([]byte(text), &body) != nil {
+		return ""
+	}
+	data, _ := body["data"].(map[string]any)
+	if data == nil {
+		return ""
+	}
+	return stringField(data, "agentCode")
 }
 
 func isPATBatchUnsupportedResult(result *edition.ToolResult) bool {
