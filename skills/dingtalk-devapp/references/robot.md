@@ -42,9 +42,19 @@ dws devapp robot result --task-id <taskId> --format json
 
 MCP tools: `submit_robot_create_task` / `query_robot_create_result`
 
-- `submit` 返回 `taskId / status / expiresIn / interval / retryCount`。
+- `submit` 返回 `taskId / status / expiresIn / interval / retryCount`，提交成功后通常是 `WAITING`。
 - 失败重试：把上次的 `taskId` 通过 `--task-id` 传入 `submit`，避免重复创建。
-- `result` 返回 `WAITING / SUCCESS / FAIL / EXPIRED`；`SUCCESS` 时返回 `agentId / robotCode / clientId / clientSecret`。
+- `result` 返回任务状态；只有 `SUCCESS` 时才能使用返回的 `agentId / robotCode / clientId / clientSecret`。
+
+异步创建任务状态：
+
+| status | 含义 | 下一步 |
+|--------|------|--------|
+| `WAITING` | 任务已提交，仍在创建中 | 按 `interval` 轮询 `robot result` |
+| `SUCCESS` | 创建完成 | 保存 `robotCode/clientId/clientSecret`，凭据按敏感信息处理 |
+| `APPROVAL_REQUIRED` | 创建编排返回需审批 | 不要重复建号；按返回信息或开发者后台审批后再继续 |
+| `FAIL` | 创建失败 | 读取 `errorCode/errorMsg/failReason`；可带原 `taskId` 重新 `submit` |
+| `EXPIRED` | `taskId` 不存在或超过有效期 | 重新 `submit`，必要时换新 `taskId` |
 
 ## 二、现有应用的机器人配置
 
@@ -56,9 +66,19 @@ dws devapp robot get --unified-app-id <unifiedAppId> --format json
 
 MCP tool: `get_open_dev_app_robot_config`。返回机器人基础信息、回调地址、模式、状态和技能列表。应用尚未配置机器人时后端会返回 `robot info is not exist`。
 
+状态判断：
+
+- `status=1`：OFFLINE，机器人配置存在但处于停用/下线状态。
+- `status=2`：ONLINE，机器人配置已生效；`robotCode` 可用于加群、机器人身份发消息或后续建联。
+- `robot get` 返回 `success=true` 且包含 `robotCode` 时，说明配置已落库，不是异步等待态。
+- ONLINE 只代表开放平台机器人能力已开启。若要让机器人自动处理消息，还需要配置 `--outgoing-url` / `--event-url`，或用 `robot connect` 接到本地 Agent。
+- 未配置机器人时不会返回 `status`，而是业务错误 `robot info is not exist`；这时走 `robot config`，不是 `enable`。
+
 ### 创建 / 更新 / 启用配置
 
 三者字段一致，区别在语义：`config`=首次创建、`update`=修改、`enable`=启用/重新启用。
+
+首次 `config` 成功后必须回读 `robot get`：如果返回 `status=2`，不要再误判为“待生效”；只有 `status=1` 或需要重新上架时才调用 `enable`。
 
 ```bash
 dws devapp robot config --unified-app-id <unifiedAppId> --name 小助手 --brief 审批助手 \

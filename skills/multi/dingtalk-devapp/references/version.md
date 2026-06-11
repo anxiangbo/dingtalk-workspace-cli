@@ -74,6 +74,21 @@ MCP tool: `publish_open_dev_app_version`，CLI 设 `dryRun=false`。
 
 > 注意：`--dry-run` 是 CLI 层的"预览不执行"开关；服务端的"审批预检"是 `version check-approval`（对应 `dryRun=true`）。二者不同，发布前建议先 `check-approval`。
 
+发布响应 `result`：
+
+| result | 含义 | 下一步 |
+|--------|------|--------|
+| `NOT_REQUIRED` | 不需要审批；预检时表示可直接发布，真实发布时表示已直接发布上线 | 真实发布后回读 `version status/get` 验证 `RELEASE` |
+| `APPROVAL_REQUIRED` | 需要审批，通常出现在 `check-approval` 或未指定审批人时 | 查看 `approvalMode/approvalCandidates`，让用户选择审批人后再 `publish --approver` |
+| `SUBMITTED` | 已提交审批 | 保存 `processId`，轮询 `version status` |
+
+审批模式 `approvalMode`：
+
+| approvalMode | 含义 | 下一步 |
+|--------------|------|--------|
+| `SELECT_APPROVER` | 灰度选人模式，需要在候选审批人中选一个 | 展示候选审批人，不自动选第一个 |
+| `ENTERPRISE_SELF_BUILT` | 企业自建审核模式 | 不传 `--approver`，按企业自建审核流程等待 |
+
 ## 版本状态
 
 ```bash
@@ -81,6 +96,27 @@ dws devapp version status --unified-app-id <unifiedAppId> --version-id <versionI
 ```
 
 MCP tool: `get_open_dev_app_version_status`。返回版本状态、流程实例 ID、审批状态和审批意见。审批详情可能只在钉钉客户端可见。
+
+版本状态字段：`version create/list/get` 返回 `status`，`version status` 返回 `versionStatus`，二者都对齐版本枚举。
+
+| status/versionStatus | 含义 | 下一步 |
+|----------------------|------|--------|
+| `INIT` | 版本已创建或有待发布变更，尚未发布 | 可 `check-approval` / `publish` |
+| `AUDIT` | 发布审核中 | 不要重复发布；用 `version status` 查看 `processStatus/processComment` |
+| `RELEASE` | 已发布生效 | 发布完成，可继续验证权限、机器人、网页应用等能力 |
+| `GRAY` | 灰度状态 | 按灰度流程处理；不要当全量已发布 |
+
+审批流程状态字段：`version status` 的 `processStatus` 只在存在审批流程时有值；没有 `processInstanceId` 通常表示无审批流程或尚未提交。
+
+| processStatus | 含义 | 下一步 |
+|---------------|------|--------|
+| `UNDER_REVIEW` | 审批中 | 等待审批，必要时把 `processInstanceId` 给用户去钉钉客户端查看 |
+| `PASS` | 审批通过 | 继续回读版本，确认是否进入 `RELEASE` |
+| `FAIL` | 审批拒绝 | 展示 `processComment`，修改后重新创建/发布版本 |
+| `WITHDRAW` / `CANCEL` | 审批撤回或取消 | 回到发布前状态，重新 `check-approval` / `publish` |
+| `PUBLISH_FAILED` | 审批后发布失败 | 展示错误信息，重新检查版本状态和后端错误 |
+
+遇到未列出的状态值时，不要猜测语义；原样展示状态，并回读 `version get/status` 或查开放平台文档/后台详情。
 
 ## 错误处理
 

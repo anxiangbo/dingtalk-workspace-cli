@@ -46,6 +46,8 @@ MCP tool: `list_open_dev_apps_by_condition`
 | `--sort` | `sortType` | 如 `gmt_modified` |
 | `--order` | `sortOrder` | `asc` / `desc` |
 
+应用状态字段：列表/详情原始字段里如果出现 `status` / `appStatus`，`0=IN_ACTIVE` 已停用、`1=ACTIVE` 已激活、`2=WAIT_ACTIVE` 待激活、`3=EXPIRED` 已过期。执行 `inactive/active` 后必须回读 `get` 或 `list`：看到 `status=0` 才算停用完成，看到 `status=1` 才算启用完成。`versionStatus` 是版本状态，不要和应用启停状态混用。
+
 ### 详情
 
 ```bash
@@ -132,6 +134,16 @@ MCP tool: `list_open_dev_app_permissions`
 | `--limit` | `limit` | 每页数量，默认 20，建议不超过 50 |
 | `--offset` | `offset` | 翻页偏移量，默认 0 |
 
+权限状态判断：
+
+- `--status` 是查询过滤条件：`ALL` 不过滤，`AUTHED` 只看已授权/已开通，`UNAUTHED` 只看未授权/未开通。
+- 单个权限项的 `status` 是内部操作态：`0` 已获得，`1` 申请中，`2` 可以申请，`3` 不可以申请。
+- `status=0` 不要重复申请；如需取消，确认 `canRemove=true` 后走 `permission remove`。
+- `status=1` 不要重复申请；查看 `authedStatusDesc`，通常等待审批或版本发布。
+- `status=2` 可走 `permission add --dry-run`。
+- `status=3` 停止申请，展示 `applyDisabledReason/displayMessage`。
+- `authedStatusDesc` 细分展示：`OPENED`/`APPLIED`/`TO_BE_PUBLISHED` 表示已开通、已申请或待发布；`NOT_OPEN`/`NOT_APPLIED` 表示未开通/未申请；`AUDIT_PROCESSING` 表示审批中；`AUDIT_REFUSE` 表示审批未通过。能否操作仍以 `status`、`canEdit`、`canApplyDirectly`、`allowedActions` 为准。
+
 翻页：`--limit 50 --offset 0`（第1页）、`--offset 50`（第2页）、`--offset 100`（第3页），返回条数 < limit 表示末尾。
 
 ### 申请权限
@@ -189,6 +201,16 @@ dws devapp robot result --task-id TASK_ID --format json
 
 MCP tools: `create_dingtalk_robot` / `submit_robot_create_task` / `query_robot_create_result`。`submit` 失败可带原 `--task-id` 重试。
 
+异步创建任务状态：
+
+| status | 含义 | 下一步 |
+|--------|------|--------|
+| `WAITING` | 任务已提交，仍在创建中 | 按 `interval` 轮询 `robot result` |
+| `SUCCESS` | 创建完成 | 保存 `robotCode/clientId/clientSecret`，凭据按敏感信息处理 |
+| `APPROVAL_REQUIRED` | 创建编排返回需审批 | 不要重复建号；按返回信息或开发者后台审批后再继续 |
+| `FAIL` | 创建失败 | 读取 `errorCode/errorMsg/failReason`；可带原 `taskId` 重新 `submit` |
+| `EXPIRED` | `taskId` 不存在或超过有效期 | 重新 `submit`，必要时换新 `taskId` |
+
 ### 现有应用配置机器人
 
 ```bash
@@ -202,6 +224,15 @@ dws devapp robot offline --unified-app-id ID --dry-run --format json
 MCP tools: `get_open_dev_app_robot_config` / `create_open_dev_app_robot_config` / `update_open_dev_app_robot_config` / `enable_open_dev_app_robot` / `offline_open_dev_app_robot`。
 
 配置字段：`--name/--brief/--description/--icon/--outgoing-url(outgoingUrl)/--event-url(chatBotEventUrl)/--mode/--skills(skillList)/--add-scope/--disable-ssl-verify/--i18n-name/--i18n-brief/--i18n-description`。应用未配机器人时 `get` 返回 `robot info is not exist`。
+
+状态判断：
+
+- `robot get` 返回 `success=true` 且包含 `robotCode` 时，说明机器人配置已落库，不是异步等待态。
+- `status=1`：OFFLINE，机器人配置存在但处于停用/下线状态。
+- `status=2`：ONLINE，机器人配置已生效；`robotCode` 可用于加群、机器人身份发消息或后续建联。
+- ONLINE 只代表开放平台机器人能力已开启。若要让机器人自动处理消息，还需要配置 `--outgoing-url` / `--event-url`，或用 `robot connect` 接到本地 Agent。
+- 首次 `config` 成功后必须回读 `robot get`：如果返回 `status=2`，不要再误判为“待生效”；只有 `status=1` 或需要重新上架时才调用 `enable`。
+- 未配置机器人时不会返回 `status`，而是业务错误 `robot info is not exist`；这时走 `robot config`，不是 `enable`。
 
 ### 建联（把机器人接到本地 agent）
 
@@ -256,6 +287,37 @@ MCP tools: `create_open_dev_app_version` / `list_open_dev_app_versions` / `get_o
 - `publish` 设 `dryRun=false`；含高敏权限需 `--confirm-sensitive`，灰度选人模式用 `--approver USER_ID`。
 - 流程：`permission add`（requiredApproval 写入版本变更）→ `version create` → `check-approval` → `publish` → `status`。
 - **审批人选择**：`check-approval` 返回候选审批人列表（userId+姓名）→ **展示给用户让其选择（不要自行挑选或默认第一个）** → `publish --approver <选中的userId>` 自动向该审批人发起审批 → `version status` 跟踪。机器人等能力需审批通过、应用发布后才可被搜索/加群/路由消息。
+
+发布响应 `result`：
+
+| result | 含义 | 下一步 |
+|--------|------|--------|
+| `NOT_REQUIRED` | 不需要审批；预检时表示可直接发布，真实发布时表示已直接发布上线 | 真实发布后回读 `version status/get` 验证 `RELEASE` |
+| `APPROVAL_REQUIRED` | 需要审批，通常出现在 `check-approval` 或未指定审批人时 | 查看 `approvalMode/approvalCandidates`，让用户选择审批人后再 `publish --approver` |
+| `SUBMITTED` | 已提交审批 | 保存 `processId`，轮询 `version status` |
+
+审批模式 `approvalMode`：`SELECT_APPROVER` 表示灰度选人模式，需要展示候选审批人并让用户选择；`ENTERPRISE_SELF_BUILT` 表示企业自建审核模式，不传 `--approver`，按企业自建审核流程等待。
+
+版本状态字段：`version create/list/get` 返回 `status`，`version status` 返回 `versionStatus`，二者都对齐版本枚举。
+
+| status/versionStatus | 含义 | 下一步 |
+|----------------------|------|--------|
+| `INIT` | 版本已创建或有待发布变更，尚未发布 | 可 `check-approval` / `publish` |
+| `AUDIT` | 发布审核中 | 不要重复发布；用 `version status` 查看 `processStatus/processComment` |
+| `RELEASE` | 已发布生效 | 发布完成，可继续验证权限、机器人、网页应用等能力 |
+| `GRAY` | 灰度状态 | 按灰度流程处理；不要当全量已发布 |
+
+审批流程状态字段：`version status` 的 `processStatus` 只在存在审批流程时有值；没有 `processInstanceId` 通常表示无审批流程或尚未提交。
+
+| processStatus | 含义 | 下一步 |
+|---------------|------|--------|
+| `UNDER_REVIEW` | 审批中 | 等待审批，必要时把 `processInstanceId` 给用户去钉钉客户端查看 |
+| `PASS` | 审批通过 | 继续回读版本，确认是否进入 `RELEASE` |
+| `FAIL` | 审批拒绝 | 展示 `processComment`，修改后重新创建/发布版本 |
+| `WITHDRAW` / `CANCEL` | 审批撤回或取消 | 回到发布前状态，重新 `check-approval` / `publish` |
+| `PUBLISH_FAILED` | 审批后发布失败 | 展示错误信息，重新检查版本状态和后端错误 |
+
+遇到未列出的状态值时，不要猜测语义；原样展示状态，并回读 `version get/status` 或查开放平台文档/后台详情。
 
 ---
 
