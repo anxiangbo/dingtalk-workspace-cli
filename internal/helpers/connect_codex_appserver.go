@@ -206,12 +206,31 @@ func (s *codexThreadSessions) state(convID string) *codexThreadState {
 }
 
 type codexAppServerClient struct {
-	cmd     *exec.Cmd
-	stdin   io.WriteCloser
-	msgs    chan codexRPCMessage
-	readErr chan error
-	stderr  *bytes.Buffer
-	nextID  int
+	cmd       *exec.Cmd
+	stdin     io.WriteCloser
+	msgs      chan codexRPCMessage
+	readErr   chan error
+	done      chan struct{}
+	closeOnce sync.Once
+	stderr    *lockedBuffer
+	nextID    int
+}
+
+type lockedBuffer struct {
+	mu  sync.Mutex
+	buf bytes.Buffer
+}
+
+func (b *lockedBuffer) Write(p []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Write(p)
+}
+
+func (b *lockedBuffer) String() string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.String()
 }
 
 type codexRPCMessage struct {
@@ -241,7 +260,7 @@ func newCodexAppServerClient(ctx context.Context, bin string, env []string, cwd 
 	if err != nil {
 		return nil, err
 	}
-	stderr := &bytes.Buffer{}
+	stderr := &lockedBuffer{}
 	cmd.Stderr = stderr
 	if err := cmd.Start(); err != nil {
 		return nil, err
@@ -251,6 +270,7 @@ func newCodexAppServerClient(ctx context.Context, bin string, env []string, cwd 
 		stdin:   stdin,
 		msgs:    make(chan codexRPCMessage, 64),
 		readErr: make(chan error, 1),
+		done:    make(chan struct{}),
 		stderr:  stderr,
 		nextID:  1,
 	}
@@ -268,26 +288,40 @@ func (c *codexAppServerClient) readLoop(stdout io.Reader) {
 		}
 		var msg codexRPCMessage
 		if err := json.Unmarshal([]byte(line), &msg); err != nil {
-			c.readErr <- fmt.Errorf("parse app-server JSONL: %w", err)
+			c.reportReadErr(fmt.Errorf("parse app-server JSONL: %w", err))
 			close(c.msgs)
 			return
 		}
-		c.msgs <- msg
+		select {
+		case c.msgs <- msg:
+		case <-c.done:
+			return
+		}
 	}
 	if err := scanner.Err(); err != nil {
-		c.readErr <- err
+		c.reportReadErr(err)
 	} else {
-		c.readErr <- io.EOF
+		c.reportReadErr(io.EOF)
 	}
 	close(c.msgs)
 }
 
 func (c *codexAppServerClient) close() {
-	_ = c.stdin.Close()
-	if c.cmd.Process != nil {
-		_ = c.cmd.Process.Kill()
+	c.closeOnce.Do(func() {
+		close(c.done)
+		_ = c.stdin.Close()
+		if c.cmd.Process != nil {
+			_ = c.cmd.Process.Kill()
+		}
+		_ = c.cmd.Wait()
+	})
+}
+
+func (c *codexAppServerClient) reportReadErr(err error) {
+	select {
+	case c.readErr <- err:
+	case <-c.done:
 	}
-	_ = c.cmd.Wait()
 }
 
 func (c *codexAppServerClient) initialize(ctx context.Context) error {
@@ -434,6 +468,8 @@ func (c *codexAppServerClient) next(ctx context.Context) (codexRPCMessage, error
 		return msg, nil
 	case err := <-c.readErr:
 		return codexRPCMessage{}, err
+	case <-c.done:
+		return codexRPCMessage{}, io.EOF
 	case <-ctx.Done():
 		return codexRPCMessage{}, ctx.Err()
 	}

@@ -15,6 +15,8 @@ package helpers
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -186,6 +188,80 @@ done
 	}
 	if reply != "fallback-ok" {
 		t.Fatalf("reply = %q, want fallback-ok", reply)
+	}
+}
+
+func TestCodexAppServerReadLoopStopsWhenClosedWithFullQueue(t *testing.T) {
+	reader, writer := io.Pipe()
+	c := &codexAppServerClient{
+		msgs:    make(chan codexRPCMessage, 1),
+		readErr: make(chan error, 1),
+		done:    make(chan struct{}),
+	}
+
+	loopDone := make(chan struct{})
+	go func() {
+		defer close(loopDone)
+		c.readLoop(reader)
+	}()
+
+	writerDone := make(chan struct{})
+	go func() {
+		defer close(writerDone)
+		for i := 0; i < 200; i++ {
+			if _, err := fmt.Fprintf(writer, `{"method":"event/%d","params":{}}`+"\n", i); err != nil {
+				return
+			}
+		}
+	}()
+
+	deadline := time.Now().Add(time.Second)
+	for len(c.msgs) == 0 && time.Now().Before(deadline) {
+		time.Sleep(time.Millisecond)
+	}
+	if len(c.msgs) == 0 {
+		t.Fatal("readLoop did not enqueue the first message")
+	}
+
+	close(c.done)
+	_ = reader.Close()
+	_ = writer.Close()
+	select {
+	case <-loopDone:
+	case <-time.After(time.Second):
+		t.Fatal("readLoop did not stop after client close")
+	}
+	select {
+	case <-writerDone:
+	case <-time.After(time.Second):
+		t.Fatal("writer stayed blocked after pipe close")
+	}
+}
+
+func TestLockedBufferConcurrentReadWrite(t *testing.T) {
+	var b lockedBuffer
+	stop := make(chan struct{})
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		for {
+			select {
+			case <-stop:
+				return
+			default:
+				_, _ = b.Write([]byte("stderr\n"))
+			}
+		}
+	}()
+
+	for i := 0; i < 1000; i++ {
+		_ = b.String()
+	}
+	close(stop)
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("writer did not stop")
 	}
 }
 
