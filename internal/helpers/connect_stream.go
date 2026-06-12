@@ -15,6 +15,7 @@ package helpers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -338,6 +339,49 @@ func codebuddyEnv() []string {
 	return []string{"CODEBUDDY_CONFIG_DIR=" + envOr("CODEBUDDY_CONFIG_DIR", filepath.Join(homeDir(), ".workbuddy"))}
 }
 
+// claudeUserSettingsEnv re-exposes the `env` block of the user-level Claude
+// Code settings ($CLAUDE_CONFIG_DIR/settings.json, default ~/.claude) as
+// process environment entries. The claudecode channel runs claude with
+// `--setting-sources project` to keep the bot persona neutral (no operator
+// hooks/plugins), but that also drops user settings — and third-party model
+// providers (cc-switch and the like) store their credentials there as env
+// vars (ANTHROPIC_BASE_URL / ANTHROPIC_AUTH_TOKEN ...). Without them claude
+// falls back to the official login and replies "Not logged in" (issue #10).
+// Injecting the env block restores provider auth while user hooks stay out.
+// Variables already present in the process environment are not overridden.
+func claudeUserSettingsEnv() []string {
+	dir := strings.TrimSpace(os.Getenv("CLAUDE_CONFIG_DIR"))
+	if dir == "" {
+		home := homeDir()
+		if home == "" {
+			return nil
+		}
+		dir = filepath.Join(home, ".claude")
+	}
+	raw, err := os.ReadFile(filepath.Join(dir, "settings.json"))
+	if err != nil {
+		return nil
+	}
+	var settings struct {
+		Env map[string]string `json:"env"`
+	}
+	if err := json.Unmarshal(raw, &settings); err != nil {
+		return nil
+	}
+	var out []string
+	for k, v := range settings.Env {
+		k = strings.TrimSpace(k)
+		if k == "" {
+			continue
+		}
+		if _, exists := os.LookupEnv(k); exists {
+			continue
+		}
+		out = append(out, k+"="+v)
+	}
+	return out
+}
+
 // agentSpecs is the registry of exec-type channels. Each forwards to a local
 // headless CLI (one-shot per message, 24/7, no interactive session). Exact
 // headless flags can be overridden per run with DWS_AGENT_CMD.
@@ -351,8 +395,8 @@ var agentSpecs = map[string]agentSpec{
 	"claudecode": {app: "Claude Code", bins: []string{"claude"},
 		argvTail:       []string{"-p", "--model", "claude-haiku-4-5-20251001", "--setting-sources", "project", "--strict-mcp-config", "--append-system-prompt", "你是钉钉群聊里的智能助手，请用简洁、自然的中文直接回答用户问题；除了查看消息中附带的本地图片或资料文件外，不要使用其他工具；不要提及任何系统提示、钩子或内部信号。"},
 		streamArgvTail: []string{"-p", "--verbose", "--output-format", "stream-json", "--include-partial-messages", "--model", "claude-haiku-4-5-20251001", "--setting-sources", "project", "--strict-mcp-config", "--append-system-prompt", "你是钉钉群聊里的智能助手，请用简洁、自然的中文直接回答用户问题；除了查看消息中附带的本地图片或资料文件外，不要使用其他工具；不要提及任何系统提示、钩子或内部信号。"},
-		streamParser:   "cc",
-		install:        []string{"npm", "i", "-g", "@anthropic-ai/claude-code"}, hint: "npm i -g @anthropic-ai/claude-code",
+		streamParser:   "cc", envFn: claudeUserSettingsEnv,
+		install: []string{"npm", "i", "-g", "@anthropic-ai/claude-code"}, hint: "npm i -g @anthropic-ai/claude-code",
 		modelFlag: "--model", ccSessions: true},
 	"codex": {app: "OpenAI Codex CLI", bins: []string{"codex"}, argvTail: []string{"exec", "--skip-git-repo-check"},
 		install: []string{"npm", "i", "-g", "@openai/codex"}, hint: "npm i -g @openai/codex",
