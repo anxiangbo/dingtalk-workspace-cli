@@ -24,6 +24,27 @@ MCP tool: `list_open_dev_app_permissions`
 | `--limit` | `limit` | 每页返回数量，默认 20，建议不超过 50 |
 | `--offset` | `offset` | 翻页偏移量，默认 0 |
 
+**状态判断：**
+
+`--status` 是查询过滤条件：
+
+| authStatus | 含义 |
+|------------|------|
+| `ALL` | 不按授权状态过滤 |
+| `AUTHED` | 只看已授权/已开通的权限点 |
+| `UNAUTHED` | 只看未授权/未开通的权限点 |
+
+单个权限项返回的 `status` 是内部操作态：
+
+| status | 枚举 | 含义 | 下一步 |
+|--------|------|------|--------|
+| `0` | `STATUS_OBTAINED` | 权限已获得 | 不要重复申请；如需取消，确认 `canRemove=true` 后走 `permission remove` |
+| `1` | `STATUS_APPLYING` | 权限申请中 | 不要重复申请；查看 `authedStatusDesc`，通常等待审批或版本发布 |
+| `2` | `STATUS_CAN_APPLY` | 权限可以申请 | 可走 `permission add --dry-run` |
+| `3` | `STATUS_CAN_NOT_APPLY` | 权限不可以申请 | 停止申请，展示 `applyDisabledReason/displayMessage` |
+
+`authedStatusDesc` 是给用户看的细分状态：`OPENED`/`APPLIED`/`TO_BE_PUBLISHED` 表示已开通、已申请或待发布；`NOT_OPEN`/`NOT_APPLIED` 表示未开通/未申请；`AUDIT_PROCESSING` 表示审批中；`AUDIT_REFUSE` 表示审批未通过。判断能否操作仍以 `status`、`canEdit`、`canApplyDirectly`、`allowedActions` 为准。
+
 **翻页：**
 
 权限列表支持 `--limit` + `--offset` 分页。一个应用可能有 150+ 个权限点，一次查不完时用 offset 翻页：

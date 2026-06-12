@@ -35,6 +35,19 @@ MCP tool: `list_open_dev_apps_by_condition`
 | `--sort` | `sortType` | 如 `gmt_modified` |
 | `--order` | `sortOrder` | `asc` / `desc` |
 
+## 应用状态字段
+
+列表/详情原始字段里如果出现 `status` / `appStatus`，按应用生命周期枚举判断；不要和版本 `versionStatus` 混用。
+
+| status | 枚举 | 含义 | 下一步 |
+|--------|------|------|--------|
+| `0` | `IN_ACTIVE` | 已停用，应用不可用 | 需要恢复时走 `active --dry-run` → 确认 → `--yes` |
+| `1` | `ACTIVE` | 已激活，应用可用 | 可继续配置权限、网页应用、机器人或版本 |
+| `2` | `WAIT_ACTIVE` | 待激活 | 先回读 `get/list` 确认状态；不要直接按已生效处理 |
+| `3` | `EXPIRED` | 已过期 | 停止写操作，提示用户到开发者后台或管理员侧处理 |
+
+`create/update` 返回的 `versionStatus` 是版本状态，语义见 `version.md`；它不等同于应用启停状态。
+
 ## 应用详情
 
 ```bash
@@ -44,7 +57,7 @@ dws devapp get --agent-id 123456 --format json
 
 MCP tool: `get_open_dev_app_detail`
 
-详情展示 `agentId/clientId/appKey`，但不能用来读 `clientSecret/appSecret`。
+详情主要用于定位和核验应用。若上游偶尔随详情返回 `clientSecret/appSecret`，必须脱敏处理，不要复制到回答里；主动读取凭证仍走 `credentials get`。
 
 ## 创建应用
 
@@ -87,6 +100,8 @@ dws devapp active --unified-app-id ID --yes --format json
 MCP tools: `inactive_inner_app` / `active_inner_app`
 
 停用保留数据但应用不可用，可通过 `active` 恢复。
+
+执行 `inactive/active` 后必须回读 `get` 或 `list`：看到 `status=0` 才算停用完成，看到 `status=1` 才算启用完成；如果接口只返回操作成功但未带状态，向用户说明需要以回读结果为准。
 
 ## 删除应用
 
