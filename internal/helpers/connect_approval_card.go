@@ -361,7 +361,7 @@ func (o *approvalOrchestrator) notifyOwnerDeferred(ctx context.Context, req *App
 		who = "你"
 	}
 	msg := fmt.Sprintf("⚠️ %s 请求执行：%s\n但我现在没能以你的身份完成（很可能这台连接器的 dws 没有登录成你本人的账号）。\n"+
-		"请确认 dws 登录的是机器人主人账号，然后回复「重试」，我会把积压的请求补做。\n（错误：%s）",
+		"已先记下，不会丢。把 dws 登录成机器人主人账号后会自动补做；想立即补做可回复「重试」。\n（错误：%s）",
 		who, req.Summary, truncateRunes(execErr.Error(), 120))
 	_ = o.notifier.sendOTOText(ctx, []string{o.ownerUserID}, msg)
 }
@@ -453,8 +453,30 @@ func (o *approvalOrchestrator) flushDeferred(ctx context.Context) bool {
 		_ = o.notifier.sendOTOText(ctx, []string{o.ownerUserID}, "当前没有积压的请求。")
 		return true
 	}
-	doneSummaries := make([]string, 0, len(pending))
-	stuck := 0
+	done, stuck := o.flushDeferredOnce(ctx, pending)
+	// Manual "重试" always reports back (the owner asked), naming what was done.
+	var b strings.Builder
+	fmt.Fprintf(&b, "已补做 %d 个积压请求", len(done))
+	if len(done) > 0 {
+		b.WriteString("：\n")
+		for i, s := range done {
+			fmt.Fprintf(&b, "%d. %s\n", i+1, s)
+		}
+	} else {
+		b.WriteString("。")
+	}
+	if stuck > 0 {
+		fmt.Fprintf(&b, "仍有 %d 个未成功（身份可能还没对上，确认 dws 登录后再回复「重试」）。", stuck)
+	}
+	_ = o.notifier.sendOTOText(ctx, []string{o.ownerUserID}, strings.TrimRight(b.String(), "\n"))
+	return true
+}
+
+// flushDeferredOnce re-executes each given deferred request once. Successful
+// ones are marked executed and their requester is notified; failed ones stay
+// deferred. Returns the completed summaries and the still-stuck count. Shared by
+// the manual "重试" path and the background auto-retry.
+func (o *approvalOrchestrator) flushDeferredOnce(ctx context.Context, pending []*ApprovalRequest) (done []string, stuck int) {
 	for _, req := range pending {
 		out, execErr := o.execute(ctx, req)
 		if execErr != nil {
@@ -466,26 +488,52 @@ func (o *approvalOrchestrator) flushDeferred(ctx context.Context) bool {
 		o.gate.markExecuted(req.ID)
 		o.recordAudit(ctx, req.ID)
 		o.notifyRequester(ctx, req, "（已恢复）已为你完成："+req.Summary+"\n"+out)
-		doneSummaries = append(doneSummaries, req.Summary)
+		done = append(done, req.Summary)
 	}
-	// Report to the owner WHAT was done (not just a count) — when the owner is
-	// also the requester, this per-item list is their only completion receipt
-	// (notifyRequester skips owner==requester to avoid double-messaging).
+	return done, stuck
+}
+
+// autoFlushDeferred is the background-retry pass: it replays the backlog and
+// messages the owner ONLY when something actually completed (so a periodic tick
+// while the identity is still wrong stays silent — no spam). The requester is
+// still notified per completed item inside flushDeferredOnce.
+func (o *approvalOrchestrator) autoFlushDeferred(ctx context.Context) {
+	pending := o.gate.allDeferred()
+	if len(pending) == 0 {
+		return
+	}
+	done, _ := o.flushDeferredOnce(ctx, pending)
+	if len(done) == 0 {
+		return
+	}
 	var b strings.Builder
-	fmt.Fprintf(&b, "已补做 %d 个积压请求", len(doneSummaries))
-	if len(doneSummaries) > 0 {
-		b.WriteString("：\n")
-		for i, s := range doneSummaries {
-			fmt.Fprintf(&b, "%d. %s\n", i+1, s)
-		}
-	} else {
-		b.WriteString("。")
-	}
-	if stuck > 0 {
-		fmt.Fprintf(&b, "仍有 %d 个未成功（身份可能还没对上，确认 dws 登录后再回复「重试」）。", stuck)
+	fmt.Fprintf(&b, "（已自动恢复）补做了 %d 个积压请求：\n", len(done))
+	for i, s := range done {
+		fmt.Fprintf(&b, "%d. %s\n", i+1, s)
 	}
 	_ = o.notifier.sendOTOText(ctx, []string{o.ownerUserID}, strings.TrimRight(b.String(), "\n"))
-	return true
+}
+
+// startAutoRetry runs autoFlushDeferred on an interval until ctx is cancelled,
+// so a deferred backlog drains by itself once the owner's identity comes back —
+// no manual "重试" needed. A no-op when there is no notifier (card mode) or a
+// non-positive interval.
+func (o *approvalOrchestrator) startAutoRetry(ctx context.Context, interval time.Duration) {
+	if o == nil || o.notifier == nil || interval <= 0 {
+		return
+	}
+	go func() {
+		t := time.NewTicker(interval)
+		defer t.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-t.C:
+				o.autoFlushDeferred(ctx)
+			}
+		}
+	}()
 }
 
 // notifyRequester sends the outcome to the original requester, unless they are
