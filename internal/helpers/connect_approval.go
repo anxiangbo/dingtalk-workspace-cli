@@ -79,9 +79,9 @@ type plannedAction struct {
 // too (marshalled as-is), so every field is JSON-tagged and self-describing.
 type ApprovalRequest struct {
 	ID        string        `json:"id"`
-	Requester string        `json:"requester"` // staffId of who asked
-	ConvID    string        `json:"conv_id"`   // conversation to reply into
-	Summary   string        `json:"summary"`   // human-readable "what will happen"
+	Requester string        `json:"requester"`      // staffId of who asked
+	ConvID    string        `json:"conv_id"`        // conversation to reply into
+	Summary   string        `json:"summary"`        // human-readable "what will happen"
 	Verb      string        `json:"verb,omitempty"` // action verb, e.g. "todo.create" (remember key)
 	Action    plannedAction `json:"action"`         // structured command to run on approve
 	State     approvalState `json:"state"`
