@@ -93,12 +93,11 @@ dws devapp
   robot submit                 Submit async robot-create task (supports retry by taskId)
   robot result                 Query async robot-create task result
   robot get                    Get robot config of an existing app
-  robot config                 Create robot config on an existing app
-  robot update                 Update robot config
+  robot config                 Create or update robot config on an existing app
   robot enable                 Enable / re-enable robot capability
   robot offline                Offline robot capability
   version create               Save app version
-  version list                 List app versions (paged)
+  version list                 List app versions (cursor paged)
   version get                  Get one version detail
   version check-approval       Precheck publish approval requirements (no publish)
   version publish              Submit publish, possibly creating approval
@@ -141,7 +140,7 @@ Do not send confirmation fields such as `confirmCreate`, `confirmUpdate`, `confi
 | Permission remove | `devapp permission remove` | `remove_open_dev_app_permission` | `OpenInnerAppPermissionFacade.remove` | Implemented | Hardcoded helper |
 | Events | `devapp event list/subscribe/unsubscribe` | `list_open_dev_app_events`, `subscribe/unsubscribe_open_dev_app_event` | Implemented | Hardcoded helper |
 | Robot create | `devapp robot create/submit/result` | `create_dingtalk_robot`/`submit_robot_create_task`/`query_robot_create_result` | Implemented | Hardcoded helper |
-| Robot config | `devapp robot get/config/update/enable/offline` | `get/create/update_open_dev_app_robot_config`, `enable/offline_open_dev_app_robot` | Implemented | Hardcoded helper |
+| Robot config | `devapp robot get/config/enable/offline` | `get/set_open_dev_app_robot_config`, `enable/offline_open_dev_app_robot` | Implemented | Hardcoded helper |
 | Version | `devapp version create/list/get/check-approval/publish/status` | `create/list_open_dev_app_versions`, `get_open_dev_app_version_detail/status`, `publish_open_dev_app_version` | Implemented | Hardcoded helper |
 
 P0 for yulan is app CRUD, permissions, credentials, and web app config. Robot,
@@ -1023,13 +1022,13 @@ Implemented version tools (verified against the `op-app` MCP `tools/list`):
 | CLI | MCP tool | Notes |
 | --- | --- | --- |
 | `devapp version create` | `create_open_dev_app_version` | Save a new version from current config (`version`, `description`). |
-| `devapp version list` | `list_open_dev_app_versions` | Paged list (`currentPage`, `pageSize`). |
+| `devapp version list` | `list_open_dev_app_versions` | Cursor-paged list (`cursor`, `pageSize`; response `items/nextCursor/hasMore`). |
 | `devapp version get` | `get_open_dev_app_version_detail` | One version detail by `versionId`. |
-| `devapp version check-approval` | `publish_open_dev_app_version` (`dryRun=true`) | Precheck approval requirement / approvers; does not publish. |
-| `devapp version publish` | `publish_open_dev_app_version` (`dryRun=false`) | Publish; `confirmedSensitive` for high-sensitivity scopes, optional `approverUserId`. |
+| `devapp version check-approval` | `publish_open_dev_app_version` (`precheckOnly=true`) | Precheck approval requirement / approvers; does not publish. |
+| `devapp version publish` | `publish_open_dev_app_version` (`precheckOnly=false`) | Publish; `confirmedSensitive` for high-sensitivity scopes, optional `approverUserId`. |
 | `devapp version status` | `get_open_dev_app_version_status` | Poll publish and approval state. |
 
-Note: the MCP `dryRun` field is the server-side approval precheck and maps to
+Note: the MCP `precheckOnly` field is the server-side approval precheck and maps to
 `version check-approval`. It is distinct from the CLI global `--dry-run` (preview
 without execution). `check-approval` is read-only (no write guard); `publish`
 uses the standard `--dry-run`/`--yes` write guard.
@@ -1042,12 +1041,11 @@ Implemented robot tools:
 | `devapp robot submit` | `submit_robot_create_task` | Async submit; supports retry via original `taskId`. |
 | `devapp robot result` | `query_robot_create_result` | Poll async task by `taskId`. |
 | `devapp robot get` | `get_open_dev_app_robot_config` | Read robot config of an existing app. |
-| `devapp robot config` | `create_open_dev_app_robot_config` | Create robot config on an existing app. |
-| `devapp robot update` | `update_open_dev_app_robot_config` | Update robot config. |
+| `devapp robot config` | `set_open_dev_app_robot_config` | Create or update robot config on an existing app. |
 | `devapp robot enable` | `enable_open_dev_app_robot` | Enable / re-enable robot capability. |
 | `devapp robot offline` | `offline_open_dev_app_robot` | Offline robot capability. |
 
-Robot create/submit and config/update/enable/offline are write operations and
+Robot create/submit and config/enable/offline are write operations and
 use the `--dry-run`/`--yes` guard; `get` and `result` are reads.
 
 Stitching rule:

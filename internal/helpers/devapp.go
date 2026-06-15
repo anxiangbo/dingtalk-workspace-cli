@@ -34,14 +34,13 @@ const (
 	devAppSecurityConfigTool = "update_app_security_config"
 
 	// 机器人能力（op-app MCP 工具，硬编码不走服务发现）。
-	devAppRobotCreateTool       = "create_dingtalk_robot"
-	devAppRobotSubmitTool       = "submit_robot_create_task"
-	devAppRobotResultTool       = "query_robot_create_result"
-	devAppRobotConfigGetTool    = "get_open_dev_app_robot_config"
-	devAppRobotConfigCreateTool = "create_open_dev_app_robot_config"
-	devAppRobotConfigUpdateTool = "update_open_dev_app_robot_config"
-	devAppRobotEnableTool       = "enable_open_dev_app_robot"
-	devAppRobotOfflineTool      = "offline_open_dev_app_robot"
+	devAppRobotCreateTool    = "create_dingtalk_robot"
+	devAppRobotSubmitTool    = "submit_robot_create_task"
+	devAppRobotResultTool    = "query_robot_create_result"
+	devAppRobotConfigGetTool = "get_open_dev_app_robot_config"
+	devAppRobotConfigSetTool = "set_open_dev_app_robot_config"
+	devAppRobotEnableTool    = "enable_open_dev_app_robot"
+	devAppRobotOfflineTool   = "offline_open_dev_app_robot"
 
 	// 版本发布能力（op-app MCP 工具，硬编码不走服务发现）。
 	devAppVersionCreateTool  = "create_open_dev_app_version"
@@ -172,8 +171,7 @@ func newDevAppCommand(runner executor.Runner) *cobra.Command {
 		newDevAppRobotSubmitCommand(runner),
 		newDevAppRobotResultCommand(runner),
 		newDevAppRobotConfigGetCommand(runner),
-		newDevAppRobotConfigCommand(runner, "config", "为现有应用创建机器人配置", devAppRobotConfigCreateTool),
-		newDevAppRobotConfigCommand(runner, "update", "更新现有应用机器人配置", devAppRobotConfigUpdateTool),
+		newDevAppRobotConfigCommand(runner, "config", "创建或更新现有应用机器人配置", devAppRobotConfigSetTool),
 		newDevAppRobotConfigCommand(runner, "enable", "启用现有应用机器人能力", devAppRobotEnableTool),
 		newDevAppRobotOfflineCommand(runner),
 		newDevAppRobotConnectCommand(runner),
@@ -966,8 +964,8 @@ func newDevAppVersionCreateCommand(runner executor.Runner) *cobra.Command {
 func newDevAppVersionListCommand(runner executor.Runner) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "list",
-		Short:             "分页查询应用版本列表",
-		Example:           "  dws devapp version list --unified-app-id UNIFIED_APP_ID --page 1 --page-size 20 --format json",
+		Short:             "按 cursor 查询应用版本列表",
+		Example:           "  dws devapp version list --unified-app-id UNIFIED_APP_ID --page-size 20 --format json\n  dws devapp version list --unified-app-id UNIFIED_APP_ID --cursor NEXT_CURSOR --page-size 20 --format json",
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -977,14 +975,14 @@ func newDevAppVersionListCommand(runner executor.Runner) *cobra.Command {
 			}
 			params := map[string]any{
 				"unifiedAppId": appID,
-				"currentPage":  devAppIntFlag(cmd, "page"),
 				"pageSize":     devAppIntFlag(cmd, "page-size"),
 			}
+			devAppPutString(params, "cursor", devAppStringFlag(cmd, "cursor"))
 			return runDevAppTool(runner, cmd, devAppVersionListTool, params)
 		},
 	}
 	addDevAppUnifiedIDFlag(cmd)
-	cmd.Flags().Int("page", 1, "分页页码，从 1 开始")
+	cmd.Flags().String("cursor", "", "服务端返回的不透明分页游标；首次查询留空")
 	cmd.Flags().Int("page-size", 20, "分页大小")
 	preferLegacyLeaf(cmd)
 	return cmd
@@ -1022,8 +1020,8 @@ func newDevAppVersionCheckApprovalCommand(runner executor.Runner) *cobra.Command
 			if err != nil {
 				return err
 			}
-			// 复用 publish 工具的服务端预检模式：dryRun=true 只返回审批要求，不发布。
-			params["dryRun"] = true
+			// 复用 publish 工具的服务端预检模式：precheckOnly=true 只返回审批要求，不发布。
+			params["precheckOnly"] = true
 			return runDevAppTool(runner, cmd, devAppVersionPublishTool, params)
 		},
 	}
@@ -1047,7 +1045,7 @@ func newDevAppVersionPublishCommand(runner executor.Runner) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			params["dryRun"] = false
+			params["precheckOnly"] = false
 			if cmd.Flags().Changed("confirm-sensitive") {
 				value, _ := cmd.Flags().GetBool("confirm-sensitive")
 				params["confirmedSensitive"] = value
@@ -1102,12 +1100,10 @@ func devAppVersionLocator(cmd *cobra.Command) (map[string]any, error) {
 
 func addDevAppUnifiedIDFlag(cmd *cobra.Command) {
 	cmd.Flags().String("unified-app-id", "", "统一应用 ID (必填)")
-	cmd.Flags().String("app-id", "", "--unified-app-id 的兼容别名")
-	_ = cmd.Flags().MarkHidden("app-id")
 }
 
 func requiredDevAppUnifiedID(cmd *cobra.Command) (string, error) {
-	appID := devAppFlagOrFallback(cmd, "unified-app-id", "app-id")
+	appID := devAppStringFlag(cmd, "unified-app-id")
 	if appID == "" {
 		return "", apperrors.NewValidation("--unified-app-id is required")
 	}

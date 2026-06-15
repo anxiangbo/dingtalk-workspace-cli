@@ -3,7 +3,7 @@
 为开放平台企业内部应用创建和配置机器人。分两类场景：
 
 1. **新建智能体机器人**：一次性创建一个新的 Agent 应用 + 承载机器人（`create` / `submit` / `result`）。
-2. **现有应用配置机器人**：在已存在的应用上开启/配置/停用机器人（`get` / `config` / `update` / `enable` / `offline`），通过 `--unified-app-id` 定位。
+2. **现有应用配置机器人**：在已存在的应用上开启/配置/停用机器人（`get` / `config` / `enable` / `offline`），通过 `--unified-app-id` 定位。
 
 > `corpId` / `userId` 由 MCP 系统上下文注入，CLI 不传。所有写操作先 `--dry-run`，确认后再 `--yes`。
 
@@ -74,9 +74,9 @@ MCP tool: `get_open_dev_app_robot_config`。返回机器人基础信息、回调
 - ONLINE 只代表开放平台机器人能力已开启。若要让机器人自动处理消息，还需要配置 `--outgoing-url` / `--event-url`，或用 `robot connect` 接到本地 Agent。
 - 未配置机器人时不会返回 `status`，而是业务错误 `robot info is not exist`；这时走 `robot config`，不是 `enable`。
 
-### 创建 / 更新 / 启用配置
+### 创建或更新 / 启用配置
 
-三者字段一致，区别在语义：`config`=首次创建、`update`=修改、`enable`=启用/重新启用。
+`config` 是 upsert：未配置机器人时创建，已存在时更新；`enable` 用于启用/重新启用。
 
 首次 `config` 成功后必须回读 `robot get`：如果返回 `status=2`，不要再误判为“待生效”；只有 `status=1` 或需要重新上架时才调用 `enable`。
 
@@ -85,12 +85,10 @@ dws devapp robot config --unified-app-id <unifiedAppId> --name 小助手 --brief
   --description "处理审批相关问答" --outgoing-url https://example.com/msg \
   --event-url https://example.com/event --mode 2 --skills qa,approval --dry-run --format json
 
-dws devapp robot update --unified-app-id <unifiedAppId> --brief "新的简介" --dry-run --format json
-
 dws devapp robot enable --unified-app-id <unifiedAppId> --name 小助手 --dry-run --format json
 ```
 
-MCP tools: `create_open_dev_app_robot_config` / `update_open_dev_app_robot_config` / `enable_open_dev_app_robot`
+MCP tools: `set_open_dev_app_robot_config` / `enable_open_dev_app_robot`
 
 | CLI | MCP | 说明 |
 |-----|-----|------|

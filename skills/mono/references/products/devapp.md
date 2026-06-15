@@ -220,12 +220,11 @@ MCP tools: `create_dingtalk_robot` / `submit_robot_create_task` / `query_robot_c
 ```bash
 dws devapp robot get --unified-app-id ID --format json
 dws devapp robot config --unified-app-id ID --name 小助手 --brief 审批助手 --outgoing-url URL --mode 2 --skills qa,approval --dry-run --format json
-dws devapp robot update --unified-app-id ID --brief "新简介" --dry-run --format json
 dws devapp robot enable --unified-app-id ID --name 小助手 --dry-run --format json
 dws devapp robot offline --unified-app-id ID --dry-run --format json
 ```
 
-MCP tools: `get_open_dev_app_robot_config` / `create_open_dev_app_robot_config` / `update_open_dev_app_robot_config` / `enable_open_dev_app_robot` / `offline_open_dev_app_robot`。
+MCP tools: `get_open_dev_app_robot_config` / `set_open_dev_app_robot_config` / `enable_open_dev_app_robot` / `offline_open_dev_app_robot`。
 
 配置字段：`--name/--brief/--description/--icon/--outgoing-url(outgoingUrl)/--event-url(chatBotEventUrl)/--mode/--skills(skillList)/--add-scope/--disable-ssl-verify/--i18n-name/--i18n-brief/--i18n-description`。应用未配机器人时 `get` 返回 `robot info is not exist`。
 
@@ -278,7 +277,8 @@ dws devapp robot connect --robot-client-id CLIENT_ID --robot-client-secret CLIEN
 
 ```bash
 dws devapp version create --unified-app-id ID --version 1.0.1 --desc "新增机器人能力" --dry-run --format json
-dws devapp version list --unified-app-id ID --page 1 --page-size 20 --format json
+dws devapp version list --unified-app-id ID --page-size 20 --format json
+dws devapp version list --unified-app-id ID --cursor NEXT_CURSOR --page-size 20 --format json
 dws devapp version get --unified-app-id ID --version-id VERSION_ID --format json
 dws devapp version check-approval --unified-app-id ID --version-id VERSION_ID --format json
 dws devapp version publish --unified-app-id ID --version-id VERSION_ID --confirm-sensitive --dry-run --format json
@@ -287,8 +287,9 @@ dws devapp version status --unified-app-id ID --version-id VERSION_ID --format j
 
 MCP tools: `create_open_dev_app_version` / `list_open_dev_app_versions` / `get_open_dev_app_version_detail` / `publish_open_dev_app_version` / `get_open_dev_app_version_status`。
 
-- `check-approval` = `publish_open_dev_app_version` 的 `dryRun=true` 预检模式，不实际发布。
-- `publish` 设 `dryRun=false`；含高敏权限需 `--confirm-sensitive`，灰度选人模式用 `--approver USER_ID`。
+- `version list` 使用 `cursor/pageSize`；首次不传 cursor，后续传响应里的 `nextCursor`。
+- `check-approval` = `publish_open_dev_app_version` 的 `precheckOnly=true` 预检模式，不实际发布。
+- `publish` 设 `precheckOnly=false`；含高敏权限需 `--confirm-sensitive`，灰度选人模式用 `--approver USER_ID`。
 - 流程：`permission add`（requiredApproval 写入版本变更）→ `version create` → `check-approval` → `publish` → `status`。
 - 新应用如果 `version list` 返回空，先执行 `version create`，用返回的 `versionId` 继续 `check-approval/publish`；不要因为列表为空误判无可发布内容。
 - **审批人选择**：`check-approval` 返回候选审批人列表（userId+姓名）→ **展示给用户让其选择（不要自行挑选或默认第一个）** → `publish --approver <选中的userId>` 自动向该审批人发起审批 → `version status` 跟踪。机器人等能力需审批通过、应用发布后才可被搜索/加群/路由消息。

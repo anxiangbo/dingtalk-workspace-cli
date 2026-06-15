@@ -119,6 +119,15 @@ func TestDevAppCommandHasAppAliasAndCoreCommands(t *testing.T) {
 			t.Fatalf("missing command %q: %v", name, err)
 		}
 	}
+	robotCmd, _, err := root.Find([]string{"robot"})
+	if err != nil {
+		t.Fatalf("missing robot command: %v", err)
+	}
+	for _, cmd := range robotCmd.Commands() {
+		if cmd.Name() == "update" {
+			t.Fatal("robot update command exists, want removed public command")
+		}
+	}
 }
 
 func TestDevAppRobotCommandsBuildToolParams(t *testing.T) {
@@ -166,7 +175,7 @@ func TestDevAppRobotCommandsBuildToolParams(t *testing.T) {
 		{
 			name:     "config create with skills and mode",
 			args:     []string{"robot", "config", "--unified-app-id", "u-1", "--name", "小助手", "--brief", "审批助手", "--mode", "2", "--skills", "qa,approval", "--add-scope", "--yes"},
-			wantTool: "create_open_dev_app_robot_config",
+			wantTool: "set_open_dev_app_robot_config",
 			wantParams: map[string]any{
 				"unifiedAppId": "u-1",
 				"name":         "小助手",
@@ -228,11 +237,11 @@ func TestDevAppVersionCommandsBuildToolParams(t *testing.T) {
 		},
 		{
 			name:     "list",
-			args:     []string{"version", "list", "--unified-app-id", "u-1", "--page", "2", "--page-size", "5"},
+			args:     []string{"version", "list", "--unified-app-id", "u-1", "--cursor", "cursor-1", "--page-size", "5"},
 			wantTool: "list_open_dev_app_versions",
 			wantParams: map[string]any{
 				"unifiedAppId": "u-1",
-				"currentPage":  2,
+				"cursor":       "cursor-1",
 				"pageSize":     5,
 			},
 		},
@@ -243,19 +252,19 @@ func TestDevAppVersionCommandsBuildToolParams(t *testing.T) {
 			wantParams: map[string]any{"unifiedAppId": "u-1", "versionId": "v-1"},
 		},
 		{
-			name:       "check-approval forces dryRun",
+			name:       "check-approval prechecks only",
 			args:       []string{"version", "check-approval", "--unified-app-id", "u-1", "--version-id", "v-1"},
 			wantTool:   "publish_open_dev_app_version",
-			wantParams: map[string]any{"unifiedAppId": "u-1", "versionId": "v-1", "dryRun": true},
+			wantParams: map[string]any{"unifiedAppId": "u-1", "versionId": "v-1", "precheckOnly": true},
 		},
 		{
-			name:     "publish sets dryRun false and sensitive",
+			name:     "publish disables precheck and sets sensitive",
 			args:     []string{"version", "publish", "--unified-app-id", "u-1", "--version-id", "v-1", "--confirm-sensitive", "--approver", "user-1", "--yes"},
 			wantTool: "publish_open_dev_app_version",
 			wantParams: map[string]any{
 				"unifiedAppId":       "u-1",
 				"versionId":          "v-1",
-				"dryRun":             false,
+				"precheckOnly":       false,
 				"confirmedSensitive": true,
 				"approverUserId":     "user-1",
 			},
@@ -356,6 +365,79 @@ func TestDevAppEventSubscribeRequiresEventCode(t *testing.T) {
 	}
 	if runner.last.Tool != "" {
 		t.Fatalf("tool = %q, want no invocation", runner.last.Tool)
+	}
+}
+
+func TestDevAppScopedCommandsRejectLegacyLocators(t *testing.T) {
+	cases := []struct {
+		name string
+		args []string
+	}{
+		{name: "version create", args: []string{"devapp", "version", "create", "--app-id", "u-1", "--version", "1.0.1", "--yes"}},
+		{name: "version list", args: []string{"devapp", "version", "list", "--app-id", "u-1"}},
+		{name: "version get", args: []string{"devapp", "version", "get", "--app-id", "u-1", "--version-id", "v-1"}},
+		{name: "version check approval", args: []string{"devapp", "version", "check-approval", "--app-id", "u-1", "--version-id", "v-1"}},
+		{name: "version publish", args: []string{"devapp", "version", "publish", "--app-id", "u-1", "--version-id", "v-1", "--yes"}},
+		{name: "version status", args: []string{"devapp", "version", "status", "--app-id", "u-1", "--version-id", "v-1"}},
+		{name: "robot get", args: []string{"devapp", "robot", "get", "--app-id", "u-1"}},
+		{name: "robot config", args: []string{"devapp", "robot", "config", "--app-id", "u-1", "--name", "小助手", "--yes"}},
+		{name: "robot enable", args: []string{"devapp", "robot", "enable", "--app-id", "u-1", "--name", "小助手", "--yes"}},
+		{name: "robot offline", args: []string{"devapp", "robot", "offline", "--app-id", "u-1", "--yes"}},
+		{name: "event list", args: []string{"devapp", "event", "list", "--app-id", "u-1"}},
+		{name: "event subscribe", args: []string{"devapp", "event", "subscribe", "--app-id", "u-1", "--event-code", "user_add_org", "--yes"}},
+		{name: "event unsubscribe", args: []string{"devapp", "event", "unsubscribe", "--app-id", "u-1", "--event-code", "user_add_org", "--yes"}},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			runner := &captureRunner{}
+			root := newDevAppTestRoot(runner)
+			var out bytes.Buffer
+			root.SetOut(&out)
+			root.SetErr(&out)
+			root.SetArgs(tc.args)
+
+			err := root.Execute()
+			if err == nil {
+				t.Fatal("Execute() error = nil, want unknown --app-id flag")
+			}
+			if !strings.Contains(err.Error(), "unknown flag: --app-id") {
+				t.Fatalf("error = %q, want unknown --app-id flag", err.Error())
+			}
+			if runner.last.Tool != "" {
+				t.Fatalf("tool = %q, want no invocation", runner.last.Tool)
+			}
+		})
+	}
+}
+
+func TestDevAppScopedCommandsRejectAgentAndCustomKeyLocators(t *testing.T) {
+	for _, flag := range []string{"--agent-id", "--custom-key"} {
+		for _, args := range [][]string{
+			{"devapp", "version", "list", flag, "u-1"},
+			{"devapp", "robot", "get", flag, "u-1"},
+			{"devapp", "event", "list", flag, "u-1"},
+		} {
+			t.Run(strings.Join(args[1:3], " ")+" "+flag, func(t *testing.T) {
+				runner := &captureRunner{}
+				root := newDevAppTestRoot(runner)
+				var out bytes.Buffer
+				root.SetOut(&out)
+				root.SetErr(&out)
+				root.SetArgs(args)
+
+				err := root.Execute()
+				if err == nil {
+					t.Fatalf("Execute() error = nil, want unknown %s flag", flag)
+				}
+				if !strings.Contains(err.Error(), "unknown flag: "+flag) {
+					t.Fatalf("error = %q, want unknown %s flag", err.Error(), flag)
+				}
+				if runner.last.Tool != "" {
+					t.Fatalf("tool = %q, want no invocation", runner.last.Tool)
+				}
+			})
+		}
 	}
 }
 

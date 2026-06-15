@@ -42,7 +42,7 @@ MCP tool: `unsubscribe_open_dev_app_event`（入参 `unifiedAppId` + `eventCode`
 
 | CLI | MCP | 必填 | 说明 |
 |-----|-----|------|------|
-| `--unified-app-id` | `unifiedAppId` | 是 | 统一应用 ID（兼容隐藏别名 `--app-id`） |
+| `--unified-app-id` | `unifiedAppId` | 是 | 统一应用 ID |
 | `--event-code` | `eventCode` | subscribe/unsubscribe 必填 | 事件码，取自 `event list` |
 
 ## 灰度应用需发布版本生效（重要）

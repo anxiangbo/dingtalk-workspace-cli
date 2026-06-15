@@ -148,7 +148,7 @@
 
 2. 审批预检：获取审批要求和候选审批人列表
    dws devapp version check-approval --unified-app-id <unifiedAppId> --version-id <versionId> --format json
-   → 服务端 dryRun 预检，不实际发布
+   → 服务端 precheckOnly 预检，不实际发布
    → 返回中包含是否需要审批、候选审批人（userId + 姓名）
 
 3. 把候选审批人列表展示给用户，让用户选择
