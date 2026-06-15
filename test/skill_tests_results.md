@@ -2,8 +2,8 @@
 
 ## Summary
 
-- **Total Test Cases**: 234
-- **Passed**: 234
+- **Total Test Cases**: 235
+- **Passed**: 235
 - **Failed**: 0
 - **Pass Rate**: 100.0%
 
@@ -17,7 +17,7 @@
 | chat | 31 | 31 | 0 | 100.0% |
 | contact | 14 | 14 | 0 | 100.0% |
 | devapp | 25 | 25 | 0 | 100.0% |
-| devdoc | 7 | 7 | 0 | 100.0% |
+| devdoc | 8 | 8 | 0 | 100.0% |
 | ding | 5 | 5 | 0 | 100.0% |
 | report | 26 | 26 | 0 | 100.0% |
 | routing | 3 | 3 | 0 | 100.0% |
@@ -1352,6 +1352,14 @@
 - Skill Reference: references/products/devdoc.md
 - Command path: PASS (devdoc article search)
 - Flags: PASS (1 flags validated)
+
+**devdoc_devdoc_article_search_008** ✅ PASS
+
+- Prompt: 继续搜索开放平台文档中关于消息卡片的下一页，游标 NEXT_CURSOR
+- Expected: `dws devdoc article search --keyword 消息卡片 --cursor NEXT_CURSOR --format json`
+- Skill Reference: references/products/devdoc.md
+- Command path: PASS (devdoc article search)
+- Flags: PASS (2 flags validated)
 
 ### ding
 
