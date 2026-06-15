@@ -601,6 +601,45 @@ func TestDeferredExecution_HoldsAndRetries(t *testing.T) {
 	}
 }
 
+// TestAutoFlushDeferred verifies the background retry: silent while the identity
+// is still wrong (no spam), and it drains + notifies once execution works.
+func TestAutoFlushDeferred(t *testing.T) {
+	t.Setenv("DWS_CONFIG_DIR", t.TempDir())
+	gate := newApprovalGate("ctauto")
+	runner := &fakeRunner{fail: true}
+	notifier := &fakeNotifier{}
+	o := newTextApprovalOrchestrator(gate, runner, "owner", notifier)
+
+	// Defer one (identity not ready).
+	o.handleReply(context.Background(), "owner", "conv-o", `[[ACTION:todo.create title="自动恢复"]]`, func(_ context.Context, _, _ string) error { return nil })
+	deferNotices := notifier.count() // the deferred DM
+	if gate.list()[0].State != approvalDeferred {
+		t.Fatalf("want deferred, got %s", gate.list()[0].State)
+	}
+
+	// Auto-retry while still failing → stays deferred, NO new owner message.
+	o.autoFlushDeferred(context.Background())
+	if gate.list()[0].State != approvalDeferred {
+		t.Fatal("should still be deferred while identity is wrong")
+	}
+	if notifier.count() != deferNotices {
+		t.Fatalf("auto-retry must stay silent when nothing completes (sent %d, was %d)", notifier.count(), deferNotices)
+	}
+
+	// Identity recovers → auto-retry drains it and notifies once.
+	runner.setFail(false)
+	o.autoFlushDeferred(context.Background())
+	if gate.list()[0].State != approvalExecuted {
+		t.Fatalf("auto-retry should execute once identity is back, got %s", gate.list()[0].State)
+	}
+	notifier.mu.Lock()
+	last := notifier.sent[len(notifier.sent)-1].text
+	notifier.mu.Unlock()
+	if !strings.Contains(last, "已自动恢复") || !strings.Contains(last, "自动恢复") {
+		t.Fatalf("owner should get an auto-recovery notice, got %q", last)
+	}
+}
+
 // TestIsTransientSheetErr distinguishes retryable throttles from permanent errors.
 func TestIsTransientSheetErr(t *testing.T) {
 	for _, e := range []string{"system error: THREADPOOL_BUSY", "server busy", "request timeout", "HTTP 429 too many requests"} {

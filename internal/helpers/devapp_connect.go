@@ -19,6 +19,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/cobracmd"
 	apperrors "github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/errors"
@@ -297,7 +298,11 @@ func launchConnector(cmd *cobra.Command, runner executor.Runner, channel, client
 				orch := newTextApprovalOrchestrator(gate, runner, opts.OwnerUserID, notifier)
 				orch.audit = audit
 				extras.approval = orch
-				fmt.Fprintf(cmd.ErrOrStderr(), "[connect] 确认闸已开启：主人=%s（文本审批：执行类请求私聊主人，主人回复「同意」/「拒绝」确认，请求人无感；配 --approval-card-template 可升级为卡片按钮）\n", opts.OwnerUserID)
+				// Background auto-retry: a deferred backlog (e.g. queued while the
+				// dws login was not yet the owner) drains by itself once the identity
+				// is back — no manual "重试" needed. Silent unless something completes.
+				orch.startAutoRetry(cmd.Context(), 2*time.Minute)
+				fmt.Fprintf(cmd.ErrOrStderr(), "[connect] 确认闸已开启：主人=%s（文本审批：执行类请求私聊主人，主人回复「同意」/「拒绝」确认，请求人无感；积压请求每2分钟自动重试，也可回「重试」立即补做；配 --approval-card-template 可升级为卡片按钮）\n", opts.OwnerUserID)
 			}
 		}
 		fmt.Fprintf(cmd.ErrOrStderr(), "[connect] channel=%s Go 原生 Stream 建联，转发到 %s，回复样式=%s（Ctrl-C 退出）\n", channel, fwd.label(), replyStyle)
