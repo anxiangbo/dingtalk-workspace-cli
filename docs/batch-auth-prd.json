@@ -222,16 +222,16 @@
         "repo": "lippi-pat-core-wukong-capability",
         "localPath": "/Users/xuan/lippi-pat-core-wukong-capability",
         "branch": "codex/batch-auth-page-flow",
-        "commit": "0c9b64d7b99c90a55d30b8e322cf379797783e45",
+        "commit": "db13b19957930e62e8b03d74ac4e8093ea4bf7e7",
         "aoneAppId": 312546,
         "aoneCrId": 34656143,
         "aoneCrStatus": "INTG",
         "aoneCrStatusLabel": "发布中",
         "aoneBranchRevision": "b38e29e9e9c0f55dc71762c37d261180cb30692b",
-        "aoneNewestRevision": "0c9b64d7b99c90a55d30b8e322cf379797783e45",
+        "aoneNewestRevision": "db13b19957930e62e8b03d74ac4e8093ea4bf7e7",
         "prepubPipelineId": 66,
         "prepubPipelineInstanceId": 3094877542,
-        "prepubPackage": "paused_by_user_for_pat_core_release_conflict_resolution; local_compile_success_after_tryConsumeOnceTokenFromTair_signature_fix; lippi-pat-core-api_1.0.5-SNAPSHOT_snapshot_deployed",
+        "prepubPackage": "paused_by_user_for_pat_core_release_conflict_resolution; local_compile_success_after_tryConsumeOnceTokenFromTair_signature_fix; lippi-pat-core-api_1.0.5-SNAPSHOT_snapshot_deployed; api_module_version_explicitly_aligned_to_1.0.5-SNAPSHOT; lippi-enterprise-soc-api.version_defined_as_1.0.30-SNAPSHOT",
         "prepubFunctionalVerification": "pending"
       },
       {
@@ -271,8 +271,11 @@
     "latestDiagnostics": [
       "PAT core Aone compile error at PatAuthCheckService.java:517 was caused by a two-argument tryConsumeOnceTokenFromTair call after the method signature changed to require effective risk level. Current feature and release-merge worktrees use RiskLevelEnum.MEDIUM.getCode() for the high-risk-to-medium DCF bypass path and compile locally.",
       "The Maven warning about requested profile lippi-pat-core is an Aone/Maven parameter warning: the root POM has no profile with id lippi-pat-core. It is not the cause of the Java compilation failure and does not justify a POM change in this slice.",
+      "PAT core API version is explicitly aligned: root property lippi-pat-core-api.version is 1.0.5-SNAPSHOT and lippi-pat-core-api/pom.xml project.version evaluates to 1.0.5-SNAPSHOT. Verification passed with Java 11 Maven help:evaluate and lippi-pat-core-api compile.",
+      "PAT core root POM now defines lippi-enterprise-soc-api.version as 1.0.30-SNAPSHOT, matching local reference repos /Users/xuan/lippi-pat-core and /Users/xuan/lippi-pat-core-prepub-merge-34465221. Verification passed with Java 11 Maven lippi-pat-core-service compile.",
       "BFF now depends on com.dingtalk.pat:lippi-pat-core-api:1.0.5-SNAPSHOT and uses HandleFlowActionRequest#setSelectedScopes directly. The old reflection fallback has been removed.",
-      "BFF local verification passed with Java 11: mvn -pl lippi-open-app-dev-start -am -DskipTests compile -s /Users/xuan/Downloads/settings.xml."
+      "BFF local verification passed with Java 11: mvn -pl lippi-open-app-dev-start -am -DskipTests compile -s /Users/xuan/Downloads/settings.xml.",
+      "Non-PAT side verification on 2026-06-16 passed: CLI go test ./internal/app ./internal/pat ./internal/errors, gateway py_compile plus diff check, and frontend npm run build with existing bundle-size warnings only."
     ]
   },
   "serviceContract": {
