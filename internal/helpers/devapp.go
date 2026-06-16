@@ -682,7 +682,7 @@ func newDevAppRobotCreateCommand(runner executor.Runner) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "create",
 		Short:             "新建钉钉智能体机器人（一次性同步创建应用+机器人）",
-		Example:           "  dws devapp robot create --app-name 我的智能体 --robot-name 小助手 --desc \"处理审批问答\" --dry-run --format json",
+		Example:           "  dws devapp robot create --name 我的智能体 --robot-name 小助手 --desc \"处理审批问答\" --dry-run --format json",
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -705,7 +705,7 @@ func newDevAppRobotSubmitCommand(runner executor.Runner) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "submit",
 		Short:             "异步提交钉钉智能体机器人创建任务（支持失败重试）",
-		Example:           "  dws devapp robot submit --app-name 我的智能体 --robot-name 小助手 --desc \"处理审批问答\" --dry-run --format json",
+		Example:           "  dws devapp robot submit --name 我的智能体 --robot-name 小助手 --desc \"处理审批问答\" --dry-run --format json",
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -715,14 +715,6 @@ func newDevAppRobotSubmitCommand(runner executor.Runner) *cobra.Command {
 			params, err := devAppRobotCreateParams(cmd)
 			if err != nil {
 				return err
-			}
-			// submit_robot_create_task 的 schema 把图标字段标为必填（空值时服务端用默认图标），
-			// 因此即使用户未提供也补空串占位。
-			if _, ok := params["robotMediaId"]; !ok {
-				params["robotMediaId"] = ""
-			}
-			if _, ok := params["previewMediaId"]; !ok {
-				params["previewMediaId"] = ""
 			}
 			devAppPutString(params, "taskId", devAppStringFlag(cmd, "task-id"))
 			return runDevAppTool(runner, cmd, devAppRobotSubmitTool, params)
@@ -794,7 +786,7 @@ func newDevAppRobotConfigCommand(runner executor.Runner, use, short, tool string
 				return err
 			}
 			if updates == 0 {
-				return apperrors.NewValidation("at least one robot config field is required, e.g. --name, --brief, --description, --icon, --outgoing-url, --event-url, --mode, --skills")
+				return apperrors.NewValidation("at least one robot config field is required, e.g. --name, --brief, --desc, --icon, --outgoing-url, --event-url, --mode, --skills")
 			}
 			return runDevAppTool(runner, cmd, tool, params)
 		},
@@ -820,15 +812,10 @@ func newDevAppRobotEnableCommand(runner executor.Runner) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			params, _, err := devAppRobotConfigParams(cmd, appID)
-			if err != nil {
-				return err
-			}
-			return runDevAppTool(runner, cmd, devAppRobotEnableTool, params)
+			return runDevAppTool(runner, cmd, devAppRobotEnableTool, map[string]any{"unifiedAppId": appID})
 		},
 	}
 	addDevAppUnifiedIDFlag(cmd)
-	registerDevAppRobotConfigFlags(cmd)
 	preferLegacyLeaf(cmd)
 	return cmd
 }
@@ -857,7 +844,7 @@ func newDevAppRobotDisableCommand(runner executor.Runner) *cobra.Command {
 }
 
 func registerDevAppRobotCreateFlags(cmd *cobra.Command) {
-	cmd.Flags().String("app-name", "", "智能体应用名称，长度 2-20，企业内唯一 (必填)")
+	cmd.Flags().String("name", "", "智能体应用名称，长度 2-20，企业内唯一 (必填)")
 	cmd.Flags().String("robot-name", "", "承载机器人名称，用于客户端展示 (必填)")
 	cmd.Flags().String("desc", "", "机器人功能描述，不超过 200 字 (必填)")
 	cmd.Flags().String("icon", "", "机器人图标 mediaId；为空时使用默认图标")
@@ -865,9 +852,9 @@ func registerDevAppRobotCreateFlags(cmd *cobra.Command) {
 }
 
 func devAppRobotCreateParams(cmd *cobra.Command) (map[string]any, error) {
-	appName := devAppStringFlag(cmd, "app-name")
-	if appName == "" {
-		return nil, apperrors.NewValidation("--app-name is required")
+	name := devAppStringFlag(cmd, "name")
+	if name == "" {
+		return nil, apperrors.NewValidation("--name is required")
 	}
 	robotName := devAppStringFlag(cmd, "robot-name")
 	if robotName == "" {
@@ -878,11 +865,11 @@ func devAppRobotCreateParams(cmd *cobra.Command) (map[string]any, error) {
 		return nil, apperrors.NewValidation("--desc is required")
 	}
 	params := map[string]any{
-		"appName":   appName,
+		"name":      name,
 		"robotName": robotName,
 		"desc":      desc,
 	}
-	devAppPutString(params, "robotMediaId", devAppStringFlag(cmd, "icon"))
+	devAppPutString(params, "iconMediaId", devAppStringFlag(cmd, "icon"))
 	devAppPutString(params, "previewMediaId", devAppStringFlag(cmd, "preview"))
 	return params, nil
 }
@@ -890,10 +877,10 @@ func devAppRobotCreateParams(cmd *cobra.Command) (map[string]any, error) {
 func registerDevAppRobotConfigFlags(cmd *cobra.Command) {
 	cmd.Flags().String("name", "", "机器人名称")
 	cmd.Flags().String("brief", "", "机器人简介")
-	cmd.Flags().String("description", "", "机器人描述")
+	cmd.Flags().String("desc", "", "机器人描述")
 	cmd.Flags().String("icon", "", "机器人图标 mediaId")
 	cmd.Flags().String("outgoing-url", "", "消息回调地址 (outgoingUrl)")
-	cmd.Flags().String("event-url", "", "事件回调地址 (chatBotEventUrl)")
+	cmd.Flags().String("event-url", "", "事件回调地址 (eventCallbackUrl)")
 	cmd.Flags().Int("mode", 0, "机器人模式枚举")
 	cmd.Flags().StringSlice("skills", nil, "技能列表，多个用逗号分隔")
 	cmd.Flags().Bool("add-scope", false, "是否自动添加机器人相关权限")
@@ -914,17 +901,17 @@ func devAppRobotConfigParams(cmd *cobra.Command, appID string) (map[string]any, 
 	}
 	setString("name", "name")
 	setString("brief", "brief")
-	setString("description", "description")
+	setString("desc", "desc")
 	setString("iconMediaId", "icon")
 	setString("outgoingUrl", "outgoing-url")
-	setString("chatBotEventUrl", "event-url")
+	setString("eventCallbackUrl", "event-url")
 	if cmd.Flags().Changed("mode") {
 		params["mode"] = devAppIntFlag(cmd, "mode")
 		updates++
 	}
 	if cmd.Flags().Changed("add-scope") {
 		value, _ := cmd.Flags().GetBool("add-scope")
-		params["isAddScope"] = value
+		params["addScope"] = value
 		updates++
 	}
 	if cmd.Flags().Changed("disable-ssl-verify") {
@@ -933,7 +920,7 @@ func devAppRobotConfigParams(cmd *cobra.Command, appID string) (map[string]any, 
 		updates++
 	}
 	if values, _ := cmd.Flags().GetStringSlice("skills"); len(values) > 0 {
-		params["skillList"] = values
+		params["skills"] = values
 		updates++
 	}
 	for _, item := range []struct{ key, flag string }{
@@ -976,7 +963,7 @@ func newDevAppVersionCreateCommand(runner executor.Runner) *cobra.Command {
 			}
 			params := map[string]any{"unifiedAppId": appID}
 			devAppPutString(params, "version", devAppStringFlag(cmd, "version"))
-			devAppPutString(params, "description", devAppStringFlag(cmd, "desc"))
+			devAppPutString(params, "desc", devAppStringFlag(cmd, "desc"))
 			return runDevAppTool(runner, cmd, devAppVersionCreateTool, params)
 		},
 	}
@@ -1164,7 +1151,7 @@ func newDevAppEventSubscribeCommand(runner executor.Runner, use, short, tool str
 	cmd := &cobra.Command{
 		Use:               use,
 		Short:             short,
-		Example:           "  dws devapp event " + use + " --unified-app-id UNIFIED_APP_ID --event-code user_add_org --dry-run --format json",
+		Example:           "  dws devapp event " + use + " --unified-app-id UNIFIED_APP_ID --event-codes user_add_org,org_dept_modify --dry-run --format json",
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -1175,17 +1162,30 @@ func newDevAppEventSubscribeCommand(runner executor.Runner, use, short, tool str
 			if err != nil {
 				return err
 			}
-			eventCode := devAppStringFlag(cmd, "event-code")
-			if eventCode == "" {
-				return apperrors.NewValidation("--event-code is required")
+			eventCodes := devAppEventCodes(cmd)
+			if len(eventCodes) == 0 {
+				return apperrors.NewValidation("--event-codes is required")
 			}
-			return runDevAppTool(runner, cmd, tool, map[string]any{"unifiedAppId": appID, "eventCode": eventCode})
+			return runDevAppTool(runner, cmd, tool, map[string]any{"unifiedAppId": appID, "eventCodes": eventCodes})
 		},
 	}
 	addDevAppUnifiedIDFlag(cmd)
-	cmd.Flags().String("event-code", "", "事件码 eventCode，见 event list 返回 (必填)")
+	cmd.Flags().StringSlice("event-codes", nil, "事件码列表，多个用逗号分隔 (必填)")
 	preferLegacyLeaf(cmd)
 	return cmd
+}
+
+func devAppEventCodes(cmd *cobra.Command) []string {
+	values, _ := cmd.Flags().GetStringSlice("event-codes")
+	out := make([]string, 0, len(values))
+	for _, value := range values {
+		for _, part := range splitDevAppList(value) {
+			if part != "" {
+				out = append(out, part)
+			}
+		}
+	}
+	return out
 }
 
 func registerDevAppMemberMutationFlags(cmd *cobra.Command) {
