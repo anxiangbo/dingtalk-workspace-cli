@@ -97,6 +97,13 @@ func resolveConnectChannel(explicit string) (channel string, detectedBy string) 
 		// Pure Claude Code (not the qoder fork): only CLAUDECODE=1, no QODER_CLI.
 		return "claudecode", "signal:CLAUDECODE"
 	}
+	// Last resort: a self-built / unsupported AI tool that supplied its own
+	// command (via --agent-cmd, which sets DWS_AGENT_CMD, or DWS_AGENT_CMD
+	// directly) routes to the generic "custom" channel — so onboarding an
+	// unrecognised host needs no per-tool detection signal (issue #37).
+	if strings.TrimSpace(os.Getenv("DWS_AGENT_CMD")) != "" {
+		return "custom", "env:DWS_AGENT_CMD"
+	}
 	return "", "undetected"
 }
 
@@ -123,6 +130,17 @@ func buildConnectPlan(channel, clientID, robotCode string) map[string]any {
 				"运行 `hermes gateway setup` → 选 DingTalk → QR Code Scan 扫码授权",
 				"`hermes gateway restart`，直接在钉钉里跟新机器人对话",
 				"回复打了 Done 表情却不显示/卡在'数据加载中'：钉钉按 AI 助理应答窗口渲染回复，超窗的纯文本会被丢弃；回复慢的 agent 需在 hermes 侧启用 AI 卡片（config.yaml 配 platforms.dingtalk.extra.card_template_id），由卡片先占位再流式出字",
+			},
+		}
+	case "custom":
+		return map[string]any{
+			"method":  "stream-bridge-custom",
+			"summary": "Go 原生 Stream 建联，转发到 --agent-cmd/DWS_AGENT_CMD 指定的自定义 AI CLI（无头/一次性：问题作为末参，stdout 作回复）；用来接入未内置支持的或自研的 AI 工具",
+			"steps": []string{
+				"用 --agent-cmd \"<你的命令>\"（或 DWS_AGENT_CMD）指定 AI 工具的无头/一次性命令",
+				"用 clientId/clientSecret 起 Stream，注册 TOPIC_ROBOT 回调",
+				"收到消息 → 运行 <你的命令> \"用户问题\" → stdout 作为回复",
+				"经 sessionWebhook/AI 卡片把回复发回钉钉",
 			},
 		}
 	}
@@ -315,6 +333,13 @@ func launchConnector(cmd *cobra.Command, runner executor.Runner, channel, client
 				fmt.Fprintf(cmd.ErrOrStderr(), "[connect] 确认闸已开启：主人=%s（文本审批：执行类请求私聊主人，主人回复「同意」/「拒绝」确认，请求人无感；积压请求每2分钟自动重试，也可回「重试」立即补做；配 --approval-card-template 可升级为卡片按钮）\n", opts.OwnerUserID)
 			}
 		}
+		// Quality hint (issue #39): the bot runs in a clean temp dir with no
+		// project knowledge by default, so it answers with less context than the
+		// same agent in your terminal. Surface the levers once, only when neither
+		// is set, so users discover why "终端答得对、机器人答不对".
+		if opts.WorkDir == "" && opts.KnowledgeDir == "" && opts.KnowledgeSource == "" && len(opts.KnowledgeSources) == 0 {
+			fmt.Fprintf(cmd.ErrOrStderr(), "[connect] 提示：机器人默认在空白临时目录里跑、不带你本地项目的上下文，回答可能不如终端准。要对齐终端：加 --agent-workdir <你的项目目录> 让它读到同样的文件，或 --knowledge-dir/--knowledge-source 挂资料。\n")
+		}
 		fmt.Fprintf(cmd.ErrOrStderr(), "[connect] channel=%s Go 原生 Stream 建联，转发到 %s，回复样式=%s（Ctrl-C 退出）\n", channel, fwd.label(), replyStyle)
 		return runStreamConnector(cmd.Context(), channel, clientID, clientSecret, fwd, cardCli, extras)
 	}
@@ -367,7 +392,8 @@ func newDevAppRobotConnectCommand(runner executor.Runner) *cobra.Command {
 			"缺凭证请先用 `dws devapp robot create` 建号拿 clientId/clientSecret。",
 		Example: "  dws devapp robot connect --channel workbuddy --robot-client-id <id> --robot-client-secret <secret>\n" +
 			"  dws devapp robot connect --unified-app-id <ID> --channel qoderwork\n" +
-			"  dws devapp robot connect --channel claudecode --robot-client-id <id> --robot-client-secret <secret>",
+			"  dws devapp robot connect --channel claudecode --robot-client-id <id> --robot-client-secret <secret>\n" +
+			"  dws devapp robot connect --agent-cmd \"lobster -p\" --robot-client-id <id> --robot-client-secret <secret>  # 自研/未支持的 AI 工具",
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -380,12 +406,23 @@ func newDevAppRobotConnectCommand(runner executor.Runner) *cobra.Command {
 				return runSupervisor(cmd)
 			}
 			channelFlag := devAppStringFlag(cmd, "channel")
+			// --agent-cmd is sugar for the generic "custom" channel: it supplies the
+			// agent argv (via DWS_AGENT_CMD) so an unsupported / self-built AI tool can
+			// be onboarded without a detection signal (issue #37). The intent is
+			// unambiguous, so it forces channel=custom unless the user explicitly chose
+			// a different --channel (then we honour their choice but still pass the cmd).
+			if ac := strings.TrimSpace(devAppStringFlag(cmd, "agent-cmd")); ac != "" {
+				_ = os.Setenv("DWS_AGENT_CMD", ac)
+				if channelFlag == "" || strings.EqualFold(channelFlag, "auto") {
+					channelFlag = "custom"
+				}
+			}
 			channel, detectedBy := resolveConnectChannel(channelFlag)
 			if channel == "" {
-				return apperrors.NewValidation("无法探测 agent 渠道；请用 --channel 指定 (openclaw|qoder|qoderwork|hermes|workbuddy|claudecode|codebuddy|codex|gemini|opencode) 或设置 DWS_AGENT_CHANNEL")
+				return apperrors.NewValidation("无法探测 agent 渠道；请用 --channel 指定 (openclaw|qoder|qoderwork|hermes|workbuddy|claudecode|codebuddy|codex|gemini|opencode)，或用 --agent-cmd \"<命令>\" 接入自研/未支持的 AI（custom 渠道），或设置 DWS_AGENT_CHANNEL")
 			}
 			if _, ok := connectChannels[channel]; !ok {
-				return apperrors.NewValidation(fmt.Sprintf("未知渠道 %q（支持 openclaw|qoder|qoderwork|hermes|workbuddy|claudecode|codebuddy|codex|gemini|opencode）", channel))
+				return apperrors.NewValidation(fmt.Sprintf("未知渠道 %q（支持 openclaw|qoder|qoderwork|hermes|workbuddy|claudecode|codebuddy|codex|gemini|opencode|custom）", channel))
 			}
 
 			clientID := devAppStringFlag(cmd, "robot-client-id")
@@ -461,7 +498,8 @@ func newDevAppRobotConnectCommand(runner executor.Runner) *cobra.Command {
 		newDevAppRobotConnectStatusCommand(),
 		newDevAppRobotConnectStopCommand(),
 	)
-	cmd.Flags().String("channel", "auto", "渠道：auto(默认,自动探测)|openclaw|qoder|qoderwork|hermes|workbuddy|claudecode|codebuddy|codex|gemini|opencode")
+	cmd.Flags().String("channel", "auto", "渠道：auto(默认,自动探测)|openclaw|qoder|qoderwork|hermes|workbuddy|claudecode|codebuddy|codex|gemini|opencode|custom(自研/未支持的 AI，配 --agent-cmd)")
+	cmd.Flags().String("agent-cmd", "", "自研/未支持的 AI 工具命令（无头/一次性：问题作为最后一个参数追加，答案打到 stdout）；用来接入内置渠道之外的 AI（如网易有道龙虾 LobsterAI）；等价于 --channel custom + 设 DWS_AGENT_CMD；env: DWS_AGENT_CMD")
 	// 用 robot-client-* 而非 client-id/client-secret：后者是全局 OAuth 客户端覆盖
 	// 持久 flag（见 internal/app/flags.go），同名会 shadow 全局 flag。这里是要建联的
 	// 目标机器人凭证，与 OAuth 客户端是两码事，故独立命名避免撞名。

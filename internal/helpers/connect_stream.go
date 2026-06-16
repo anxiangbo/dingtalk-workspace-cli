@@ -582,6 +582,16 @@ var agentSpecs = map[string]agentSpec{
 			"-p", "--output-format", "stream-json", "--include-partial-messages"},
 		streamParser: "cc", envFn: codebuddyEnv, hint: "https://www.codebuddy.cn/work/",
 		modelFlag: "--model", ccSessions: true},
+	// custom: an escape hatch for self-built / not-yet-supported agent CLIs
+	// (issue #37, e.g. 网易有道龙虾 LobsterAI). It has NO built-in binary — the
+	// full command comes from --agent-cmd (which sets DWS_AGENT_CMD) or
+	// DWS_AGENT_CMD directly. dws starts the Stream and forwards each @-bot
+	// message to that command with the question appended as the trailing
+	// argument, using stdout as the reply. One-shot only (no streaming/session/
+	// model override, since the CLI's protocol is unknown), so any headless AI
+	// tool can be onboarded without code changes.
+	"custom": {app: "自定义 AI 工具（--agent-cmd / DWS_AGENT_CMD）", bins: nil,
+		hint: "用 --agent-cmd \"<可执行命令>\" 指定你的 AI 工具（无头/一次性模式：问题作为最后一个参数追加，答案打到 stdout），或设环境变量 DWS_AGENT_CMD"},
 }
 
 // autoInstallEnabled reports whether dws may auto-run a package-manager install
@@ -620,6 +630,20 @@ func connectCliStatus(channel string) map[string]any {
 			"autoInstall": false,
 			"installHint": "渠道 " + channel + " 走官方建联，请先安装并完成其 onboarding",
 		}
+	case "custom":
+		// custom has no built-in binary; "installed" means a command was supplied
+		// via --agent-cmd / DWS_AGENT_CMD.
+		command := strings.TrimSpace(os.Getenv("DWS_AGENT_CMD"))
+		status := map[string]any{
+			"required":    "自定义命令（--agent-cmd / DWS_AGENT_CMD）",
+			"installed":   command != "",
+			"autoInstall": false,
+			"installHint": "用 --agent-cmd \"<可执行命令>\" 指定你的 AI 工具",
+		}
+		if command != "" {
+			status["command"] = command
+		}
+		return status
 	}
 	spec, ok := agentSpecs[channel]
 	if !ok {
@@ -645,6 +669,11 @@ func connectCliStatus(channel string) map[string]any {
 func resolveExecAgent(channel string) (argv []string, env []string, err error) {
 	if v := strings.TrimSpace(os.Getenv("DWS_AGENT_CMD")); v != "" {
 		return strings.Fields(v), nil, nil
+	}
+	if channel == "custom" {
+		// custom has no built-in binary: its argv MUST come from --agent-cmd /
+		// DWS_AGENT_CMD (handled above). Reaching here means neither was set.
+		return nil, nil, apperrors.NewValidation("custom 渠道需要用 --agent-cmd \"<可执行命令>\"（或环境变量 DWS_AGENT_CMD）指定你的 AI 工具：无头/一次性模式，用户问题作为最后一个参数追加，回答打到 stdout")
 	}
 	spec, ok := agentSpecs[channel]
 	if !ok {
