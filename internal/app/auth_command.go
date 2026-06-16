@@ -33,6 +33,7 @@ import (
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/pat"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/config"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/edition"
+	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
 )
 
@@ -145,8 +146,14 @@ func newAuthLoginCommand(patCaller edition.ToolCaller) *cobra.Command {
 				if !cfg.Recommend {
 					return nil
 				}
+				opts := pat.LoginRecommendOptions{}
+				if !strings.EqualFold(strings.TrimSpace(format), "json") && isInteractiveTerminal() {
+					opts.ProductSelector = func(products []pat.LoginRecommendProduct) ([]string, error) {
+						return selectLoginRecommendProducts(products)
+					}
+				}
 				run := func(ctx context.Context) error {
-					return pat.RunLoginRecommendAuthorization(ctx, patCaller, cmd.ErrOrStderr())
+					return pat.RunLoginRecommendAuthorizationWithOptions(ctx, patCaller, cmd.ErrOrStderr(), opts)
 				}
 				err := run(cmd.Context())
 				if patErr := apperrors.AsPatAuthCheckError(err); patErr != nil {
@@ -576,6 +583,80 @@ func authLoginDisplayExpiry(data *authpkg.TokenData) string {
 		return authLoginFormatExpiry(data.ExpiresAt)
 	}
 	return ""
+}
+
+func selectLoginRecommendProducts(products []pat.LoginRecommendProduct) ([]string, error) {
+	if len(products) == 0 {
+		return nil, nil
+	}
+	selected := make([]string, 0, len(products))
+	options := make([]huh.Option[string], 0, len(products))
+	for _, product := range products {
+		code := strings.TrimSpace(product.ProductCode)
+		if code == "" {
+			continue
+		}
+		selected = append(selected, code)
+		options = append(options, huh.NewOption(loginRecommendProductLabel(product), code).Selected(true))
+	}
+	if len(options) == 0 {
+		return nil, nil
+	}
+	height := len(options)
+	if height > 15 {
+		height = 15
+	}
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewMultiSelect[string]().
+				Title("选择要授权的业务域").
+				Description("[空格]选择  回车确认；默认已选中全部产品线").
+				Options(options...).
+				Height(height).
+				Value(&selected).
+				Validate(func(values []string) error {
+					if len(values) == 0 {
+						return fmt.Errorf("至少选择一个授权业务域")
+					}
+					return nil
+				}),
+		),
+	)
+	if err := form.Run(); err != nil {
+		return nil, fmt.Errorf("授权业务域选择中止: %w", err)
+	}
+	return selected, nil
+}
+
+func loginRecommendProductLabel(product pat.LoginRecommendProduct) string {
+	name := strings.TrimSpace(product.ProductName)
+	if name == "" || name == product.ProductCode {
+		name = product.ProductCode
+	}
+	summary := strings.TrimSpace(product.Summary)
+	if summary != "" {
+		summary = " — " + clipRunes(summary, 34)
+	}
+	count := product.ScopeCount
+	if product.SelectedScopeCount > 0 && product.SelectedScopeCount != product.ScopeCount {
+		count = product.SelectedScopeCount
+	}
+	countText := ""
+	if count > 0 {
+		countText = fmt.Sprintf("  %d项", count)
+	}
+	return fmt.Sprintf("%-10s %s%s%s", product.ProductCode, name, countText, summary)
+}
+
+func clipRunes(value string, limit int) string {
+	if limit <= 0 {
+		return ""
+	}
+	runes := []rune(value)
+	if len(runes) <= limit {
+		return value
+	}
+	return string(runes[:limit]) + "..."
 }
 
 func clearCompatCache() {

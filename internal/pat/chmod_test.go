@@ -759,6 +759,76 @@ func TestChmod_recommendFlagPlansThenGrantsWithoutPositionalScopes(t *testing.T)
 	}
 }
 
+func TestLoginRecommendAuthorizationSelectorReplansBySelectedProducts(t *testing.T) {
+	fake := &sequenceToolCaller{responses: []string{
+		`{"success":true,"data":{"items":[{"scope":"calendar.event:read","productCode":"calendar","productName":"日历","displayName":"日程查看","operationSummary":"日历管理、日程创建"},{"scope":"doc.document:read","productCode":"doc","productName":"文档","displayName":"文档读取"}],"selectedScopes":["calendar.event:read","doc.document:read"]}}`,
+		`{"success":true,"data":{"items":[{"scope":"calendar.event:read","productCode":"calendar","productName":"日历","displayName":"日程查看"}],"selectedScopes":["calendar.event:read"]}}`,
+		`{"success":true,"data":{"flowId":"flow-1","userCode":"ABCD-EFGH","uri":"https://example.com/auth"}}`,
+	}}
+	var selectorProducts []LoginRecommendProduct
+	err := RunLoginRecommendAuthorizationWithOptions(context.Background(), fake, io.Discard, LoginRecommendOptions{
+		ProductSelector: func(products []LoginRecommendProduct) ([]string, error) {
+			selectorProducts = products
+			return []string{"calendar"}, nil
+		},
+	})
+	if err != nil {
+		t.Fatalf("RunLoginRecommendAuthorizationWithOptions error = %v", err)
+	}
+	if len(selectorProducts) != 2 {
+		t.Fatalf("selector products = %d, want 2", len(selectorProducts))
+	}
+	if selectorProducts[0].ProductCode != "calendar" || selectorProducts[0].ProductName != "日历" {
+		t.Fatalf("first selector product = %+v, want calendar/日历", selectorProducts[0])
+	}
+	if selectorProducts[0].Summary != "日历管理、日程创建" {
+		t.Fatalf("first selector summary = %q", selectorProducts[0].Summary)
+	}
+	if len(fake.calls) != 3 {
+		t.Fatalf("CallTool count = %d, want initial plan + selected plan + grant", len(fake.calls))
+	}
+	if fake.calls[0].tool != patBatchPlanToolName {
+		t.Fatalf("first tool = %q, want %q", fake.calls[0].tool, patBatchPlanToolName)
+	}
+	if got := fake.calls[0].args["productCodes"]; !stringSliceArgEqual(got, nil) {
+		t.Fatalf("initial plan productCodes = %#v, want empty", got)
+	}
+	if got := fake.calls[1].args["productCodes"]; !stringSliceArgEqual(got, []string{"calendar"}) {
+		t.Fatalf("selected plan productCodes = %#v, want calendar", got)
+	}
+	if got := fake.calls[1].args["caller"]; got != patCallerAuthLoginRecommend {
+		t.Fatalf("selected plan caller = %#v, want %q", got, patCallerAuthLoginRecommend)
+	}
+	if fake.calls[2].tool != patBatchGrantToolName {
+		t.Fatalf("third tool = %q, want %q", fake.calls[2].tool, patBatchGrantToolName)
+	}
+	if got := fake.calls[2].args["scopes"]; !stringSliceArgEqual(got, []string{"calendar.event:read"}) {
+		t.Fatalf("grant scopes = %#v, want selected calendar scope", got)
+	}
+}
+
+func TestLoginRecommendAuthorizationWithoutSelectorKeepsSinglePlan(t *testing.T) {
+	fake := &sequenceToolCaller{responses: []string{
+		`{"success":true,"data":{"items":[{"scope":"calendar.event:read","productCode":"calendar","productName":"日历"}],"selectedScopes":["calendar.event:read"]}}`,
+		`{"success":true,"data":{"flowId":"flow-1","userCode":"ABCD-EFGH","uri":"https://example.com/auth"}}`,
+	}}
+	if err := RunLoginRecommendAuthorizationWithOptions(context.Background(), fake, io.Discard, LoginRecommendOptions{}); err != nil {
+		t.Fatalf("RunLoginRecommendAuthorizationWithOptions error = %v", err)
+	}
+	if len(fake.calls) != 2 {
+		t.Fatalf("CallTool count = %d, want one plan + grant", len(fake.calls))
+	}
+	if fake.calls[0].tool != patBatchPlanToolName {
+		t.Fatalf("first tool = %q, want %q", fake.calls[0].tool, patBatchPlanToolName)
+	}
+	if got := fake.calls[0].args["productCodes"]; !stringSliceArgEqual(got, nil) {
+		t.Fatalf("plan productCodes = %#v, want empty", got)
+	}
+	if fake.calls[1].tool != patBatchGrantToolName {
+		t.Fatalf("second tool = %q, want %q", fake.calls[1].tool, patBatchGrantToolName)
+	}
+}
+
 func TestChmod_productsAllGrantedStopsAfterPlan(t *testing.T) {
 	t.Setenv(agentCodeEnv, "qoderwork")
 	fake := &sequenceToolCaller{responses: []string{

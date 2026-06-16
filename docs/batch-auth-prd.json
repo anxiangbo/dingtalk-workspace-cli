@@ -41,13 +41,13 @@
     "After dws auth login --recommend succeeds, DWS starts a PAT recommended batch plan and opens the authorization page.",
     "For PAT batch authorization commands through dws pat chmod without --yes, including multi-scope, product-line, and recommend modes, DWS opens the same authorization page instead of returning a local validation error.",
     "The server, not the CLI, selects grantable scopes. CLI must grant only selectedScopes from pat.batch_plan.",
-    "Recommended login must never auto-select destructive scopes such as delete, recall, remove, destroy, or drop.",
+    "Recommended login scope selection is controlled by prepub Diamond: open-source visible scopes are the enabled template set, recommendation is the low-risk subset, and the 22 medium-risk scopes are excluded from default login recommend.",
     "High-risk scopes remain pending and must not be silently granted."
   ],
   "nonGoals": [
     "Do not trust CLI-provided orgId or uid.",
     "Do not add a second authorization UI path.",
-    "Do not make high-risk destructive scopes part of default login recommend."
+    "Do not make medium-risk or high-risk destructive scopes part of default login recommend."
   ],
   "userFlows": [
     {
@@ -56,7 +56,9 @@
         "User runs dws auth login --recommend.",
         "CLI completes OAuth loopback or device login and saves token.",
         "CLI calls pat.batch_plan with recommend=true, grantType=permanent, caller=auth_login_recommend, dryRun=true.",
-        "PAT core loads the recommended set, filters destructive scopes server-side, and returns selectedScopes plus warnings/skipped scopes.",
+        "In an interactive terminal, CLI shows a Feishu-like TUI product-domain selector with all product lines selected by default; user can toggle, filter, or confirm.",
+        "CLI re-plans with the selected productCodes before starting the grant flow.",
+        "PAT core loads the Diamond-driven recommended set, excludes non-recommended medium-risk scopes from the default plan, and returns selectedScopes plus warnings/skipped scopes.",
         "CLI calls pat.batch_grant with scopes=selectedScopes, startFlow=true, noWait=true, caller=auth_login_recommend.",
         "PAT core creates a single batch Device Code Flow and returns PAT_BATCH_AUTH_PENDING with flowId/userCode/uri.",
         "CLI opens uri, polls flow status, and retries the original grant after approval."
@@ -163,9 +165,9 @@
       {
         "id": "4",
         "title": "Implement PAT core recommended filtering and batch DCF",
-        "description": "PAT core owns selectedScopes, destructive filtering, batch Device Code Flow, selected approval, and idempotent writes.",
+        "description": "PAT core owns selectedScopes, Diamond-driven recommendation, batch Device Code Flow, selected approval, and idempotent writes.",
         "steps": [
-          "Filter destructive recommended scopes server-side for auth_login_recommend.",
+          "Keep recommended scope selection config-driven: preauth Diamond recommends the low-risk subset and excludes the 22 medium-risk scopes.",
           "Create/reuse one batch flow for selected scopes.",
           "Approve only selectedScopes and reject out-of-flow selections.",
           "Fail closed on critical storage failures and leave flow retryable."
@@ -207,7 +209,7 @@
         "repo": "dingtalk-workspace-cli",
         "localPath": "/Users/xuan/dingtalk-workspace-cli",
         "branch": "codex/dws-auth-login-recommend",
-        "commit": "aa76f0101592ea9bebd69c2af80c38376f1e8da5",
+        "commit": "e82ccd3496719f73de1cf14f1062c771a1e69819",
         "prepubPackage": "blocked_no_aone_app_for_current_github_repo_lippi_dws_release_uses_gitlab_release_repo",
         "prepubFunctionalVerification": "pending"
       },
@@ -229,17 +231,17 @@
         "repo": "lippi-pat-core-wukong-capability",
         "localPath": "/Users/xuan/lippi-pat-core-wukong-capability",
         "branch": "codex/batch-auth-page-flow",
-        "commit": "0b805ff866aaf255df86f49418fe4c6d4d47e8db",
+        "commit": "b9df9efe9d7ea78e52b0dbdd052965432485cf02",
         "aoneAppId": 312546,
         "aoneCrId": 34656143,
         "aoneCrStatus": "INTG",
         "aoneCrStatusLabel": "发布中",
         "aoneBranchRevision": "b38e29e9e9c0f55dc71762c37d261180cb30692b",
-        "aoneNewestRevision": "0b805ff866aaf255df86f49418fe4c6d4d47e8db",
+        "aoneNewestRevision": "b9df9efe9d7ea78e52b0dbdd052965432485cf02",
         "prepubPipelineId": 66,
-        "prepubPipelineInstanceId": 3094916508,
-        "prepubPackage": "SUCCESS through build, prepub deploy, and prepub integration test on 2026-06-16 16:20:13+08:00; Aone prepub validation stage is still RUNNING.",
-        "prepubFunctionalVerification": "pending"
+        "prepubPipelineInstanceId": 3094928748,
+        "prepubPackage": "SUCCESS through code merge, build, prepub deploy, and prepub integration test on 2026-06-16 16:58:30+08:00; Aone prepub validation stage is WAITING. Latest branch head b9df9ef reverts a non-required recommendation-code experiment and is content-equivalent for the deployed batch authorization fix.",
+        "prepubFunctionalVerification": "login_recommend_approved_ok"
       },
       {
         "repo": "lippi-open-app-dev",
@@ -253,9 +255,9 @@
         "aoneBranchRevision": "f4222f3b2acba1899446d338c4b3788b8a58b29f",
         "aoneNewestRevision": "9ac576c77d142b5f4ec318c8d7b8ecf472ea6341",
         "prepubPipelineId": 66,
-        "prepubPipelineInstanceId": 3094919448,
-        "prepubPackage": "RUNNING on 2026-06-16 16:28:13+08:00 after latest master merge; code merge and build succeeded, prepub deploy was running when checked.",
-        "prepubFunctionalVerification": "pending"
+        "prepubPipelineInstanceId": 3094929764,
+        "prepubPackage": "Build and prepub deploy SUCCESS on 2026-06-16 17:12:43+08:00; Aone prepub integration-test task 3390591557 reported FAIL, while real prepub browser flow through BFF succeeded for login recommend approval.",
+        "prepubFunctionalVerification": "login_recommend_approved_ok"
       },
       {
         "repo": "lippi-open-dev-front",
@@ -272,9 +274,49 @@
       "Every changed repo has a pushed branch or prepub release submission tied to the current change set.",
       "Prepub package/build succeeds for CLI, gateway, PAT core, BFF, and frontend.",
       "Prepub deployed versions include the selectedScopes frontend-to-BFF-to-PAT core chain.",
-      "Prepub functional verification covers login recommend, chmod without --yes page flow, chmod with --yes direct flow, selectedScopes subset approval, reject, destructive-scope filtering, high-risk pending, and JSON no-wait pending response.",
+      "Prepub functional verification covers login recommend, chmod without --yes page flow, chmod with --yes direct flow, selectedScopes subset approval, reject, Diamond-driven low-risk recommendation, high-risk pending, and JSON no-wait pending response.",
       "Prepub UI screenshot matches visualDesignTarget."
     ],
+    "latestPrepubVerification": {
+      "verifiedAt": "2026-06-16T17:22:12+08:00",
+      "recommendationPolicy": {
+        "sourceOfTruth": "prepub Diamond plus product_scope_template DB",
+        "openWhitelistDataId": "com.dingtalk.pat.opensource-scope-whitelist",
+        "openWhitelistScopeCount": 173,
+        "preauthDataId": "com.dingtalk.pat.wukong-preauth-config",
+        "preauthVersion": "2026-06-16-dws-low-risk-151-preauth-v1",
+        "recommendedLowRiskScopeCount": 151,
+        "excludedMediumRiskScopeCount": 22,
+        "slsReceipt": "2026-06-16 17:19:26 prehost logs: OpenSourceScopeWhitelistConfigManager scopeCount=173; WukongPreAuthConfigManager recommendAllScopes=false scopeCount=151"
+      },
+      "dryRun": {
+        "command": "go run ./cmd/main.go pat chmod --recommend --dry-run --agentCode dingmbw5n9ktkkbbjv3g --format json",
+        "result": "items=151, selected=43, skipped=108, risk_counts={LOW:151}, skipped_reasons={already granted:108}",
+        "localReceipt": "/tmp/dws-pat-chmod-recommend-dryrun-after-diamond.json"
+      },
+      "loginRecommendApproval": {
+        "command": "go run ./cmd/main.go auth login --recommend --format json",
+        "flowId": "a4ef35755fb04c248b0d4319ce73651c",
+        "userCode": "E9CL-YJCV",
+        "authorizationUrl": "https://pre-open-dev.dingtalk.com/fe/old?hash=%23%2FpersonalAuthorization%3FflowId%3Da4ef35755fb04c248b0d4319ce73651c%26userCode%3DE9CL-YJCV#/personalAuthorization?flowId=a4ef35755fb04c248b0d4319ce73651c&userCode=E9CL-YJCV",
+        "pageObservedText": "DingTalk-Workspace请求你的授权; 可授权的权限（已选43/43项）; 同意并授权; 授权成功",
+        "slsReceipt": "DeviceCodeFlowService.grantApprovedScopesBatch approved permanent via batch insert, flowId=a4ef35755fb04c248b0d4319ce73651c, orgId=439446171, uid=2010955235, agentCode=dingmbw5n9ktkkbbjv3g, scopeCount=43"
+      },
+      "databaseEvidence": {
+        "dmsGroup": "lippi_pat_core_product_logic",
+        "db": "product",
+        "agentCode": "dingmbw5n9ktkkbbjv3g",
+        "orgId": 439446171,
+        "uid": 2010955235,
+        "lowRiskRecommendedGranted": "151 rows, status=1, grant_scope=3",
+        "selectedIncrementGranted": "43 rows",
+        "activeMediumRiskGrants": "18 rows existed as historical grants; they were not part of this recommend plan because dry-run risk_counts had no MEDIUM rows",
+        "resultFiles": [
+          "/Users/xuan/dms-alibaba/db-groups/lippi_pat_core_product_logic/sql/quick_product/_results/2026-06-16/172211_product.json",
+          "/Users/xuan/dms-alibaba/db-groups/lippi_pat_core_product_logic/sql/quick_product/_results/2026-06-16/172212_product.json"
+        ]
+      }
+    },
     "latestDiagnostics": [
       "PAT core Aone compile error at PatAuthCheckService.java:517 was caused by a two-argument tryConsumeOnceTokenFromTair call after the method signature changed to require effective risk level. Current feature and release-merge worktrees use RiskLevelEnum.MEDIUM.getCode() for the high-risk-to-medium DCF bypass path and compile locally.",
       "The Maven warning about requested profile lippi-pat-core is an Aone/Maven parameter warning: the root POM has no profile with id lippi-pat-core. It is not the cause of the Java compilation failure and does not justify a POM change in this slice.",
@@ -307,7 +349,7 @@
         "selectedScopes": "server-selected grantable scopes",
         "skippedScopes": "not grantable or filtered scopes",
         "pendingScopes": "high-risk scopes requiring separate confirmation",
-        "warnings": "destructive filter and partial selection warnings"
+        "warnings": "recommendation filter and partial selection warnings"
       }
     },
     "pat.batch_grant": {
@@ -390,21 +432,31 @@
     "Do not expose orgId or uid as trusted client input."
   ],
   "visualDesignTarget": {
-    "sourceImage": "/var/folders/hz/2sm0ql493cv6jngtjk7xsby00000gp/T/codex-clipboard-7792e4ca-7e4b-446b-8527-f35609d4df12.png",
+    "sourceImage": "/var/folders/hz/2sm0ql493cv6jngtjk7xsby00000gp/T/codex-clipboard-2078e5f6-b389-4435-8ea5-0f0a94363462.png",
+    "mgdoneReference": "https://mgdone.alibaba-inc.com/file/187681481694834?file=187681481694834&page_id=74%3A36608&shareId=3b3db511-38e1-4f3d-a859-ab891ed85617",
     "page": "A white authorization card centered on a light #f5f6fa page, with the footer links below the card.",
-    "card": "Single white card with subtle #f2f2f6 border, soft shadow, 12px radius, desktop visual width about 660px and enough height to show account, permissions, manage tip, and two bottom buttons without scrolling for four product groups.",
-    "header": "Top centered CLI app icon, title DingtalkWorkSpace, and subtitle 请求以下钉钉账号进行授权.",
-    "accountBlock": "Light gray rounded account row below the header, with a blue square DingTalk avatar/tag at left and the current account name next to it.",
-    "permissionBlock": "Light gray rounded permission panel titled 可授权的权限. Product rows use a blue checked checkbox, bold product name, gray count such as 12 项, gray description text, and a right chevron for expandable details.",
+    "card": "Single white 480x680 desktop card with rgba(131,137,143,0.16) border, no shadow, and 12px radius.",
+    "header": "Top centered dynamic app icon only, 56x56 with 8px radius. Do not render the right-side target app icon or any blue/red debug frame. Title is DingtalkWorkSpace, subtitle is 请求以下钉钉账号进行授权.",
+    "accountBlock": "Light #fafafa rounded 424x60 account row below the header, with real org/user avatar at left and the current account name next to it.",
+    "permissionBlock": "Light #fafafa rounded 424x300 permission panel titled 可授权的权限. Product rows use a blue checked checkbox, bold product name, gray count such as 12 项, gray description text, and a right chevron for expandable details.",
     "selectionBehavior": "All recommended groups are checked by default. Product checkbox toggles the entire group; expanding a product reveals individual scope checkboxes.",
     "manageTip": "Under the permission panel, show the existing 个人数据授权管理 link text for later review or revoke.",
     "buttons": "Bottom two-button layout: left outlined white 拒绝 button, right primary blue 同意并授权 button, same height and rounded pill style.",
     "mobile": "On narrow screens the same hierarchy must remain visible without text overlap; buttons share the available width."
   },
+  "terminalTuiTarget": {
+    "sourceImages": [
+      "/var/folders/hz/2sm0ql493cv6jngtjk7xsby00000gp/T/codex-clipboard-16c11a9e-7ae7-4703-aa66-4251f7b59f16.png",
+      "/var/folders/hz/2sm0ql493cv6jngtjk7xsby00000gp/T/codex-clipboard-5aff04a6-9a45-4ba5-8741-b7abcd4f2303.png"
+    ],
+    "loginRecommendSelector": "After login, interactive dws auth login --recommend presents 选择要授权的业务域 with all product domains selected by default.",
+    "controls": "TUI must support space toggle, up/down navigation, slash filter, enter confirm, and ctrl+a select all through the underlying selector component.",
+    "nextStep": "After confirmation, CLI prints or opens the complete encoded authorization URL returned by the server and waits for browser approval."
+  },
   "securityRules": [
     "Gateway derives orgId and uid from trusted token/header only.",
     "Gateway allowlist must include openclaw and dws-cli for batch grant callers that are intended to write.",
-    "PAT core applies destructive-scope hard filtering for recommend=true and caller=auth_login_recommend.",
+    "PAT core consumes the Diamond recommendation set for recommend=true and caller=auth_login_recommend; prepub Diamond currently recommends 151 low-risk scopes and excludes the 22 medium-risk scopes.",
     "PAT core must use flow-stored scopes as the allowlist and reject any selectedScopes value outside the flow.",
     "PAT core must only clear pending keys owned by the current flow and leave the flow pending if approve write fails after precheck, so the same authorization page can retry safely.",
     "Critical approve/reject storage writes must fail closed with PAT_BATCH_PARTIAL_FAILURE instead of reporting success on partial persistence.",
@@ -414,6 +466,7 @@
     "Prepub package/build succeeds for every changed repo: dingtalk-workspace-cli, lippi-open-mcpserver-gw, lippi-pat-core-wukong-capability, lippi-open-app-dev, and lippi-open-dev-front.",
     "Prepub deployed versions include the current branch commits for CLI, gateway, PAT core, BFF, and frontend.",
     "On prepub, dws auth login --recommend opens the batch authorization URL after successful login.",
+    "On prepub, interactive dws auth login --recommend displays a default-all-selected product-domain TUI before opening the authorization URL.",
     "On prepub, dws pat chmod --recommend --product calendar without --yes opens the authorization URL.",
     "On prepub, dws pat chmod --recommend --product calendar --yes preserves the existing direct grant behavior.",
     "On prepub, a recommended config containing a delete/recall/remove/destroy/drop scope returns warnings/skipped scopes and never grants that scope.",

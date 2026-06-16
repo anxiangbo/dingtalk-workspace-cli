@@ -32,6 +32,23 @@ import (
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/edition"
 )
 
+type LoginRecommendOptions struct {
+	// ProductCodes limits the recommend plan to service-owned product domains.
+	ProductCodes []string
+	// ProductSelector lets interactive callers present the service-owned domain
+	// list before the final plan. It receives products extracted from the
+	// initial recommend plan and must return the product codes to grant.
+	ProductSelector func([]LoginRecommendProduct) ([]string, error)
+}
+
+type LoginRecommendProduct struct {
+	ProductCode        string
+	ProductName        string
+	Summary            string
+	ScopeCount         int
+	SelectedScopeCount int
+}
+
 const (
 	sessionIDEnvDingtalk = "DINGTALK_SESSION_ID"
 	sessionIDEnvDWS      = "DWS_SESSION_ID"
@@ -549,21 +566,37 @@ func buildBatchPlanArgs(scopes []string, productCodes []string, recommend bool, 
 // retry are handled by the shared PAT runner once PAT_BATCH_AUTH_PENDING is
 // classified as a PAT auth check.
 func RunLoginRecommendAuthorization(ctx context.Context, c edition.ToolCaller, output io.Writer) error {
+	return RunLoginRecommendAuthorizationWithOptions(ctx, c, output, LoginRecommendOptions{})
+}
+
+func RunLoginRecommendAuthorizationWithOptions(ctx context.Context, c edition.ToolCaller, output io.Writer, opts LoginRecommendOptions) error {
 	if c == nil {
 		return fmt.Errorf("internal error: tool runtime not initialized")
 	}
-	planArgs := buildBatchPlanArgs(nil, nil, true, grantTypePermanent, "", "", true)
-	planArgs["caller"] = patCallerAuthLoginRecommend
-	planResult, err := callPATBatchPlan(ctx, c, "", "", planArgs)
-	if err != nil {
-		return fmt.Errorf("pat login recommend plan failed: %w", err)
-	}
-	if err := classifyToolResultText(planResult); err != nil {
-		return err
-	}
-	scopes, err := extractSelectedScopesAllowEmpty(planResult)
+	productCodes := normalizeProductCodes(opts.ProductCodes)
+	planResult, scopes, err := planLoginRecommend(ctx, c, productCodes)
 	if err != nil {
 		return err
+	}
+	if opts.ProductSelector != nil {
+		products, err := extractLoginRecommendProducts(planResult)
+		if err != nil {
+			return err
+		}
+		if len(products) > 0 {
+			selectedProducts, err := opts.ProductSelector(products)
+			if err != nil {
+				return err
+			}
+			productCodes = normalizeProductCodes(selectedProducts)
+			if len(productCodes) == 0 {
+				return fmt.Errorf("至少选择一个授权业务域")
+			}
+			_, scopes, err = planLoginRecommend(ctx, c, productCodes)
+			if err != nil {
+				return err
+			}
+		}
 	}
 	if len(scopes) == 0 {
 		if output != nil {
@@ -586,12 +619,170 @@ func RunLoginRecommendAuthorization(ctx context.Context, c edition.ToolCaller, o
 	return handleToolResultForWriter(output, result, c)
 }
 
+func planLoginRecommend(ctx context.Context, c edition.ToolCaller, productCodes []string) (*edition.ToolResult, []string, error) {
+	planArgs := buildBatchPlanArgs(nil, productCodes, true, grantTypePermanent, "", "", true)
+	planArgs["caller"] = patCallerAuthLoginRecommend
+	planResult, err := callPATBatchPlan(ctx, c, "", "", planArgs)
+	if err != nil {
+		return nil, nil, fmt.Errorf("pat login recommend plan failed: %w", err)
+	}
+	if err := classifyToolResultText(planResult); err != nil {
+		return planResult, nil, err
+	}
+	scopes, err := extractSelectedScopesAllowEmpty(planResult)
+	if err != nil {
+		return planResult, nil, err
+	}
+	return planResult, scopes, nil
+}
+
 func newBatchClientRequestID(prefix string) string {
 	prefix = strings.TrimSpace(prefix)
 	if prefix == "" {
 		prefix = "batch"
 	}
 	return fmt.Sprintf("%s-%d", prefix, time.Now().UnixNano())
+}
+
+func extractLoginRecommendProducts(result *edition.ToolResult) ([]LoginRecommendProduct, error) {
+	text := firstToolResultText(result)
+	if text == "" {
+		return nil, fmt.Errorf("empty PAT batch plan result")
+	}
+	var body map[string]any
+	if err := json.Unmarshal([]byte(text), &body); err != nil {
+		return nil, fmt.Errorf("parsing PAT batch plan result: %w", err)
+	}
+	data, _ := body["data"].(map[string]any)
+	if data == nil {
+		return nil, fmt.Errorf("PAT batch plan result missing data.items")
+	}
+	selectedSet := map[string]bool{}
+	if rawSelected, _ := data["selectedScopes"].([]any); len(rawSelected) > 0 {
+		for _, raw := range rawSelected {
+			if scope, ok := raw.(string); ok && strings.TrimSpace(scope) != "" {
+				selectedSet[strings.TrimSpace(scope)] = true
+			}
+		}
+	}
+
+	rawItems, _ := data["items"].([]any)
+	type productGroup struct {
+		item         LoginRecommendProduct
+		summarySeen  map[string]bool
+		summaryParts []string
+	}
+	groups := map[string]*productGroup{}
+	order := make([]string, 0)
+	for _, raw := range rawItems {
+		item, _ := raw.(map[string]any)
+		if item == nil {
+			continue
+		}
+		scope := stringField(item, "scope")
+		code := stringField(item, "productCode")
+		if code == "" {
+			code = productCodeFromScope(scope)
+		}
+		if code == "" {
+			continue
+		}
+		group := groups[code]
+		if group == nil {
+			group = &productGroup{
+				item: LoginRecommendProduct{
+					ProductCode: code,
+					ProductName: stringField(item, "productName"),
+				},
+				summarySeen: map[string]bool{},
+			}
+			if group.item.ProductName == "" {
+				group.item.ProductName = code
+			}
+			groups[code] = group
+			order = append(order, code)
+		}
+		group.item.ScopeCount++
+		if selectedSet[scope] {
+			group.item.SelectedScopeCount++
+		}
+		summary := stringField(item, "operationSummary")
+		if summary == "" {
+			summary = stringField(item, "displayName")
+		}
+		if summary != "" && !group.summarySeen[summary] && len(group.summaryParts) < 3 {
+			group.summarySeen[summary] = true
+			group.summaryParts = append(group.summaryParts, summary)
+		}
+	}
+
+	if len(order) == 0 {
+		scopes, err := extractSelectedScopesAllowEmpty(result)
+		if err != nil {
+			return nil, err
+		}
+		for _, scope := range scopes {
+			code := productCodeFromScope(scope)
+			if code == "" {
+				continue
+			}
+			if groups[code] == nil {
+				groups[code] = &productGroup{
+					item: LoginRecommendProduct{
+						ProductCode:        code,
+						ProductName:        code,
+						ScopeCount:         0,
+						SelectedScopeCount: 0,
+					},
+				}
+				order = append(order, code)
+			}
+			groups[code].item.ScopeCount++
+			groups[code].item.SelectedScopeCount++
+		}
+	}
+
+	products := make([]LoginRecommendProduct, 0, len(order))
+	for _, code := range order {
+		group := groups[code]
+		if group == nil {
+			continue
+		}
+		group.item.Summary = strings.Join(group.summaryParts, "、")
+		products = append(products, group.item)
+	}
+	return products, nil
+}
+
+func normalizeProductCodes(codes []string) []string {
+	seen := map[string]bool{}
+	out := make([]string, 0, len(codes))
+	for _, raw := range codes {
+		for _, part := range strings.Split(raw, ",") {
+			code := strings.TrimSpace(part)
+			if code == "" || seen[code] {
+				continue
+			}
+			seen[code] = true
+			out = append(out, code)
+		}
+	}
+	return out
+}
+
+func productCodeFromScope(scope string) string {
+	scope = strings.TrimSpace(scope)
+	if scope == "" {
+		return ""
+	}
+	end := len(scope)
+	if idx := strings.Index(scope, "."); idx >= 0 && idx < end {
+		end = idx
+	}
+	if idx := strings.Index(scope, ":"); idx >= 0 && idx < end {
+		end = idx
+	}
+	return strings.TrimSpace(scope[:end])
 }
 
 func extractSelectedScopes(result *edition.ToolResult) ([]string, error) {
