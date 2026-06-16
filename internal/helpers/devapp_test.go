@@ -140,25 +140,23 @@ func TestDevAppRobotCommandsBuildToolParams(t *testing.T) {
 	}{
 		{
 			name:     "create sync",
-			args:     []string{"robot", "create", "--app-name", "智能体", "--robot-name", "小助手", "--desc", "审批问答", "--yes"},
+			args:     []string{"robot", "create", "--name", "智能体", "--robot-name", "小助手", "--desc", "审批问答", "--yes"},
 			wantTool: "create_dingtalk_robot",
 			wantParams: map[string]any{
-				"appName":   "智能体",
+				"name":      "智能体",
 				"robotName": "小助手",
 				"desc":      "审批问答",
 			},
 		},
 		{
-			name:     "submit async fills media placeholders",
-			args:     []string{"robot", "submit", "--app-name", "智能体", "--robot-name", "小助手", "--desc", "审批问答", "--task-id", "t-1", "--yes"},
+			name:     "submit async leaves optional media absent",
+			args:     []string{"robot", "submit", "--name", "智能体", "--robot-name", "小助手", "--desc", "审批问答", "--task-id", "t-1", "--yes"},
 			wantTool: "submit_robot_create_task",
 			wantParams: map[string]any{
-				"appName":        "智能体",
-				"robotName":      "小助手",
-				"desc":           "审批问答",
-				"robotMediaId":   "",
-				"previewMediaId": "",
-				"taskId":         "t-1",
+				"name":      "智能体",
+				"robotName": "小助手",
+				"desc":      "审批问答",
+				"taskId":    "t-1",
 			},
 		},
 		{
@@ -182,9 +180,15 @@ func TestDevAppRobotCommandsBuildToolParams(t *testing.T) {
 				"name":         "小助手",
 				"brief":        "审批助手",
 				"mode":         2,
-				"skillList":    []string{"qa", "approval"},
-				"isAddScope":   true,
+				"skills":       []string{"qa", "approval"},
+				"addScope":     true,
 			},
+		},
+		{
+			name:       "enable without config",
+			args:       []string{"robot", "enable", "--unified-app-id", "u-1", "--yes"},
+			wantTool:   "enable_dev_app_robot",
+			wantParams: map[string]any{"unifiedAppId": "u-1"},
 		},
 		{
 			name:       "disable",
@@ -233,7 +237,7 @@ func TestDevAppVersionCommandsBuildToolParams(t *testing.T) {
 			wantParams: map[string]any{
 				"unifiedAppId": "u-1",
 				"version":      "1.0.1",
-				"description":  "新增机器人",
+				"desc":         "新增机器人",
 			},
 		},
 		{
@@ -315,15 +319,15 @@ func TestDevAppEventCommandsBuildToolParams(t *testing.T) {
 		},
 		{
 			name:       "subscribe",
-			args:       []string{"event", "subscribe", "--unified-app-id", "u-1", "--event-code", "user_add_org", "--yes"},
+			args:       []string{"event", "subscribe", "--unified-app-id", "u-1", "--event-codes", "user_add_org,org_dept_modify", "--yes"},
 			wantTool:   "subscribe_dev_app_event",
-			wantParams: map[string]any{"unifiedAppId": "u-1", "eventCode": "user_add_org"},
+			wantParams: map[string]any{"unifiedAppId": "u-1", "eventCodes": []string{"user_add_org", "org_dept_modify"}},
 		},
 		{
 			name:       "unsubscribe",
-			args:       []string{"event", "unsubscribe", "--unified-app-id", "u-1", "--event-code", "user_add_org", "--yes"},
+			args:       []string{"event", "unsubscribe", "--unified-app-id", "u-1", "--event-codes", "user_add_org", "--yes"},
 			wantTool:   "unsubscribe_dev_app_event",
-			wantParams: map[string]any{"unifiedAppId": "u-1", "eventCode": "user_add_org"},
+			wantParams: map[string]any{"unifiedAppId": "u-1", "eventCodes": []string{"user_add_org"}},
 		},
 	}
 
@@ -349,7 +353,7 @@ func TestDevAppEventCommandsBuildToolParams(t *testing.T) {
 	}
 }
 
-func TestDevAppEventSubscribeRequiresEventCode(t *testing.T) {
+func TestDevAppEventSubscribeRequiresEventCodes(t *testing.T) {
 	runner := &captureRunner{}
 	root := newDevAppTestRoot(runner)
 	var out bytes.Buffer
@@ -359,10 +363,10 @@ func TestDevAppEventSubscribeRequiresEventCode(t *testing.T) {
 
 	err := root.Execute()
 	if err == nil {
-		t.Fatal("Execute() error = nil, want --event-code validation")
+		t.Fatal("Execute() error = nil, want --event-codes validation")
 	}
-	if !strings.Contains(err.Error(), "event-code") {
-		t.Fatalf("error = %q, want event-code validation", err.Error())
+	if !strings.Contains(err.Error(), "event-codes") {
+		t.Fatalf("error = %q, want event-codes validation", err.Error())
 	}
 	if runner.last.Tool != "" {
 		t.Fatalf("tool = %q, want no invocation", runner.last.Tool)
@@ -385,8 +389,8 @@ func TestDevAppScopedCommandsRejectLegacyLocators(t *testing.T) {
 		{name: "robot enable", args: []string{"devapp", "robot", "enable", "--app-id", "u-1", "--name", "小助手", "--yes"}},
 		{name: "robot disable", args: []string{"devapp", "robot", "disable", "--app-id", "u-1", "--yes"}},
 		{name: "event list", args: []string{"devapp", "event", "list", "--app-id", "u-1"}},
-		{name: "event subscribe", args: []string{"devapp", "event", "subscribe", "--app-id", "u-1", "--event-code", "user_add_org", "--yes"}},
-		{name: "event unsubscribe", args: []string{"devapp", "event", "unsubscribe", "--app-id", "u-1", "--event-code", "user_add_org", "--yes"}},
+		{name: "event subscribe", args: []string{"devapp", "event", "subscribe", "--app-id", "u-1", "--event-codes", "user_add_org", "--yes"}},
+		{name: "event unsubscribe", args: []string{"devapp", "event", "unsubscribe", "--app-id", "u-1", "--event-codes", "user_add_org", "--yes"}},
 	}
 
 	for _, tc := range cases {
@@ -467,13 +471,14 @@ func TestDevAppRobotAndVersionWritesRequireGuard(t *testing.T) {
 		name string
 		args []string
 	}{
-		{name: "robot create", args: []string{"devapp", "robot", "create", "--app-name", "智能体", "--robot-name", "小助手", "--desc", "审批"}},
+		{name: "robot create", args: []string{"devapp", "robot", "create", "--name", "智能体", "--robot-name", "小助手", "--desc", "审批"}},
 		{name: "robot config", args: []string{"devapp", "robot", "config", "--unified-app-id", "u-1", "--name", "小助手"}},
+		{name: "robot enable", args: []string{"devapp", "robot", "enable", "--unified-app-id", "u-1"}},
 		{name: "robot disable", args: []string{"devapp", "robot", "disable", "--unified-app-id", "u-1"}},
 		{name: "version create", args: []string{"devapp", "version", "create", "--unified-app-id", "u-1", "--version", "1.0.1"}},
 		{name: "version publish", args: []string{"devapp", "version", "publish", "--unified-app-id", "u-1", "--version-id", "v-1"}},
-		{name: "event subscribe", args: []string{"devapp", "event", "subscribe", "--unified-app-id", "u-1", "--event-code", "user_add_org"}},
-		{name: "event unsubscribe", args: []string{"devapp", "event", "unsubscribe", "--unified-app-id", "u-1", "--event-code", "user_add_org"}},
+		{name: "event subscribe", args: []string{"devapp", "event", "subscribe", "--unified-app-id", "u-1", "--event-codes", "user_add_org"}},
+		{name: "event unsubscribe", args: []string{"devapp", "event", "unsubscribe", "--unified-app-id", "u-1", "--event-codes", "user_add_org"}},
 	}
 
 	for _, tc := range cases {

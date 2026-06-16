@@ -76,7 +76,7 @@ MCP tool: `get_extension_robot_config`。返回机器人基础信息、回调地
 
 ### 创建或更新 / 启用配置
 
-`config` 是 upsert：未配置机器人时创建，已存在时更新；`enable` 用于启用/重新启用。
+`config` 是 upsert：未配置机器人时创建，已存在时更新；`enable` 用于恢复启用已配置机器人，也可在需要时透传配置字段。
 
 首次 `config` 成功后必须回读 `robot get`：如果返回 `status=2`，不要再误判为“待生效”；只有 `status=1` 或需要重新上架时才调用 `enable`。
 
@@ -85,7 +85,7 @@ dws devapp robot config --unified-app-id <unifiedAppId> --name 小助手 --brief
   --description "处理审批相关问答" --outgoing-url https://example.com/msg \
   --event-url https://example.com/event --mode 2 --skills qa,approval --dry-run --format json
 
-dws devapp robot enable --unified-app-id <unifiedAppId> --name 小助手 --dry-run --format json
+dws devapp robot enable --unified-app-id <unifiedAppId> --dry-run --format json
 ```
 
 MCP tools: `set_extension_robot_config` / `enable_dev_app_robot`
@@ -106,7 +106,7 @@ MCP tools: `set_extension_robot_config` / `enable_dev_app_robot`
 | `--i18n-brief` | `i18nBrief` | 简介国际化 JSON |
 | `--i18n-description` | `i18nDescription` | 描述国际化 JSON |
 
-至少提供一个配置字段，否则 CLI 报错。
+`config` 至少提供一个配置字段，否则 CLI 报错。`enable` 只恢复已有机器人时可仅提供 `--unified-app-id`；未配置机器人时先走 `config`。
 
 ### 停用
 
