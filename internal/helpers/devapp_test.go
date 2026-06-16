@@ -187,6 +187,21 @@ func TestDevAppRobotCommandsBuildToolParams(t *testing.T) {
 			},
 		},
 		{
+			name:       "enable without config",
+			args:       []string{"robot", "enable", "--unified-app-id", "u-1", "--yes"},
+			wantTool:   "enable_dev_app_robot",
+			wantParams: map[string]any{"unifiedAppId": "u-1"},
+		},
+		{
+			name:     "enable with config",
+			args:     []string{"robot", "enable", "--unified-app-id", "u-1", "--name", "小助手", "--yes"},
+			wantTool: "enable_dev_app_robot",
+			wantParams: map[string]any{
+				"unifiedAppId": "u-1",
+				"name":         "小助手",
+			},
+		},
+		{
 			name:       "disable",
 			args:       []string{"robot", "disable", "--unified-app-id", "u-1", "--yes"},
 			wantTool:   "disable_dev_app_robot",
@@ -469,6 +484,7 @@ func TestDevAppRobotAndVersionWritesRequireGuard(t *testing.T) {
 	}{
 		{name: "robot create", args: []string{"devapp", "robot", "create", "--app-name", "智能体", "--robot-name", "小助手", "--desc", "审批"}},
 		{name: "robot config", args: []string{"devapp", "robot", "config", "--unified-app-id", "u-1", "--name", "小助手"}},
+		{name: "robot enable", args: []string{"devapp", "robot", "enable", "--unified-app-id", "u-1"}},
 		{name: "robot disable", args: []string{"devapp", "robot", "disable", "--unified-app-id", "u-1"}},
 		{name: "version create", args: []string{"devapp", "version", "create", "--unified-app-id", "u-1", "--version", "1.0.1"}},
 		{name: "version publish", args: []string{"devapp", "version", "publish", "--unified-app-id", "u-1", "--version-id", "v-1"}},

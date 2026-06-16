@@ -181,7 +181,7 @@ func newDevAppCommand(runner executor.Runner) *cobra.Command {
 		newDevAppRobotResultCommand(runner),
 		newDevAppRobotConfigGetCommand(runner),
 		newDevAppRobotConfigCommand(runner, "config", "创建或更新现有应用机器人配置", devAppRobotConfigSetTool),
-		newDevAppRobotConfigCommand(runner, "enable", "启用现有应用机器人能力", devAppRobotEnableTool),
+		newDevAppRobotEnableCommand(runner),
 		newDevAppRobotDisableCommand(runner),
 		newDevAppRobotConnectCommand(runner),
 	)
@@ -797,6 +797,34 @@ func newDevAppRobotConfigCommand(runner executor.Runner, use, short, tool string
 				return apperrors.NewValidation("at least one robot config field is required, e.g. --name, --brief, --description, --icon, --outgoing-url, --event-url, --mode, --skills")
 			}
 			return runDevAppTool(runner, cmd, tool, params)
+		},
+	}
+	addDevAppUnifiedIDFlag(cmd)
+	registerDevAppRobotConfigFlags(cmd)
+	preferLegacyLeaf(cmd)
+	return cmd
+}
+
+func newDevAppRobotEnableCommand(runner executor.Runner) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:               "enable",
+		Short:             "启用现有应用机器人能力",
+		Example:           "  dws devapp robot enable --unified-app-id UNIFIED_APP_ID --dry-run --format json",
+		Args:              cobra.NoArgs,
+		DisableAutoGenTag: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := devAppRequireWriteGuard(cmd, "robot enable"); err != nil {
+				return err
+			}
+			appID, err := requiredDevAppUnifiedID(cmd)
+			if err != nil {
+				return err
+			}
+			params, _, err := devAppRobotConfigParams(cmd, appID)
+			if err != nil {
+				return err
+			}
+			return runDevAppTool(runner, cmd, devAppRobotEnableTool, params)
 		},
 	}
 	addDevAppUnifiedIDFlag(cmd)

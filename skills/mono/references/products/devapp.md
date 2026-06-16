@@ -215,13 +215,13 @@ MCP tools: `create_dingtalk_robot` / `submit_robot_create_task` / `query_robot_c
 ```bash
 dws devapp robot get --unified-app-id ID --format json
 dws devapp robot config --unified-app-id ID --name 小助手 --brief 审批助手 --outgoing-url URL --mode 2 --skills qa,approval --dry-run --format json
-dws devapp robot enable --unified-app-id ID --name 小助手 --dry-run --format json
+dws devapp robot enable --unified-app-id ID --dry-run --format json
 dws devapp robot disable --unified-app-id ID --dry-run --format json
 ```
 
 MCP tools: `get_extension_robot_config` / `set_extension_robot_config` / `enable_dev_app_robot` / `disable_dev_app_robot`。
 
-配置字段：`--name/--brief/--description/--icon/--outgoing-url(outgoingUrl)/--event-url(chatBotEventUrl)/--mode/--skills(skillList)/--add-scope/--disable-ssl-verify/--i18n-name/--i18n-brief/--i18n-description`。应用未配机器人时 `get` 返回 `robot info is not exist`。
+配置字段：`--name/--brief/--description/--icon/--outgoing-url(outgoingUrl)/--event-url(chatBotEventUrl)/--mode/--skills(skillList)/--add-scope/--disable-ssl-verify/--i18n-name/--i18n-brief/--i18n-description`。`config` 至少提供一个配置字段；`enable` 恢复已有机器人时可仅提供 `--unified-app-id`。应用未配机器人时 `get` 返回 `robot info is not exist`。
 
 状态判断：
 

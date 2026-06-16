@@ -192,8 +192,8 @@ dws devapp permission remove --agent-id <agentId> --scope-value Contact.User.mob
 ```bash
 dws devapp robot get --unified-app-id <unifiedAppId> --format json
 dws devapp robot config --unified-app-id <unifiedAppId> --name "机器人名称" --dry-run --format json
-dws devapp robot enable --unified-app-id <unifiedAppId> --name "机器人名称" --dry-run --format json
-dws devapp robot offline --unified-app-id <unifiedAppId> --dry-run --format json
+dws devapp robot enable --unified-app-id <unifiedAppId> --dry-run --format json
+dws devapp robot disable --unified-app-id <unifiedAppId> --dry-run --format json
 ```
 
 ### 成员与安全
