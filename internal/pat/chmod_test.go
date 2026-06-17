@@ -793,8 +793,14 @@ func TestLoginRecommendAuthorizationSelectorReplansBySelectedProducts(t *testing
 	if got := fake.calls[0].args["productCodes"]; !stringSliceArgEqual(got, nil) {
 		t.Fatalf("initial plan productCodes = %#v, want empty", got)
 	}
+	if got := fake.calls[0].args["recommend"]; got != true {
+		t.Fatalf("initial plan recommend = %#v, want true", got)
+	}
 	if got := fake.calls[1].args["productCodes"]; !stringSliceArgEqual(got, []string{"calendar"}) {
 		t.Fatalf("selected plan productCodes = %#v, want calendar", got)
+	}
+	if got := fake.calls[1].args["recommend"]; got != true {
+		t.Fatalf("selected plan recommend = %#v, want true", got)
 	}
 	if got := fake.calls[1].args["caller"]; got != patCallerAuthLoginRecommend {
 		t.Fatalf("selected plan caller = %#v, want %q", got, patCallerAuthLoginRecommend)
@@ -835,6 +841,38 @@ func TestLoginRecommendAuthorizationWithoutSelectorKeepsSinglePlan(t *testing.T)
 	}
 }
 
+func TestLoginRecommendAuthorizationAllScopeModePlansAllProductScopes(t *testing.T) {
+	fake := &sequenceToolCaller{responses: []string{
+		`{"success":true,"data":{"items":[{"scope":"calendar.event:read","productCode":"calendar","productName":"日历"},{"scope":"calendar.event:write","productCode":"calendar","productName":"日历"}],"selectedScopes":["calendar.event:read","calendar.event:write"]}}`,
+		`{"success":true,"data":{"items":[{"scope":"calendar.event:read","productCode":"calendar","productName":"日历"},{"scope":"calendar.event:write","productCode":"calendar","productName":"日历"}],"selectedScopes":["calendar.event:read","calendar.event:write"]}}`,
+		`{"success":true,"data":{"flowId":"flow-1","userCode":"ABCD-EFGH","uri":"https://example.com/auth"}}`,
+	}}
+	err := RunLoginRecommendAuthorizationWithOptions(context.Background(), fake, io.Discard, LoginRecommendOptions{
+		ScopeMode: LoginRecommendScopeAll,
+		ProductSelector: func(products []LoginRecommendProduct) ([]string, error) {
+			return []string{"calendar"}, nil
+		},
+	})
+	if err != nil {
+		t.Fatalf("RunLoginRecommendAuthorizationWithOptions error = %v", err)
+	}
+	if len(fake.calls) != 3 {
+		t.Fatalf("CallTool count = %d, want initial plan + selected plan + grant", len(fake.calls))
+	}
+	if got := fake.calls[0].args["recommend"]; got != false {
+		t.Fatalf("initial plan recommend = %#v, want false for all scope mode", got)
+	}
+	if got := fake.calls[1].args["recommend"]; got != false {
+		t.Fatalf("selected plan recommend = %#v, want false for all scope mode", got)
+	}
+	if got := fake.calls[1].args["productCodes"]; !stringSliceArgEqual(got, []string{"calendar"}) {
+		t.Fatalf("selected plan productCodes = %#v, want calendar", got)
+	}
+	if got := fake.calls[2].args["scopes"]; !stringSliceArgEqual(got, []string{"calendar.event:read", "calendar.event:write"}) {
+		t.Fatalf("grant scopes = %#v, want all selected calendar scopes", got)
+	}
+}
+
 func TestLoginRecommendAuthorizationConfirmedGrantsDirectly(t *testing.T) {
 	fake := &sequenceToolCaller{responses: []string{
 		`{"success":true,"data":{"items":[{"scope":"calendar.event:read","productCode":"calendar","productName":"日历"}],"selectedScopes":["calendar.event:read"]}}`,
@@ -848,6 +886,9 @@ func TestLoginRecommendAuthorizationConfirmedGrantsDirectly(t *testing.T) {
 	}
 	if fake.calls[1].tool != patBatchGrantToolName {
 		t.Fatalf("second tool = %q, want %q", fake.calls[1].tool, patBatchGrantToolName)
+	}
+	if got := fake.calls[0].args["recommend"]; got != true {
+		t.Fatalf("plan recommend = %#v, want true for confirmed recommend login", got)
 	}
 	if _, ok := fake.calls[1].args["startFlow"]; ok {
 		t.Fatalf("startFlow should be omitted for confirmed recommend login")

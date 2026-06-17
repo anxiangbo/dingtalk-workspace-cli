@@ -45,6 +45,14 @@ type authLoginConfig struct {
 	Yes       bool
 }
 
+type authLoginGuideAction string
+
+const (
+	authLoginGuideDirectCLI         authLoginGuideAction = "direct_cli"
+	authLoginGuideConfigureAgentApp authLoginGuideAction = "configure_agent_app"
+	authLoginGuideManualCredentials authLoginGuideAction = "manual_credentials"
+)
+
 func buildAuthCommand(patCaller edition.ToolCaller) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "auth",
@@ -105,6 +113,23 @@ func newAuthLoginCommand(patCaller edition.ToolCaller) *cobra.Command {
 			}
 			configDir := defaultConfigDir()
 			var tokenData *authpkg.TokenData
+			format, _ := cmd.Root().PersistentFlags().GetString("format")
+			recommendHumanMode := !cfg.Yes && authLoginShouldUseRecommendHumanMode(cmd, format, cfg.Recommend)
+			recommendScopeMode := pat.LoginRecommendScopeRecommended
+
+			if recommendHumanMode {
+				action, err := selectAuthLoginGuideAction()
+				if err != nil {
+					return err
+				}
+				if err := applyAuthLoginGuideAction(cmd, configDir, action); err != nil {
+					return err
+				}
+				recommendScopeMode, err = selectLoginRecommendScopeMode()
+				if err != nil {
+					return err
+				}
+			}
 
 			switch {
 			case strings.TrimSpace(cfg.Token) != "":
@@ -142,13 +167,11 @@ func newAuthLoginCommand(patCaller edition.ToolCaller) *cobra.Command {
 			clearCompatCache()
 
 			w := cmd.OutOrStdout()
-			format, _ := cmd.Root().PersistentFlags().GetString("format")
-			recommendHumanMode := !cfg.Yes && authLoginShouldUseRecommendHumanMode(cmd, format, cfg.Recommend)
 			runRecommend := func() error {
 				if !cfg.Recommend {
 					return nil
 				}
-				opts := pat.LoginRecommendOptions{Confirmed: cfg.Yes}
+				opts := pat.LoginRecommendOptions{Confirmed: cfg.Yes, ScopeMode: recommendScopeMode}
 				if recommendHumanMode {
 					opts.ProductSelector = func(products []pat.LoginRecommendProduct) ([]string, error) {
 						return selectLoginRecommendProducts(products)
@@ -227,6 +250,101 @@ func newAuthLoginCommand(patCaller edition.ToolCaller) *cobra.Command {
 	_ = cmd.Flags().MarkHidden("login-timeout")
 	_ = cmd.Flags().MarkHidden("no-browser")
 	return cmd
+}
+
+func selectAuthLoginGuideAction() (authLoginGuideAction, error) {
+	choice := authLoginGuideDirectCLI
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewSelect[authLoginGuideAction]().
+				Title("选择操作").
+				Options(
+					huh.NewOption("直接使用CLI", authLoginGuideDirectCLI),
+					huh.NewOption("一键配置智能体应用", authLoginGuideConfigureAgentApp),
+					huh.NewOption("手动输入应用凭证", authLoginGuideManualCredentials),
+				).
+				Value(&choice),
+		),
+	)
+	if err := form.Run(); err != nil {
+		return "", fmt.Errorf("使用引导选择中止: %w", err)
+	}
+	return choice, nil
+}
+
+func applyAuthLoginGuideAction(cmd *cobra.Command, configDir string, action authLoginGuideAction) error {
+	switch action {
+	case authLoginGuideDirectCLI:
+		return nil
+	case authLoginGuideConfigureAgentApp:
+		fmt.Fprintln(cmd.ErrOrStderr(), "一键配置智能体应用暂未开放，已继续使用 CLI 登录")
+		return nil
+	case authLoginGuideManualCredentials:
+		clientID, clientSecret, err := promptAuthLoginManualCredentials()
+		if err != nil {
+			return err
+		}
+		authpkg.SetClientID(clientID)
+		authpkg.SetClientSecret(clientSecret)
+		if err := authpkg.SaveAppConfig(configDir, &authpkg.AppConfig{
+			ClientID:     clientID,
+			ClientSecret: authpkg.PlainSecret(clientSecret),
+		}); err != nil {
+			return apperrors.NewInternal(fmt.Sprintf("failed to persist app credentials: %v", err))
+		}
+		return nil
+	default:
+		return fmt.Errorf("未知操作: %s", action)
+	}
+}
+
+func promptAuthLoginManualCredentials() (string, string, error) {
+	var clientID, clientSecret string
+	nonEmpty := func(label string) func(string) error {
+		return func(value string) error {
+			if strings.TrimSpace(value) == "" {
+				return fmt.Errorf("%s 不能为空", label)
+			}
+			return nil
+		}
+	}
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewInput().
+				Title("输入 AppKey").
+				Value(&clientID).
+				Validate(nonEmpty("AppKey")),
+			huh.NewInput().
+				Title("输入 AppSecret").
+				EchoMode(huh.EchoModePassword).
+				Value(&clientSecret).
+				Validate(nonEmpty("AppSecret")),
+		),
+	)
+	if err := form.Run(); err != nil {
+		return "", "", fmt.Errorf("应用凭证输入中止: %w", err)
+	}
+	return strings.TrimSpace(clientID), strings.TrimSpace(clientSecret), nil
+}
+
+func selectLoginRecommendScopeMode() (pat.LoginRecommendScopeMode, error) {
+	choice := pat.LoginRecommendScopeRecommended
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewSelect[pat.LoginRecommendScopeMode]().
+				Title("选择授权范围").
+				Description("空格选择 回车确认").
+				Options(
+					huh.NewOption("推荐授权", pat.LoginRecommendScopeRecommended),
+					huh.NewOption("全部授权", pat.LoginRecommendScopeAll),
+				).
+				Value(&choice),
+		),
+	)
+	if err := form.Run(); err != nil {
+		return "", fmt.Errorf("授权范围选择中止: %w", err)
+	}
+	return choice, nil
 }
 
 func newAuthLogoutCommand() *cobra.Command {

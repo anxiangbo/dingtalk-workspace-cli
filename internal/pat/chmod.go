@@ -38,11 +38,21 @@ type LoginRecommendOptions struct {
 	// Confirmed grants the server-selected recommend scopes directly. When
 	// false, recommend authorization starts the batch confirmation page.
 	Confirmed bool
+	// ScopeMode controls whether the plan uses the safe recommended set or
+	// all scopes under the selected product domains. Empty means recommended.
+	ScopeMode LoginRecommendScopeMode
 	// ProductSelector lets interactive callers present the service-owned domain
 	// list before the final plan. It receives products extracted from the
 	// initial recommend plan and must return the product codes to grant.
 	ProductSelector func([]LoginRecommendProduct) ([]string, error)
 }
+
+type LoginRecommendScopeMode string
+
+const (
+	LoginRecommendScopeRecommended LoginRecommendScopeMode = "recommend"
+	LoginRecommendScopeAll         LoginRecommendScopeMode = "all"
+)
 
 type LoginRecommendProduct struct {
 	ProductCode        string
@@ -576,8 +586,9 @@ func RunLoginRecommendAuthorizationWithOptions(ctx context.Context, c edition.To
 	if c == nil {
 		return fmt.Errorf("internal error: tool runtime not initialized")
 	}
+	recommendPlan := opts.ScopeMode != LoginRecommendScopeAll
 	productCodes := normalizeProductCodes(opts.ProductCodes)
-	planResult, scopes, err := planLoginRecommend(ctx, c, productCodes)
+	planResult, scopes, err := planLoginRecommend(ctx, c, productCodes, recommendPlan)
 	if err != nil {
 		return err
 	}
@@ -595,7 +606,7 @@ func RunLoginRecommendAuthorizationWithOptions(ctx context.Context, c edition.To
 			if len(productCodes) == 0 {
 				return fmt.Errorf("至少选择一个授权业务域")
 			}
-			_, scopes, err = planLoginRecommend(ctx, c, productCodes)
+			_, scopes, err = planLoginRecommend(ctx, c, productCodes, recommendPlan)
 			if err != nil {
 				return err
 			}
@@ -624,8 +635,8 @@ func RunLoginRecommendAuthorizationWithOptions(ctx context.Context, c edition.To
 	return handleToolResultForWriter(output, result, c)
 }
 
-func planLoginRecommend(ctx context.Context, c edition.ToolCaller, productCodes []string) (*edition.ToolResult, []string, error) {
-	planArgs := buildBatchPlanArgs(nil, productCodes, true, grantTypePermanent, "", "", true)
+func planLoginRecommend(ctx context.Context, c edition.ToolCaller, productCodes []string, recommend bool) (*edition.ToolResult, []string, error) {
+	planArgs := buildBatchPlanArgs(nil, productCodes, recommend, grantTypePermanent, "", "", true)
 	planArgs["caller"] = patCallerAuthLoginRecommend
 	planResult, err := callPATBatchPlan(ctx, c, "", "", planArgs)
 	if err != nil {

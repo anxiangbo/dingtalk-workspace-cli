@@ -146,13 +146,14 @@ type serviceResult struct {
 }
 
 // resetCredentialState clears any stale credential state inherited from
-// previous login methods (OAuth, PAT, etc.) so that device flow always
-// starts fresh by fetching clientID from MCP.
+// previous login methods (OAuth, PAT, etc.) before device flow falls back to
+// MCP-managed credentials.
 //
 // This is a defensive measure: no matter what a prior login wrote to
-// app.json or runtime globals, device flow will re-fetch from MCP and
-// set the correct clientIDFromMCP flag, ensuring exchangeCode() uses
-// the MCP proxy path (which doesn't require clientSecret).
+// app.json, device flow will re-fetch from MCP and set the correct
+// clientIDFromMCP flag, ensuring exchangeCode() uses the MCP proxy path
+// (which doesn't require clientSecret). Complete runtime AppKey/AppSecret
+// overrides intentionally skip this reset.
 func (p *DeviceFlowProvider) resetCredentialState() {
 	p.clientID = ""
 	clientMu.Lock()
@@ -161,22 +162,29 @@ func (p *DeviceFlowProvider) resetCredentialState() {
 }
 
 func (p *DeviceFlowProvider) Login(ctx context.Context) (*TokenData, error) {
-	// Defensive reset: clear any stale credential state from previous login
-	// methods (OAuth scan, PAT, etc.) so we always re-fetch from MCP.
-	// This ensures --device login works regardless of what app.json contains.
-	p.resetCredentialState()
+	if runtimeClientID, _, ok := getCompleteRuntimeCredentials(); ok {
+		p.clientID = runtimeClientID
+		clientMu.Lock()
+		clientIDFromMCP = false
+		clientMu.Unlock()
+	} else {
+		// Defensive reset: clear any stale credential state from previous login
+		// methods (OAuth scan, PAT, etc.) so we can re-fetch from MCP. This
+		// ensures --device login works regardless of what app.json contains.
+		p.resetCredentialState()
 
-	if p.logger != nil {
-		p.logger.Debug("fetching client ID from MCP server (device flow always re-fetches)")
-	}
-	mcpClientID, mcpErr := FetchClientIDFromMCP(ctx)
-	if mcpErr != nil {
-		return nil, fmt.Errorf("%s: %w", i18n.T("获取 Client ID 失败"), mcpErr)
-	}
-	p.clientID = mcpClientID
-	SetClientIDFromMCP(mcpClientID)
-	if p.logger != nil {
-		p.logger.Debug("fetched client ID from MCP server", "clientID", mcpClientID)
+		if p.logger != nil {
+			p.logger.Debug("fetching client ID from MCP server (device flow always re-fetches)")
+		}
+		mcpClientID, mcpErr := FetchClientIDFromMCP(ctx)
+		if mcpErr != nil {
+			return nil, fmt.Errorf("%s: %w", i18n.T("获取 Client ID 失败"), mcpErr)
+		}
+		p.clientID = mcpClientID
+		SetClientIDFromMCP(mcpClientID)
+		if p.logger != nil {
+			p.logger.Debug("fetched client ID from MCP server", "clientID", mcpClientID)
+		}
 	}
 
 	const maxAttempts = 3
