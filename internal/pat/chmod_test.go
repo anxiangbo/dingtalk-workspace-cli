@@ -859,8 +859,11 @@ func TestLoginRecommendAuthorizationAllScopeModePlansAllProductScopes(t *testing
 	if len(fake.calls) != 3 {
 		t.Fatalf("CallTool count = %d, want initial plan + selected plan + grant", len(fake.calls))
 	}
-	if got := fake.calls[0].args["recommend"]; got != false {
-		t.Fatalf("initial plan recommend = %#v, want false for all scope mode", got)
+	if got := fake.calls[0].args["recommend"]; got != true {
+		t.Fatalf("initial discovery plan recommend = %#v, want true before product selection", got)
+	}
+	if got := fake.calls[0].args["productCodes"]; !stringSliceArgEqual(got, nil) {
+		t.Fatalf("initial discovery plan productCodes = %#v, want empty", got)
 	}
 	if got := fake.calls[1].args["recommend"]; got != false {
 		t.Fatalf("selected plan recommend = %#v, want false for all scope mode", got)

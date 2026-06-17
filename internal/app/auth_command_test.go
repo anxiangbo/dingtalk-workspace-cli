@@ -351,6 +351,9 @@ func TestAuthLoginRecommendSkipsPostLoginTUI(t *testing.T) {
 	if fake.tools[0] != "pat.batch_plan" || fake.tools[1] != "pat.batch_grant" {
 		t.Fatalf("tool sequence = %v, want plan, grant", fake.tools)
 	}
+	if got := fake.args[0]["recommend"]; got != true {
+		t.Fatalf("--recommend plan recommend = %#v, want true", got)
+	}
 }
 
 func TestAuthLoginWithoutRecommendTUIRunsAfterLoginTokenSaved(t *testing.T) {
@@ -392,7 +395,7 @@ func TestAuthLoginWithoutRecommendTUIRunsAfterLoginTokenSaved(t *testing.T) {
 		if !sawTokenBeforeTUI {
 			t.Fatal("scope selector ran before login token was observed")
 		}
-		return pat.LoginRecommendScopeRecommended, nil
+		return pat.LoginRecommendScopeAll, nil
 	}
 	loginRecommendProductSelector = func(products []pat.LoginRecommendProduct) ([]string, error) {
 		if !sawTokenBeforeTUI {
@@ -427,6 +430,15 @@ func TestAuthLoginWithoutRecommendTUIRunsAfterLoginTokenSaved(t *testing.T) {
 	if fake.tools[0] != "pat.batch_plan" || fake.tools[1] != "pat.batch_plan" || fake.tools[2] != "pat.batch_grant" {
 		t.Fatalf("tool sequence = %v, want plan, plan, grant", fake.tools)
 	}
+	if got := fake.args[0]["recommend"]; got != true {
+		t.Fatalf("initial product discovery plan recommend = %#v, want true", got)
+	}
+	if got := fake.args[1]["recommend"]; got != false {
+		t.Fatalf("selected all-scope plan recommend = %#v, want false", got)
+	}
+	if got := fake.args[1]["productCodes"]; !stringSliceArgEqual(got, []string{"calendar"}) {
+		t.Fatalf("selected all-scope plan productCodes = %#v, want calendar", got)
+	}
 }
 
 type roundTripFunc func(*http.Request) (*http.Response, error)
@@ -438,10 +450,16 @@ func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 type authLoginRecommendSequenceCaller struct {
 	responses []string
 	tools     []string
+	args      []map[string]any
 }
 
-func (f *authLoginRecommendSequenceCaller) CallTool(_ context.Context, _ string, toolName string, _ map[string]any) (*edition.ToolResult, error) {
+func (f *authLoginRecommendSequenceCaller) CallTool(_ context.Context, _ string, toolName string, args map[string]any) (*edition.ToolResult, error) {
 	f.tools = append(f.tools, toolName)
+	copiedArgs := make(map[string]any, len(args))
+	for key, value := range args {
+		copiedArgs[key] = value
+	}
+	f.args = append(f.args, copiedArgs)
 	response := `{"success":true,"data":{}}`
 	if len(f.responses) > 0 {
 		response = f.responses[0]
@@ -453,3 +471,33 @@ func (f *authLoginRecommendSequenceCaller) CallTool(_ context.Context, _ string,
 func (f *authLoginRecommendSequenceCaller) Format() string { return "table" }
 
 func (f *authLoginRecommendSequenceCaller) DryRun() bool { return false }
+
+func stringSliceArgEqual(got any, want []string) bool {
+	if got == nil {
+		return len(want) == 0
+	}
+	switch values := got.(type) {
+	case []string:
+		if len(values) != len(want) {
+			return false
+		}
+		for i := range values {
+			if values[i] != want[i] {
+				return false
+			}
+		}
+		return true
+	case []any:
+		if len(values) != len(want) {
+			return false
+		}
+		for i := range values {
+			if values[i] != want[i] {
+				return false
+			}
+		}
+		return true
+	default:
+		return false
+	}
+}

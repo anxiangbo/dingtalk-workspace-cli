@@ -588,7 +588,15 @@ func RunLoginRecommendAuthorizationWithOptions(ctx context.Context, c edition.To
 	}
 	recommendPlan := opts.ScopeMode != LoginRecommendScopeAll
 	productCodes := normalizeProductCodes(opts.ProductCodes)
-	planResult, scopes, err := planLoginRecommend(ctx, c, productCodes, recommendPlan)
+	initialRecommendPlan := recommendPlan
+	if opts.ProductSelector != nil && len(productCodes) == 0 {
+		// The first plan only discovers the service-owned product-domain list
+		// for the TUI. The server contract rejects an empty all-scope request
+		// (recommend=false without productCodes), so all-scope mode is applied
+		// only after the user selects concrete productCodes.
+		initialRecommendPlan = true
+	}
+	planResult, scopes, err := planLoginRecommend(ctx, c, productCodes, initialRecommendPlan)
 	if err != nil {
 		return err
 	}
@@ -610,6 +618,9 @@ func RunLoginRecommendAuthorizationWithOptions(ctx context.Context, c edition.To
 			if err != nil {
 				return err
 			}
+		}
+		if len(products) == 0 && !recommendPlan {
+			return fmt.Errorf("全部授权需要服务端返回可选授权业务域")
 		}
 	}
 	if len(scopes) == 0 {
