@@ -6,15 +6,15 @@
 
 ```bash
 dws dev app security config --unified-app-id UNIFIED_APP_ID --ip-whitelist 192.0.2.10 --dry-run --format json
-dws dev app security config --unified-app-id UNIFIED_APP_ID --redirect-url https://callback.example.invalid/callback --sso-url https://sso.example.invalid/sso --yes --format json
+dws dev app security config --unified-app-id UNIFIED_APP_ID --redirect-urls https://callback.example.invalid/callback --sso-urls https://sso.example.invalid/sso --yes --format json
 ```
 
 | CLI | 说明 |
 |-----|------|
 | `--unified-app-id` | 统一应用 ID（必填） |
 | `--ip-whitelist` | 出口 IP 白名单，逗号/分号分隔 |
-| `--redirect-url` | 登录重定向 URL，逗号/分号分隔 |
-| `--sso-url` | 端内免登 URL，逗号/分号分隔 |
+| `--redirect-urls` | 登录重定向 URL，逗号/分号分隔 |
+| `--sso-urls` | 端内免登 URL，逗号/分号分隔 |
 
 至少提供一个配置字段。
 

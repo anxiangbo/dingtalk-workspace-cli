@@ -53,7 +53,7 @@ func TestDevAppMemberCommandsBuildToolParams(t *testing.T) {
 		{
 			name:     "add multiple users",
 			cmd:      "add",
-			args:     []string{"--unified-app-id", "app-001", "--users", "userId1,userId2,userId3,userId4", "--member-type", "DEVELOPER", "--yes"},
+			args:     []string{"--unified-app-id", "app-001", "--member-user-ids", "userId1,userId2,userId3,userId4", "--member-type", "DEVELOPER", "--yes"},
 			wantTool: "add_dev_app_members",
 			wantParams: map[string]any{
 				"unifiedAppId":  "app-001",
@@ -64,7 +64,7 @@ func TestDevAppMemberCommandsBuildToolParams(t *testing.T) {
 		{
 			name:     "remove trims users",
 			cmd:      "remove",
-			args:     []string{"--unified-app-id", "app-001", "--users", " userId1 , userId2 ", "--member-type", "DEVELOPER", "--yes"},
+			args:     []string{"--unified-app-id", "app-001", "--member-user-ids", " userId1 , userId2 ", "--member-type", "DEVELOPER", "--yes"},
 			wantTool: "remove_dev_app_members",
 			wantParams: map[string]any{
 				"unifiedAppId":  "app-001",
@@ -144,13 +144,13 @@ func TestDevAppRobotCommandsBuildToolParams(t *testing.T) {
 	}{
 		{
 			name:     "submit async fills media placeholders",
-			args:     []string{"robot", "submit", "--app-name", "智能体", "--robot-name", "小助手", "--desc", "审批问答", "--task-id", "t-1", "--yes"},
+			args:     []string{"robot", "submit", "--name", "智能体", "--robot-name", "小助手", "--desc", "审批问答", "--task-id", "t-1", "--yes"},
 			wantTool: "submit_robot_create_task",
 			wantParams: map[string]any{
-				"appName":        "智能体",
+				"name":           "智能体",
 				"robotName":      "小助手",
 				"desc":           "审批问答",
-				"icon":           "",
+				"iconMediaId":    "",
 				"previewMediaId": "",
 				"taskId":         "t-1",
 			},
@@ -176,8 +176,8 @@ func TestDevAppRobotCommandsBuildToolParams(t *testing.T) {
 				"name":         "小助手",
 				"brief":        "审批助手",
 				"mode":         2,
-				"skillList":    []string{"qa", "approval"},
-				"isAddScope":   true,
+				"skills":       []string{"qa", "approval"},
+				"addScope":     true,
 			},
 		},
 		{
@@ -254,7 +254,7 @@ func TestDevAppVersionCommandsBuildToolParams(t *testing.T) {
 		},
 		{
 			name:     "publish sets precheckOnly false and sensitive",
-			args:     []string{"version", "publish", "--unified-app-id", "u-1", "--version-id", "v-1", "--confirm-sensitive", "--approver", "user-1", "--yes"},
+			args:     []string{"version", "publish", "--unified-app-id", "u-1", "--version-id", "v-1", "--confirmed-sensitive", "--approver-user-id", "user-1", "--yes"},
 			wantTool: "publish_dev_app_version",
 			wantParams: map[string]any{
 				"unifiedAppId":       "u-1",
@@ -334,7 +334,7 @@ func TestDevAppListBuildsListByConditionParams(t *testing.T) {
 	var out bytes.Buffer
 	root.SetOut(&out)
 	root.SetErr(&out)
-	root.SetArgs([]string{"list", "--name", "Waker", "--cursor", "tok-2", "--page-size", "5", "--sort", "gmt_modified", "--order", "desc"})
+	root.SetArgs([]string{"list", "--name", "Waker", "--cursor", "tok-2", "--page-size", "5", "--sort-type", "gmt_modified", "--sort-order", "desc"})
 
 	if err := root.Execute(); err != nil {
 		t.Fatalf("Execute() error = %v\noutput:\n%s", err, out.String())
@@ -345,7 +345,7 @@ func TestDevAppListBuildsListByConditionParams(t *testing.T) {
 	want := map[string]any{
 		"cursor":    "tok-2",
 		"pageSize":  5,
-		"appName":   "Waker",
+		"name":      "Waker",
 		"sortType":  "gmt_modified",
 		"sortOrder": "desc",
 	}
@@ -399,7 +399,7 @@ func TestDevAppCreateUsesCurrentInnerToolAndWriteGuard(t *testing.T) {
 		t.Fatalf("Tool = %q, want create_dev_app", got)
 	}
 
-	want := map[string]any{"appName": "Demo", "desc": "internal app"}
+	want := map[string]any{"name": "Demo", "desc": "internal app"}
 	if !reflect.DeepEqual(runner.last.Params, want) {
 		t.Fatalf("Params = %#v, want %#v", runner.last.Params, want)
 	}
@@ -473,7 +473,9 @@ func TestDevAppLifecycleBuildsLocatorParams(t *testing.T) {
 // fail-closed (abort), never a silent proceed.
 func TestDevAppDeleteConfirmName(t *testing.T) {
 	t.Run("matching name proceeds", func(t *testing.T) {
-		runner := &devAppResponseRunner{response: map[string]any{"appName": "DemoApp"}}
+		// get_dev_app 真实返回的应用名字段是 name（不是 appName）——
+		// fixture 用 name 才能覆盖真实契约，避免 delete 取名回归。
+		runner := &devAppResponseRunner{response: map[string]any{"name": "DemoApp"}}
 		root := newDevAppTestRoot(runner)
 		var out bytes.Buffer
 		root.SetOut(&out)
@@ -488,7 +490,7 @@ func TestDevAppDeleteConfirmName(t *testing.T) {
 	})
 
 	t.Run("mismatched name aborts", func(t *testing.T) {
-		runner := &devAppResponseRunner{response: map[string]any{"appName": "RealName"}}
+		runner := &devAppResponseRunner{response: map[string]any{"name": "RealName"}}
 		root := newDevAppTestRoot(runner)
 		var out bytes.Buffer
 		root.SetOut(&out)
@@ -518,6 +520,42 @@ func TestDevAppDeleteConfirmName(t *testing.T) {
 			t.Fatal("delete must not run when name is unreadable")
 		}
 	})
+}
+
+// TestDevAppEventSubscribeUsesEventCodes locks the param contract: the server's
+// subscribe/unsubscribe tools (plural: subscribe_dev_app_events) read eventCodes
+// as an ARRAY — real-device confirmed against the updated MCP schema.
+func TestDevAppEventSubscribeUsesEventCodes(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		args     []string
+		wantTool string
+	}{
+		{"subscribe", []string{"dev", "app", "event", "subscribe", "--unified-app-id", "u-1", "--event-codes", "a,b", "--yes"}, "subscribe_dev_app_events"},
+		{"unsubscribe", []string{"dev", "app", "event", "unsubscribe", "--unified-app-id", "u-1", "--event-codes", "a,b", "--yes"}, "unsubscribe_dev_app_events"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			runner := &captureRunner{}
+			root := newDevAppTestRoot(runner)
+			var out bytes.Buffer
+			root.SetOut(&out)
+			root.SetErr(&out)
+			root.SetArgs(tc.args)
+			if err := root.Execute(); err != nil {
+				t.Fatalf("Execute() error = %v\noutput:\n%s", err, out.String())
+			}
+			if runner.last.Tool != tc.wantTool {
+				t.Fatalf("Tool = %q, want %q", runner.last.Tool, tc.wantTool)
+			}
+			got, ok := runner.last.Params["eventCodes"].([]string)
+			if !ok || len(got) != 2 || got[0] != "a" || got[1] != "b" {
+				t.Fatalf("eventCodes = %#v, want []string{a,b}", runner.last.Params["eventCodes"])
+			}
+			if _, bad := runner.last.Params["eventCode"]; bad {
+				t.Fatal("must not send singular eventCode")
+			}
+		})
+	}
 }
 
 func TestDevAppWebappCommandsBuildParams(t *testing.T) {
@@ -576,7 +614,7 @@ func TestDevAppPermissionCommandsBuildParams(t *testing.T) {
 	}{
 		{
 			name:     "list",
-			args:     []string{"permission", "list", "--unified-app-id", "u-123", "--keyword", "手机号", "--status", "all", "--cursor", "tok-3", "--page-size", "5"},
+			args:     []string{"permission", "list", "--unified-app-id", "u-123", "--keyword", "手机号", "--auth-status", "all", "--cursor", "tok-3", "--page-size", "5"},
 			wantTool: "list_dev_app_permissions",
 			wantParams: map[string]any{
 				"unifiedAppId": "u-123",
@@ -588,7 +626,7 @@ func TestDevAppPermissionCommandsBuildParams(t *testing.T) {
 		},
 		{
 			name:     "add",
-			args:     []string{"permission", "add", "--unified-app-id", "u-123", "--permissions", "Contact.User.mobile,qyapi_robot_sendmsg", "--yes"},
+			args:     []string{"permission", "add", "--unified-app-id", "u-123", "--scope-values", "Contact.User.mobile,qyapi_robot_sendmsg", "--yes"},
 			wantTool: "apply_dev_app_permissions",
 			wantParams: map[string]any{
 				"unifiedAppId": "u-123",
@@ -597,11 +635,11 @@ func TestDevAppPermissionCommandsBuildParams(t *testing.T) {
 		},
 		{
 			name:     "remove",
-			args:     []string{"permission", "remove", "--unified-app-id", "u-123", "--permission", "Contact.User.mobile", "--yes"},
+			args:     []string{"permission", "remove", "--unified-app-id", "u-123", "--scope-values", "Contact.User.mobile", "--yes"},
 			wantTool: "remove_dev_app_permissions",
 			wantParams: map[string]any{
 				"unifiedAppId": "u-123",
-				"scopeValue":   "Contact.User.mobile",
+				"scopeValues":  []string{"Contact.User.mobile"},
 			},
 		},
 	}
@@ -684,9 +722,9 @@ func TestDevAppMemberCommandsValidateRequiredFlags(t *testing.T) {
 		wantErr string
 	}{
 		{name: "list requires app", cmd: "list", args: nil, wantErr: "--unified-app-id 为必填"},
-		{name: "add requires users", cmd: "add", args: []string{"--unified-app-id", "app-001", "--member-type", "DEVELOPER", "--dry-run"}, wantErr: "--users 为必填"},
-		{name: "add rejects empty users", cmd: "add", args: []string{"--unified-app-id", "app-001", "--users", " , ", "--member-type", "DEVELOPER", "--dry-run"}, wantErr: "--users 至少包含一个 userId"},
-		{name: "remove requires member type", cmd: "remove", args: []string{"--unified-app-id", "app-001", "--users", "userId1", "--dry-run"}, wantErr: "--member-type 为必填"},
+		{name: "add requires users", cmd: "add", args: []string{"--unified-app-id", "app-001", "--member-type", "DEVELOPER", "--dry-run"}, wantErr: "--member-user-ids 为必填"},
+		{name: "add rejects empty users", cmd: "add", args: []string{"--unified-app-id", "app-001", "--member-user-ids", " , ", "--member-type", "DEVELOPER", "--dry-run"}, wantErr: "--member-user-ids 至少包含一个 userId"},
+		{name: "remove requires member type", cmd: "remove", args: []string{"--unified-app-id", "app-001", "--member-user-ids", "userId1", "--dry-run"}, wantErr: "--member-type 为必填"},
 	}
 
 	for _, tc := range cases {
@@ -722,8 +760,8 @@ func TestDevAppSecurityConfigBuildsOnlyProvidedLists(t *testing.T) {
 		"dev", "app", "security", "config",
 		"--unified-app-id", "app-001",
 		"--ip-whitelist", "192.0.2.10,192.0.2.11",
-		"--redirect-url", "https://callback.example.invalid/callback",
-		"--sso-url", "https://sso.example.invalid/sso",
+		"--redirect-urls", "https://callback.example.invalid/callback",
+		"--sso-urls", "https://sso.example.invalid/sso",
 		"--dry-run",
 	})
 
@@ -754,7 +792,7 @@ func TestDevAppSecurityConfigOmitsAbsentOptionalLists(t *testing.T) {
 	var out bytes.Buffer
 	root.SetOut(&out)
 	root.SetErr(&out)
-	root.SetArgs([]string{"dev", "app", "security", "config", "--unified-app-id", "app-001", "--redirect-url", "https://callback.example.invalid/callback", "--dry-run"})
+	root.SetArgs([]string{"dev", "app", "security", "config", "--unified-app-id", "app-001", "--redirect-urls", "https://callback.example.invalid/callback", "--dry-run"})
 
 	if err := root.Execute(); err != nil {
 		t.Fatalf("Execute() error = %v\noutput:\n%s", err, out.String())
@@ -781,7 +819,7 @@ func TestDevAppSecurityConfigRequiresAtLeastOneConfig(t *testing.T) {
 	if err == nil {
 		t.Fatal("Execute() error = nil, want validation error")
 	}
-	if !strings.Contains(err.Error(), "至少提供一项安全配置：--ip-whitelist、--redirect-url 或 --sso-url") {
+	if !strings.Contains(err.Error(), "至少提供一项安全配置：--ip-whitelist、--redirect-urls 或 --sso-urls") {
 		t.Fatalf("error = %q", err.Error())
 	}
 	if runner.last.Tool != "" {
@@ -796,15 +834,15 @@ func TestDevAppMemberAndSecurityRequireWriteGuard(t *testing.T) {
 	}{
 		{
 			name: "member add",
-			args: []string{"dev", "app", "member", "add", "--unified-app-id", "app-001", "--users", "userId1", "--member-type", "DEVELOPER"},
+			args: []string{"dev", "app", "member", "add", "--unified-app-id", "app-001", "--member-user-ids", "userId1", "--member-type", "DEVELOPER"},
 		},
 		{
 			name: "member remove",
-			args: []string{"dev", "app", "member", "remove", "--unified-app-id", "app-001", "--users", "userId1", "--member-type", "DEVELOPER"},
+			args: []string{"dev", "app", "member", "remove", "--unified-app-id", "app-001", "--member-user-ids", "userId1", "--member-type", "DEVELOPER"},
 		},
 		{
 			name: "security config",
-			args: []string{"dev", "app", "security", "config", "--unified-app-id", "app-001", "--redirect-url", "https://callback.example.invalid/callback"},
+			args: []string{"dev", "app", "security", "config", "--unified-app-id", "app-001", "--redirect-urls", "https://callback.example.invalid/callback"},
 		},
 	}
 

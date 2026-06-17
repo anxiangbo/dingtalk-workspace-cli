@@ -12,7 +12,7 @@
 permission add（requiredApproval=true 写入版本变更）
   → version create        创建版本
   → version check-approval 预检是否需要审批 / 审批人
-  → version publish        发布（含高敏权限需 --confirm-sensitive）
+  → version publish        发布（含高敏权限需 --confirmed-sensitive）
   → version status         轮询发布/审批状态
 ```
 
@@ -62,18 +62,18 @@ dws dev app version publish --unified-app-id <unifiedAppId> --version-id <versio
 dws dev app version publish --unified-app-id <unifiedAppId> --version-id <versionId> --yes --format json
 
 # 含高敏权限时必须确认
-dws dev app version publish --unified-app-id <unifiedAppId> --version-id <versionId> --confirm-sensitive --yes --format json
+dws dev app version publish --unified-app-id <unifiedAppId> --version-id <versionId> --confirmed-sensitive --yes --format json
 
 # 灰度选人模式指定审批人
-dws dev app version publish --unified-app-id <unifiedAppId> --version-id <versionId> --approver <userId> --yes --format json
+dws dev app version publish --unified-app-id <unifiedAppId> --version-id <versionId> --approver-user-id <userId> --yes --format json
 ```
 
 `publish` 是真实发布（区别于 `check-approval` 的预检不发布）。
 
 | CLI | 说明 |
 |-----|------|
-| `--confirm-sensitive` | 版本含高敏权限时必须确认 |
-| `--approver` | 灰度选人模式指定审批人 userId |
+| `--confirmed-sensitive` | 版本含高敏权限时必须确认 |
+| `--approver-user-id` | 灰度选人模式指定审批人 userId |
 
 > 注意：`--dry-run` 是 CLI 层的"预览不执行"开关；服务端的"审批预检"是 `version check-approval`。二者是两个东西：`check-approval` 是只查审批要求不发布，`--dry-run` 是 CLI 要不要真调上游。发布前建议先 `check-approval`。
 
@@ -82,7 +82,7 @@ dws dev app version publish --unified-app-id <unifiedAppId> --version-id <versio
 | result | 含义 | 下一步 |
 |--------|------|--------|
 | `NOT_REQUIRED` | 不需要审批；预检时表示可直接发布，真实发布时表示已直接发布上线 | 真实发布后回读 `version status/get` 验证 `RELEASE` |
-| `APPROVAL_REQUIRED` | 需要审批，通常出现在 `check-approval` 或未指定审批人时 | 查看 `approvalMode/approvalCandidates`，让用户选择审批人后再 `publish --approver` |
+| `APPROVAL_REQUIRED` | 需要审批，通常出现在 `check-approval` 或未指定审批人时 | 查看 `approvalMode/approvalCandidates`，让用户选择审批人后再 `publish --approver-user-id` |
 | `SUBMITTED` | 已提交审批 | 保存 `processId`，轮询 `version status` |
 
 审批模式 `approvalMode`：
@@ -90,7 +90,7 @@ dws dev app version publish --unified-app-id <unifiedAppId> --version-id <versio
 | approvalMode | 含义 | 下一步 |
 |--------------|------|--------|
 | `SELECT_APPROVER` | 灰度选人模式，需要在候选审批人中选一个 | 展示候选审批人，不自动选第一个 |
-| `ENTERPRISE_SELF_BUILT` | 企业自建审核模式 | 不传 `--approver`，按企业自建审核流程等待 |
+| `ENTERPRISE_SELF_BUILT` | 企业自建审核模式 | 不传 `--approver-user-id`，按企业自建审核流程等待 |
 
 ## 版本状态
 
@@ -125,6 +125,6 @@ dws dev app version status --unified-app-id <unifiedAppId> --version-id <version
 
 | 情况 | 处理 |
 |------|------|
-| `check-approval` 提示需审批 | 按返回选审批人，再 `publish --approver` |
-| 发布报高敏权限未确认 | 加 `--confirm-sensitive` 重新发布 |
+| `check-approval` 提示需审批 | 按返回选审批人，再 `publish --approver-user-id` |
+| 发布报高敏权限未确认 | 加 `--confirmed-sensitive` 重新发布 |
 | `ServiceResult.success=false` | 透传 `errorCode/errorMsg` |

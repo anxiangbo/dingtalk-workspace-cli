@@ -8,24 +8,24 @@
 
 ```bash
 dws dev app permission list --unified-app-id ID --format json
-dws dev app permission list --unified-app-id ID --keyword "机器人发消息" --status UNAUTHED --format json
+dws dev app permission list --unified-app-id ID --keyword "机器人发消息" --auth-status UNAUTHED --format json
 dws dev app permission list --unified-app-id ID --scope-type SNS --format json
-dws dev app permission list --unified-app-id ID --scope qyapi_robot_sendmsg --format json
+dws dev app permission list --unified-app-id ID --scope-value qyapi_robot_sendmsg --format json
 ```
 
 | CLI | 说明 |
 |-----|------|
 | `--unified-app-id` | 应用定位 |
 | `--keyword` | 权限名/API 名关键词 |
-| `--status` | `ALL` / `AUTHED` / `UNAUTHED` |
+| `--auth-status` | `ALL` / `AUTHED` / `UNAUTHED` |
 | `--scope-type` | `APP` / `SNS`，为空返回两者 |
-| `--scope` | 单权限详情模式 |
+| `--scope-value` | 单权限详情模式 |
 | `--cursor` | 游标令牌：首次留空，续翻传上次 `nextCursor` |
 | `--page-size` | 单页条数，默认 20，建议不超过 50 |
 
 **状态判断：**
 
-`--status` 是查询过滤条件：
+`--auth-status` 是查询过滤条件：
 
 | authStatus | 含义 |
 |------------|------|
@@ -59,7 +59,7 @@ dws dev app permission list --unified-app-id ID --cursor <token> --page-size 50 
 **规则：**
 - `permission search` 和 `permission detail` 是 `list` 的 CLI 别名。
 - 默认同时返回 APP 和 SNS 权限。
-- 列表模式只返回 `apiPreview`；`--scope` 详情模式返回完整 `apiList`。
+- 列表模式只返回 `apiPreview`；`--scope-value` 详情模式返回完整 `apiList`。
 
 **scopeValue 选择顺序：**
 
@@ -71,12 +71,12 @@ dws dev app permission list --unified-app-id ID --cursor <token> --page-size 50 
 ## 申请权限
 
 ```bash
-dws dev app permission add --unified-app-id ID --permissions qyapi_robot_sendmsg --dry-run --format json
-dws dev app permission add --unified-app-id ID --permissions Contact.User.mobile,qyapi_robot_sendmsg --yes --format json
+dws dev app permission add --unified-app-id ID --scope-values qyapi_robot_sendmsg --dry-run --format json
+dws dev app permission add --unified-app-id ID --scope-values Contact.User.mobile,qyapi_robot_sendmsg --yes --format json
 ```
 
 **规则：**
-- `--permissions` 传 `scopeValue`，多个逗号分隔，必须来自 `permission list` 的返回。
+- `--scope-values` 传 `scopeValue`，多个逗号分隔，必须来自 `permission list` 的返回。
 - 已开通跳过，不可编辑拒绝。
 - `requiredApproval=true` 允许申请——写入版本变更，审批在版本发布时处理。
 - 不在此处选审批人。
@@ -84,8 +84,8 @@ dws dev app permission add --unified-app-id ID --permissions Contact.User.mobile
 ## 取消权限
 
 ```bash
-dws dev app permission remove --unified-app-id ID --permissions qyapi_robot_sendmsg --dry-run --format json
-dws dev app permission remove --unified-app-id ID --permissions qyapi_robot_sendmsg --yes --format json
+dws dev app permission remove --unified-app-id ID --scope-values qyapi_robot_sendmsg --dry-run --format json
+dws dev app permission remove --unified-app-id ID --scope-values qyapi_robot_sendmsg --yes --format json
 ```
 
-`--permissions` 多个逗号分隔；上游一次只取消一个权限点，多条时 CLI 逐条调用并返回 `results` 聚合数组。未开通返回 `NOT_AUTHED`；不可编辑返回 no-edit 原因。
+`--scope-values` 多个逗号分隔；上游一次只取消一个权限点，多条时 CLI 逐条调用并返回 `results` 聚合数组。未开通返回 `NOT_AUTHED`；不可编辑返回 no-edit 原因。

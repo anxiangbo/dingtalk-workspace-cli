@@ -15,8 +15,8 @@
 
 ```bash
 # 提交任务
-dws dev app robot submit --app-name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --dry-run --format json
-dws dev app robot submit --app-name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --yes --format json
+dws dev app robot submit --name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --dry-run --format json
+dws dev app robot submit --name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --yes --format json
 # → 返回 taskId
 
 # 轮询结果
@@ -52,7 +52,7 @@ dws dev app robot get --unified-app-id <unifiedAppId> --format json
 - `status=1`：OFFLINE，机器人配置存在但处于停用/下线状态。
 - `status=2`：ONLINE，机器人配置已生效；`robotCode` 可用于加群、机器人身份发消息或后续建联。
 - `robot get` 返回 `success=true` 且包含 `robotCode` 时，说明配置已落库，不是异步等待态。
-- ONLINE 只代表开放平台机器人能力已开启。若要让机器人自动处理消息，还需要配置 `--outgoing-url` / `--event-url`，或用 `dev connect` 接到本地 Agent（见 connect.md）。
+- ONLINE 只代表开放平台机器人能力已开启。若要让机器人自动处理消息，还需要配置 `--outgoing-url` / `--event-callback-url`，或用 `dev connect` 接到本地 Agent（见 connect.md）。
 - 未配置机器人时不会返回 `status`，而是业务错误 `robot info is not exist`；这时走 `robot config`，不是 `enable`。
 
 ### 配置（upsert）/ 启用
@@ -64,7 +64,7 @@ dws dev app robot get --unified-app-id <unifiedAppId> --format json
 ```bash
 dws dev app robot config --unified-app-id <unifiedAppId> --name 小助手 --brief 审批助手 \
   --desc "处理审批相关问答" --outgoing-url https://example.com/msg \
-  --event-url https://example.com/event --mode 2 --skills qa,approval --dry-run --format json
+  --event-callback-url https://example.com/event --mode 2 --skills qa,approval --dry-run --format json
 
 dws dev app robot enable --unified-app-id <unifiedAppId> --dry-run --format json
 ```
@@ -76,9 +76,9 @@ dws dev app robot enable --unified-app-id <unifiedAppId> --dry-run --format json
 | `--name` | 机器人名称 |
 | `--brief` | 简介 |
 | `--desc` | 描述 |
-| `--icon` | 图标 mediaId |
+| `--icon-media-id` | 图标 mediaId |
 | `--outgoing-url` | 消息回调地址 |
-| `--event-url` | 事件回调地址 |
+| `--event-callback-url` | 事件回调地址 |
 | `--mode` | 机器人模式枚举（整数） |
 | `--skills` | 技能列表，逗号/分号分隔 |
 | `--add-scope` | 自动添加机器人相关权限 |

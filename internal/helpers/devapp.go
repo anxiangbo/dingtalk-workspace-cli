@@ -67,8 +67,8 @@ const (
 
 	// 事件订阅能力（op-app MCP 工具，服务端新增）。
 	devAppEventListTool        = "list_dev_app_events"
-	devAppEventSubscribeTool   = "subscribe_dev_app_event"
-	devAppEventUnsubscribeTool = "unsubscribe_dev_app_event"
+	devAppEventSubscribeTool   = "subscribe_dev_app_events"
+	devAppEventUnsubscribeTool = "unsubscribe_dev_app_events"
 
 	// 版本发布能力（op-app MCP 工具，硬编码不走服务发现）。
 	devAppVersionCreateTool  = "create_dev_app_version"
@@ -264,6 +264,7 @@ func newDevAppEventListCommand(runner executor.Runner) *cobra.Command {
 	addDevAppUnifiedIDFlag(cmd)
 	registerDevAppCursorFlags(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppEventListTool)
 	return cmd
 }
 
@@ -271,7 +272,7 @@ func newDevAppEventSubscribeCommand(runner executor.Runner) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "subscribe",
 		Short:             "订阅应用事件回调",
-		Example:           "  dws dev app event subscribe --unified-app-id UNIFIED_APP_ID --event-types bpms_task_change --callback-url https://example.com/cb --dry-run --format json",
+		Example:           "  dws dev app event subscribe --unified-app-id UNIFIED_APP_ID --event-codes bpms_task_change --dry-run --format json",
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -283,17 +284,17 @@ func newDevAppEventSubscribeCommand(runner executor.Runner) *cobra.Command {
 				return err
 			}
 			params := map[string]any{"unifiedAppId": appID}
-			if types := parseDevAppListFlag(cmd, "event-types"); len(types) > 0 {
-				params["eventTypes"] = types
+			// 服务端 subscribe/unsubscribe 工具收 eventCodes 数组（事件码列表）。
+			if types := parseDevAppListFlag(cmd, "event-codes"); len(types) > 0 {
+				params["eventCodes"] = types
 			}
-			devAppPutString(params, "callbackUrl", devAppStringFlag(cmd, "callback-url"))
 			return runDevAppTool(runner, cmd, devAppEventSubscribeTool, params)
 		},
 	}
 	addDevAppUnifiedIDFlag(cmd)
-	cmd.Flags().String("event-types", "", "事件类型，多个用逗号或分号分隔")
-	cmd.Flags().String("callback-url", "", "事件回调地址")
+	cmd.Flags().String("event-codes", "", "事件码，多个用逗号或分号分隔")
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppEventSubscribeTool)
 	return cmd
 }
 
@@ -301,7 +302,7 @@ func newDevAppEventUnsubscribeCommand(runner executor.Runner) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "unsubscribe",
 		Short:             "取消订阅应用事件",
-		Example:           "  dws dev app event unsubscribe --unified-app-id UNIFIED_APP_ID --event-types bpms_task_change --dry-run --format json",
+		Example:           "  dws dev app event unsubscribe --unified-app-id UNIFIED_APP_ID --event-codes bpms_task_change --dry-run --format json",
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -313,15 +314,16 @@ func newDevAppEventUnsubscribeCommand(runner executor.Runner) *cobra.Command {
 				return err
 			}
 			params := map[string]any{"unifiedAppId": appID}
-			if types := parseDevAppListFlag(cmd, "event-types"); len(types) > 0 {
-				params["eventTypes"] = types
+			if types := parseDevAppListFlag(cmd, "event-codes"); len(types) > 0 {
+				params["eventCodes"] = types
 			}
 			return runDevAppTool(runner, cmd, devAppEventUnsubscribeTool, params)
 		},
 	}
 	addDevAppUnifiedIDFlag(cmd)
-	cmd.Flags().String("event-types", "", "事件类型，多个用逗号或分号分隔")
+	cmd.Flags().String("event-codes", "", "事件码，多个用逗号或分号分隔")
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppEventUnsubscribeTool)
 	return cmd
 }
 
@@ -335,15 +337,15 @@ func newDevAppListCommand(runner executor.Runner) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			params := map[string]any{}
 			devAppApplyCursorParams(cmd, params)
-			devAppPutString(params, "appName", devAppFlagOrFallback(cmd, "name", "keyword"))
+			devAppPutString(params, "name", devAppFlagOrFallback(cmd, "name", "keyword"))
 			devAppPutString(params, "appKey", devAppStringFlag(cmd, "app-key"))
 			devAppPutInt(params, "appGroupId", devAppIntFlag(cmd, "app-group-id"))
 			devAppPutString(params, "creator", devAppStringFlag(cmd, "creator"))
 			devAppPutString(params, "robotName", devAppStringFlag(cmd, "robot-name"))
 			devAppPutInt(params, "developType", devAppIntFlag(cmd, "develop-type"))
 			devAppPutInt(params, "filterCoolApp", devAppIntFlag(cmd, "filter-cool-app"))
-			devAppPutString(params, "sortType", devAppStringFlag(cmd, "sort"))
-			devAppPutString(params, "sortOrder", devAppStringFlag(cmd, "order"))
+			devAppPutString(params, "sortType", devAppStringFlag(cmd, "sort-type"))
+			devAppPutString(params, "sortOrder", devAppStringFlag(cmd, "sort-order"))
 			return runDevAppTool(runner, cmd, devAppListTool, params)
 		},
 	}
@@ -357,9 +359,10 @@ func newDevAppListCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("robot-name", "", "机器人名称关键词")
 	cmd.Flags().Int("develop-type", 0, "开发类型枚举；不确定时不要传")
 	cmd.Flags().Int("filter-cool-app", 0, "酷应用过滤枚举；不确定时不要传")
-	cmd.Flags().String("sort", "", "排序字段，如 gmt_modified")
-	cmd.Flags().String("order", "", "排序方向 asc 或 desc")
+	cmd.Flags().String("sort-type", "", "排序字段，如 gmt_modified")
+	cmd.Flags().String("sort-order", "", "排序方向 asc 或 desc")
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppListTool)
 	return cmd
 }
 
@@ -381,6 +384,7 @@ func newDevAppGetCommand(runner executor.Runner) *cobra.Command {
 	}
 	addDevAppUnifiedIDFlag(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppGetTool)
 	return cmd
 }
 
@@ -399,16 +403,17 @@ func newDevAppCreateCommand(runner executor.Runner) *cobra.Command {
 			if name == "" {
 				return apperrors.NewValidation("--name 为必填")
 			}
-			params := map[string]any{"appName": name}
+			params := map[string]any{"name": name}
 			devAppPutString(params, "desc", devAppStringFlag(cmd, "desc"))
-			devAppPutString(params, "icon", devAppStringFlag(cmd, "icon"))
+			devAppPutString(params, "iconMediaId", devAppStringFlag(cmd, "icon-media-id"))
 			return runDevAppTool(runner, cmd, devAppCreateTool, params)
 		},
 	}
 	cmd.Flags().String("name", "", "应用名称 (必填)")
 	cmd.Flags().String("desc", "", "应用描述")
-	cmd.Flags().String("icon", "", "应用图标 mediaId")
+	cmd.Flags().String("icon-media-id", "", "应用图标 mediaId")
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppCreateTool)
 	return cmd
 }
 
@@ -430,19 +435,19 @@ func newDevAppUpdateCommand(runner executor.Runner) *cobra.Command {
 			params := map[string]any{"unifiedAppId": appID}
 			updates := 0
 			if v := devAppStringFlag(cmd, "name"); v != "" {
-				params["appName"] = v
+				params["name"] = v
 				updates++
 			}
 			if v := devAppStringFlag(cmd, "desc"); v != "" {
 				params["desc"] = v
 				updates++
 			}
-			if v := devAppStringFlag(cmd, "icon"); v != "" {
-				params["icon"] = v
+			if v := devAppStringFlag(cmd, "icon-media-id"); v != "" {
+				params["iconMediaId"] = v
 				updates++
 			}
 			if updates == 0 {
-				return apperrors.NewValidation("至少提供一项待更新字段：--name、--desc 或 --icon")
+				return apperrors.NewValidation("至少提供一项待更新字段：--name、--desc 或 --icon-media-id")
 			}
 			return runDevAppTool(runner, cmd, devAppUpdateTool, params)
 		},
@@ -450,8 +455,9 @@ func newDevAppUpdateCommand(runner executor.Runner) *cobra.Command {
 	addDevAppUnifiedIDFlag(cmd)
 	cmd.Flags().String("name", "", "新的应用名称")
 	cmd.Flags().String("desc", "", "新的应用描述")
-	cmd.Flags().String("icon", "", "新的应用图标 mediaId")
+	cmd.Flags().String("icon-media-id", "", "新的应用图标 mediaId")
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppUpdateTool)
 	return cmd
 }
 
@@ -473,6 +479,7 @@ func newDevAppCredentialsGetCommand(runner executor.Runner) *cobra.Command {
 	}
 	addDevAppUnifiedIDFlag(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppCredentialsGetTool)
 	return cmd
 }
 
@@ -496,6 +503,7 @@ func newDevAppLifecycleCommand(runner executor.Runner, use, short, tool string) 
 	}
 	addDevAppUnifiedIDFlag(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, tool)
 	return cmd
 }
 
@@ -549,6 +557,7 @@ func newDevAppDeleteCommand(runner executor.Runner) *cobra.Command {
 	addDevAppUnifiedIDFlag(cmd)
 	cmd.Flags().String("confirm-name", "", "二次确认：必须与被删应用的名称一致（不可逆操作的防误删）")
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppDeleteTool)
 	return cmd
 }
 
@@ -566,6 +575,11 @@ func devAppFetchAppName(runner executor.Runner, cmd *cobra.Command, locator map[
 	result, err := runner.Run(cmd.Context(), inv)
 	if err != nil {
 		return "", err
+	}
+	// get_dev_app 返回的应用名字段是 name（credentials 才用 appName）；
+	// 取 name、appName 兜底，否则 delete 永远读不到名、二次确认必然 fail-closed。
+	if name := devAppExtractString(result.Response, "name"); name != "" {
+		return name, nil
 	}
 	return devAppExtractString(result.Response, "appName"), nil
 }
@@ -604,6 +618,7 @@ func newDevAppWebappGetCommand(runner executor.Runner) *cobra.Command {
 	}
 	addDevAppUnifiedIDFlag(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppWebappGetTool)
 	return cmd
 }
 
@@ -652,6 +667,7 @@ func newDevAppWebappConfigCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("pc-homepage-url", "", "PC 端首页地址")
 	cmd.Flags().String("omp-url", "", "管理后台地址")
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppWebappSetTool)
 	return cmd
 }
 
@@ -670,8 +686,8 @@ func newDevAppPermissionListCommand(runner executor.Runner) *cobra.Command {
 			}
 			params := map[string]any{"unifiedAppId": appID}
 			devAppPutString(params, "keyword", devAppStringFlag(cmd, "keyword"))
-			devAppPutString(params, "scopeValue", devAppFlagOrFallback(cmd, "scope", "permission"))
-			devAppPutString(params, "authStatus", strings.ToUpper(devAppStringFlag(cmd, "status")))
+			devAppPutString(params, "scopeValue", devAppStringFlag(cmd, "scope-value"))
+			devAppPutString(params, "authStatus", strings.ToUpper(devAppStringFlag(cmd, "auth-status")))
 			devAppPutString(params, "scopeType", strings.ToUpper(devAppStringFlag(cmd, "scope-type")))
 			devAppPutString(params, "apiStatus", devAppStringFlag(cmd, "api-status"))
 			devAppApplyCursorParams(cmd, params)
@@ -680,14 +696,13 @@ func newDevAppPermissionListCommand(runner executor.Runner) *cobra.Command {
 	}
 	addDevAppUnifiedIDFlag(cmd)
 	cmd.Flags().String("keyword", "", "权限名、权限点、接口名关键词")
-	cmd.Flags().String("scope", "", "精确权限点 scopeValue")
-	cmd.Flags().String("permission", "", "--scope 的兼容别名")
-	_ = cmd.Flags().MarkHidden("permission")
-	cmd.Flags().String("status", "ALL", "权限状态：ALL、AUTHED、UNAUTHED")
+	cmd.Flags().String("scope-value", "", "精确权限点 scopeValue")
+	cmd.Flags().String("auth-status", "ALL", "权限状态：ALL、AUTHED、UNAUTHED")
 	cmd.Flags().String("scope-type", "", "权限一级类型：APP 或 SNS")
 	cmd.Flags().String("api-status", "", "开发者后台 apiStatus 过滤")
 	registerDevAppCursorFlags(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppPermissionListTool)
 	return cmd
 }
 
@@ -695,7 +710,7 @@ func newDevAppPermissionAddCommand(runner executor.Runner) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "add",
 		Short:             "申请开放平台应用权限点",
-		Example:           "  dws dev app permission add --unified-app-id UNIFIED_APP_ID --permissions Contact.User.mobile --dry-run --format json",
+		Example:           "  dws dev app permission add --unified-app-id UNIFIED_APP_ID --scope-values Contact.User.mobile --dry-run --format json",
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -709,19 +724,16 @@ func newDevAppPermissionAddCommand(runner executor.Runner) *cobra.Command {
 			params := map[string]any{"unifiedAppId": appID}
 			scopes := devAppPermissionScopes(cmd)
 			if len(scopes) == 0 {
-				return apperrors.NewValidation("--permissions 为必填")
+				return apperrors.NewValidation("--scope-values 为必填")
 			}
 			params["scopeValues"] = scopes
 			return runDevAppTool(runner, cmd, devAppPermissionAddTool, params)
 		},
 	}
 	addDevAppUnifiedIDFlag(cmd)
-	cmd.Flags().String("permissions", "", "权限点 scopeValue，多个用逗号或分号分隔")
-	cmd.Flags().String("scope", "", "--permissions 的兼容别名，单个权限点 scopeValue")
-	cmd.Flags().String("permission", "", "--permissions 的兼容别名，单个权限点 scopeValue")
-	_ = cmd.Flags().MarkHidden("scope")
-	_ = cmd.Flags().MarkHidden("permission")
+	cmd.Flags().String("scope-values", "", "权限点 scopeValue，多个用逗号或分号分隔")
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppPermissionAddTool)
 	return cmd
 }
 
@@ -729,7 +741,7 @@ func newDevAppPermissionRemoveCommand(runner executor.Runner) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "remove",
 		Short:             "取消开放平台应用权限点",
-		Example:           "  dws dev app permission remove --unified-app-id UNIFIED_APP_ID --permissions Contact.User.mobile,qyapi_robot_sendmsg --dry-run --format json",
+		Example:           "  dws dev app permission remove --unified-app-id UNIFIED_APP_ID --scope-values Contact.User.mobile,qyapi_robot_sendmsg --dry-run --format json",
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -740,57 +752,19 @@ func newDevAppPermissionRemoveCommand(runner executor.Runner) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			locator := map[string]any{"unifiedAppId": appID}
+			params := map[string]any{"unifiedAppId": appID}
 			scopes := devAppPermissionScopes(cmd)
 			if len(scopes) == 0 {
-				return apperrors.NewValidation("--permissions 为必填")
+				return apperrors.NewValidation("--scope-values 为必填")
 			}
-			// 上游 MCP tool 一次只接受一个权限点；多条时 CLI 逐条调用并聚合
-			// 结果，单条保持原始输出形态不变。
-			if len(scopes) == 1 {
-				params := devAppCloneParams(locator)
-				params["scopeValue"] = scopes[0]
-				return runDevAppTool(runner, cmd, devAppPermissionRmTool, params)
-			}
-			results := make([]map[string]any, 0, len(scopes))
-			failed := 0
-			for _, scope := range scopes {
-				params := devAppCloneParams(locator)
-				params["scopeValue"] = scope
-				invocation := executor.NewHelperInvocation(
-					cobracmd.LegacyCommandPath(cmd),
-					devAppProduct,
-					devAppPermissionRmTool,
-					params,
-				)
-				invocation.DryRun = commandDryRun(cmd)
-				entry := map[string]any{"scopeValue": scope}
-				result, err := runner.Run(cmd.Context(), invocation)
-				if err != nil {
-					entry["error"] = err.Error()
-					failed++
-				} else {
-					entry["result"] = result
-				}
-				results = append(results, entry)
-			}
-			// 逐条 best-effort：把整体成败显式写进 payload（ok / failedCount），
-			// 让读 JSON 的 agent 一眼看出部分失败，而不是只看 exit code 误判全成功。
-			return writeCommandPayload(cmd, map[string]any{
-				"results":     results,
-				"ok":          failed == 0,
-				"total":       len(results),
-				"failedCount": failed,
-			})
+			params["scopeValues"] = scopes
+			return runDevAppTool(runner, cmd, devAppPermissionRmTool, params)
 		},
 	}
 	addDevAppUnifiedIDFlag(cmd)
-	cmd.Flags().String("permissions", "", "待取消权限点 scopeValue，多个用逗号或分号分隔（多条时逐条调用并聚合结果）")
-	cmd.Flags().String("permission", "", "--permissions 的兼容别名，单个权限点 scopeValue")
-	cmd.Flags().String("scope", "", "--permissions 的兼容别名")
-	_ = cmd.Flags().MarkHidden("permission")
-	_ = cmd.Flags().MarkHidden("scope")
+	cmd.Flags().String("scope-values", "", "待取消权限点 scopeValue，多个用逗号或分号分隔")
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppPermissionRmTool)
 	return cmd
 }
 
@@ -813,6 +787,7 @@ func newDevAppMemberListCommand(runner executor.Runner) *cobra.Command {
 	}
 	addDevAppUnifiedIDFlag(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppMemberListTool)
 	return cmd
 }
 
@@ -820,7 +795,7 @@ func newDevAppMemberAddCommand(runner executor.Runner) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "add",
 		Short:             "添加开放平台应用成员",
-		Example:           "  dws dev app member add --unified-app-id <unifiedAppId> --users userId1,userId2 --member-type DEVELOPER --dry-run",
+		Example:           "  dws dev app member add --unified-app-id <unifiedAppId> --member-user-ids userId1,userId2 --member-type DEVELOPER --dry-run",
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -829,6 +804,7 @@ func newDevAppMemberAddCommand(runner executor.Runner) *cobra.Command {
 	}
 	registerDevAppMemberMutationFlags(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppMemberAddTool)
 	return cmd
 }
 
@@ -836,7 +812,7 @@ func newDevAppMemberRemoveCommand(runner executor.Runner) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "remove",
 		Short:             "移除开放平台应用成员",
-		Example:           "  dws dev app member remove --unified-app-id <unifiedAppId> --users userId1,userId2 --member-type DEVELOPER --dry-run",
+		Example:           "  dws dev app member remove --unified-app-id <unifiedAppId> --member-user-ids userId1,userId2 --member-type DEVELOPER --dry-run",
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -845,6 +821,7 @@ func newDevAppMemberRemoveCommand(runner executor.Runner) *cobra.Command {
 	}
 	registerDevAppMemberMutationFlags(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppMemberRemoveTool)
 	return cmd
 }
 
@@ -853,7 +830,7 @@ func newDevAppSecurityConfigCommand(runner executor.Runner) *cobra.Command {
 		Use:   "config",
 		Short: "更新开放平台应用安全配置",
 		Example: "  dws dev app security config --unified-app-id <unifiedAppId> " +
-			"--ip-whitelist 192.0.2.10 --redirect-url https://callback.example.invalid/callback --sso-url https://sso.example.invalid/sso --dry-run",
+			"--ip-whitelist 192.0.2.10 --redirect-urls https://callback.example.invalid/callback --sso-urls https://sso.example.invalid/sso --dry-run",
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -871,25 +848,26 @@ func newDevAppSecurityConfigCommand(runner executor.Runner) *cobra.Command {
 				params["ipWhitelist"] = values
 				updates++
 			}
-			if values := parseDevAppListFlag(cmd, "redirect-url"); len(values) > 0 {
+			if values := parseDevAppListFlag(cmd, "redirect-urls"); len(values) > 0 {
 				params["redirectUrls"] = values
 				updates++
 			}
-			if values := parseDevAppListFlag(cmd, "sso-url"); len(values) > 0 {
+			if values := parseDevAppListFlag(cmd, "sso-urls"); len(values) > 0 {
 				params["ssoUrls"] = values
 				updates++
 			}
 			if updates == 0 {
-				return apperrors.NewValidation("至少提供一项安全配置：--ip-whitelist、--redirect-url 或 --sso-url")
+				return apperrors.NewValidation("至少提供一项安全配置：--ip-whitelist、--redirect-urls 或 --sso-urls")
 			}
 			return runDevAppTool(runner, cmd, devAppSecurityConfigTool, params)
 		},
 	}
 	addDevAppUnifiedIDFlag(cmd)
 	cmd.Flags().String("ip-whitelist", "", "出口 IP 白名单，多个用逗号或分号分隔（整组覆盖，非追加）")
-	cmd.Flags().String("redirect-url", "", "登录重定向 URL，多个用逗号或分号分隔（整组覆盖，非追加）")
-	cmd.Flags().String("sso-url", "", "端内免登地址，多个用逗号或分号分隔（整组覆盖，非追加）")
+	cmd.Flags().String("redirect-urls", "", "登录重定向 URL，多个用逗号或分号分隔（整组覆盖，非追加）")
+	cmd.Flags().String("sso-urls", "", "端内免登地址，多个用逗号或分号分隔（整组覆盖，非追加）")
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppSecurityConfigTool)
 	return cmd
 }
 
@@ -901,7 +879,7 @@ func newDevAppRobotSubmitCommand(runner executor.Runner) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "submit",
 		Short:             "异步提交钉钉智能体机器人创建任务（支持失败重试）",
-		Example:           "  dws dev app robot submit --app-name 我的智能体 --robot-name 小助手 --desc \"处理审批问答\" --dry-run --format json",
+		Example:           "  dws dev app robot submit --name 我的智能体 --robot-name 小助手 --desc \"处理审批问答\" --dry-run --format json",
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -914,8 +892,8 @@ func newDevAppRobotSubmitCommand(runner executor.Runner) *cobra.Command {
 			}
 			// submit_robot_create 的 schema 把图标字段标为必填（空值时服务端用默认图标），
 			// 因此即使用户未提供也补空串占位。
-			if _, ok := params["icon"]; !ok {
-				params["icon"] = ""
+			if _, ok := params["iconMediaId"]; !ok {
+				params["iconMediaId"] = ""
 			}
 			if _, ok := params["previewMediaId"]; !ok {
 				params["previewMediaId"] = ""
@@ -927,6 +905,7 @@ func newDevAppRobotSubmitCommand(runner executor.Runner) *cobra.Command {
 	registerDevAppRobotCreateFlags(cmd)
 	cmd.Flags().String("task-id", "", "失败重试时传入原 taskId；为空时服务端自动生成")
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppRobotSubmitTool)
 	return cmd
 }
 
@@ -947,6 +926,7 @@ func newDevAppRobotResultCommand(runner executor.Runner) *cobra.Command {
 	}
 	cmd.Flags().String("task-id", "", "提交创建任务时返回的 taskId (必填)")
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppRobotResultTool)
 	return cmd
 }
 
@@ -967,6 +947,7 @@ func newDevAppRobotConfigGetCommand(runner executor.Runner) *cobra.Command {
 	}
 	addDevAppUnifiedIDFlag(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppRobotConfigGetTool)
 	return cmd
 }
 
@@ -995,7 +976,7 @@ func newDevAppRobotConfigCommand(runner executor.Runner) *cobra.Command {
 				return err
 			}
 			if updates == 0 {
-				return apperrors.NewValidation("至少提供一项机器人配置字段，如 --name、--brief、--desc、--icon、--outgoing-url、--event-url、--mode、--skills")
+				return apperrors.NewValidation("至少提供一项机器人配置字段，如 --name、--brief、--desc、--icon-media-id、--outgoing-url、--event-callback-url、--mode、--skills")
 			}
 			return runDevAppTool(runner, cmd, devAppRobotConfigUpsertTool, params)
 		},
@@ -1003,6 +984,7 @@ func newDevAppRobotConfigCommand(runner executor.Runner) *cobra.Command {
 	addDevAppUnifiedIDFlag(cmd)
 	registerDevAppRobotConfigFlags(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppRobotConfigUpsertTool)
 	return cmd
 }
 
@@ -1028,6 +1010,7 @@ func newDevAppRobotEnableCommand(runner executor.Runner) *cobra.Command {
 	}
 	addDevAppUnifiedIDFlag(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppRobotEnableTool)
 	return cmd
 }
 
@@ -1051,21 +1034,22 @@ func newDevAppRobotOfflineCommand(runner executor.Runner) *cobra.Command {
 	}
 	addDevAppUnifiedIDFlag(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppRobotOfflineTool)
 	return cmd
 }
 
 func registerDevAppRobotCreateFlags(cmd *cobra.Command) {
-	cmd.Flags().String("app-name", "", "智能体应用名称，长度 2-20，企业内唯一 (必填)")
+	cmd.Flags().String("name", "", "智能体应用名称，长度 2-20，企业内唯一 (必填)")
 	cmd.Flags().String("robot-name", "", "承载机器人名称，用于客户端展示 (必填)")
 	cmd.Flags().String("desc", "", "机器人功能描述，不超过 200 字 (必填)")
-	cmd.Flags().String("icon", "", "机器人图标 mediaId；为空时使用默认图标")
-	cmd.Flags().String("preview", "", "机器人预览图 mediaId；为空时复用图标")
+	cmd.Flags().String("icon-media-id", "", "机器人图标 mediaId；为空时使用默认图标")
+	cmd.Flags().String("preview-media-id", "", "机器人预览图 mediaId；为空时复用图标")
 }
 
 func devAppRobotCreateParams(cmd *cobra.Command) (map[string]any, error) {
-	appName := devAppStringFlag(cmd, "app-name")
-	if appName == "" {
-		return nil, apperrors.NewValidation("--app-name 为必填")
+	name := devAppStringFlag(cmd, "name")
+	if name == "" {
+		return nil, apperrors.NewValidation("--name 为必填")
 	}
 	robotName := devAppStringFlag(cmd, "robot-name")
 	if robotName == "" {
@@ -1076,12 +1060,12 @@ func devAppRobotCreateParams(cmd *cobra.Command) (map[string]any, error) {
 		return nil, apperrors.NewValidation("--desc 为必填")
 	}
 	params := map[string]any{
-		"appName":   appName,
+		"name":      name,
 		"robotName": robotName,
 		"desc":      desc,
 	}
-	devAppPutString(params, "icon", devAppStringFlag(cmd, "icon"))
-	devAppPutString(params, "previewMediaId", devAppStringFlag(cmd, "preview"))
+	devAppPutString(params, "iconMediaId", devAppStringFlag(cmd, "icon-media-id"))
+	devAppPutString(params, "previewMediaId", devAppStringFlag(cmd, "preview-media-id"))
 	return params, nil
 }
 
@@ -1089,9 +1073,9 @@ func registerDevAppRobotConfigFlags(cmd *cobra.Command) {
 	cmd.Flags().String("name", "", "机器人名称")
 	cmd.Flags().String("brief", "", "机器人简介")
 	cmd.Flags().String("desc", "", "机器人描述")
-	cmd.Flags().String("icon", "", "机器人图标 mediaId")
+	cmd.Flags().String("icon-media-id", "", "机器人图标 mediaId")
 	cmd.Flags().String("outgoing-url", "", "消息回调地址")
-	cmd.Flags().String("event-url", "", "事件回调地址")
+	cmd.Flags().String("event-callback-url", "", "事件回调地址")
 	cmd.Flags().Int("mode", 0, "机器人模式枚举")
 	cmd.Flags().String("skills", "", "技能列表，多个用逗号或分号分隔")
 	cmd.Flags().Bool("add-scope", false, "是否自动添加机器人相关权限")
@@ -1113,25 +1097,25 @@ func devAppRobotConfigParams(cmd *cobra.Command, appID string) (map[string]any, 
 	setString("name", "name")
 	setString("brief", "brief")
 	setString("desc", "desc")
-	setString("icon", "icon")
+	setString("iconMediaId", "icon-media-id")
 	setString("outgoingUrl", "outgoing-url")
-	setString("eventUrl", "event-url")
+	setString("eventCallbackUrl", "event-callback-url")
 	if cmd.Flags().Changed("mode") {
 		params["mode"] = devAppIntFlag(cmd, "mode")
 		updates++
 	}
 	if cmd.Flags().Changed("add-scope") {
 		value, _ := cmd.Flags().GetBool("add-scope")
-		params["isAddScope"] = value
+		params["addScope"] = value
 		updates++
 	}
 	if cmd.Flags().Changed("disable-ssl-verify") {
 		value, _ := cmd.Flags().GetBool("disable-ssl-verify")
-		params["disableSslVerify"] = value
+		params["disableSSLVerify"] = value
 		updates++
 	}
 	if values := parseDevAppListFlag(cmd, "skills"); len(values) > 0 {
-		params["skillList"] = values
+		params["skills"] = values
 		updates++
 	}
 	for _, item := range []struct{ key, flag string }{
@@ -1185,6 +1169,7 @@ func newDevAppVersionCreateCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("version", "", "版本号，如 1.0.1")
 	cmd.Flags().String("desc", "", "版本描述")
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppVersionCreateTool)
 	return cmd
 }
 
@@ -1208,6 +1193,7 @@ func newDevAppVersionListCommand(runner executor.Runner) *cobra.Command {
 	addDevAppUnifiedIDFlag(cmd)
 	registerDevAppCursorFlags(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppVersionListTool)
 	return cmd
 }
 
@@ -1228,6 +1214,7 @@ func newDevAppVersionGetCommand(runner executor.Runner) *cobra.Command {
 	}
 	addDevAppVersionLocatorFlags(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppVersionDetailTool)
 	return cmd
 }
 
@@ -1252,13 +1239,14 @@ func newDevAppVersionCheckApprovalCommand(runner executor.Runner) *cobra.Command
 	}
 	addDevAppVersionLocatorFlags(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppVersionPublishTool)
 	return cmd
 }
 
 func newDevAppVersionPublishCommand(runner executor.Runner) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "publish",
-		Short:             "发布指定版本（含高敏权限需 --confirm-sensitive）",
+		Short:             "发布指定版本（含高敏权限需 --confirmed-sensitive）",
 		Example:           "  dws dev app version publish --unified-app-id UNIFIED_APP_ID --version-id VERSION_ID --dry-run --format json",
 		Args:              cobra.NoArgs,
 		DisableAutoGenTag: true,
@@ -1275,18 +1263,19 @@ func newDevAppVersionPublishCommand(runner executor.Runner) *cobra.Command {
 			// params 的 agent 误判（publish --dry-run 时回显 dryRun:false）。
 			// 见 docs/upstream-todo.md：上游需把入参 dryRun 改名 precheckOnly。
 			params["precheckOnly"] = false
-			if cmd.Flags().Changed("confirm-sensitive") {
-				value, _ := cmd.Flags().GetBool("confirm-sensitive")
+			if cmd.Flags().Changed("confirmed-sensitive") {
+				value, _ := cmd.Flags().GetBool("confirmed-sensitive")
 				params["confirmedSensitive"] = value
 			}
-			devAppPutString(params, "approverUserId", devAppStringFlag(cmd, "approver"))
+			devAppPutString(params, "approverUserId", devAppStringFlag(cmd, "approver-user-id"))
 			return runDevAppTool(runner, cmd, devAppVersionPublishTool, params)
 		},
 	}
 	addDevAppVersionLocatorFlags(cmd)
-	cmd.Flags().Bool("confirm-sensitive", false, "确认发布包含高敏权限的版本")
-	cmd.Flags().String("approver", "", "灰度选人模式下指定审批人 userId")
+	cmd.Flags().Bool("confirmed-sensitive", false, "确认发布包含高敏权限的版本")
+	cmd.Flags().String("approver-user-id", "", "灰度选人模式下指定审批人 userId")
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppVersionPublishTool)
 	return cmd
 }
 
@@ -1307,6 +1296,7 @@ func newDevAppVersionStatusCommand(runner executor.Runner) *cobra.Command {
 	}
 	addDevAppVersionLocatorFlags(cmd)
 	preferLegacyLeaf(cmd)
+	annotateDevAppTool(cmd, devAppVersionStatusTool)
 	return cmd
 }
 
@@ -1344,7 +1334,7 @@ func requiredDevAppUnifiedID(cmd *cobra.Command) (string, error) {
 
 func registerDevAppMemberMutationFlags(cmd *cobra.Command) {
 	addDevAppUnifiedIDFlag(cmd)
-	cmd.Flags().String("users", "", "成员 userId 列表，多个用逗号分隔 (必填)")
+	cmd.Flags().String("member-user-ids", "", "成员 userId 列表，多个用逗号分隔 (必填)")
 	cmd.Flags().String("member-type", "", "成员类型，如 DEVELOPER (必填)")
 }
 
@@ -1373,6 +1363,18 @@ func runDevAppMemberMutation(runner executor.Runner, cmd *cobra.Command, tool, o
 	return runDevAppTool(runner, cmd, tool, params)
 }
 
+// annotateDevAppTool tags a leaf command with the MCP tool name it invokes, so
+// `dws schema dev.app...` can resolve command → tool → live op-app schema
+// without re-deriving the mapping. The annotation is the single source of truth
+// for the schema renderer (see internal/cli/dev_schema.go).
+func annotateDevAppTool(cmd *cobra.Command, tool string) *cobra.Command {
+	if cmd.Annotations == nil {
+		cmd.Annotations = map[string]string{}
+	}
+	cmd.Annotations["mcp-tool"] = tool
+	return cmd
+}
+
 func runDevAppTool(runner executor.Runner, cmd *cobra.Command, tool string, params map[string]any) error {
 	invocation := executor.NewHelperInvocation(
 		cobracmd.LegacyCommandPath(cmd),
@@ -1392,13 +1394,13 @@ func runDevAppTool(runner executor.Runner, cmd *cobra.Command, tool string, para
 }
 
 func requiredDevAppUsers(cmd *cobra.Command) ([]string, error) {
-	usersRaw, _ := cmd.Flags().GetString("users")
+	usersRaw, _ := cmd.Flags().GetString("member-user-ids")
 	if strings.TrimSpace(usersRaw) == "" {
-		return nil, apperrors.NewValidation("--users 为必填")
+		return nil, apperrors.NewValidation("--member-user-ids 为必填")
 	}
 	users := splitDevAppList(usersRaw)
 	if len(users) == 0 {
-		return nil, apperrors.NewValidation("--users 至少包含一个 userId")
+		return nil, apperrors.NewValidation("--member-user-ids 至少包含一个 userId")
 	}
 	return users, nil
 }
@@ -1465,8 +1467,7 @@ func devAppCloneParams(src map[string]any) map[string]any {
 }
 
 func devAppPermissionScopes(cmd *cobra.Command) []string {
-	values := parseDevAppListFlag(cmd, "permissions")
-	values = append(values, devAppFlagOrFallback(cmd, "scope", "permission"))
+	values := parseDevAppListFlag(cmd, "scope-values")
 	out := make([]string, 0, len(values))
 	for _, value := range values {
 		for _, part := range splitDevAppList(value) {

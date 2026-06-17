@@ -1,7 +1,7 @@
 ---
 name: dingtalk-dev
 description: 钉钉开放平台企业内部应用全生命周期管理。应用是容器：凭证/权限点/成员/安全配置/能力扩展(网页应用/机器人)/版本，需审批的变更要发版本才生效。Use when 用户说 开发者后台应用/开放平台应用/企业内部应用/查应用/创建应用/修改应用/删除应用/停用应用/启用应用/应用成员/安全配置/IP白名单/登录重定向/端内免登/agentId/clientId/appKey/appSecret/customKey/应用权限/权限点/scopeValue/创建机器人/智能体机器人/机器人配置/机器人回调/应用版本/版本发布/发布审核/选审批人/本地调试机器人/把机器人接到本地agent/建联/connect。
-cli_version: "1.0.15+"
+cli_version: "1.0.37+"
 metadata:
   category: product
   stability: experimental
@@ -11,14 +11,6 @@ metadata:
 ---
 
 # 钉钉开放平台应用管理 Skill
-
-> 🧪 **EXPERIMENTAL · 试验版 / Preview** — dev 为预览能力，仅在 multi 模式提供，接口与命名后续可能调整。问题请提 issue 反馈。
-
-> **PREREQUISITE:** Read the root `dws` skill first for auth, global flags, product routing, URL preflight, error codes, and safety rules. The `dws` binary must be on PATH.
-
-<!-- SAFETY_PREAMBLE_INJECT -->
-
-> `dws dev app ...` 是内置 helper 命令，不依赖 MCP 服务发现。首次使用前（或命令报错时）用 `dws dev app --help` 验证可用，验证过就不用每次重复；若报 `unknown command`，说明当前 dws 构建不含 dev 命令组（预览能力，`dws upgrade` 装不到），按仓库 `docs/dev-agent-install-guide.md` 用 install-dev.sh 从 `feat/dws-dev` 分支安装。
 
 ## 概念地图
 
@@ -104,7 +96,7 @@ metadata:
 端到端任务都是「定位应用 → 改容器某节点 →（按审批需要）走版本生效 → 回读验证」。常见链路（每步先 `--dry-run` 确认再 `--yes`，细节进对应产品文件）：
 
 - **建钉钉里打开的网页应用**：`app create` → `webapp config` → `version create` → `check-approval` → `publish` →（回读 `version status` 到 `RELEASE`）。
-- **权限从申请到生效**：`permission list`（选 `scopeValue`）→ `permission add` →（`requiredApproval` 的权限）`version create` → `check-approval`（看是否需审批+候选审批人）→ `publish --approver <用户选的>` → `version status`。
+- **权限从申请到生效**：`permission list`（选 `scopeValue`）→ `permission add` →（`requiredApproval` 的权限）`version create` → `check-approval`（看是否需审批+候选审批人）→ `publish --approver-user-id <用户选的>` → `version status`。
 - **做答疑机器人**：`robot submit` → `robot result`（`SUCCESS` 拿 clientId/secret），或现有应用 `robot config` →（发版本）→ 本地调试 `dev connect`。
 - **查"为什么没生效 / 机器人搜不到 / 权限加了还报错"**：先 `version status`——改配置 ≠ 生效，未发到 `RELEASE` 就不生效。
 

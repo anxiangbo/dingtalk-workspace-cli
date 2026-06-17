@@ -28,15 +28,14 @@ dws dev app event list --unified-app-id ID --cursor <token> --page-size 50 --for
 ## 订阅事件
 
 ```bash
-dws dev app event subscribe --unified-app-id ID --event-types chat_add_member_org --callback-url https://example.com/event --dry-run --format json
-dws dev app event subscribe --unified-app-id ID --event-types chat_add_member_org,chat_remove_member_org --callback-url https://example.com/event --yes --format json
+dws dev app event subscribe --unified-app-id ID --event-codes chat_add_member_org --dry-run --format json
+dws dev app event subscribe --unified-app-id ID --event-codes chat_add_member_org,chat_remove_member_org --yes --format json
 ```
 
 | CLI | 说明 |
 |-----|------|
 | `--unified-app-id` | 应用定位 |
-| `--event-types` | 事件类型，多个逗号分隔 |
-| `--callback-url` | 事件回调地址 |
+| `--event-codes` | 事件码，多个逗号分隔（一次可订阅/退订多个）|
 
 **规则：**
 - 写操作，先 `--dry-run` 预览，确认后 `--yes`。
@@ -46,14 +45,14 @@ dws dev app event subscribe --unified-app-id ID --event-types chat_add_member_or
 ## 取消订阅
 
 ```bash
-dws dev app event unsubscribe --unified-app-id ID --event-types chat_add_member_org --dry-run --format json
-dws dev app event unsubscribe --unified-app-id ID --event-types chat_add_member_org --yes --format json
+dws dev app event unsubscribe --unified-app-id ID --event-codes chat_add_member_org --dry-run --format json
+dws dev app event unsubscribe --unified-app-id ID --event-codes chat_add_member_org --yes --format json
 ```
 
 | CLI | 说明 |
 |-----|------|
 | `--unified-app-id` | 应用定位 |
-| `--event-types` | 要取消的事件类型，多个逗号分隔 |
+| `--event-codes` | 要取消的事件类型，多个逗号分隔 |
 
 **规则：**
 - 写操作，先 `--dry-run` 预览，确认后 `--yes`。

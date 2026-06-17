@@ -596,7 +596,7 @@ func newVersionCommand() *cobra.Command {
 }
 
 func newSchemaCommand(loader cli.CatalogLoader) *cobra.Command {
-	return cli.NewSchemaCommand(loader)
+	return cli.NewSchemaCommand(loader, newDevAppToolFetcher())
 }
 
 func newGenerateSkillsCommand() *cobra.Command {

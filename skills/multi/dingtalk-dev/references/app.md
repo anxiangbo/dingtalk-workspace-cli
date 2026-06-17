@@ -20,7 +20,7 @@
 dws dev app list --format json
 dws dev app list --name DemoApp --format json
 dws dev app list --app-key dingxxx --format json
-dws dev app list --creator 张三 --sort gmt_modified --order desc --format json
+dws dev app list --creator 张三 --sort-type gmt_modified --sort-order desc --format json
 ```
 
 | CLI | 说明 |
@@ -30,8 +30,8 @@ dws dev app list --creator 张三 --sort gmt_modified --order desc --format json
 | `--name` / `--keyword` | 应用名搜索 |
 | `--app-key` | 按 appKey/clientId 过滤 |
 | `--creator` | 创建人关键词 |
-| `--sort` | 如 `gmt_modified` |
-| `--order` | `asc` / `desc` |
+| `--sort-type` | 如 `gmt_modified` |
+| `--sort-order` | `asc` / `desc` |
 
 > 分页用游标：首页不传 `--cursor`，出参带 `nextCursor`（空=到底）；续翻把它原样回传。旧 `--page`/`--limit`/`--offset` 仍隐藏兼容（跳页/老脚本）。出参字段见 SKILL.md「通用出参约定」。
 
@@ -67,7 +67,7 @@ dws dev app create --name DemoApp --desc "内部应用" --yes --format json
 |-----|------|
 | `--name` | 是 |
 | `--desc` | 否 |
-| `--icon` | 否 |
+| `--icon-media-id` | 否 |
 
 ## 修改应用
 
@@ -76,7 +76,7 @@ dws dev app update --unified-app-id ID --name DemoApp2 --desc "新描述" --dry-
 dws dev app update --unified-app-id ID --name DemoApp2 --desc "新描述" --yes --format json
 ```
 
-至少提供一个更新字段：`--name` / `--desc` / `--icon`。
+至少提供一个更新字段：`--name` / `--desc` / `--icon-media-id`。
 
 ## 停用 / 启用应用
 
