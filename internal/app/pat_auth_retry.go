@@ -411,11 +411,36 @@ func runDirectPATAuthCheck(
 	if retry == nil {
 		return patErr
 	}
+	return runDirectPATAuthCheckWithMode(ctx, globalFlags, patErr, retry, output, true)
+}
+
+func runDirectPATAuthCheckWaitOnly(
+	ctx context.Context,
+	globalFlags *GlobalFlags,
+	patErr *apperrors.PATError,
+	output io.Writer,
+) error {
+	return runDirectPATAuthCheckWithMode(ctx, globalFlags, patErr, nil, output, false)
+}
+
+func runDirectPATAuthCheckWithMode(
+	ctx context.Context,
+	globalFlags *GlobalFlags,
+	patErr *apperrors.PATError,
+	retry func(context.Context) error,
+	output io.Writer,
+	retryAfterApproval bool,
+) error {
+	if retryAfterApproval && retry == nil {
+		return patErr
+	}
 	runner := &runtimeRunner{
 		globalFlags: globalFlags,
 		fallback: patRetryRunnerFunc(func(retryCtx context.Context, invocation executor.Invocation) (executor.Result, error) {
-			if err := retry(retryCtx); err != nil {
-				return executor.Result{}, err
+			if retry != nil {
+				if err := retry(retryCtx); err != nil {
+					return executor.Result{}, err
+				}
 			}
 			invocation.Implemented = true
 			return executor.Result{
@@ -432,6 +457,9 @@ func runDirectPATAuthCheck(
 		CanonicalProduct: defaultPATProductID,
 		Tool:             "pat.batch_grant",
 		CanonicalPath:    "pat.batch_grant",
+		Params: map[string]any{
+			"retryAfterApproval": retryAfterApproval,
+		},
 	}, patErr, defaultConfigDir(), output)
 	return err
 }
@@ -595,6 +623,16 @@ func handlePatAuthCheck(
 		// Clear token cache so the new credentials take effect.
 		ResetRuntimeTokenCache()
 
+		if shouldSkipPATRetryAfterApproval(invocation) {
+			invocation.Implemented = true
+			return executor.Result{
+				Invocation: invocation,
+				Response: map[string]any{
+					"ok": true,
+				},
+			}, nil
+		}
+
 		// Workaround: brief delay to let server-side authorization state propagate
 		// before retrying.  Without this the retry may use stale credentials.
 		slog.Debug("PAT retry: waiting for server-side state propagation", "delay", "1s")
@@ -637,6 +675,18 @@ func handlePatAuthCheck(
 		fmt.Fprintf(output, "%s 未知授权状态: %s\n", redFn("✗"), status)
 		return executor.Result{}, patErr
 	}
+}
+
+func shouldSkipPATRetryAfterApproval(invocation executor.Invocation) bool {
+	if invocation.Params == nil {
+		return false
+	}
+	value, ok := invocation.Params["retryAfterApproval"]
+	if !ok {
+		return false
+	}
+	retry, ok := value.(bool)
+	return ok && !retry
 }
 
 func enrichPATErrorForHostControl(raw string) string {

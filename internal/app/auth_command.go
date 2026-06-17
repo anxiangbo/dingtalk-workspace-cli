@@ -186,11 +186,10 @@ func newAuthLoginCommand(patCaller edition.ToolCaller) *cobra.Command {
 				}
 				err := run(cmd.Context())
 				if patErr := apperrors.AsPatAuthCheckError(err); patErr != nil {
-					return runDirectPATAuthCheck(
+					return runDirectPATAuthCheckWaitOnly(
 						cmd.Context(),
 						&GlobalFlags{Format: retryFormat},
 						patErr,
-						run,
 						cmd.ErrOrStderr(),
 					)
 				}

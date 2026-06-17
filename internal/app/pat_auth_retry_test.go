@@ -657,6 +657,25 @@ func TestRunDirectPATAuthCheck_ApprovedRetriesCallback(t *testing.T) {
 	}
 }
 
+func TestRunDirectPATAuthCheckWaitOnly_ApprovedDoesNotRetry(t *testing.T) {
+	t.Setenv(authpkg.AgentCodeEnv, "")
+	server, _ := setupHandlePATServer(t, "APPROVED", "")
+	defer server.Close()
+
+	patErr := &apperrors.PATError{RawJSON: makePATErrorJSON("flow-direct", "test-client-id")}
+	var out bytes.Buffer
+	err := runDirectPATAuthCheckWaitOnly(context.Background(), &GlobalFlags{}, patErr, &out)
+	if err != nil {
+		t.Fatalf("runDirectPATAuthCheckWaitOnly error = %v", err)
+	}
+	if strings.Contains(out.String(), "授权完成，正在重试") {
+		t.Fatalf("wait-only auth must not print retry prompt, output:\n%s", out.String())
+	}
+	if !strings.Contains(out.String(), "授权成功") {
+		t.Fatalf("wait-only auth should still report success, output:\n%s", out.String())
+	}
+}
+
 func TestRunDirectPATAuthCheck_JSONModeReturnsStructuredPending(t *testing.T) {
 	t.Setenv(authpkg.AgentCodeEnv, "")
 	configDir := t.TempDir()
