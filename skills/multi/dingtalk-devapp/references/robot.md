@@ -12,15 +12,15 @@
 ### 同步创建
 
 ```bash
-dws devapp robot create --app-name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --dry-run --format json
-dws devapp robot create --app-name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --yes --format json
+dws devapp robot create --name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --dry-run --format json
+dws devapp robot create --name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --yes --format json
 ```
 
 MCP tool: `create_dingtalk_robot`。成功返回 `agentId / robotCode / clientId / clientSecret`（凭据按敏感信息处理）。
 
 | CLI | MCP | 必填 | 说明 |
 |-----|-----|------|------|
-| `--app-name` | `appName` | 是 | 智能体应用名称，长度 2-20，企业内唯一 |
+| `--name` | `name` | 是 | 智能体应用名称，长度 2-20，企业内唯一 |
 | `--robot-name` | `robotName` | 是 | 承载机器人名称，客户端展示 |
 | `--desc` | `desc` | 是 | 机器人功能描述，≤200 字 |
 | `--icon` | `robotMediaId` | 否 | 图标 mediaId；空则用默认图标 |
@@ -32,8 +32,8 @@ MCP tool: `create_dingtalk_robot`。成功返回 `agentId / robotCode / clientId
 
 ```bash
 # 提交任务
-dws devapp robot submit --app-name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --dry-run --format json
-dws devapp robot submit --app-name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --yes --format json
+dws devapp robot submit --name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --dry-run --format json
+dws devapp robot submit --name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --yes --format json
 # → 返回 taskId
 
 # 轮询结果
@@ -82,7 +82,7 @@ MCP tool: `get_extension_robot_config`。返回机器人基础信息、回调地
 
 ```bash
 dws devapp robot config --unified-app-id <unifiedAppId> --name 小助手 --brief 审批助手 \
-  --description "处理审批相关问答" --outgoing-url https://example.com/msg \
+  --desc "处理审批相关问答" --outgoing-url https://example.com/msg \
   --event-url https://example.com/event --mode 2 --skills qa,approval --dry-run --format json
 
 dws devapp robot enable --unified-app-id <unifiedAppId> --dry-run --format json
@@ -94,13 +94,13 @@ MCP tools: `set_extension_robot_config` / `enable_dev_app_robot`
 |-----|-----|------|
 | `--name` | `name` | 机器人名称 |
 | `--brief` | `brief` | 简介 |
-| `--description` | `description` | 描述 |
+| `--desc` | `desc` | 描述 |
 | `--icon` | `iconMediaId` | 图标 mediaId |
 | `--outgoing-url` | `outgoingUrl` | 消息回调地址 |
-| `--event-url` | `chatBotEventUrl` | 事件回调地址 |
+| `--event-url` | `eventCallbackUrl` | 事件回调地址 |
 | `--mode` | `mode` | 机器人模式枚举（整数） |
-| `--skills` | `skillList` | 技能列表，逗号分隔 |
-| `--add-scope` | `isAddScope` | 自动添加机器人相关权限 |
+| `--skills` | `skills` | 技能列表，逗号分隔 |
+| `--add-scope` | `addScope` | 自动添加机器人相关权限 |
 | `--disable-ssl-verify` | `disableSSLVerify` | 回调关闭 SSL 校验 |
 | `--i18n-name` | `i18nName` | 名称国际化 JSON，如 `'{"en_US":"Bot"}'` |
 | `--i18n-brief` | `i18nBrief` | 简介国际化 JSON |

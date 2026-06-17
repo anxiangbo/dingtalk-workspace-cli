@@ -959,14 +959,14 @@ real model is "list subscribable events + subscribe/unsubscribe events by
 
 Note: for gray unified apps, subscribe/unsubscribe are staged into version
 metadata and only take effect after `version publish`. The event callback URL
-itself is not part of this model; it lives in robot config (`chatBotEventUrl`,
+itself is not part of this model; it lives in robot config (`eventCallbackUrl`,
 exposed as `robot config --event-url`).
 
 Implemented version tools (verified against the `op-app` MCP `tools/list`):
 
 | CLI | MCP tool | Notes |
 | --- | --- | --- |
-| `devapp version create` | `create_dev_app_version` | Save a new version from current config (`version`, `description`). |
+| `devapp version create` | `create_dev_app_version` | Save a new version from current config (`version`, `desc`). |
 | `devapp version list` | `list_dev_app_versions` | Cursor-paged list (`cursor`, `pageSize`; response `items/nextCursor/hasMore`). |
 | `devapp version get` | `get_dev_app_version_detail` | One version detail by `versionId`. |
 | `devapp version check-approval` | `publish_dev_app_version` (`precheckOnly=true`) | Precheck approval requirement / approvers; does not publish. |

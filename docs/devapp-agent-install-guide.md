@@ -132,7 +132,7 @@ dws devapp robot config \
   --unified-app-id <unifiedAppId> \
   --name "告警机器人" \
   --brief "告警通知" \
-  --description "处理告警通知和事件回调" \
+  --desc "处理告警通知和事件回调" \
   --dry-run \
   --format json
 ```
@@ -144,7 +144,7 @@ dws devapp robot config \
   --unified-app-id <unifiedAppId> \
   --name "告警机器人" \
   --brief "告警通知" \
-  --description "处理告警通知和事件回调" \
+  --desc "处理告警通知和事件回调" \
   --yes \
   --format json
 ```
@@ -161,18 +161,18 @@ dws devapp robot get --unified-app-id <unifiedAppId> --format json
 
 ```bash
 dws devapp list --format json
-dws devapp get --agent-id <agentId> --format json
-dws devapp create --app-name "考勤应用" --dry-run --format json
-dws devapp update --agent-id <agentId> --app-name "新应用名" --dry-run --format json
-dws devapp inactive --agent-id <agentId> --dry-run --format json
-dws devapp active --agent-id <agentId> --dry-run --format json
-dws devapp delete --agent-id <agentId> --dry-run --format json
+dws devapp get --unified-app-id <unifiedAppId> --format json
+dws devapp create --name "考勤应用" --dry-run --format json
+dws devapp update --unified-app-id <unifiedAppId> --name "新应用名" --dry-run --format json
+dws devapp inactive --unified-app-id <unifiedAppId> --dry-run --format json
+dws devapp active --unified-app-id <unifiedAppId> --dry-run --format json
+dws devapp delete --unified-app-id <unifiedAppId> --dry-run --format json
 ```
 
 ### 凭证查询
 
 ```bash
-dws devapp credentials get --agent-id <agentId> --format json
+dws devapp credentials get --unified-app-id <unifiedAppId> --format json
 ```
 
 凭证输出可能包含敏感字段，不要把完整结果写入文档、日志或长期记忆。
@@ -180,9 +180,9 @@ dws devapp credentials get --agent-id <agentId> --format json
 ### 权限点管理
 
 ```bash
-dws devapp permission list --agent-id <agentId> --format json
-dws devapp permission add --agent-id <agentId> --scope-values Contact.User.mobile --dry-run --format json
-dws devapp permission remove --agent-id <agentId> --scope-value Contact.User.mobile --dry-run --format json
+dws devapp permission list --unified-app-id <unifiedAppId> --format json
+dws devapp permission add --unified-app-id <unifiedAppId> --permissions Contact.User.mobile --dry-run --format json
+dws devapp permission remove --unified-app-id <unifiedAppId> --permissions Contact.User.mobile --dry-run --format json
 ```
 
 权限申请和移除只使用 `scopeValue`，不要传 API 名或权限分组名。
@@ -199,11 +199,11 @@ dws devapp robot disable --unified-app-id <unifiedAppId> --dry-run --format json
 ### 成员与安全
 
 ```bash
-dws devapp member list --agent-id <agentId> --format json
-dws devapp member add --agent-id <agentId> --user-ids <userId> --dry-run --format json
-dws devapp member remove --agent-id <agentId> --user-ids <userId> --dry-run --format json
-dws devapp security config --unified-app-id <unifiedAppId> --redirect-urls <url> --dry-run --format json
-dws devapp security config --unified-app-id <unifiedAppId> --ip-white-list <ip> --dry-run --format json
+dws devapp member list --unified-app-id <unifiedAppId> --format json
+dws devapp member add --unified-app-id <unifiedAppId> --users <userId> --dry-run --format json
+dws devapp member remove --unified-app-id <unifiedAppId> --users <userId> --dry-run --format json
+dws devapp security config --unified-app-id <unifiedAppId> --redirect-url <url> --dry-run --format json
+dws devapp security config --unified-app-id <unifiedAppId> --ip-whitelist <ip> --dry-run --format json
 ```
 
 ### 版本发布

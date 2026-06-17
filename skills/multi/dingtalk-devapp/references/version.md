@@ -26,7 +26,7 @@ MCP tool: `create_dev_app_version`
 | CLI | MCP | 说明 |
 |-----|-----|------|
 | `--version` | `version` | 版本号，如 1.0.1 |
-| `--desc` | `description` | 版本描述 |
+| `--desc` | `desc` | 版本描述 |
 
 ## 版本列表
 

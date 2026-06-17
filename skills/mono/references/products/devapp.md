@@ -186,10 +186,10 @@ MCP tool: `update_dev_app_security_config`
 
 ```bash
 # 同步创建（返回 agentId/robotCode/clientId/clientSecret）
-dws devapp robot create --app-name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --dry-run --format json
+dws devapp robot create --name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --dry-run --format json
 
 # 异步创建 + 查询
-dws devapp robot submit --app-name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --dry-run --format json
+dws devapp robot submit --name 我的智能体 --robot-name 小助手 --desc "处理审批问答" --dry-run --format json
 dws devapp robot result --task-id TASK_ID --format json
 ```
 
@@ -216,7 +216,7 @@ dws devapp robot disable --unified-app-id ID --dry-run --format json
 
 MCP tools: `get_extension_robot_config` / `set_extension_robot_config` / `enable_dev_app_robot` / `disable_dev_app_robot`。
 
-配置字段：`--name/--brief/--description/--icon/--outgoing-url(outgoingUrl)/--event-url(chatBotEventUrl)/--mode/--skills(skillList)/--add-scope/--disable-ssl-verify/--i18n-name/--i18n-brief/--i18n-description`。`config` 至少提供一个配置字段；`enable` 恢复已有机器人时可仅提供 `--unified-app-id`。应用未配机器人时 `get` 返回 `robot info is not exist`。
+配置字段：`--name/--brief/--desc/--icon/--outgoing-url(outgoingUrl)/--event-url(eventCallbackUrl)/--mode/--skills(skills)/--add-scope(addScope)/--disable-ssl-verify/--i18n-name/--i18n-brief/--i18n-description`。`config` 至少提供一个配置字段；`enable` 恢复已有机器人时可仅提供 `--unified-app-id`。应用未配机器人时 `get` 返回 `robot info is not exist`。
 
 状态判断：
 
