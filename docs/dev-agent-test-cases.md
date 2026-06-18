@@ -106,20 +106,20 @@
 - **用户说**：「帮我建一个叫『小助手』的答疑机器人；另外这个现有应用还没机器人，给它也配上并启用；最后把机器人接到我本地的 Claude Code 调试。」
 - **覆盖**：`robot submit` / `result` / `get` / `config` / `enable` / `disable`、`dev connect`；异步轮询、robot info not exist、建联依赖预检、长驻进程、密钥脱敏。
 - **期望（分步）**：
-  1. 新建：`robot submit --app-name <名> --robot-name 小助手 --desc <功能> --dry-run` → `--yes`（拿 taskId）→ 按 interval 轮询 `robot result --task-id <taskId>`，只有 `SUCCESS` 才用返回 `robotCode/clientId/clientSecret`（敏感）。
-  2. 现有应用：`robot get` 若 `robot info is not exist` → `robot config --unified-app-id <id> --name ... --dry-run` → `--yes`（upsert 首次即创建）→ 回读 `robot get` 看 `status=2` → 需要时 `robot enable`（停用 `robot disable`）。
+  1. 新建：`robot submit --name <应用名> --robot-name 小助手 --desc <功能> --dry-run` → `--yes`（拿 taskId）→ 按 `intervalSeconds` 轮询 `robot result --task-id <taskId>`，只有 `SUCCESS` 才用返回 `robotCode/clientId/clientSecret`（敏感）。
+  2. 现有应用：`robot get` 若 `robotStatus=UNCONFIGURED` → `robot config --unified-app-id <id> --name ... --mode STREAM --dry-run` → `--yes`（upsert 首次即创建）→ 回读 `robot get` 看 `robotStatus=ONLINE` → 需要时 `robot enable`（停用 `robot disable`）。
   3. 建联：`dev connect --channel auto --robot-client-id x --robot-client-secret y --dry-run` 看出参 `cli` 字段做依赖预检；正式 connect 是前台长驻进程，对话里跑要后台运行并告诉用户怎么停，或引导自己开终端。
-- **通过判据**：走异步 submit/result（同步建号已下线），轮询到 SUCCESS 再用凭证；未配置时走 config 不是 enable；config 是 upsert；写后回读 status；建联先 dry-run 预检、处理好长驻/缺凭证（先 submit/result 建号）。
+- **通过判据**：走异步 submit/result（同步建号已下线），轮询到 SUCCESS 再用凭证；未配置时走 config 不是 enable；config 是 upsert；写后回读 `robotStatus`；建联先 dry-run 预检、处理好长驻/缺凭证（先 submit/result 建号）。
 - **易错点**：找「同步一次建好」的命令；WAITING 就用凭证；robot info not exist 时去 enable；前台直接起 connect 卡住对话。
 
 ### C9. 事件订阅与上游错误排查
-- **用户说**：「让这个应用订阅『群成员入群』事件，回调发到 https://example.com/event，订阅完看下当前订阅了哪些，再把它取消掉；对了我之前发版本报了个 errcode 62012，这是啥意思？」
+- **用户说**：「让这个应用订阅『群成员入群』事件，订阅完看下当前订阅了哪些，再把它取消掉；对了我之前发版本报了个 errcode 62012，这是啥意思？」
 - **覆盖**：`event list` / `subscribe` / `unsubscribe`、`dev doc search`；错误码透传、文档 RAG。
 - **期望（分步）**：
-  1. `event subscribe --unified-app-id <id> --event-types chat_add_member_org --callback-url https://example.com/event --dry-run` → `--yes` → `event list` 回读 → `event unsubscribe --event-types chat_add_member_org --dry-run` → `--yes`。事件类型不确定先 `dev doc search` 查。
+  1. `event list --unified-app-id <id> --page-size 20 --format json` 取 `eventCode` → `event subscribe --unified-app-id <id> --event-codes chat_add_member_org --dry-run` → `--yes` → `event list` 回读 → `event unsubscribe --unified-app-id <id> --event-codes chat_add_member_org --dry-run` → `--yes`。事件码不确定先 `event list` 翻页查。
   2. 错误码：业务错误 `ServiceResult.success=false` 原样透传 `errorCode/errorMsg`，再 `dev doc search --keyword "errcode 62012 <message>" --format json` 做官方文档 RAG，结论基于命中条目。
-- **通过判据**：`--event-types` 逗号分隔共用回调，写操作先 dry-run；不编造事件类型/错误含义；先透传原始错误再走 RAG，结论不臆测、不编不存在的命令。
-- **易错点**：编事件类型名；凭空解释错误码。
+- **通过判据**：`--event-codes` 逗号分隔，写操作先 dry-run；`event list` 使用 `hasMore/nextCursor` 翻页；不编造事件码/错误含义；先透传原始错误再走 RAG，结论不臆测、不编不存在的命令。
+- **易错点**：编事件码；把事件回调地址塞进事件订阅命令；凭空解释错误码。
 
 ### C10. 意图消歧（泛词边界）
 - **用户说**：「帮我建个机器人。」（无任何开放平台上下文）

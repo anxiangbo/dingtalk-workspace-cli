@@ -181,13 +181,13 @@ func TestDevAppRobotCommandsBuildToolParams(t *testing.T) {
 		},
 		{
 			name:     "config create with skills and mode",
-			args:     []string{"robot", "config", "--unified-app-id", "u-1", "--name", "小助手", "--brief", "审批助手", "--mode", "2", "--skills", "qa,approval", "--add-scope", "--yes"},
+			args:     []string{"robot", "config", "--unified-app-id", "u-1", "--name", "小助手", "--brief", "审批助手", "--mode", "STREAM", "--skills", "qa,approval", "--add-scope", "--yes"},
 			wantTool: "set_extension_robot_config",
 			wantParams: map[string]any{
 				"unifiedAppId": "u-1",
 				"name":         "小助手",
 				"brief":        "审批助手",
-				"mode":         2,
+				"mode":         "STREAM",
 				"skills":       []string{"qa", "approval"},
 				"addScope":     true,
 			},

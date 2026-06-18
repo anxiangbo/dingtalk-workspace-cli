@@ -74,7 +74,7 @@ func robotConfigToolSchema() HelperToolSchema {
 			"unifiedAppId":     map[string]any{"type": "string", "description": "统一应用 ID"},
 			"eventCallbackUrl": map[string]any{"type": "string", "description": "事件回调地址"},
 			"skills":           map[string]any{"type": "array", "description": "技能列表"},
-			"mode":             map[string]any{"type": "integer", "description": "机器人模式枚举", "default": float64(0)},
+			"mode":             map[string]any{"type": "string", "description": "机器人模式", "enum": []any{"HTTPS", "STREAM", "AISKILL"}},
 		},
 		Required: []string{"unifiedAppId"},
 	}
@@ -138,11 +138,11 @@ func TestRenderHelperSchema_LeafGwsFlat(t *testing.T) {
 	}
 
 	mode, _ := params["mode"].(map[string]any)
-	if mode == nil || mode["type"] != "integer" {
-		t.Fatalf("mode = %#v, want integer", mode)
+	if mode == nil || mode["type"] != "string" {
+		t.Fatalf("mode = %#v, want string", mode)
 	}
-	if mode["default"] != "0" {
-		t.Fatalf("mode default = %v, want \"0\" (stringified MCP default)", mode["default"])
+	if _, hasDefault := mode["default"]; hasDefault {
+		t.Fatalf("mode default = %v, want none", mode["default"])
 	}
 	if mode["required"] != false {
 		t.Fatalf("mode required = %v, want false", mode["required"])
