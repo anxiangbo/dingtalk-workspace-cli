@@ -175,11 +175,6 @@ install_devapp_skills() {
 main() {
   print_banner
 
-  if [ "${DWS_SKILLS_ONLY:-0}" != "1" ]; then
-    need_cmd go
-    need_cmd make
-  fi
-
   source_root="$(resolve_source_dir)"
 
   if [ "${DWS_SKILLS_ONLY:-0}" = "1" ]; then
