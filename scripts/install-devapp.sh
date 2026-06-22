@@ -70,7 +70,8 @@ install_skill() {
   for agent_dir in \
     .agents/skills .claude/skills .cursor/skills .qoder/skills .qoderwork/skills \
     .gemini/skills .codex/skills .github/skills .windsurf/skills .augment/skills \
-    .cline/skills .amp/skills .kiro/skills .trae/skills .openclaw/skills .hermes/skills
+    .cline/skills .amp/skills .kiro/skills .trae/skills .openclaw/skills .hermes/skills \
+    .config/opencode/skills
   do
     base="$HOME/$agent_dir"
     if [ "$idx" -gt 0 ] && [ ! -e "$(dirname "$base")" ]; then idx=$((idx + 1)); continue; fi
