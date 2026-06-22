@@ -1080,7 +1080,7 @@ func registerDevAppRobotConfigFlags(cmd *cobra.Command) {
 	cmd.Flags().String("icon-media-id", "", "机器人图标 mediaId")
 	cmd.Flags().String("outgoing-url", "", "消息回调地址")
 	cmd.Flags().String("event-callback-url", "", "事件回调地址")
-	cmd.Flags().Int("mode", 0, "机器人模式枚举")
+	cmd.Flags().String("mode", "", "机器人模式：HTTPS / STREAM / AISKILL")
 	cmd.Flags().String("skills", "", "技能列表，多个用逗号或分号分隔")
 	cmd.Flags().Bool("add-scope", false, "是否自动添加机器人相关权限")
 	cmd.Flags().Bool("disable-ssl-verify", false, "回调地址是否关闭 SSL 校验")
@@ -1105,7 +1105,13 @@ func devAppRobotConfigParams(cmd *cobra.Command, appID string) (map[string]any, 
 	setString("outgoingUrl", "outgoing-url")
 	setString("eventCallbackUrl", "event-callback-url")
 	if cmd.Flags().Changed("mode") {
-		params["mode"] = devAppIntFlag(cmd, "mode")
+		mode := strings.ToUpper(strings.TrimSpace(devAppStringFlag(cmd, "mode")))
+		switch mode {
+		case "HTTPS", "STREAM", "AISKILL":
+			params["mode"] = mode
+		default:
+			return nil, 0, apperrors.NewValidation("--mode 仅支持 HTTPS、STREAM、AISKILL")
+		}
 		updates++
 	}
 	if cmd.Flags().Changed("add-scope") {
