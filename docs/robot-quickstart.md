@@ -6,34 +6,29 @@
 
 ## 第一步：安装 dws
 
-### macOS
+一键脚本会自动下载最新版二进制 + `dingtalk-dev` skill，只需要 curl（无需 go / git）。
 
-打开终端，整段复制执行（Intel / Apple 芯片都适用）：
+### macOS / Linux
+
+打开终端，整段复制执行：
 
 ```bash
-ARCH=$(uname -m | sed 's/x86_64/amd64/')
-mkdir -p ~/.local/bin
-curl -fsSL -o /tmp/dws.tar.gz "https://github.com/wxianfeng/dingtalk-workspace-cli/releases/latest/download/dws-darwin-${ARCH}.tar.gz"
-tar xzf /tmp/dws.tar.gz -C ~/.local/bin dws
-export PATH="$HOME/.local/bin:$PATH"
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
-dws version
+curl -fsSL https://raw.githubusercontent.com/wxianfeng/dingtalk-workspace-cli/feat/dws-devapp/scripts/install-devapp.sh | sh
 ```
+
+装完按提示把 `~/.local/bin` 加进 `PATH`（脚本会在末尾提示），然后执行 `dws version` 确认。
 
 ### Windows
 
 打开 PowerShell，整段复制执行：
 
 ```powershell
-New-Item -ItemType Directory -Force "$env:USERPROFILE\dws" | Out-Null
-Invoke-WebRequest -Uri "https://github.com/wxianfeng/dingtalk-workspace-cli/releases/latest/download/dws-windows-amd64.zip" -OutFile "$env:TEMP\dws.zip"
-Expand-Archive -Path "$env:TEMP\dws.zip" -DestinationPath "$env:USERPROFILE\dws" -Force
-[Environment]::SetEnvironmentVariable("Path", "$env:Path;$env:USERPROFILE\dws", "User")
+irm https://raw.githubusercontent.com/wxianfeng/dingtalk-workspace-cli/feat/dws-devapp/scripts/install-devapp.ps1 | iex
 ```
 
 然后**重新打开一个 PowerShell 窗口**，执行 `dws version` 确认。
 
-> 两个平台装好后都应显示形如 `dws version v1.0.6x-dws-devapp` 的版本号（能打印版本即安装成功，具体数字以最新发布为准）。其他平台（Linux / Windows ARM）的安装包在 [最新 Release 页面](https://github.com/wxianfeng/dingtalk-workspace-cli/releases/latest)下载。
+> 能打印出版本号即安装成功（脚本默认装当前最新的预览版）。脚本走 GitHub API 取最新预览版，无需手动填版本号；想钉某个版本可设环境变量 `DEVAPP_VERSION`。
 
 ### 登录钉钉
 
