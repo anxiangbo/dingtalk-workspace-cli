@@ -6,7 +6,7 @@
 
 ## 应用定位
 
-所有单应用命令统一只用 `--unified-app-id`（全树主键）定位。`--app-key`/`--name` 只在 `dev app list` 里作列表过滤，不能定位单应用。拿到 appKey/agentId 时，先用 `dev app list` 查出 unifiedAppId 再操作。
+所有单应用命令统一只用 `--unified-app-id`（全树主键）定位。`--app-key`/`--name` 只在 `dev app list` 里作列表过滤，不能定位单应用。拿到 appKey/agentId 时，只能做只读候选排查；写操作必须由用户或上游结果提供明确 `unifiedAppId`。
 
 ## 应用状态 appStatus
 

@@ -104,6 +104,17 @@ func TestBuildSuperviseArgs(t *testing.T) {
 	}
 }
 
+func TestWriteConnectDaemonStartedIncludesLocalDebugNotice(t *testing.T) {
+	var buf bytes.Buffer
+	writeConnectDaemonStarted(&buf, 1234, "/tmp/daemon.log", "cid", "cid")
+	out := buf.String()
+	for _, want := range []string{"connect daemon started", "/tmp/daemon.log", "本地调试", "不代表线上发布完成", "不会提交版本发布"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("daemon started output missing %q:\n%s", want, out)
+		}
+	}
+}
+
 func TestDaemonStateRoundTrip(t *testing.T) {
 	connectDaemonDirOverride = t.TempDir()
 	t.Cleanup(func() { connectDaemonDirOverride = "" })

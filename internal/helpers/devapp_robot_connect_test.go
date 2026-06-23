@@ -57,12 +57,12 @@ func TestDevAppRobotConnectValidation(t *testing.T) {
 		{
 			name:     "explicit credentials dry-run emits plan",
 			args:     []string{"--channel", "claudecode", "--robot-client-id", "id1", "--robot-client-secret", "sec1", "--dry-run"},
-			wantJSON: []string{"\"credentialSource\"", "flag:--robot-client-id/--robot-client-secret", "stream-bridge", "\"clientId\""},
+			wantJSON: []string{"\"credentialSource\"", "flag:--robot-client-id/--robot-client-secret", "stream-bridge", "\"clientId\"", "\"completionState\": \"LOCAL_DEBUG_ONLY\"", "\"doesNotPublish\": true", "\"scope\": \"local_debug_only\""},
 		},
 		{
 			name:     "unified-app-id dry-run skips credentials get",
 			args:     []string{"--channel", "qoderwork", "--unified-app-id", "UAID", "--dry-run"},
-			wantJSON: []string{"credentials get, skipped in dry-run", "\"unifiedAppId\""},
+			wantJSON: []string{"credentials get, skipped in dry-run", "\"unifiedAppId\"", "\"completionState\": \"LOCAL_DEBUG_ONLY\"", "\"doesNotPublish\": true", "\"scope\": \"local_debug_only\""},
 		},
 	}
 
@@ -90,6 +90,15 @@ func TestDevAppRobotConnectValidation(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestDevAppRobotConnectLocalDebugNotice(t *testing.T) {
+	notice := connectLocalDebugNotice()
+	for _, sub := range []string{"本地调试", "不代表线上发布完成", "不会提交版本发布", "APPROVAL_REQUIRED"} {
+		if !strings.Contains(notice, sub) {
+			t.Fatalf("notice = %q, want substring %q", notice, sub)
+		}
 	}
 }
 

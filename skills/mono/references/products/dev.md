@@ -12,37 +12,52 @@
 
 ---
 
-## 典型工作流：建号 → 建联
+## 典型工作流：创建应用 → 配置机器人 → 版本发布/审批 → 建联
 
 ```bash
-# Step 1：创建开放平台应用（若已有可跳过，用 dev app list 查 unifiedAppId）
-dws dev app create --name "我的 AI 机器人" --desc "接 opencode" --format json
+# Step 1：创建开放平台应用，拿 unifiedAppId
+dws dev app create --name "我的 AI 机器人" --desc "接 opencode" --dry-run --format json
+dws dev app create --name "我的 AI 机器人" --desc "接 opencode" --yes --format json
 # → 返回 unifiedAppId
 
-# Step 2：异步提交机器人创建任务（建号）
-dws dev app robot submit --unified-app-id <unifiedAppId> --format json
-# → 返回 taskId
+# Step 2：在明确的 unifiedAppId 上配置机器人能力
+dws dev app robot config --unified-app-id <unifiedAppId> --name "小助手" --desc "接 opencode" --dry-run --format json
+dws dev app robot config --unified-app-id <unifiedAppId> --name "小助手" --desc "接 opencode" --yes --format json
 
-# Step 3：轮询任务结果（按 intervalSeconds 轮询）
-dws dev app robot result --task-id <taskId> --format json
-# → status=SUCCESS 时返回 clientId/clientSecret（clientSecret 只返回一次，务必保存）
+# Step 3：版本发布/审批，线上搜索、加群、路由消息以 RELEASE 为准
+dws dev app version create --unified-app-id <unifiedAppId> --desc "发布机器人能力" --dry-run --format json
+dws dev app version create --unified-app-id <unifiedAppId> --desc "发布机器人能力" --yes --format json
+dws dev app version check-approval --unified-app-id <unifiedAppId> --version-id <versionId> --format json
+dws dev app version publish --unified-app-id <unifiedAppId> --version-id <versionId> --dry-run --format json
+dws dev app version publish --unified-app-id <unifiedAppId> --version-id <versionId> --yes --format json
+dws dev app version status --unified-app-id <unifiedAppId> --version-id <versionId> --format json
 
-# Step 4：建联 — 把机器人接到本地 agent，前台常驻（Ctrl-C 退出）
-dws dev connect --channel opencode \
-  --robot-client-id <clientId> --robot-client-secret <clientSecret>
-# 在 agent 宿主内运行时可自动探测渠道：
-dws dev connect --robot-client-id <clientId> --robot-client-secret <clientSecret>
-# 也可用 unifiedAppId 自动取凭证（secret 须已在服务端）：
+# Step 4：本地建联 — 把机器人接到本地 agent，前台常驻（Ctrl-C 退出）
 dws dev connect --unified-app-id <unifiedAppId> --channel opencode
+# 若只有 robot result 返回的一次性凭证，clientSecret 只能用占位并按敏感信息处理：
+dws dev connect --robot-client-id <clientId> --robot-client-secret <clientSecret-from-result>
 ```
+
+`check-approval` 若返回 `approvalMode=SELECT_APPROVER`，让用户从候选里选择；不要默认取第一个审批人。用户选定后再给 `publish` 追加 `--approver-user-id <userId>`。
+
+选择题优先原样展示 `approvalPromptText`（带 `A.`/`B.` 序号 + `姓名（userId: xxx）` 的成品文案）；需结构化时用 `approvalOptions[].label`，不得退化成多个泛化的“候选审批人”。`completionState=WAITING_FOR_APPROVER_SELECTION` / `mustAskUser=true` 表示必须等待用户选择。
+
+完成态规则：
+
+- `robot result` 顶层 `completionState=BLOCKED_BY_VERSION_PUBLISH` / `mustContinue=true` / `terminal=false` 是硬门禁，必须继续执行 blocking `nextSteps`。
+- `robot result` 顶层 `completionState=BLOCKED_BY_MISSING_UNIFIED_APP_ID` / `actionRequired=provide_unified_app_id` 时，必须停下要求明确的 `unifiedAppId`；不能用 `clientId/appKey` 自动反查后写版本。
+- `dev connect` 成功只代表本地 Stream 调试可用，不能代表机器人线上可用。
+- `dev connect` dry-run 或启动输出里的 `completionState=LOCAL_DEBUG_ONLY` / `doesNotPublish=true` 表示只完成本地调试，不得作为最终完成。
+- `robot result` 返回 `lifecycle.overallComplete=false`，或版本未进入 `RELEASE` / `AUDIT` / `UNDER_REVIEW` 前，不要总结“全部完成”“机器人已创建并成功连接”“可以在钉钉中 @机器人使用”。
+- “创建机器人并连接 qoder”类任务的闭环必须包含：建号完成、本地 qoder Stream 建联成功、版本已发布或已提交审批；若 `SELECT_APPROVER` 需要选审批人，则停在候选审批人选择。
 
 `robot result` 异步状态：
 
 | status | 含义 | 下一步 |
 |--------|------|--------|
 | `WAITING` | 创建中 | 按 `intervalSeconds` 继续轮询 |
-| `SUCCESS` | 创建完成 | 保存 `robotCode/clientId/clientSecret` |
-| `APPROVAL_REQUIRED` | 需要审批才能继续 | 不要重复建号；走后台审批后再轮询 |
+| `SUCCESS` | 创建完成 | 保存 `robotCode/clientId/clientSecret`；若结果含明确 `unifiedAppId` 才能继续版本发布，否则停下要求用户提供 |
+| `APPROVAL_REQUIRED` | 已建号但线上使用需审核 | 不要重复建号；若结果含明确 `unifiedAppId` 才能提交版本发布审核，否则停下要求用户提供 |
 | `FAIL` | 失败 | 读 `errorCode/errorMsg`，可带原 `taskId` 重新 `submit` |
 | `EXPIRED` | 任务过期 | 重新 `submit` |
 
@@ -77,15 +92,18 @@ dws dev app delete --unified-app-id <unifiedAppId> --confirm-name <应用名> --
 
 ```bash
 # 建号：异步提交
-dws dev app robot submit --unified-app-id <unifiedAppId> --format json
+dws dev app robot submit --name <智能体名> --robot-name <机器人名> --desc <描述> --dry-run --format json
+dws dev app robot submit --name <智能体名> --robot-name <机器人名> --desc <描述> --yes --format json
 
 # 建号：轮询结果
 dws dev app robot result --task-id <taskId> --format json
+# SUCCESS/APPROVAL_REQUIRED 后只有结果含明确 unifiedAppId 才能走版本发布
+# 若顶层有 completionState=BLOCKED_BY_MISSING_UNIFIED_APP_ID，要求用户提供 unifiedAppId；不能用 appKey/clientId 自动反查后写版本
+# 若顶层有 completionState=BLOCKED_BY_VERSION_PUBLISH 或 mustContinue=true，不得停在 dev connect
 
 # 查询现有机器人配置
 dws dev app robot get --unified-app-id <unifiedAppId> --format json
 # robotStatus=UNCONFIGURED → 未配置，走 config；OFFLINE → 走 enable；ONLINE → 已就绪
-
 # 创建/更新机器人配置（upsert）
 dws dev app robot config --unified-app-id <unifiedAppId> --name <机器人名> --format json
 
@@ -148,6 +166,8 @@ dws dev connect stop
 
 **预检 cli.installed**：`--dry-run` 出参的 `cli` 字段含 `installed/autoInstall/installHint`。`installed:false, autoInstall:false`（桌面 App 渠道）时先引导用户安装对应 App，不要直接起连接。
 
+`dev connect` 是本地调试步骤。dry-run JSON 的 `invocation` 会包含 `scope=local_debug_only`、`doesNotPublish=true`、`completionState=LOCAL_DEBUG_ONLY`、`terminal=false`；真实前台/daemon 启动也会提示“本地调试，不代表线上发布完成”。这些信号不能抵消版本发布/审批闭环。
+
 ---
 
 ## dev app event — 事件订阅
@@ -178,7 +198,7 @@ dws dev app permission remove --unified-app-id <unifiedAppId> --scope-code <scop
 dws dev app version create         --unified-app-id <unifiedAppId> --format json
 dws dev app version check-approval --unified-app-id <unifiedAppId> --version-id <versionId> --format json
 dws dev app version publish        --unified-app-id <unifiedAppId> --version-id <versionId> --format json
-dws dev app version status         --unified-app-id <unifiedAppId> --format json
+dws dev app version status         --unified-app-id <unifiedAppId> --version-id <versionId> --format json
 ```
 
 ---

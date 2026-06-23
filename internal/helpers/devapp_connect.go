@@ -376,6 +376,12 @@ func officialChannelGuidance(channel string) string {
 	return ""
 }
 
+const connectLocalDebugCompletionState = "LOCAL_DEBUG_ONLY"
+
+func connectLocalDebugNotice() string {
+	return "[connect] 提示：本地调试，不代表线上发布完成；dev connect 只建立本地 Stream，不会提交版本发布。若机器人来自 APPROVAL_REQUIRED，仍需继续执行 version create → check-approval → publish → status。\n"
+}
+
 // connectPreviewEnvelope wraps a connect dry-run preview in an envelope that
 // mirrors the app-tree helper_invocation shape (kind + dry_run at a known top
 // level), so an agent can parse "is this a dry-run preview" the same way across
@@ -384,6 +390,11 @@ func officialChannelGuidance(channel string) string {
 func connectPreviewEnvelope(fields map[string]any) map[string]any {
 	fields["kind"] = "connect_preview"
 	fields["dry_run"] = true
+	fields["scope"] = "local_debug_only"
+	fields["doesNotPublish"] = true
+	fields["completionState"] = connectLocalDebugCompletionState
+	fields["terminal"] = false
+	fields["message"] = "本地建联预检只说明 Stream 调试可用，不代表线上发布完成"
 	return map[string]any{"invocation": fields}
 }
 
@@ -491,6 +502,7 @@ func newDevAppRobotConnectCommand(runner executor.Runner) *cobra.Command {
 			}
 
 			fmt.Fprintf(cmd.ErrOrStderr(), "[connect] channel=%s（%s）凭证来源=%s\n", channel, detectedBy, resolvedBy)
+			fmt.Fprint(cmd.ErrOrStderr(), connectLocalDebugNotice())
 			return launchConnector(cmd, runner, channel, clientID, clientSecret, opts)
 		},
 	}

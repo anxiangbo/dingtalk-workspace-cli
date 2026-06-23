@@ -33,12 +33,18 @@ permission add（requiredApproval=true 写入版本变更）
 | 字段 | 含义 | 下一步 |
 |------|------|--------|
 | `requiresApproval=false` + `publishable=true` | 不需审批，`check-approval` 通过 | 可以执行 `version publish` |
-| `requiresApproval=true` + `approvalMode=SELECT_APPROVER` | 需从候选人里选审批人 | 展示 `approvalCandidates`，让用户选后再 `publish --approver-user-id` |
+| `requiresApproval=true` + `approvalMode=SELECT_APPROVER` | 需从候选人里选审批人 | 展示 `approvalOptions[].label`，让用户选后再 `publish --approver-user-id` |
 | `requiresApproval=true` + `approvalMode=ENTERPRISE_SELF_BUILT` | 企业自建审核 | 不传 `--approver-user-id`，直接 `publish` 提交审批 |
 | `published=true` | 本次 `publish` 已直接发布 | 回读 `version status/get` 验证 `versionStatus=RELEASE` |
 | `approvalSubmitted=true` | 本次 `publish` 已提交审批 | 保存 `processId`，轮询 `version status` |
 
-展示 `approvalCandidates` 时，选项文案优先使用候选人的 `name`：`姓名（userId: xxx）`；`mainAdmin=true` 时可标注“主管理员”。只有 `name` 为空时才退回显示 `userId: xxx`。发布时仍把用户选中的 `userId` 传给 `--approver-user-id`。
+`SELECT_APPROVER` 时 CLI 会把原始 `approvalCandidates` 增强为更容易展示的字段：
+
+- `approvalPromptText`：预渲染的成品选择文案（带 `A.`/`B.` 序号 + `姓名（userId: xxx）`）；agent 原样展示这一段即可，无需自己遍历结构。
+- `approvalOptions[]`：结构化选项数组，字段包括 `label/name/userId/mainAdmin/index/key`，供需要结构化数据时使用。
+- `completionState=WAITING_FOR_APPROVER_SELECTION`、`actionRequired=select_approver`、`mustAskUser=true`：必须等待用户选择，不能默认取第一个。
+
+展示审批人时，优先原样展示 `approvalPromptText`；需结构化时用 `approvalOptions[].label`（格式 `姓名（userId: xxx）`，`mainAdmin=true` 时标注“主管理员”，仅 `name` 为空才退回 `userId: xxx`）。发布时把用户选中的 `userId` 传给 `--approver-user-id`。
 
 审批模式 `approvalMode`：
 

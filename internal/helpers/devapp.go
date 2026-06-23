@@ -1429,8 +1429,8 @@ func normalizeDevAppServiceResult(result executor.Result) executor.Result {
 }
 
 // normalizeDevAppToolResult applies per-tool response shape fixes: flatten
-// remove-permission's removedScopeValues to a string array, and stamp an
-// explicit disabled/enabled boolean on the lifecycle tools whose servers omit it.
+// remove-permission's removedScopeValues to a string array, stamp explicit
+// lifecycle booleans, and enrich async robot creation results with next steps.
 func normalizeDevAppToolResult(tool string, result executor.Result) executor.Result {
 	content, ok := result.Response["content"].(map[string]any)
 	if !ok {
@@ -1447,8 +1447,359 @@ func normalizeDevAppToolResult(tool string, result executor.Result) executor.Res
 		if _, ok := content["enabled"]; !ok {
 			content["enabled"] = true
 		}
+	case devAppVersionPublishTool:
+		normalizeDevAppVersionApproval(content)
+	case devAppRobotResultTool:
+		normalizeDevAppRobotResult(content)
 	}
 	return result
+}
+
+func normalizeDevAppVersionApproval(content map[string]any) {
+	candidates, ok := content["approvalCandidates"].([]any)
+	if !ok || len(candidates) == 0 {
+		return
+	}
+	options := make([]map[string]any, 0, len(candidates))
+	for i, raw := range candidates {
+		candidate, ok := raw.(map[string]any)
+		if !ok {
+			continue
+		}
+		userID := devAppFirstContentString(candidate, "userId", "userID", "userid", "staffId")
+		name := devAppFirstContentString(candidate, "name", "userName", "displayName", "nick", "nickName")
+		mainAdmin := devAppContentBool(candidate, "mainAdmin")
+		label := devAppApprovalCandidateLabel(name, userID, mainAdmin)
+		if label == "" {
+			label = fmt.Sprintf("候选审批人 %d", i+1)
+		}
+		option := map[string]any{
+			"index":     i + 1,
+			"key":       devAppOptionKey(i),
+			"label":     label,
+			"name":      name,
+			"userId":    userID,
+			"mainAdmin": mainAdmin,
+		}
+		options = append(options, option)
+	}
+	if len(options) == 0 {
+		return
+	}
+
+	content["approvalOptions"] = options
+
+	approvalMode := strings.ToUpper(devAppContentString(content, "approvalMode"))
+	if approvalMode != "SELECT_APPROVER" {
+		return
+	}
+
+	unifiedAppID := devAppContentString(content, "unifiedAppId")
+	if unifiedAppID == "" {
+		unifiedAppID = "<unifiedAppId>"
+	}
+	versionID := devAppContentString(content, "versionId")
+	if versionID == "" {
+		versionID = "<versionId>"
+	}
+	// 预渲染一段"原样照抄即可"的审批人列表：序号复用 approvalOptions[].key
+	// （A-Z 后转数字），label 已是「姓名（userId: xxx）」。agent 直接展示
+	// approvalPromptText 即可，无需自己遍历 approvalOptions——此前有 agent 误把
+	// approvalOptions 当成 [{options:[...]}]、取空后只回退显示 userId，姓名全丢。
+	title := fmt.Sprintf("版本发布需要审批，请选择一位审批人（共 %d 位）：", len(options))
+	var promptBuilder strings.Builder
+	promptBuilder.WriteString(title)
+	for _, opt := range options {
+		key, _ := opt["key"].(string)
+		label, _ := opt["label"].(string)
+		promptBuilder.WriteString(fmt.Sprintf("\n%s. %s", key, label))
+	}
+	promptText := promptBuilder.String()
+
+	content["completionState"] = "WAITING_FOR_APPROVER_SELECTION"
+	content["actionRequired"] = "select_approver"
+	content["mustAskUser"] = true
+	content["requiresUserInput"] = true
+	content["terminal"] = false
+	content["approvalPromptText"] = promptText
+	content["message"] = "版本发布需要选择审批人；请原样展示 approvalPromptText 的完整内容，等待用户选择，不要只显示 userId、不要自行截取、不能默认取第一个"
+	content["nextSteps"] = []map[string]any{
+		{
+			"id":                "select_approver",
+			"blocking":          true,
+			"requiresUserInput": true,
+			"doneWhen":          "用户从 approvalOptions 中选择一位审批人，得到对应 userId",
+		},
+		devAppNextStep(devAppStep{
+			ID:            "publish_version",
+			Command:       fmt.Sprintf("dws dev app version publish --unified-app-id %s --version-id %s --approver-user-id <selectedUserId> --yes --format json", unifiedAppID, versionID),
+			DryRunCommand: fmt.Sprintf("dws dev app version publish --unified-app-id %s --version-id %s --approver-user-id <selectedUserId> --dry-run --format json", unifiedAppID, versionID),
+			DoneWhen:      "approvalSubmitted=true、versionStatus=AUDIT 或 processStatus=UNDER_REVIEW 表示已提交审批；published=true 表示已发布",
+			Blocking:      true,
+		}),
+	}
+}
+
+func devAppApprovalCandidateLabel(name, userID string, mainAdmin bool) string {
+	label := strings.TrimSpace(name)
+	switch {
+	case label != "" && userID != "":
+		label = fmt.Sprintf("%s（userId: %s）", label, userID)
+	case label == "" && userID != "":
+		label = "userId: " + userID
+	}
+	if label != "" && mainAdmin {
+		label += "（主管理员）"
+	}
+	return label
+}
+
+func devAppOptionKey(index int) string {
+	const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	if index >= 0 && index < len(letters) {
+		return string(letters[index])
+	}
+	return fmt.Sprintf("%d", index+1)
+}
+
+func normalizeDevAppRobotResult(content map[string]any) {
+	status := strings.ToUpper(devAppContentString(content, "status"))
+	if status == "" {
+		return
+	}
+
+	taskID := devAppContentString(content, "taskId")
+	clientID := devAppFirstContentString(content, "clientId", "appKey")
+	clientSecret := devAppFirstContentString(content, "clientSecret", "appSecret")
+	unifiedAppID := devAppContentString(content, "unifiedAppId")
+	localConnectReady := clientID != "" && clientSecret != ""
+
+	lifecycle := map[string]any{
+		"status":                 status,
+		"localConnectReady":      false,
+		"localOnlyReady":         false,
+		"publicUseReady":         false,
+		"requiresVersionPublish": false,
+		"robotTaskDone":          false,
+		"overallComplete":        false,
+	}
+	var steps []map[string]any
+
+	switch status {
+	case "WAITING":
+		lifecycle["phase"] = "creating"
+		lifecycle["completionGate"] = "robot_result"
+		if interval := content["intervalSeconds"]; interval != nil {
+			lifecycle["retryAfterSeconds"] = interval
+		}
+		steps = append(steps, devAppRobotPollStep(taskID))
+	case "SUCCESS", "APPROVAL_REQUIRED":
+		lifecycle["phase"] = "created_pending_publish"
+		lifecycle["localConnectReady"] = localConnectReady
+		lifecycle["localOnlyReady"] = localConnectReady
+		lifecycle["requiresVersionPublish"] = true
+		lifecycle["robotTaskDone"] = true
+		if unifiedAppID == "" {
+			lifecycle["completionGate"] = "provide_unified_app_id"
+			lifecycle["blockingStepIds"] = []string{"provide_unified_app_id"}
+			steps = append(steps, devAppRobotProvideUnifiedAppIDStep())
+			devAppMarkMissingUnifiedAppIDBlocked(content)
+		} else {
+			lifecycle["completionGate"] = "version_publish"
+			lifecycle["blockingStepIds"] = devAppRobotPublishStepIDs()
+			steps = append(steps, devAppRobotPublishSteps(unifiedAppID)...)
+			devAppMarkVersionPublishBlocked(content)
+		}
+		if localConnectReady {
+			steps = append(steps, devAppRobotConnectStep(clientID))
+		}
+	case "FAIL":
+		lifecycle["phase"] = "failed"
+		lifecycle["robotTaskDone"] = true
+		lifecycle["completionGate"] = "retry_robot_submit"
+		steps = append(steps, devAppRobotRetryStep(taskID, true))
+	case "EXPIRED":
+		lifecycle["phase"] = "expired"
+		lifecycle["robotTaskDone"] = true
+		lifecycle["completionGate"] = "retry_robot_submit"
+		steps = append(steps, devAppRobotRetryStep(taskID, false))
+	default:
+		lifecycle["phase"] = "unknown"
+	}
+
+	content["lifecycle"] = lifecycle
+	if len(steps) > 0 {
+		content["nextSteps"] = steps
+	}
+}
+
+func devAppMarkVersionPublishBlocked(content map[string]any) {
+	content["completionState"] = "BLOCKED_BY_VERSION_PUBLISH"
+	content["mustContinue"] = true
+	content["actionRequired"] = "submit_version_publish"
+	content["message"] = "本地建联可用，但线上发布/审批未完成；必须继续执行 blocking nextSteps"
+	content["terminal"] = false
+}
+
+func devAppMarkMissingUnifiedAppIDBlocked(content map[string]any) {
+	content["completionState"] = "BLOCKED_BY_MISSING_UNIFIED_APP_ID"
+	content["mustContinue"] = true
+	content["mustAskUser"] = true
+	content["actionRequired"] = "provide_unified_app_id"
+	content["message"] = "缺少明确来源的 unifiedAppId，不能用 clientId/appKey 反查后写版本；请提供 dev app create 或 robot result 返回的 unifiedAppId"
+	content["terminal"] = false
+}
+
+func devAppRobotPublishSteps(appID string) []map[string]any {
+	steps := []map[string]any{
+		devAppNextStep(devAppStep{
+			ID:            "create_version",
+			Command:       fmt.Sprintf("dws dev app version create --unified-app-id %s --desc \"发布机器人能力\" --yes --format json", appID),
+			DryRunCommand: fmt.Sprintf("dws dev app version create --unified-app-id %s --desc \"发布机器人能力\" --dry-run --format json", appID),
+			DoneWhen:      "返回 versionId",
+			Blocking:      true,
+		}),
+		devAppNextStep(devAppStep{
+			ID:       "check_approval",
+			Command:  fmt.Sprintf("dws dev app version check-approval --unified-app-id %s --version-id <versionId> --format json", appID),
+			DoneWhen: "返回 requiresApproval、approvalMode、approvalCandidates 等审批信息",
+			Blocking: true,
+		}),
+		devAppNextStep(devAppStep{
+			ID:                "publish_version",
+			Command:           fmt.Sprintf("dws dev app version publish --unified-app-id %s --version-id <versionId> --yes --format json", appID),
+			DryRunCommand:     fmt.Sprintf("dws dev app version publish --unified-app-id %s --version-id <versionId> --dry-run --format json", appID),
+			DoneWhen:          "published=true 表示已发布；approvalSubmitted=true、versionStatus=AUDIT 或 processStatus=UNDER_REVIEW 表示已提交审批；SELECT_APPROVER 时必须先让用户从 approvalCandidates 选择审批人后追加 --approver-user-id",
+			RequiresUserInput: true,
+			Blocking:          true,
+		}),
+		devAppNextStep(devAppStep{
+			ID:       "wait_release",
+			Command:  fmt.Sprintf("dws dev app version status --unified-app-id %s --version-id <versionId> --format json", appID),
+			DoneWhen: "versionStatus=RELEASE 表示已生效；versionStatus=AUDIT 或 processStatus=UNDER_REVIEW 表示已提交审批，等待审批通过",
+			Blocking: true,
+		}),
+	}
+	return steps
+}
+
+func devAppRobotPublishStepIDs() []string {
+	return []string{"create_version", "check_approval", "publish_version", "wait_release"}
+}
+
+func devAppRobotProvideUnifiedAppIDStep() map[string]any {
+	return map[string]any{
+		"id":                "provide_unified_app_id",
+		"blocking":          true,
+		"requiresUserInput": true,
+		"doneWhen":          "用户提供 dev app create 或 robot result 返回的明确 unifiedAppId；不能用 clientId/appKey 自动反查后继续写版本",
+	}
+}
+
+func devAppRobotPollStep(taskID string) map[string]any {
+	if taskID == "" {
+		taskID = "<taskId>"
+	}
+	return devAppNextStep(devAppStep{
+		ID:       "poll_robot_result",
+		Command:  fmt.Sprintf("dws dev app robot result --task-id %s --format json", taskID),
+		DoneWhen: "status 变为 SUCCESS、APPROVAL_REQUIRED、FAIL 或 EXPIRED",
+		Blocking: true,
+	})
+}
+
+func devAppRobotRetryStep(taskID string, reuseTaskID bool) map[string]any {
+	taskIDFlag := ""
+	if reuseTaskID {
+		if taskID == "" {
+			taskID = "<taskId>"
+		}
+		taskIDFlag = " --task-id " + taskID
+	}
+	return devAppNextStep(devAppStep{
+		ID:            "retry_robot_submit",
+		Command:       fmt.Sprintf("dws dev app robot submit --name <name> --robot-name <robotName> --desc <desc>%s --yes --format json", taskIDFlag),
+		DryRunCommand: fmt.Sprintf("dws dev app robot submit --name <name> --robot-name <robotName> --desc <desc>%s --dry-run --format json", taskIDFlag),
+		DoneWhen:      "返回新的 WAITING taskId；FAIL 场景优先复用原 taskId，EXPIRED 场景重新提交",
+		Blocking:      true,
+	})
+}
+
+func devAppRobotConnectStep(clientID string) map[string]any {
+	if clientID == "" {
+		clientID = "<clientId>"
+	}
+	step := devAppNextStep(devAppStep{
+		ID:       "connect_local",
+		Command:  fmt.Sprintf("dws dev connect --robot-client-id %s --robot-client-secret <clientSecret-from-result> --format json", clientID),
+		DoneWhen: "本地 Stream 建联成功，进程保持运行；clientSecret 只使用返回值，不写入命令建议",
+	})
+	step["sensitiveFields"] = []string{"clientSecret"}
+	step["optional"] = true
+	step["scope"] = "local_debug_only"
+	return step
+}
+
+// devAppStep describes one nextSteps entry. Using named fields keeps call sites
+// self-documenting instead of relying on a trailing pair of positional bools.
+type devAppStep struct {
+	ID                string
+	Command           string
+	DryRunCommand     string
+	DoneWhen          string
+	RequiresUserInput bool
+	Blocking          bool
+}
+
+func devAppNextStep(step devAppStep) map[string]any {
+	out := map[string]any{
+		"id":                step.ID,
+		"requiresUserInput": step.RequiresUserInput,
+		"blocking":          step.Blocking,
+		"doneWhen":          step.DoneWhen,
+	}
+	if step.Command != "" {
+		out["command"] = step.Command
+	}
+	if step.DryRunCommand != "" {
+		out["dryRunCommand"] = step.DryRunCommand
+	}
+	return out
+}
+
+func devAppFirstContentString(content map[string]any, keys ...string) string {
+	for _, key := range keys {
+		if value := devAppContentString(content, key); value != "" {
+			return value
+		}
+	}
+	return ""
+}
+
+func devAppContentString(content map[string]any, key string) string {
+	value, ok := content[key]
+	if !ok || value == nil {
+		return ""
+	}
+	if text, ok := value.(string); ok {
+		return strings.TrimSpace(text)
+	}
+	return strings.TrimSpace(fmt.Sprint(value))
+}
+
+func devAppContentBool(content map[string]any, key string) bool {
+	value, ok := content[key]
+	if !ok || value == nil {
+		return false
+	}
+	switch v := value.(type) {
+	case bool:
+		return v
+	case string:
+		return strings.EqualFold(strings.TrimSpace(v), "true")
+	default:
+		return strings.EqualFold(strings.TrimSpace(fmt.Sprint(v)), "true")
+	}
 }
 
 // normalizeDevAppScopeValueArray rewrites an array of scope objects (or strings)

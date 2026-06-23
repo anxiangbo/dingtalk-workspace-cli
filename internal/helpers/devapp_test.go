@@ -1027,6 +1027,399 @@ func TestDevAppVersionCheckApprovalPreservesApprovalCandidateNames(t *testing.T)
 	if first["userId"] != "034766" || first["name"] != "张三" || first["mainAdmin"] != true {
 		t.Fatalf("approvalCandidates[0] = %#v, want userId/name/mainAdmin preserved", first)
 	}
+	options := rendered["approvalOptions"].([]any)
+	if len(options) != 2 {
+		t.Fatalf("approvalOptions = %#v, want two options", rendered["approvalOptions"])
+	}
+	firstOption := devAppRenderedMap(t, options[0])
+	if firstOption["label"] != "张三（userId: 034766）（主管理员）" || firstOption["name"] != "张三" || firstOption["userId"] != "034766" {
+		t.Fatalf("approvalOptions[0] = %#v, want label with name/userId/mainAdmin", firstOption)
+	}
+	if rendered["completionState"] != "WAITING_FOR_APPROVER_SELECTION" ||
+		rendered["actionRequired"] != "select_approver" ||
+		rendered["mustAskUser"] != true ||
+		rendered["requiresUserInput"] != true ||
+		rendered["terminal"] != false {
+		t.Fatalf("selection gate = %#v, want waiting for approver selection", rendered)
+	}
+	promptText, _ := rendered["approvalPromptText"].(string)
+	if !strings.Contains(promptText, "张三（userId: 034766）") ||
+		!strings.Contains(promptText, "李四（userId: 084896）") ||
+		!strings.Contains(promptText, "A. ") || !strings.Contains(promptText, "B. ") {
+		t.Fatalf("approvalPromptText = %q, want numbered readable names", promptText)
+	}
+	steps := devAppRenderedSteps(t, rendered)
+	selectStep := devAppStepByID(t, steps, "select_approver")
+	if selectStep["blocking"] != true || selectStep["requiresUserInput"] != true {
+		t.Fatalf("select step = %#v, want blocking user input step", selectStep)
+	}
+	publishStep := devAppStepByID(t, steps, "publish_version")
+	if command, _ := publishStep["command"].(string); !strings.Contains(command, "--approver-user-id <selectedUserId>") {
+		t.Fatalf("publish command = %q, want selected approver placeholder", command)
+	}
+}
+
+func TestDevAppRobotResultApprovalRequiredWithoutUnifiedAppIDBlocksForUserInput(t *testing.T) {
+	rendered := runDevAppRobotResultOutput(t, map[string]any{
+		"status":       "APPROVAL_REQUIRED",
+		"taskId":       "t-approval",
+		"clientId":     "dingrobot123",
+		"clientSecret": "secret-client",
+		"robotCode":    "dingrobot123",
+	})
+
+	if rendered["completionState"] != "BLOCKED_BY_MISSING_UNIFIED_APP_ID" ||
+		rendered["mustContinue"] != true ||
+		rendered["mustAskUser"] != true ||
+		rendered["actionRequired"] != "provide_unified_app_id" ||
+		rendered["terminal"] != false {
+		t.Fatalf("top-level completion gate = %#v, want missing unifiedAppId gate", rendered)
+	}
+	if message, _ := rendered["message"].(string); !strings.Contains(message, "不能用 clientId/appKey 反查后写版本") {
+		t.Fatalf("message = %q, want app-key lookup prohibition", message)
+	}
+
+	lifecycle := devAppRenderedMap(t, rendered["lifecycle"])
+	if lifecycle["publicUseReady"] != false || lifecycle["requiresVersionPublish"] != true {
+		t.Fatalf("lifecycle = %#v, want publicUseReady=false and requiresVersionPublish=true", lifecycle)
+	}
+	if lifecycle["overallComplete"] != false || lifecycle["completionGate"] != "provide_unified_app_id" {
+		t.Fatalf("lifecycle = %#v, want overallComplete=false and completionGate=provide_unified_app_id", lifecycle)
+	}
+	if lifecycle["localOnlyReady"] != true {
+		t.Fatalf("localOnlyReady = %#v, want true", lifecycle["localOnlyReady"])
+	}
+	if lifecycle["localConnectReady"] != true {
+		t.Fatalf("localConnectReady = %#v, want true", lifecycle["localConnectReady"])
+	}
+	wantBlockingIDs := []string{"provide_unified_app_id"}
+	if got := devAppStringSliceFromRendered(t, lifecycle["blockingStepIds"]); !reflect.DeepEqual(got, wantBlockingIDs) {
+		t.Fatalf("blockingStepIds = %#v, want %#v", got, wantBlockingIDs)
+	}
+
+	steps := devAppRenderedSteps(t, rendered)
+	first := devAppRenderedMap(t, steps[0])
+	if first["id"] != "provide_unified_app_id" {
+		t.Fatalf("first step id = %#v, want provide_unified_app_id", first["id"])
+	}
+	if first["blocking"] != true || first["requiresUserInput"] != true {
+		t.Fatalf("provide step = %#v, want blocking user input", first)
+	}
+	if doneWhen, _ := first["doneWhen"].(string); !strings.Contains(doneWhen, "不能用 clientId/appKey") {
+		t.Fatalf("provide doneWhen = %q, want app-key prohibition", doneWhen)
+	}
+	assertDevAppStepIDAbsent(t, steps, "resolve_unified_app")
+	assertDevAppStepIDAbsent(t, steps, "create_version")
+	assertDevAppStepIDAbsent(t, steps, "check_approval")
+	assertDevAppStepIDAbsent(t, steps, "publish_version")
+	assertDevAppStepIDAbsent(t, steps, "wait_release")
+	assertDevAppStepCommandsDoNotContain(t, steps, "dws dev app list --app-key")
+	assertDevAppStepCommandsDoNotContain(t, steps, "dws dev app version create")
+	assertDevAppStepCommandsDoNotContain(t, steps, "dws dev app version publish")
+	connect := devAppStepByID(t, steps, "connect_local")
+	if connect["blocking"] != false || connect["optional"] != true || connect["scope"] != "local_debug_only" {
+		t.Fatalf("connect step = %#v, want optional local debug non-blocking step", connect)
+	}
+	assertDevAppStepCommandsDoNotContain(t, steps, "secret-client")
+}
+
+func TestDevAppRobotResultApprovalRequiredWithUnifiedAppIDAddsPublishAndConnectSteps(t *testing.T) {
+	rendered := runDevAppRobotResultOutput(t, map[string]any{
+		"status":       "APPROVAL_REQUIRED",
+		"taskId":       "t-approval",
+		"unifiedAppId": "u-approval",
+		"clientId":     "dingrobot123",
+		"clientSecret": "secret-client",
+		"robotCode":    "dingrobot123",
+	})
+
+	if rendered["completionState"] != "BLOCKED_BY_VERSION_PUBLISH" ||
+		rendered["mustContinue"] != true ||
+		rendered["actionRequired"] != "submit_version_publish" ||
+		rendered["terminal"] != false {
+		t.Fatalf("top-level completion gate = %#v, want blocked version publish state", rendered)
+	}
+	if message, _ := rendered["message"].(string); !strings.Contains(message, "必须继续执行 blocking nextSteps") {
+		t.Fatalf("message = %q, want blocking nextSteps guidance", message)
+	}
+
+	lifecycle := devAppRenderedMap(t, rendered["lifecycle"])
+	if lifecycle["overallComplete"] != false || lifecycle["completionGate"] != "version_publish" {
+		t.Fatalf("lifecycle = %#v, want overallComplete=false and completionGate=version_publish", lifecycle)
+	}
+	wantBlockingIDs := []string{"create_version", "check_approval", "publish_version", "wait_release"}
+	if got := devAppStringSliceFromRendered(t, lifecycle["blockingStepIds"]); !reflect.DeepEqual(got, wantBlockingIDs) {
+		t.Fatalf("blockingStepIds = %#v, want %#v", got, wantBlockingIDs)
+	}
+
+	steps := devAppRenderedSteps(t, rendered)
+	if first := devAppRenderedMap(t, steps[0]); first["id"] != "create_version" {
+		t.Fatalf("first step = %#v, want create_version before connect_local", first)
+	}
+	create := devAppStepByID(t, steps, "create_version")
+	if create["blocking"] != true {
+		t.Fatalf("create blocking = %#v, want true", create["blocking"])
+	}
+	if command, _ := create["command"].(string); !strings.Contains(command, "--unified-app-id u-approval") {
+		t.Fatalf("create command = %q, want concrete unifiedAppId", command)
+	}
+	if dryRun, _ := create["dryRunCommand"].(string); !strings.Contains(dryRun, "--dry-run") {
+		t.Fatalf("create dryRunCommand = %q, want --dry-run", dryRun)
+	}
+	publish := devAppStepByID(t, steps, "publish_version")
+	if publish["requiresUserInput"] != true {
+		t.Fatalf("publish requiresUserInput = %#v, want true", publish["requiresUserInput"])
+	}
+	if publish["blocking"] != true {
+		t.Fatalf("publish blocking = %#v, want true", publish["blocking"])
+	}
+	if doneWhen, _ := publish["doneWhen"].(string); !strings.Contains(doneWhen, "approvalSubmitted=true") || !strings.Contains(doneWhen, "UNDER_REVIEW") {
+		t.Fatalf("publish doneWhen = %q, want published/submitted approval gate", doneWhen)
+	}
+	connect := devAppStepByID(t, steps, "connect_local")
+	if connect["blocking"] != false || connect["optional"] != true || connect["scope"] != "local_debug_only" {
+		t.Fatalf("connect step = %#v, want optional local debug non-blocking step", connect)
+	}
+	sensitive := connect["sensitiveFields"].([]any)
+	if len(sensitive) != 1 || sensitive[0] != "clientSecret" {
+		t.Fatalf("sensitiveFields = %#v, want clientSecret", sensitive)
+	}
+	assertDevAppStepCommandsDoNotContain(t, steps, "secret-client")
+}
+
+func TestDevAppRobotResultWaitingAddsPollStep(t *testing.T) {
+	rendered := runDevAppRobotResultOutput(t, map[string]any{
+		"status":          "WAITING",
+		"taskId":          "t-wait",
+		"intervalSeconds": 5,
+	})
+
+	lifecycle := devAppRenderedMap(t, rendered["lifecycle"])
+	if lifecycle["phase"] != "creating" || lifecycle["robotTaskDone"] != false {
+		t.Fatalf("lifecycle = %#v, want creating and not done", lifecycle)
+	}
+	steps := devAppRenderedSteps(t, rendered)
+	poll := devAppStepByID(t, steps, "poll_robot_result")
+	if command, _ := poll["command"].(string); command != "dws dev app robot result --task-id t-wait --format json" {
+		t.Fatalf("poll command = %q, want task polling command", command)
+	}
+}
+
+func TestDevAppRobotResultSuccessAddsPublishAndConnectSteps(t *testing.T) {
+	rendered := runDevAppRobotResultOutput(t, map[string]any{
+		"status":       "SUCCESS",
+		"taskId":       "t-ok",
+		"unifiedAppId": "u-1",
+		"clientId":     "dingrobot123",
+		"clientSecret": "secret-client",
+	})
+
+	lifecycle := devAppRenderedMap(t, rendered["lifecycle"])
+	if lifecycle["localConnectReady"] != true || lifecycle["requiresVersionPublish"] != true || lifecycle["publicUseReady"] != false {
+		t.Fatalf("lifecycle = %#v, want local ready, version required, public not ready", lifecycle)
+	}
+	if lifecycle["overallComplete"] != false || lifecycle["completionGate"] != "version_publish" {
+		t.Fatalf("lifecycle = %#v, want robot result not complete until version publish", lifecycle)
+	}
+	if rendered["completionState"] != "BLOCKED_BY_VERSION_PUBLISH" ||
+		rendered["mustContinue"] != true ||
+		rendered["actionRequired"] != "submit_version_publish" ||
+		rendered["terminal"] != false {
+		t.Fatalf("top-level completion gate = %#v, want blocked version publish state", rendered)
+	}
+	if message, _ := rendered["message"].(string); !strings.Contains(message, "线上发布/审批未完成") {
+		t.Fatalf("message = %q, want publish/approval incomplete guidance", message)
+	}
+	wantBlockingIDs := []string{"create_version", "check_approval", "publish_version", "wait_release"}
+	if got := devAppStringSliceFromRendered(t, lifecycle["blockingStepIds"]); !reflect.DeepEqual(got, wantBlockingIDs) {
+		t.Fatalf("blockingStepIds = %#v, want %#v", got, wantBlockingIDs)
+	}
+	steps := devAppRenderedSteps(t, rendered)
+	if first := devAppRenderedMap(t, steps[0]); first["id"] == "resolve_unified_app" {
+		t.Fatalf("first step = %#v, did not expect resolve step when unifiedAppId is present", first)
+	}
+	create := devAppStepByID(t, steps, "create_version")
+	if create["blocking"] != true {
+		t.Fatalf("create blocking = %#v, want true", create["blocking"])
+	}
+	if command, _ := create["command"].(string); !strings.Contains(command, "--unified-app-id u-1") {
+		t.Fatalf("create command = %q, want concrete unifiedAppId", command)
+	}
+	connect := devAppStepByID(t, steps, "connect_local")
+	if connect["blocking"] != false || connect["optional"] != true || connect["scope"] != "local_debug_only" {
+		t.Fatalf("connect step = %#v, want optional local debug non-blocking step", connect)
+	}
+	if command, _ := connect["command"].(string); !strings.Contains(command, "--robot-client-secret <clientSecret-from-result>") {
+		t.Fatalf("connect command = %q, want clientSecret placeholder", command)
+	}
+	assertDevAppStepCommandsDoNotContain(t, steps, "secret-client")
+}
+
+func TestDevAppRobotResultSuccessWithoutUnifiedAppIDBlocksForUserInput(t *testing.T) {
+	rendered := runDevAppRobotResultOutput(t, map[string]any{
+		"status":       "SUCCESS",
+		"taskId":       "t-ok",
+		"clientId":     "dingrobot123",
+		"clientSecret": "secret-client",
+	})
+
+	if rendered["completionState"] != "BLOCKED_BY_MISSING_UNIFIED_APP_ID" ||
+		rendered["mustAskUser"] != true ||
+		rendered["actionRequired"] != "provide_unified_app_id" ||
+		rendered["terminal"] != false {
+		t.Fatalf("top-level completion gate = %#v, want missing unifiedAppId gate", rendered)
+	}
+	lifecycle := devAppRenderedMap(t, rendered["lifecycle"])
+	if lifecycle["overallComplete"] != false || lifecycle["completionGate"] != "provide_unified_app_id" {
+		t.Fatalf("lifecycle = %#v, want robot result blocked on unifiedAppId", lifecycle)
+	}
+	wantBlockingIDs := []string{"provide_unified_app_id"}
+	if got := devAppStringSliceFromRendered(t, lifecycle["blockingStepIds"]); !reflect.DeepEqual(got, wantBlockingIDs) {
+		t.Fatalf("blockingStepIds = %#v, want %#v", got, wantBlockingIDs)
+	}
+	steps := devAppRenderedSteps(t, rendered)
+	first := devAppRenderedMap(t, steps[0])
+	if first["id"] != "provide_unified_app_id" || first["blocking"] != true {
+		t.Fatalf("first step = %#v, want blocking provide_unified_app_id", first)
+	}
+	assertDevAppStepIDAbsent(t, steps, "resolve_unified_app")
+	assertDevAppStepIDAbsent(t, steps, "create_version")
+	assertDevAppStepIDAbsent(t, steps, "publish_version")
+	assertDevAppStepCommandsDoNotContain(t, steps, "dws dev app list --app-key")
+	assertDevAppStepCommandsDoNotContain(t, steps, "dws dev app version create")
+	connect := devAppStepByID(t, steps, "connect_local")
+	if connect["blocking"] != false || connect["optional"] != true || connect["scope"] != "local_debug_only" {
+		t.Fatalf("connect step = %#v, want optional local debug non-blocking step", connect)
+	}
+	assertDevAppStepCommandsDoNotContain(t, steps, "secret-client")
+}
+
+func TestDevAppRobotResultFailAndExpiredAddRetrySteps(t *testing.T) {
+	cases := []struct {
+		name           string
+		status         string
+		wantTaskIDFlag bool
+	}{
+		{name: "fail reuses task id", status: "FAIL", wantTaskIDFlag: true},
+		{name: "expired resubmits without task id", status: "EXPIRED", wantTaskIDFlag: false},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			rendered := runDevAppRobotResultOutput(t, map[string]any{
+				"status": tc.status,
+				"taskId": "t-retry",
+			})
+			steps := devAppRenderedSteps(t, rendered)
+			retry := devAppStepByID(t, steps, "retry_robot_submit")
+			command, _ := retry["command"].(string)
+			hasTaskID := strings.Contains(command, "--task-id t-retry")
+			if hasTaskID != tc.wantTaskIDFlag {
+				t.Fatalf("retry command = %q, has task id %v, want %v", command, hasTaskID, tc.wantTaskIDFlag)
+			}
+			if dryRun, _ := retry["dryRunCommand"].(string); !strings.Contains(dryRun, "--dry-run") {
+				t.Fatalf("retry dryRunCommand = %q, want --dry-run", dryRun)
+			}
+		})
+	}
+}
+
+func runDevAppRobotResultOutput(t *testing.T, result map[string]any) map[string]any {
+	t.Helper()
+	runner := &devAppResponseRunner{
+		response: map[string]any{
+			"content": map[string]any{
+				"success":   true,
+				"errorCode": nil,
+				"errorMsg":  nil,
+				"result":    result,
+			},
+		},
+	}
+	root := newDevAppTestRoot(runner)
+	var out bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&out)
+	root.SetArgs([]string{"dev", "app", "robot", "result", "--task-id", "t-1", "--format", "json"})
+
+	if err := root.Execute(); err != nil {
+		t.Fatalf("Execute() error = %v\noutput:\n%s", err, out.String())
+	}
+	var rendered map[string]any
+	if err := json.Unmarshal(out.Bytes(), &rendered); err != nil {
+		t.Fatalf("json.Unmarshal() error = %v\noutput:\n%s", err, out.String())
+	}
+	return rendered
+}
+
+func devAppRenderedSteps(t *testing.T, rendered map[string]any) []any {
+	t.Helper()
+	steps, ok := rendered["nextSteps"].([]any)
+	if !ok || len(steps) == 0 {
+		t.Fatalf("nextSteps = %#v, want non-empty array", rendered["nextSteps"])
+	}
+	return steps
+}
+
+func devAppStepByID(t *testing.T, steps []any, id string) map[string]any {
+	t.Helper()
+	for _, raw := range steps {
+		step := devAppRenderedMap(t, raw)
+		if step["id"] == id {
+			return step
+		}
+	}
+	t.Fatalf("step %q not found in %#v", id, steps)
+	return nil
+}
+
+func assertDevAppStepIDAbsent(t *testing.T, steps []any, id string) {
+	t.Helper()
+	for _, raw := range steps {
+		step := devAppRenderedMap(t, raw)
+		if step["id"] == id {
+			t.Fatalf("step %q unexpectedly present in %#v", id, steps)
+		}
+	}
+}
+
+func devAppRenderedMap(t *testing.T, raw any) map[string]any {
+	t.Helper()
+	m, ok := raw.(map[string]any)
+	if !ok {
+		t.Fatalf("value = %#v, want object", raw)
+	}
+	return m
+}
+
+func devAppStringSliceFromRendered(t *testing.T, raw any) []string {
+	t.Helper()
+	values, ok := raw.([]any)
+	if !ok {
+		t.Fatalf("value = %#v, want array", raw)
+	}
+	out := make([]string, 0, len(values))
+	for _, value := range values {
+		text, ok := value.(string)
+		if !ok {
+			t.Fatalf("array value = %#v, want string", value)
+		}
+		out = append(out, text)
+	}
+	return out
+}
+
+func assertDevAppStepCommandsDoNotContain(t *testing.T, steps []any, secret string) {
+	t.Helper()
+	for _, raw := range steps {
+		step := devAppRenderedMap(t, raw)
+		for _, key := range []string{"command", "dryRunCommand"} {
+			command, _ := step[key].(string)
+			if strings.Contains(command, secret) {
+				t.Fatalf("%s for step %s leaked secret in %q", key, step["id"], command)
+			}
+		}
+	}
 }
 
 func TestNormalizeDevAppRemovePermissionScopeValues(t *testing.T) {

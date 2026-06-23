@@ -21,6 +21,10 @@ metadata:
 4. 写操作：`--dry-run` 看 `invocation.params` 确认无误，再换 `--yes`（`dev connect` 例外见 [connect.md](references/connect.md)）
 5. 写完回读确认（`get` / `robot get` / `version status`）
 6. `clientSecret/appSecret` 不写进回答（脱敏）
+7. `robot result` 只要出现 `completionState=BLOCKED_BY_VERSION_PUBLISH` 或 `mustContinue=true`，必须继续执行 blocking `nextSteps`，不得停在 `dev connect`
+8. `dev connect` 的 `completionState=LOCAL_DEBUG_ONLY` / `doesNotPublish=true` 只代表本地调试，不能作为最终完成态
+9. `version check-approval` 若返回 `completionState=WAITING_FOR_APPROVER_SELECTION`，选择题原样展示 `approvalPromptText`（或 `approvalOptions[].label`），不得把姓名丢成泛化“候选审批人”
+10. `robot result` 若缺 `unifiedAppId` 或返回 `completionState=BLOCKED_BY_MISSING_UNIFIED_APP_ID`，必须停下要求明确的 `unifiedAppId`；禁止用 `clientId/appKey` 自动反查后继续执行版本写操作
 
 ## 概念地图
 先建立领域模型，再看命令——所有命令都是对这张图上某个节点的操作，用户的模糊意图先映射到节点再选命令。
@@ -39,7 +43,7 @@ metadata:
 │   └── 机器人    群聊/单聊收发消息，走回调 URL 或接本地 agent（robot）
 └── 版本        配置改动的生效通道（version）
 ```
-映射示例：「想做个钉钉里打开的网页」就是 创建应用，再配 webapp，再发版本；「做个答疑机器人」就是 robot submit/result 异步建号（或现有应用 robot config），发版本后本地调试用 dev connect。
+映射示例：「想做个钉钉里打开的网页」就是 创建应用，再配 webapp，再发版本；「做个答疑机器人」就是先创建应用拿 `unifiedAppId`，再 `robot config/enable` 配机器人，发版本后本地调试用 `dev connect`。无绑定的 `robot submit/result` 只有在结果返回明确 `unifiedAppId` 时才能续到版本发布。
 
 ### ID 体系
 | 标识 | 是什么 | 用在哪 |
@@ -47,10 +51,10 @@ metadata:
 | `unifiedAppId` | 统一应用 ID，全树主键 | 唯一全树定位标识，所有单应用命令都用 `--unified-app-id` |
 | `appKey` = `clientId` | 应用身份标识，同一个标识的两个名字，非密钥 | OpenAPI 调用、建联；也可作 `--app-key` 列表过滤（不能定位单应用） |
 | `appSecret` = `clientSecret` | 应用密钥，敏感 | 同上，按敏感凭证处理 |
-| `agentId` | 应用 ID，仅出现在返回数据里 | 不能用于定位，拿到它先查出 unifiedAppId |
+| `agentId` | 应用 ID，仅出现在返回数据里 | 不能用于写操作定位 |
 | `robotCode` | 机器人编号 | 加群、机器人发消息、建联 |
 
-应用定位统一只用 `--unified-app-id`（--app-key/--name 仅作 list 过滤，不能定位单应用）。agentId 只是返回字段，不能用于定位。appKey 与 clientId 是同一标识的两个名字，无需追问区别。
+应用定位统一只用 `--unified-app-id`（--app-key/--name 仅作 list 过滤，不能定位单应用）。agentId 只是返回字段，不能用于写操作定位。appKey 与 clientId 是同一标识的两个名字，无需追问区别。
 
 ### 生效模型
 - 改配置不等于线上生效，需审批的变更（如 `requiredApproval=true` 的权限点）先累积在开发态，必须走版本通道才上线：
@@ -60,6 +64,10 @@ metadata:
   → publish（需审批时由用户选审批人）→ versionStatus=RELEASE 才生效
 ```
 - 机器人等能力需版本发布后才能被搜索、加群、路由消息。
+- `robot result` 返回 `APPROVAL_REQUIRED` 时不要重复建号：这表示已建号但线上使用需走版本发布审核；若已返回 clientId/clientSecret，可先用于本地 `dev connect` 调试。
+- `robot result` 顶层 `completionState=BLOCKED_BY_VERSION_PUBLISH` / `mustContinue=true` 是硬门禁：继续执行 blocking `nextSteps`，直到版本 `RELEASE`、`AUDIT/UNDER_REVIEW`，或停在 `SELECT_APPROVER` 等用户选审批人。
+- `robot result` 顶层 `completionState=BLOCKED_BY_MISSING_UNIFIED_APP_ID` / `actionRequired=provide_unified_app_id` 表示缺少可安全写版本的应用主键：只能让用户提供明确 `unifiedAppId`，不能根据 `clientId/appKey` 的列表结果自动选择应用。
+- `dev connect` 成功只代表本地 Stream 调试可用。只要 `robot result.lifecycle.overallComplete=false`，或版本未进入 `RELEASE` / `AUDIT` / `UNDER_REVIEW`，不要总结“全部完成”“机器人已创建并成功连接”“可以在钉钉中 @机器人使用”。
 - 用户问「为什么没生效 / 机器人搜不到 / 权限加了还报错」时，先查 `version status`。
 - 两套状态别混：应用 appStatus（字符串，取值如 normal / published）是应用开关；版本 versionStatus（INIT / AUDIT / RELEASE / GRAY）是变更走到哪了。app list 不回 appStatus（恒 null），看应用状态以 app get 为准。
 
@@ -69,10 +77,11 @@ metadata:
 
 ## 核心规则
 1. `应用`、`机器人` 是泛词：用户只说这两个词、无开放平台上下文时，先追问确认是不是开发者后台的企业内部应用，不要猜——很可能是工作台应用或群消息机器人（转出口见上方「边界与角色」）。
-2. 应用名/appKey 命中多条时展示候选、停止写操作，不取第一条。
+2. 应用名/appKey 只可用于只读列表过滤或人工排查；任何写操作必须由用户或上游结果提供明确 `unifiedAppId`，不能把单条列表命中当自动确认。
 3. 权限申请/取消只接受 `scopeValue`，不传 API 名或分组名——权限点才是授权单元，API 名与权限点是多对一。
 4. 主动读取密钥走 `credentials get`（secret 的脱敏要求见 MUST DO）；例外：connect 流程内部把 secret 作为参数传给 `dev connect` 是必要用途。
 5. 审批人必须用户拍板，agent 不代选、不默认取第一个。
+6. 选审批人时优先原样展示 `approvalPromptText`（成品文案）；需结构化时读 `approvalOptions[].label`；只有都缺时才用原始 `approvalCandidates` 的 `name（userId: xxx）` 自己拼标签。
 
 ### 通用出参约定（跨所有命令）
 - 游标分页（list / permission list / version list / event list / doc search）：首次不传 `--cursor`，出参带 `nextCursor`（空=到底）原样回传续翻；`hasMore == nextCursor 非空`。cursor 是上游不透明令牌，不要自己解析或构造，也不要跨命令复用。

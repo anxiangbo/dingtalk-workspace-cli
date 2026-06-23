@@ -1,6 +1,6 @@
 # 本地建联（把机器人接到本地 agent）
 
-> `dws dev connect` 是 dev 顶层命令，把一个现成机器人接到当前渠道的本地 agent CLI 做调试/值守——只建联、不建号。缺机器人先走 robot.md 的 `robot submit`/`result` 建号拿 clientId/clientSecret。
+> `dws dev connect` 是 dev 顶层命令，把一个现成机器人接到当前渠道的本地 agent CLI 做调试/值守——只建联、不建号。缺机器人时优先先创建应用并用 `robot config` 配置；若走无绑定的 `robot submit/result`，缺 `unifiedAppId` 时不能续写版本发布。
 
 ## 起连接
 
@@ -16,6 +16,8 @@ dws dev connect --robot-client-id <clientId> --robot-client-secret <clientSecret
 ```
 
 正式 connect 是前台长驻进程：在对话里跑必须后台运行并告诉用户如何停止，或引导用户自己开终端跑。
+
+`dev connect` 只做本地 Stream 调试/值守，不会创建版本、提交审批或发布应用。dry-run JSON 的 `invocation` 会声明 `scope=local_debug_only`、`doesNotPublish=true`、`completionState=LOCAL_DEBUG_ONLY`，真实前台/daemon 启动也会打印“本地调试，不代表线上发布完成”。完成态判定（建联成功不等于线上可用）以 [SKILL.md](../SKILL.md)「核心规则」为准。
 
 | flag | 说明 |
 |------|------|
@@ -50,6 +52,21 @@ dws dev connect --channel <ch> --robot-client-id x --robot-client-secret y --dry
 
 dry-run 出参的完整建联预检结构（channel/detectedBy/credentialSource/agent/cli/connect）见 SKILL.md「通用出参约定」。
 
+必须检查 dry-run 顶层：
+
+```json
+{
+  "invocation": {
+    "completionState": "LOCAL_DEBUG_ONLY",
+    "doesNotPublish": true,
+    "scope": "local_debug_only",
+    "terminal": false
+  }
+}
+```
+
+这几个字段表示：连接器可以起本地调试，但版本发布闭环仍由 `robot result` 的 blocking `nextSteps` 或后续 `version status` 决定（完整门禁规则见 [SKILL.md](../SKILL.md)「核心规则」）。
+
 ## Codex 渠道注意
 
 ```bash
@@ -74,6 +91,6 @@ DWS_AGENT_CMD="$CODEX_BIN exec --skip-git-repo-check" \
 
 | 情况 | 处理 |
 |------|------|
-| 缺凭证 | 先用 `robot submit`/`robot result` 建号拿 clientId/clientSecret（见 robot.md） |
+| 缺凭证 | 优先用明确 `unifiedAppId` 走 `credentials get`；若只有 `robot submit/result` 的一次性 clientId/clientSecret，按敏感信息使用，缺 `unifiedAppId` 时不能续写版本发布 |
 | Codex agent 返回 `Not inside a trusted directory and --skip-git-repo-check was not specified` | 用 `DWS_AGENT_CMD="$CODEX_BIN exec --skip-git-repo-check"` 重启 `connect --channel codex` |
 | 桌面 App 渠道 `installed:false, autoInstall:false` | 引导用户先装对应 App（installHint 是下载地址），不要直接起连接 |

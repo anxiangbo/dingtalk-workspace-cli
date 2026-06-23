@@ -241,11 +241,16 @@ func startDaemon(cmd *cobra.Command, dirKey, clientID string) error {
 	pid := child.Process.Pid
 	_ = child.Process.Release()
 
-	fmt.Fprintf(cmd.OutOrStdout(), "connect daemon started (pid %d)\n", pid)
-	fmt.Fprintf(cmd.OutOrStdout(), "  logs:   %s\n", logPath)
-	fmt.Fprintf(cmd.OutOrStdout(), "  status: dws devapp robot connect status%s\n", statusHintArgs(clientID, dirKey))
-	fmt.Fprintf(cmd.OutOrStdout(), "  stop:   dws devapp robot connect stop%s\n", statusHintArgs(clientID, dirKey))
+	writeConnectDaemonStarted(cmd.OutOrStdout(), pid, logPath, clientID, dirKey)
 	return nil
+}
+
+func writeConnectDaemonStarted(w io.Writer, pid int, logPath, clientID, dirKey string) {
+	fmt.Fprintf(w, "connect daemon started (pid %d)\n", pid)
+	fmt.Fprintf(w, "  logs:   %s\n", logPath)
+	fmt.Fprintf(w, "  status: dws devapp robot connect status%s\n", statusHintArgs(clientID, dirKey))
+	fmt.Fprintf(w, "  stop:   dws devapp robot connect stop%s\n", statusHintArgs(clientID, dirKey))
+	fmt.Fprint(w, connectLocalDebugNotice())
 }
 
 // buildSuperviseArgs rewrites argv to run the supervisor: strip --daemon, append
