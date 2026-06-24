@@ -113,6 +113,28 @@ cp dws ~/.local/bin/         # 安装到 PATH
 
 </details>
 
+## 国内加速安装
+
+国内用户可使用以下通道，避免 GitHub 网络问题。默认（不设置这些环境变量）走 GitHub。
+
+**1. 安装脚本 + 预编译二进制（Gitee 镜像）：**
+
+仓库镜像地址：`https://gitee.com/DingTalk-Real-AI/dingtalk-workspace-cli`
+
+```bash
+DWS_GITEE_REPO=DingTalk-Real-AI/dingtalk-workspace-cli curl -fsSL https://gitee.com/DingTalk-Real-AI/dingtalk-workspace-cli/raw/main/scripts/install.sh | sh
+```
+
+> 设置 `DWS_GITEE_REPO` 后，安装脚本会改从 Gitee API 解析最新版本和各个 release 产物（二进制、校验和、skills 包），而不是走 GitHub。不设置时默认从 GitHub 安装。
+
+**2. npm 包（npmmirror 镜像）：**
+
+```bash
+npm install -g dingtalk-workspace-cli --registry=https://registry.npmmirror.com
+```
+
+> npmmirror 会自动同步公网 npm 的公开包，国内可直接使用。
+
 ## 升级
 
 > 需要 **v1.0.7** 及以上版本。更早版本请重新执行[安装脚本](#安装)进行升级。

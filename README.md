@@ -113,6 +113,28 @@ cp dws ~/.local/bin/         # install to PATH
 
 </details>
 
+## China mirror
+
+For users in mainland China, the following channels avoid GitHub network issues. By default (without setting these environment variables) the installer pulls from GitHub.
+
+**1. Install script + pre-built binary (Gitee mirror):**
+
+Repository mirror: `https://gitee.com/DingTalk-Real-AI/dingtalk-workspace-cli`
+
+```bash
+DWS_GITEE_REPO=DingTalk-Real-AI/dingtalk-workspace-cli curl -fsSL https://gitee.com/DingTalk-Real-AI/dingtalk-workspace-cli/raw/main/scripts/install.sh | sh
+```
+
+> With `DWS_GITEE_REPO` set, the installer resolves the latest version and every release asset (binary, checksums, skills) from the Gitee API instead of GitHub. If it is unset, installation defaults to GitHub.
+
+**2. npm package (npmmirror mirror):**
+
+```bash
+npm install -g dingtalk-workspace-cli --registry=https://registry.npmmirror.com
+```
+
+> npmmirror automatically syncs public packages from the public npm registry, so this works directly in China.
+
 ## Upgrade
 
 > Requires **v1.0.7** or later. For earlier versions, please re-run the [install script](#installation) to upgrade.
