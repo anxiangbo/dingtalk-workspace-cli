@@ -22,6 +22,13 @@ func TestPlainRuneWidthSkipsANSIAndCountsCJK(t *testing.T) {
 	}
 }
 
+func TestPlainRuneWidthCountsFullwidthHangulAndEmoji(t *testing.T) {
+	got := PlainRuneWidth("Ａ한🟦")
+	if got != 6 {
+		t.Fatalf("PlainRuneWidth() = %d, want 6", got)
+	}
+}
+
 func TestPadRightANSIUsesVisibleWidth(t *testing.T) {
 	got := PadRightANSI("\x1b[34m钉钉\x1b[0m", 6)
 	if PlainRuneWidth(got) != 6 {

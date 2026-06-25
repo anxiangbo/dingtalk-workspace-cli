@@ -370,10 +370,9 @@ func TestPATHelpDocumentsBatchAuthorization(t *testing.T) {
 		"一次传多个 scope",
 		"batch plan",
 		"--dry-run 只返回授权计划",
-		"未加 --yes 时会打开授权确认页",
-		"传 --yes 时才直接写入",
+		"执行批量授权必须显式",
 		"由服务端默认兜底",
-		"aitable.record:read aitable.record:write --grant-type permanent",
+		"aitable.record:read aitable.record:write --grant-type permanent --yes",
 		"dws pat chmod --products calendar,aitable",
 		"dws pat chmod --recommend --grant-type session",
 	} {
@@ -430,79 +429,45 @@ func TestChmod_productsFlagPlansThenGrantsSelectedScopes(t *testing.T) {
 	}
 }
 
-func TestChmod_productsFlagWithoutYesStartsBatchAuthorizationFlow(t *testing.T) {
+func TestChmod_productsFlagWithoutYesBlocksAfterPlan(t *testing.T) {
 	t.Setenv(agentCodeEnv, "qoderwork")
 	fake := &sequenceToolCaller{responses: []string{
 		`{"success":true,"data":{"selectedScopes":["calendar.event:read"]}}`,
-		`{"success":true,"data":{"pendingScopes":[{"scope":"calendar.event:read"}]}}`,
 	}}
 	cmd := newChmodCommand(fake)
+	_ = cmd.Flags().Set("grant-type", "once")
 	_ = cmd.Flags().Set("products", "calendar")
 
-	if err := cmd.RunE(cmd, nil); err != nil {
-		t.Fatalf("chmod RunE error = %v", err)
+	err := cmd.RunE(cmd, nil)
+	if err == nil {
+		t.Fatal("chmod RunE error = nil, want batch --yes blocker")
 	}
-	if len(fake.calls) != 2 {
-		t.Fatalf("CallTool count = %d, want plan + batch flow", len(fake.calls))
+	if !strings.Contains(err.Error(), "--yes") || !strings.Contains(err.Error(), "batch PAT authorization blocked") {
+		t.Fatalf("error = %q, want explicit batch --yes blocker", err.Error())
+	}
+	if len(fake.calls) != 1 {
+		t.Fatalf("CallTool count = %d, want plan only", len(fake.calls))
 	}
 	if fake.calls[0].tool != patBatchPlanToolName {
-		t.Fatalf("first tool = %q, want %q", fake.calls[0].tool, patBatchPlanToolName)
-	}
-	if got := fake.calls[0].args["caller"]; got != patCallerBatchChmodInteractive {
-		t.Fatalf("plan caller = %#v, want %q", got, patCallerBatchChmodInteractive)
-	}
-	if fake.calls[1].tool != patBatchGrantToolName {
-		t.Fatalf("second tool = %q, want %q", fake.calls[1].tool, patBatchGrantToolName)
-	}
-	if got := fake.calls[1].args["startFlow"]; got != true {
-		t.Fatalf("grant startFlow = %#v, want true", got)
-	}
-	if got := fake.calls[1].args["noWait"]; got != true {
-		t.Fatalf("grant noWait = %#v, want true", got)
-	}
-	if got := fake.calls[1].args["caller"]; got != patCallerBatchChmodInteractive {
-		t.Fatalf("grant caller = %#v, want %q", got, patCallerBatchChmodInteractive)
-	}
-	if got := fake.calls[1].args["grantType"]; got != grantTypePermanent {
-		t.Fatalf("grantType = %#v, want %q for default interactive flow", got, grantTypePermanent)
-	}
-	if got := fake.calls[1].args["scopes"]; !stringSliceArgEqual(got, []string{"calendar.event:read"}) {
-		t.Fatalf("grant scopes = %#v, want selected scope", got)
-	}
-	if got, ok := fake.calls[1].args["clientRequestId"].(string); !ok || strings.TrimSpace(got) == "" {
-		t.Fatalf("grant clientRequestId = %#v, want non-empty string", got)
+		t.Fatalf("tool = %q, want %q", fake.calls[0].tool, patBatchPlanToolName)
 	}
 }
 
-func TestChmod_multipleScopesWithoutYesStartsBatchAuthorizationFlow(t *testing.T) {
+func TestChmod_multipleScopesWithoutYesBlocksBeforeMCP(t *testing.T) {
 	t.Setenv(agentCodeEnv, "qoderwork")
-	fake := &sequenceToolCaller{responses: []string{
-		`{"success":true,"data":{"selectedScopes":["calendar.event:read","aitable.record:write"]}}`,
-		`{"success":true,"data":{"pendingScopes":[{"scope":"calendar.event:read"},{"scope":"aitable.record:write"}]}}`,
-	}}
+	fake := &sequenceToolCaller{}
 	cmd := newChmodCommand(fake)
 	_ = cmd.Flags().Set("grant-type", "permanent")
 
-	if err := cmd.RunE(cmd, []string{"calendar.event:read", "aitable.record:write"}); err != nil {
-		t.Fatalf("chmod RunE error = %v", err)
+	err := cmd.RunE(cmd, []string{"calendar.event:read", "aitable.record:write"})
+	if err == nil {
+		t.Fatal("chmod RunE error = nil, want batch --yes blocker")
 	}
-	if len(fake.calls) != 2 {
-		t.Fatalf("CallTool count = %d, want plan + batch flow", len(fake.calls))
+	if !strings.Contains(err.Error(), "--yes") || !strings.Contains(err.Error(), "batch PAT authorization blocked") {
+		t.Fatalf("error = %q, want explicit batch --yes blocker", err.Error())
 	}
-	if fake.calls[0].tool != patBatchPlanToolName {
-		t.Fatalf("first tool = %q, want %q", fake.calls[0].tool, patBatchPlanToolName)
-	}
-	if got := fake.calls[0].args["scopes"]; !stringSliceArgEqual(got, []string{"calendar.event:read", "aitable.record:write"}) {
-		t.Fatalf("plan scopes = %#v, want explicit scopes", got)
-	}
-	if fake.calls[1].tool != patBatchGrantToolName {
-		t.Fatalf("second tool = %q, want %q", fake.calls[1].tool, patBatchGrantToolName)
-	}
-	if got := fake.calls[1].args["startFlow"]; got != true {
-		t.Fatalf("grant startFlow = %#v, want true", got)
-	}
-	if got := fake.calls[1].args["scopes"]; !stringSliceArgEqual(got, []string{"calendar.event:read", "aitable.record:write"}) {
-		t.Fatalf("grant scopes = %#v, want selected scopes", got)
+	if len(fake.calls) != 0 {
+		t.Fatalf("CallTool count = %d, want blocker before MCP", len(fake.calls))
 	}
 }
 
@@ -630,7 +595,7 @@ func TestChmod_batchEntryPointMatrixRequiresYesAndReturnsAgentCode(t *testing.T)
 			setFlags: func(cmd *cobra.Command) {
 				_ = cmd.Flags().Set("grant-type", "once")
 			},
-			wantCallCount: 2,
+			wantCallCount: 1,
 		},
 		{
 			name: "product repeated",

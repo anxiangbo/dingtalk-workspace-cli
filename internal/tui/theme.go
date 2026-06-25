@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"unicode"
 
 	"github.com/fatih/color"
 )
@@ -121,13 +122,38 @@ func PlainRuneWidth(s string) int {
 			}
 			continue
 		}
-		if r >= 0x2E80 && r <= 0x9FFF {
+		if isZeroWidthRune(r) {
+			continue
+		}
+		if isWideRune(r) {
 			width += 2
 			continue
 		}
 		width++
 	}
 	return width
+}
+
+func isZeroWidthRune(r rune) bool {
+	return r == '\u200d' ||
+		(r >= 0xFE00 && r <= 0xFE0F) ||
+		(r >= 0xE0100 && r <= 0xE01EF) ||
+		unicode.Is(unicode.Mn, r) ||
+		unicode.Is(unicode.Me, r)
+}
+
+func isWideRune(r rune) bool {
+	return (r >= 0x1100 && r <= 0x115F) ||
+		(r >= 0x2329 && r <= 0x232A) ||
+		(r >= 0x2E80 && r <= 0xA4CF) ||
+		(r >= 0xAC00 && r <= 0xD7A3) ||
+		(r >= 0xF900 && r <= 0xFAFF) ||
+		(r >= 0xFE10 && r <= 0xFE19) ||
+		(r >= 0xFE30 && r <= 0xFE6F) ||
+		(r >= 0xFF00 && r <= 0xFF60) ||
+		(r >= 0xFFE0 && r <= 0xFFE6) ||
+		(r >= 0x1F1E6 && r <= 0x1F1FF) ||
+		(r >= 0x1F300 && r <= 0x1FAFF)
 }
 
 func PadRightANSI(s string, width int) string {

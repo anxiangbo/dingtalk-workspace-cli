@@ -197,13 +197,12 @@ const (
 	// expose only the legacy Chinese display name.
 	patGrantToolNameLegacyAlias = "个人授权"
 
-	patBatchUnsupportedCode        = "PAT_BATCH_AUTH_UNSUPPORTED"
-	patBatchUnsupportedCodeLower   = "pat_batch_auth_unsupported"
-	patForgedIdentityCode          = "PAT_FORGED_IDENTITY_FIELD"
-	patForgedIdentityCodeLower     = "pat_forged_identity_field"
-	grantTypePermanent             = "permanent"
-	patCallerAuthLoginRecommend    = "auth_login_recommend"
-	patCallerBatchChmodInteractive = "batch_chmod_interactive"
+	patBatchUnsupportedCode      = "PAT_BATCH_AUTH_UNSUPPORTED"
+	patBatchUnsupportedCodeLower = "pat_batch_auth_unsupported"
+	patForgedIdentityCode        = "PAT_FORGED_IDENTITY_FIELD"
+	patForgedIdentityCodeLower   = "pat_forged_identity_field"
+	grantTypePermanent           = "permanent"
+	patCallerAuthLoginRecommend  = "auth_login_recommend"
 )
 
 var patBatchMetadataContractCodes = map[string]bool{
@@ -257,10 +256,9 @@ grantType 规则:
   --domains / --domain 按产品域批量展开 scope 模板，
   --recommend 使用服务端推荐 scope 集合。
   使用产品 / 域 / 推荐集合时，CLI 会先生成 batch plan，确认
-  selected / skipped / pending，再对 selected scopes 执行 batch grant。
-  --dry-run 只返回授权计划，不写入授权。未加 --yes 时会打开授权确认页；
-  传 --yes 时才直接写入服务端选中的权限。批量授权未显式指定
-  --grant-type 且没有 session-id 时，会以 permanent 作为本次页面确认后的授权时长。
+  selected / skipped / pending，再对 selected scopes 执行 batch grant；
+  --dry-run 只返回授权计划，不写入授权。真正执行批量授权必须显式
+  添加 --yes；未加 --yes 时 CLI 会阻断并提示 agent 先确认。
 
 agentCode 配置:
   可通过 --agentCode 或 DINGTALK_DWS_AGENTCODE
@@ -274,10 +272,11 @@ agentCode 配置:
 		},
 		Example: `  dws pat chmod aitable.record:read --grant-type session --session-id session-xxx
   dws pat chmod chat.message:list --grant-type once
-  dws pat chmod aitable.record:read aitable.record:write --grant-type permanent
-  dws pat chmod --recommend --product minutes --grant-type permanent --dry-run
-  dws pat chmod --products calendar,aitable --grant-type session --session-id session-xxx
-  dws pat chmod --recommend --grant-type session --session-id session-xxx`,
+  dws pat chmod aitable.record:read aitable.record:write --grant-type permanent --yes
+  dws pat chmod --product calendar --product aitable --grant-type once --dry-run --format json
+  dws pat chmod --products calendar,aitable --grant-type session --session-id session-xxx --yes
+  dws pat chmod --domain calendar --domain chat --grant-type once --yes
+  dws pat chmod --recommend --grant-type session --session-id session-xxx --yes`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			flagVal, _ := cmd.Flags().GetString("agentCode")
 			agentCode, err := resolveAgentCode(flagVal)
@@ -286,15 +285,11 @@ agentCode 配置:
 			}
 			scopes := args
 			productCodes := collectChmodProductCodes(productFlags, productsFlag, domainFlags, domainsFlag)
-			usesPlan := recommend || len(productCodes) > 0 || len(scopes) > 1
+			usesPlan := recommend || len(productCodes) > 0
 			grantType, _ := cmd.Flags().GetString("grant-type")
 			sessionID, _ := cmd.Flags().GetString("session-id")
 			if sessionID == "" {
 				sessionID = resolveSessionIDFromEnv()
-			}
-			interactiveBatchFlow := usesPlan && !batchAuthorizationConfirmed(cmd)
-			if interactiveBatchFlow && grantType == "session" && sessionID == "" && !cmd.Flags().Changed("grant-type") {
-				grantType = grantTypePermanent
 			}
 
 			if !validGrantTypes[grantType] {
@@ -337,9 +332,6 @@ agentCode 配置:
 
 			if usesPlan {
 				planArgs := buildBatchPlanArgs(scopes, productCodes, recommend, grantType, agentCode, sessionID, true)
-				if interactiveBatchFlow {
-					planArgs["caller"] = patCallerBatchChmodInteractive
-				}
 				planResult, err := callPATBatchPlan(cmd.Context(), c, agentCode, sessionID, planArgs)
 				if err != nil {
 					return fmt.Errorf("pat chmod plan failed: %w", err)
@@ -354,6 +346,11 @@ agentCode 配置:
 				if len(scopes) == 0 {
 					return handleToolResult(cmd, c, planResult)
 				}
+				if err := requireBatchGrantConfirmation(cmd, true, scopes); err != nil {
+					return err
+				}
+			} else if err := requireBatchGrantConfirmation(cmd, false, scopes); err != nil {
+				return err
 			}
 			batchArgs := map[string]any{
 				"scopes":    scopes,
@@ -371,12 +368,6 @@ agentCode 配置:
 				batchArgs["sessionId"] = sessionID
 				toolArgs["sessionId"] = sessionID
 			}
-			if interactiveBatchFlow {
-				batchArgs["startFlow"] = true
-				batchArgs["noWait"] = true
-				batchArgs["caller"] = patCallerBatchChmodInteractive
-				batchArgs["clientRequestId"] = newBatchClientRequestID("chmod")
-			}
 			// Legacy server schema accepted singular "scope"; clone the
 			// canonical argv and rename the key so the two payloads stay
 			// in lock-step on every other field.
@@ -390,27 +381,15 @@ agentCode 配置:
 			}
 
 			ctx := context.Background()
-			var result *edition.ToolResult
-			if interactiveBatchFlow {
-				result, err = callPATBatchToolWithIdentityFallback(
-					ctx,
-					c,
-					agentCode,
-					sessionID,
-					patBatchGrantToolName,
-					batchArgs,
-				)
-			} else {
-				result, err = callPATBatchGrantWithLegacyFallback(
-					ctx,
-					c,
-					agentCode,
-					sessionID,
-					batchArgs,
-					toolArgs,
-					legacyToolArgs,
-				)
-			}
+			result, err := callPATBatchGrantWithLegacyFallback(
+				ctx,
+				c,
+				agentCode,
+				sessionID,
+				batchArgs,
+				toolArgs,
+				legacyToolArgs,
+			)
 			if err != nil {
 				return fmt.Errorf("pat chmod failed: %w", err)
 			}
@@ -426,29 +405,32 @@ agentCode 配置:
 		"Agent 唯一标识（可选；也可通过 env DINGTALK_DWS_AGENTCODE 注入，flag 优先；未传则由服务端默认兜底）")
 	chmodCmd.Flags().String("grant-type", "session", "授权策略: once|session|permanent")
 	chmodCmd.Flags().String("session-id", "", "会话标识（session 模式下必填）")
-	chmodCmd.Flags().StringArrayVar(&productFlags, "product", nil, "产品编码，可重复；与 --products 等价")
-	chmodCmd.Flags().StringSliceVar(&productsFlag, "products", nil, "产品编码列表，逗号分隔")
-	chmodCmd.Flags().StringArrayVar(&domainFlags, "domain", nil, "产品域/产品编码，可重复；按产品 scope 模板批量授权")
-	chmodCmd.Flags().StringSliceVar(&domainsFlag, "domains", nil, "产品域/产品编码列表，逗号分隔")
-	chmodCmd.Flags().BoolVar(&recommend, "recommend", false, "使用推荐 scope 集合批量授权")
+	chmodCmd.Flags().StringArrayVar(&productFlags, "product", nil, "产品编码，可重复；与 --products 等价；执行批量授权需 --yes")
+	chmodCmd.Flags().StringSliceVar(&productsFlag, "products", nil, "产品编码列表，逗号分隔；执行批量授权需 --yes")
+	chmodCmd.Flags().StringArrayVar(&domainFlags, "domain", nil, "产品域/产品编码，可重复；按产品 scope 模板批量授权；执行授权需 --yes")
+	chmodCmd.Flags().StringSliceVar(&domainsFlag, "domains", nil, "产品域/产品编码列表，逗号分隔；执行批量授权需 --yes")
+	chmodCmd.Flags().BoolVar(&recommend, "recommend", false, "使用推荐 scope 集合批量授权；执行授权需 --yes")
 
 	return chmodCmd
 }
 
-// batchAuthorizationConfirmed reads the inherited root --yes flag without
-// making chmod own that flag. Only batch/product grants use this gate; explicit
-// single-scope chmod keeps the historical non-interactive behavior.
-func batchAuthorizationConfirmed(cmd *cobra.Command) bool {
-	if cmd == nil {
-		return false
+func requireBatchGrantConfirmation(cmd *cobra.Command, usesPlan bool, scopes []string) error {
+	if !usesPlan && len(scopes) <= 1 {
+		return nil
 	}
-	if yes, err := cmd.Flags().GetBool("yes"); err == nil {
-		return yes
+	if commandBoolFlag(cmd, "yes") {
+		return nil
 	}
-	if yes, err := cmd.InheritedFlags().GetBool("yes"); err == nil {
-		return yes
-	}
-	return false
+	return apperrors.NewValidation(
+		"batch PAT authorization blocked: explicit user confirmation is required; rerun with --yes only after the user approves the batch grant",
+		apperrors.WithReason("pat_batch_requires_yes"),
+		apperrors.WithHint("先执行 dws pat chmod ... --dry-run --format json 查看 selected/skipped/pending；用户明确确认后再追加 --yes 执行批量授权。"),
+		apperrors.WithActions(
+			"dws pat chmod <scope1> <scope2> ... --grant-type once --yes",
+			"dws pat chmod --products <product1,product2> --grant-type once --yes",
+			"dws pat chmod --recommend --grant-type once --yes",
+		),
+	)
 }
 
 func collectChmodProductCodes(groups ...[]string) []string {
