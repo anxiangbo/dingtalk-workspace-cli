@@ -37,12 +37,13 @@ var oauthHTTPClient = &http.Client{
 
 // OAuthProvider handles the DingTalk OAuth 2.0 authorization code flow.
 type OAuthProvider struct {
-	configDir  string
-	clientID   string
-	logger     *slog.Logger
-	Output     io.Writer
-	httpClient *http.Client
-	NoBrowser  bool
+	configDir    string
+	clientID     string
+	logger       *slog.Logger
+	Output       io.Writer
+	httpClient   *http.Client
+	NoBrowser    bool
+	TargetCorpID string
 }
 
 // NewOAuthProvider creates a new OAuth provider.
@@ -397,7 +398,7 @@ func (p *OAuthProvider) Login(ctx context.Context, force bool) (*TokenData, erro
 		_ = server.Shutdown(shutCtx)
 	}()
 
-	authURL := buildAuthURL(p.clientID, redirectURI)
+	authURL := buildAuthURL(p.clientID, redirectURI, p.TargetCorpID)
 	if p.logger != nil {
 		p.logger.Debug("authorization URL", "url", authURL)
 	}
@@ -547,9 +548,12 @@ func (p *OAuthProvider) GetAccessToken(ctx context.Context) (string, error) {
 		if rErr == nil {
 			return refreshed.AccessToken, nil
 		}
+		_ = MarkProfileStatus(p.configDir, data.CorpID, ProfileStatusExpired)
 		if p.logger != nil {
 			p.logger.Warn(i18n.T("refresh_token 刷新失败"), "error", rErr)
 		}
+	} else {
+		_ = MarkProfileStatus(p.configDir, data.CorpID, ProfileStatusExpired)
 	}
 
 	return "", errors.New(i18n.T("所有凭证已失效，请运行 dws auth login 重新登录"))
