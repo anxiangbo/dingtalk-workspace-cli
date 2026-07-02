@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -35,10 +36,11 @@ import (
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/event/consume"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/event/personal"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/event/source"
-	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/config"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/edition"
 	"github.com/spf13/cobra"
 )
+
+const temporaryPersonalEventPreMCPBaseURL = "https://pre-mcp.dingtalk.com"
 
 type commonConsumeOptions struct {
 	EventTypes []string
@@ -196,26 +198,27 @@ func runPersonalEventConsume(c *cobra.Command, opts personalConsumeOptions) erro
 
 	if opts.Common.DryRun {
 		cfg := consume.Config{
-			WorkDir:     workDir,
-			IPCEndpoint: ipcEndpoint,
-			ClientID:    identity.ClientID,
-			Compact:     opts.Common.Compact,
-			MaxEvents:   opts.Common.MaxEvents,
-			Duration:    opts.Common.Duration,
-			Format:      normalised,
-			OutputDir:   opts.Common.OutputDir,
-			Routes:      routes,
-			Stderr:      c.ErrOrStderr(),
-			Quiet:       opts.Common.Quiet,
-			Foreground:  opts.Common.Foreground,
-			Force:       opts.Common.Force,
-			DryRun:      true,
+			WorkDir:        workDir,
+			IPCEndpoint:    ipcEndpoint,
+			ClientID:       identity.ClientID,
+			SpawnExtraArgs: personalBusSpawnArgs(identity, opts.StreamTicketMode, personalEventStreamTicketURL(opts.StreamTicketURL, configDir)),
+			Compact:        opts.Common.Compact,
+			MaxEvents:      opts.Common.MaxEvents,
+			Duration:       opts.Common.Duration,
+			Format:         normalised,
+			OutputDir:      opts.Common.OutputDir,
+			Routes:         routes,
+			Stderr:         c.ErrOrStderr(),
+			Quiet:          opts.Common.Quiet,
+			Foreground:     opts.Common.Foreground,
+			Force:          opts.Common.Force,
+			DryRun:         true,
 		}
 		applyPersonalConsumeFilters(&cfg, opts, strings.TrimSpace(opts.SubscribeID), opts.EventKey)
 		return consume.Run(ctx, cfg)
 	}
 
-	client := personal.NewClient(opts.ControlBaseURL, identity)
+	client := personal.NewClient(personalEventControlBaseURL(opts.ControlBaseURL, configDir), identity)
 	sub, eventKey, ruleType, err := ensurePersonalSubscription(ctx, client, identity, opts)
 	if err != nil {
 		return fmt.Errorf("event consume --as user: %w", err)
@@ -414,7 +417,7 @@ func runPersonalEventStatus(c *cobra.Command, opts personalStatusOptions) error 
 	if status == "" || status == "all" {
 		status = ""
 	}
-	subs, err := personal.NewClient(opts.ControlBaseURL, identity).ListSubscriptions(ctx, personal.ListOptions{
+	subs, err := personal.NewClient(personalEventControlBaseURL(opts.ControlBaseURL, configDir), identity).ListSubscriptions(ctx, personal.ListOptions{
 		Status:      status,
 		EventKey:    opts.EventKey,
 		SubscribeID: opts.SubscribeID,
@@ -469,7 +472,7 @@ func runPersonalEventStop(c *cobra.Command, opts personalStopOptions) error {
 	if err != nil {
 		return fmt.Errorf("event stop --as user: %w", err)
 	}
-	client := personal.NewClient(opts.ControlBaseURL, identity)
+	client := personal.NewClient(personalEventControlBaseURL(opts.ControlBaseURL, configDir), identity)
 	for _, id := range subscribeIDs {
 		if err := client.DeleteSubscription(ctx, id); err != nil {
 			return fmt.Errorf("event stop --as user: cancel subscription %s: %w", id, err)
@@ -548,7 +551,7 @@ func resolvePersonalEventIdentity(ctx context.Context, configDir string, sourceI
 	}
 	sourceID := strings.TrimSpace(sourceIDOverride)
 	if sourceID == "" {
-		sourceID = edition.PersonalEventSourceID()
+		sourceID = personalEventStreamSourceID("")
 	}
 	localSubject := ""
 	if strings.TrimSpace(corpID) == "" || strings.TrimSpace(userID) == "" {
@@ -597,7 +600,7 @@ func newPersonalStreamSource(ctx context.Context, opts personalStreamSourceOptio
 	}
 	ticketURL := strings.TrimSpace(opts.TicketURL)
 	if ticketURL == "" {
-		ticketURL = strings.TrimRight(config.GetMCPBaseURL(), "/") + "/stream/connections/ticket"
+		ticketURL = personalEventStreamTicketURL("", opts.ConfigDir)
 	}
 	clientID := opts.Identity.ClientID
 	clientSecret := ""
@@ -674,4 +677,46 @@ func firstNonEmptyString(values ...string) string {
 		}
 	}
 	return ""
+}
+
+func personalEventControlBaseURL(raw, configDir string) string {
+	if v := strings.TrimSpace(raw); v != "" {
+		return strings.TrimRight(v, "/")
+	}
+	return personalEventMCPBaseURL(configDir) + personal.DefaultBasePath
+}
+
+func personalEventStreamTicketURL(raw, configDir string) string {
+	if v := strings.TrimSpace(raw); v != "" {
+		return strings.TrimRight(v, "/")
+	}
+	return personalEventMCPBaseURL(configDir) + "/stream/connections/ticket"
+}
+
+func personalEventStreamSourceID(raw string) string {
+	if v := strings.TrimSpace(raw); v != "" {
+		return v
+	}
+	if v := strings.TrimSpace(edition.Get().PersonalEventSourceID); v != "" {
+		return v
+	}
+	return "pre_open_source"
+}
+
+func personalEventMCPBaseURL(configDir string) string {
+	if v := configuredMCPBaseURL(configDir); v != "" {
+		return strings.TrimRight(v, "/")
+	}
+	return temporaryPersonalEventPreMCPBaseURL
+}
+
+func configuredMCPBaseURL(configDir string) string {
+	if strings.TrimSpace(configDir) == "" {
+		configDir = defaultConfigDir()
+	}
+	data, err := os.ReadFile(filepath.Join(configDir, "mcp_url"))
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(data))
 }
