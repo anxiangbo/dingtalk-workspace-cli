@@ -29,6 +29,30 @@ func preferLegacyLeaf(cmd *cobra.Command) {
 	cli.SetOverridePriority(cmd, 100)
 }
 
+func annotateRequiredFlags(cmd *cobra.Command, names ...string) {
+	cli.AnnotateRuntimeRequiredFlags(cmd, names...)
+}
+
+func annotateFlagFormat(cmd *cobra.Command, name, format string) {
+	cli.AnnotateRuntimeFlagFormat(cmd, name, format)
+}
+
+func annotateFlagEnum(cmd *cobra.Command, name string, values ...string) {
+	cli.AnnotateRuntimeFlagEnum(cmd, name, values...)
+}
+
+func annotateFlagExample(cmd *cobra.Command, name, example string) {
+	cli.AnnotateRuntimeFlagExample(cmd, name, example)
+}
+
+func annotateFlagConstraints(cmd *cobra.Command, mutuallyExclusive, requireOneOf, requireTogether [][]string) {
+	cli.AnnotateRuntimeConstraints(cmd, cli.RuntimeSchemaConstraints{
+		MutuallyExclusive: mutuallyExclusive,
+		RequireOneOf:      requireOneOf,
+		RequireTogether:   requireTogether,
+	})
+}
+
 // resolveStringFlag reads a string flag, resolves @file/@- input sources,
 // and falls back to stdin pipe when the flag is the designated primary
 // content flag and the user did not provide an explicit value.

@@ -34,12 +34,35 @@ const (
 	runtimeSchemaTitleAnnotation   = "dws.schema.title"
 	runtimeSchemaDescAnnotation    = "dws.schema.description"
 	runtimeSchemaMetaAnnotation    = "dws.schema.metadata_source"
+	runtimeSchemaExcludeAnnotation = "dws.schema.exclude"
+	runtimeSchemaRulesAnnotation   = "dws.schema.constraints"
+	runtimeSchemaArgsAnnotation    = "dws.schema.positionals"
 
 	runtimeSchemaFlagPropertyAnnotation = "dws.schema.property"
 	runtimeSchemaFlagTypeAnnotation     = "dws.schema.type"
 	runtimeSchemaFlagRequiredAnnotation = "dws.schema.required"
 	runtimeSchemaFlagDefaultAnnotation  = "dws.schema.default"
+	runtimeSchemaFlagExampleAnnotation  = "dws.schema.example"
 )
+
+// RuntimeSchemaConstraints describes cross-parameter rules that cannot be
+// represented by an individual parameter's required bit.
+type RuntimeSchemaConstraints struct {
+	MutuallyExclusive [][]string `json:"mutually_exclusive,omitempty"`
+	RequireOneOf      [][]string `json:"require_one_of,omitempty"`
+	RequireTogether   [][]string `json:"require_together,omitempty"`
+}
+
+// RuntimeSchemaPositional describes one ordered CLI argument. Name is also
+// used by RuntimeSchemaConstraints when a one-of group mixes flags and args.
+type RuntimeSchemaPositional struct {
+	Name        string `json:"name"`
+	Type        string `json:"type,omitempty"`
+	Description string `json:"description,omitempty"`
+	Required    bool   `json:"required"`
+	Variadic    bool   `json:"variadic,omitempty"`
+	Index       int    `json:"index"`
+}
 
 type embeddedMCPMetadata struct {
 	Version    int                                `json:"version"`
@@ -155,6 +178,127 @@ func AnnotateRuntimeFlag(cmd *cobra.Command, flagName, propertyName, paramType s
 	}
 }
 
+// AnnotateRuntimeRequiredFlags records schema-only required semantics. Unlike
+// cobra.MarkFlagRequired, it does not require the primary flag itself to be
+// changed, so helper commands can keep accepting hidden --url/--id aliases.
+func AnnotateRuntimeRequiredFlags(cmd *cobra.Command, flagNames ...string) {
+	if cmd == nil {
+		return
+	}
+	for _, name := range flagNames {
+		flag := cmd.Flags().Lookup(strings.TrimSpace(name))
+		if flag != nil {
+			setFlagAnnotation(flag, runtimeSchemaFlagRequiredAnnotation, "true")
+		}
+	}
+}
+
+// AnnotateRuntimeFlagFormat records a machine-readable value format without
+// changing the Cobra flag type.
+func AnnotateRuntimeFlagFormat(cmd *cobra.Command, flagName, format string) {
+	if cmd == nil {
+		return
+	}
+	if flag := cmd.Flags().Lookup(strings.TrimSpace(flagName)); flag != nil {
+		setFlagAnnotation(flag, "x-cli-format", strings.TrimSpace(format))
+	}
+}
+
+// AnnotateRuntimeFlagEnum records the accepted values for a flag.
+func AnnotateRuntimeFlagEnum(cmd *cobra.Command, flagName string, values ...string) {
+	if cmd == nil {
+		return
+	}
+	flag := cmd.Flags().Lookup(strings.TrimSpace(flagName))
+	if flag == nil {
+		return
+	}
+	clean := make([]string, 0, len(values))
+	for _, value := range values {
+		if value = strings.TrimSpace(value); value != "" {
+			clean = append(clean, value)
+		}
+	}
+	if len(clean) == 0 {
+		return
+	}
+	if flag.Annotations == nil {
+		flag.Annotations = map[string][]string{}
+	}
+	flag.Annotations["x-cli-enum"] = clean
+}
+
+// AnnotateRuntimeFlagExample records a valid representative CLI value.
+func AnnotateRuntimeFlagExample(cmd *cobra.Command, flagName, example string) {
+	if cmd == nil {
+		return
+	}
+	if flag := cmd.Flags().Lookup(strings.TrimSpace(flagName)); flag != nil {
+		setFlagAnnotation(flag, runtimeSchemaFlagExampleAnnotation, strings.TrimSpace(example))
+	}
+}
+
+// AnnotateRuntimeConstraints records command-level parameter relationships.
+func AnnotateRuntimeConstraints(cmd *cobra.Command, constraints RuntimeSchemaConstraints) {
+	if cmd == nil {
+		return
+	}
+	constraints = normalizeRuntimeSchemaConstraints(constraints)
+	if runtimeSchemaConstraintsEmpty(constraints) {
+		return
+	}
+	if existing := runtimeCommandConstraints(cmd); !runtimeSchemaConstraintsEmpty(existing) {
+		constraints.MutuallyExclusive = append(existing.MutuallyExclusive, constraints.MutuallyExclusive...)
+		constraints.RequireOneOf = append(existing.RequireOneOf, constraints.RequireOneOf...)
+		constraints.RequireTogether = append(existing.RequireTogether, constraints.RequireTogether...)
+		constraints = normalizeRuntimeSchemaConstraints(constraints)
+	}
+	encoded, _ := json.Marshal(constraints)
+	setRuntimeCommandAnnotation(cmd, runtimeSchemaRulesAnnotation, string(encoded))
+}
+
+// AnnotateRuntimePositionals records ordered positional arguments for agents.
+func AnnotateRuntimePositionals(cmd *cobra.Command, positionals ...RuntimeSchemaPositional) {
+	if cmd == nil {
+		return
+	}
+	clean := make([]RuntimeSchemaPositional, 0, len(positionals))
+	for _, positional := range positionals {
+		positional.Name = strings.TrimSpace(positional.Name)
+		positional.Type = strings.TrimSpace(positional.Type)
+		positional.Description = strings.TrimSpace(positional.Description)
+		if positional.Name == "" || positional.Index < 0 {
+			continue
+		}
+		if positional.Type == "" {
+			positional.Type = "string"
+		}
+		clean = append(clean, positional)
+	}
+	if len(clean) == 0 {
+		return
+	}
+	sort.SliceStable(clean, func(i, j int) bool { return clean[i].Index < clean[j].Index })
+	encoded, _ := json.Marshal(clean)
+	setRuntimeCommandAnnotation(cmd, runtimeSchemaArgsAnnotation, string(encoded))
+}
+
+// ExcludeFromRuntimeSchema keeps a human-facing hint or redirect in --help
+// while preventing it from being advertised as an executable agent tool.
+func ExcludeFromRuntimeSchema(cmd *cobra.Command) {
+	setRuntimeCommandAnnotation(cmd, runtimeSchemaExcludeAnnotation, "true")
+}
+
+func setRuntimeCommandAnnotation(cmd *cobra.Command, key, value string) {
+	if cmd == nil || strings.TrimSpace(value) == "" {
+		return
+	}
+	if cmd.Annotations == nil {
+		cmd.Annotations = map[string]string{}
+	}
+	cmd.Annotations[key] = value
+}
+
 func setFlagAnnotation(flag *pflag.Flag, key, value string) {
 	if flag == nil || strings.TrimSpace(value) == "" {
 		return
@@ -206,6 +350,9 @@ func collectRuntimeSchemaEntries(root *cobra.Command) []runtimeSchemaEntry {
 	entries := []runtimeSchemaEntry{}
 	seen := map[string]bool{}
 	walkLeafCommands(root, func(leaf *cobra.Command) {
+		if runtimeSchemaExcluded(leaf) {
+			return
+		}
 		productID, toolName, source := runtimeSchemaAnnotations(leaf)
 		if productID == "" || toolName == "" {
 			return
@@ -248,6 +395,9 @@ func collectRuntimeSchemaEntries(root *cobra.Command) []runtimeSchemaEntry {
 		}
 		productName := strings.TrimSpace(productRoot.Short)
 		walkLeafCommands(productRoot, func(leaf *cobra.Command) {
+			if runtimeSchemaExcluded(leaf) {
+				return
+			}
 			parts := commandPathParts(leaf)
 			if len(parts) == 0 {
 				return
@@ -424,6 +574,11 @@ func runtimeSchemaAnnotations(cmd *cobra.Command) (productID, toolName, source s
 		source = "runtime:" + productID
 	}
 	return productID, toolName, source
+}
+
+func runtimeSchemaExcluded(cmd *cobra.Command) bool {
+	return cmd != nil && cmd.Annotations != nil &&
+		strings.EqualFold(strings.TrimSpace(cmd.Annotations[runtimeSchemaExcludeAnnotation]), "true")
 }
 
 func runtimeCommandTitle(cmd *cobra.Command) string {
@@ -741,7 +896,8 @@ func runtimeToolPayload(entry runtimeSchemaEntry) map[string]any {
 	hint := runtimeSchemaHintForEntry(entry)
 	embeddedMeta, hasEmbeddedMeta := embeddedMCPMetadataForEntry(entry)
 	title, description, metadataSource := runtimeToolTextMetadata(entry)
-	parameters := runtimeCommandParameters(entry.Command, hint.Parameters, embeddedMeta.Parameters)
+	constraints := runtimeCommandConstraints(entry.Command)
+	parameters := runtimeCommandParameters(entry.Command, hint.Parameters, embeddedMeta.Parameters, constraints)
 	if parameters == nil {
 		parameters = map[string]any{}
 	}
@@ -776,13 +932,19 @@ func runtimeToolPayload(entry runtimeSchemaEntry) map[string]any {
 	if len(entry.Aliases) > 0 {
 		payload["aliases"] = entry.Aliases
 	}
+	if rendered := runtimeConstraintsPayload(constraints); len(rendered) > 0 {
+		payload["constraints"] = rendered
+	}
+	if positionals := runtimeCommandPositionals(entry.Command); len(positionals) > 0 {
+		payload["positionals"] = positionals
+	}
 	paths := []string{entry.PrimaryCLIPath, entry.CLIPath, canonicalPath}
 	paths = append(paths, entry.Aliases...)
 	applyAgentToolMetadata(payload, true, paths...)
 	return payload
 }
 
-func runtimeCommandParameters(cmd *cobra.Command, hints map[string]ParameterSchemaHint, embeddedParams map[string]embeddedMCPParamMeta) map[string]any {
+func runtimeCommandParameters(cmd *cobra.Command, hints map[string]ParameterSchemaHint, embeddedParams map[string]embeddedMCPParamMeta, constraints RuntimeSchemaConstraints) map[string]any {
 	if cmd == nil {
 		return nil
 	}
@@ -853,18 +1015,118 @@ func runtimeCommandParameters(cmd *cobra.Command, hints map[string]ParameterSche
 			entry["format"] = format
 		} else if hasEmbeddedParam && strings.TrimSpace(embeddedParam.Format) != "" {
 			entry["format"] = strings.TrimSpace(embeddedParam.Format)
+		} else if format := inferredRuntimeFlagFormat(flag); format != "" {
+			entry["format"] = format
 		}
 		if enum := runtimeFlagEnum(flag); len(enum) > 0 {
 			entry["enum"] = enum
 		} else if hasEmbeddedParam && len(embeddedParam.Enum) > 0 {
 			entry["enum"] = append([]string(nil), embeddedParam.Enum...)
 		}
+		if example := firstFlagAnnotation(flag, runtimeSchemaFlagExampleAnnotation); example != "" {
+			entry["example"] = example
+		}
 		params[flagName] = entry
 	})
+	// A member of a require-one-of group is conditionally required, not
+	// individually required. This also corrects usage text such as "群聊必填"
+	// that would otherwise make every alternative look globally mandatory.
+	for _, group := range constraints.RequireOneOf {
+		for _, name := range group {
+			if entry, ok := params[name].(map[string]any); ok {
+				entry["required"] = false
+			}
+		}
+	}
 	if len(params) == 0 {
 		return nil
 	}
 	return params
+}
+
+func runtimeCommandConstraints(cmd *cobra.Command) RuntimeSchemaConstraints {
+	if cmd == nil || cmd.Annotations == nil {
+		return RuntimeSchemaConstraints{}
+	}
+	raw := strings.TrimSpace(cmd.Annotations[runtimeSchemaRulesAnnotation])
+	if raw == "" {
+		return RuntimeSchemaConstraints{}
+	}
+	var constraints RuntimeSchemaConstraints
+	if json.Unmarshal([]byte(raw), &constraints) != nil {
+		return RuntimeSchemaConstraints{}
+	}
+	return normalizeRuntimeSchemaConstraints(constraints)
+}
+
+func runtimeCommandPositionals(cmd *cobra.Command) []RuntimeSchemaPositional {
+	if cmd == nil || cmd.Annotations == nil {
+		return nil
+	}
+	raw := strings.TrimSpace(cmd.Annotations[runtimeSchemaArgsAnnotation])
+	if raw == "" {
+		return nil
+	}
+	var positionals []RuntimeSchemaPositional
+	if json.Unmarshal([]byte(raw), &positionals) != nil {
+		return nil
+	}
+	sort.SliceStable(positionals, func(i, j int) bool { return positionals[i].Index < positionals[j].Index })
+	return positionals
+}
+
+func normalizeRuntimeSchemaConstraints(constraints RuntimeSchemaConstraints) RuntimeSchemaConstraints {
+	constraints.MutuallyExclusive = normalizeRuntimeSchemaGroups(constraints.MutuallyExclusive, 2)
+	constraints.RequireOneOf = normalizeRuntimeSchemaGroups(constraints.RequireOneOf, 1)
+	constraints.RequireTogether = normalizeRuntimeSchemaGroups(constraints.RequireTogether, 2)
+	return constraints
+}
+
+func normalizeRuntimeSchemaGroups(groups [][]string, minimum int) [][]string {
+	out := make([][]string, 0, len(groups))
+	seenGroups := map[string]bool{}
+	for _, group := range groups {
+		clean := make([]string, 0, len(group))
+		seenNames := map[string]bool{}
+		for _, name := range group {
+			name = strings.TrimSpace(name)
+			if name == "" || seenNames[name] {
+				continue
+			}
+			seenNames[name] = true
+			clean = append(clean, name)
+		}
+		if len(clean) < minimum {
+			continue
+		}
+		key := strings.Join(clean, "\x00")
+		if seenGroups[key] {
+			continue
+		}
+		seenGroups[key] = true
+		out = append(out, clean)
+	}
+	return out
+}
+
+func runtimeSchemaConstraintsEmpty(constraints RuntimeSchemaConstraints) bool {
+	return len(constraints.MutuallyExclusive) == 0 &&
+		len(constraints.RequireOneOf) == 0 &&
+		len(constraints.RequireTogether) == 0
+}
+
+func runtimeConstraintsPayload(constraints RuntimeSchemaConstraints) map[string]any {
+	payload := map[string]any{}
+	if len(constraints.MutuallyExclusive) > 0 {
+		payload["mutually_exclusive"] = constraints.MutuallyExclusive
+	}
+	if len(constraints.RequireOneOf) > 0 {
+		payload["require_one_of"] = constraints.RequireOneOf
+	}
+	if len(constraints.RequireTogether) > 0 {
+		payload["require_together"] = constraints.RequireTogether
+	}
+	return payload
 }
 
 func lookupEmbeddedMCPParam(params map[string]embeddedMCPParamMeta, property, flagName string) (embeddedMCPParamMeta, bool) {
@@ -920,10 +1182,7 @@ func runtimeFlagRequired(flag *pflag.Flag) bool {
 		return true
 	}
 	usage := strings.ToLower(strings.TrimSpace(flag.Usage))
-	if usageImpliesRequired(usage) {
-		return true
-	}
-	return false
+	return usageImpliesRequired(usage)
 }
 
 func usageImpliesRequired(usage string) bool {
@@ -1010,6 +1269,16 @@ func runtimeFlagEnum(flag *pflag.Flag) []string {
 		}
 	}
 	return out
+}
+
+func inferredRuntimeFlagFormat(flag *pflag.Flag) string {
+	if flag == nil {
+		return ""
+	}
+	if strings.Contains(strings.ToLower(strings.TrimSpace(flag.Usage)), "a1") {
+		return "a1-range"
+	}
+	return ""
 }
 
 func strconvQuote(value string) string {

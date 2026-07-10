@@ -226,6 +226,8 @@ func newWikiSpaceSearchCommand(runner executor.Runner) *cobra.Command {
 	addWikiHiddenStringFlag(cmd, "keyword", "--query 的兼容别名")
 	cmd.Flags().String("type", "", "知识库类型；仅 --type myWikiSpace 支持无 keyword 查询个人知识库")
 	cmd.Flags().String("limit", "", "返回数量 1-20 (默认 10)")
+	annotateFlagEnum(cmd, "type", "myWikiSpace")
+	annotateFlagConstraints(cmd, nil, [][]string{{"query", "type"}}, nil)
 	return cmd
 }
 

@@ -847,6 +847,7 @@ func newDrivePermissionMutationCommand(runner executor.Runner, use, tool string,
 	addDriveHiddenStringFlag(cmd, "uid", "--users 的兼容别名")
 	if requireRole {
 		cmd.Flags().String("role", "", "权限角色: MANAGER / EDITOR / DOWNLOADER / READER (必填)")
+		annotateFlagEnum(cmd, "role", "MANAGER", "EDITOR", "DOWNLOADER", "READER")
 	}
 	cmd.Flags().String("workspace", "", "知识库 ID (选填)")
 	addDriveHiddenStringFlag(cmd, "workspace-id", "--workspace 的兼容别名")

@@ -47,7 +47,10 @@ func init() {
 			"contact search":    "search_contact_by_key_word",
 			"contact user list": "search_contact_by_key_word",
 		},
-		nil,
+		map[string]string{
+			"get_user_info_by_user_ids":  "contact user get",
+			"search_contact_by_key_word": "contact user search",
+		},
 	))
 
 	RegisterRuntimeSchemaRoot("devdoc", newRuntimeAliasRoot("hardcoded:devdoc",

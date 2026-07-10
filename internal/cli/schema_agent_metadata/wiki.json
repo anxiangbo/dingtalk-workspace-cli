@@ -1,23 +1,6 @@
 {
   "product_id": "wiki",
   "tools": {
-    "wiki doc list": {
-      "use_when": [
-        "2. 列出根目录节点",
-        "3. 进入子目录",
-        "知识库下的文件/知识库里有哪些文档/浏览知识库内容",
-        "读某个知识库里的某篇文档"
-      ],
-      "effect": "read",
-      "effect_source": "command-verb",
-      "examples": [
-        "dws wiki node list --workspace \u003cworkspaceId\u003e --folder \u003cparentNodeId\u003e --format json",
-        "dws wiki node list --workspace \u003cworkspaceId\u003e --format json"
-      ],
-      "source_refs": [
-        "skills/mono/references/products/wiki.md"
-      ]
-    },
     "wiki member add": {
       "use_when": [
         "2. 添加成员",
@@ -119,6 +102,23 @@
       "examples": [
         "dws wiki node delete --workspace \u003cworkspaceId\u003e --node \u003cnodeId\u003e",
         "dws wiki node delete --workspace \u003cworkspaceId\u003e --node \u003cnodeId\u003e --yes"
+      ],
+      "source_refs": [
+        "skills/mono/references/products/wiki.md"
+      ]
+    },
+    "wiki node list": {
+      "use_when": [
+        "2. 列出根目录节点",
+        "3. 进入子目录",
+        "知识库下的文件/知识库里有哪些文档/浏览知识库内容",
+        "读某个知识库里的某篇文档"
+      ],
+      "effect": "read",
+      "effect_source": "command-verb",
+      "examples": [
+        "dws wiki node list --workspace \u003cworkspaceId\u003e --folder \u003cparentNodeId\u003e --format json",
+        "dws wiki node list --workspace \u003cworkspaceId\u003e --format json"
       ],
       "source_refs": [
         "skills/mono/references/products/wiki.md"

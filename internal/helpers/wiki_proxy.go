@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/cli"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/executor"
 	"github.com/spf13/cobra"
 )
@@ -54,12 +55,16 @@ func addWikiProxyCommands(root *cobra.Command, runner executor.Runner) {
 	)
 
 	file := newWikiProxyGroup("file", "知识库文件兼容入口")
+	file.Hidden = true
+	cli.ExcludeFromRuntimeSchema(file)
 	file.AddCommand(
 		newWikiProxyLeaf(runner, "list", wikiProxyTargetDoc, []string{"list"}, wikiProxyOptions{}),
 		newWikiProxyLeaf(runner, "search", wikiProxyTargetDoc, []string{"search"}, wikiProxyOptions{workspaceToWorkspaceIDs: true}),
 	)
 
 	doc := newWikiProxyGroup("doc", "知识库文档兼容入口")
+	doc.Hidden = true
+	cli.ExcludeFromRuntimeSchema(doc)
 	doc.AddCommand(
 		newWikiProxyLeaf(runner, "list", wikiProxyTargetDoc, []string{"list"}, wikiProxyOptions{}),
 		newWikiProxyLeaf(runner, "read", wikiProxyTargetDoc, []string{"read"}, wikiProxyOptions{}),
@@ -88,6 +93,7 @@ func newWikiProxyLeaf(runner executor.Runner, use string, target wikiProxyTarget
 	cmd := &cobra.Command{
 		Use:                use,
 		Short:              "兼容入口，透明转发到新命令",
+		Hidden:             true,
 		DisableFlagParsing: true,
 		DisableAutoGenTag:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -99,6 +105,7 @@ func newWikiProxyLeaf(runner executor.Runner, use string, target wikiProxyTarget
 		},
 	}
 	preferLegacyLeaf(cmd)
+	cli.ExcludeFromRuntimeSchema(cmd)
 	return cmd
 }
 
@@ -186,5 +193,8 @@ func configureWikiProxyTargetRoot(source, root *cobra.Command) {
 	}
 	if root.PersistentFlags().Lookup("dry-run") == nil {
 		root.PersistentFlags().Bool("dry-run", false, "仅打印即将发送的请求，不真正执行")
+	}
+	if root.PersistentFlags().Lookup("yes") == nil {
+		root.PersistentFlags().BoolP("yes", "y", false, "跳过确认提示 (AI Agent 模式)")
 	}
 }

@@ -593,6 +593,73 @@ func TestRuntimeSchemaUsesMCPMetadataAnnotations(t *testing.T) {
 	}
 }
 
+func TestRuntimeSchemaEmitsCrossParameterConstraintsAndPositionals(t *testing.T) {
+	root := &cobra.Command{Use: "dws"}
+	send := &cobra.Command{Use: "send", RunE: func(*cobra.Command, []string) error { return nil }}
+	send.Flags().String("group", "", "群聊必填")
+	send.Flags().String("users", "", "单聊必填")
+	AttachRuntimeSchema(send, "chat", "send_robot_message", "hardcoded:chat")
+	AnnotateRuntimeConstraints(send, RuntimeSchemaConstraints{
+		MutuallyExclusive: [][]string{{"group", "users"}},
+		RequireOneOf:      [][]string{{"group", "users"}},
+	})
+	AnnotateRuntimePositionals(send, RuntimeSchemaPositional{
+		Name: "scope", Type: "array", Variadic: true, Index: 0,
+	})
+	chat := &cobra.Command{Use: "chat"}
+	chat.AddCommand(send)
+	root.AddCommand(chat)
+
+	payload, err := runtimeSchemaPayload(root, []string{"chat.send_robot_message"})
+	if err != nil {
+		t.Fatalf("runtimeSchemaPayload() error = %v", err)
+	}
+	params, _ := payload["parameters"].(map[string]any)
+	for _, name := range []string{"group", "users"} {
+		param, _ := params[name].(map[string]any)
+		if param["required"] != false {
+			t.Fatalf("%s required = %#v, want conditional false", name, param["required"])
+		}
+	}
+	constraints, _ := payload["constraints"].(map[string]any)
+	requireOneOf, _ := constraints["require_one_of"].([][]string)
+	if len(requireOneOf) != 1 || !equalStrings(requireOneOf[0], []string{"group", "users"}) {
+		t.Fatalf("require_one_of = %#v", constraints["require_one_of"])
+	}
+	positionals, _ := payload["positionals"].([]RuntimeSchemaPositional)
+	if len(positionals) != 1 || positionals[0].Name != "scope" || !positionals[0].Variadic {
+		t.Fatalf("positionals = %#v", payload["positionals"])
+	}
+}
+
+func TestRuntimeSchemaAnnotationsDoNotChangeCobraValidation(t *testing.T) {
+	cmd := &cobra.Command{Use: "read", RunE: func(*cobra.Command, []string) error { return nil }}
+	cmd.Flags().String("node", "", "node ID")
+	cmd.Flags().String("url", "", "node URL alias")
+	AnnotateRuntimeRequiredFlags(cmd, "node")
+	cmd.SetArgs([]string{"--url", "https://example.com/doc"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("schema-only required annotation rejected alias invocation: %v", err)
+	}
+}
+
+func TestRuntimeSchemaExcludesHumanOnlyHints(t *testing.T) {
+	root := &cobra.Command{Use: "dws"}
+	product := &cobra.Command{Use: "sheet"}
+	real := &cobra.Command{Use: "range-read", RunE: func(*cobra.Command, []string) error { return nil }}
+	hint := &cobra.Command{Use: "read", RunE: func(*cobra.Command, []string) error { return nil }}
+	AttachRuntimeSchema(real, "sheet", "range_read", "runtime:sheet")
+	AttachRuntimeSchema(hint, "sheet", "read", "runtime:sheet")
+	ExcludeFromRuntimeSchema(hint)
+	product.AddCommand(real, hint)
+	root.AddCommand(product)
+
+	entries := collectRuntimeSchemaEntries(root)
+	if len(entries) != 1 || entries[0].CLIPath != "sheet range-read" {
+		t.Fatalf("entries = %#v, want only executable leaf", entries)
+	}
+}
+
 func TestRuntimeSchemaUsesCuratedRequiredSemantics(t *testing.T) {
 	root := &cobra.Command{Use: "dws"}
 

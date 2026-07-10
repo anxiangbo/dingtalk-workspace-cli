@@ -555,6 +555,11 @@ func newChatMessageSendByBotCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("text", "", "消息内容 Markdown (必填)")
 	cmd.Flags().String("title", "", "消息标题 (必填)")
 	cmd.Flags().String("users", "", "接收者 userId 列表，逗号分隔，最多 20 个 (单聊必填)")
+	annotateFlagConstraints(cmd,
+		[][]string{{"group", "users"}},
+		[][]string{{"group", "users"}},
+		nil,
+	)
 	return cmd
 }
 
@@ -595,11 +600,14 @@ func newChatGroupCreateCommand(runner executor.Runner) *cobra.Command {
 			}
 			threadEnabled, _ := cmd.Flags().GetBool("thread")
 
-			currentUserID, err := getCurrentUserID(cmd.Context(), runner)
-			if err != nil {
-				return err
+			allMembers := memberUserIDs
+			if !commandDryRun(cmd) {
+				currentUserID, err := getCurrentUserID(cmd.Context(), runner)
+				if err != nil {
+					return err
+				}
+				allMembers = prependOwner(currentUserID, memberUserIDs)
 			}
-			allMembers := prependOwner(currentUserID, memberUserIDs)
 
 			// create_group_conversation (multi-type + thread support) and the
 			// legacy create_internal_group live on two different MCP servers

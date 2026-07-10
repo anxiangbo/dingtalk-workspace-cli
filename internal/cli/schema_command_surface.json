@@ -755,23 +755,13 @@
           "cli_path": "contact dept search"
         },
         {
-          "cli_path": "contact get",
-          "aliases": [
-            "contact user get"
-          ]
-        },
-        {
           "cli_path": "contact relation list-my-followings"
         },
         {
-          "cli_path": "contact search",
-          "aliases": [
-            "contact user list",
-            "contact user search"
-          ]
+          "cli_path": "contact user dismission search"
         },
         {
-          "cli_path": "contact user dismission search"
+          "cli_path": "contact user get"
         },
         {
           "cli_path": "contact user get-self"
@@ -781,6 +771,9 @@
         },
         {
           "cli_path": "contact user profile get"
+        },
+        {
+          "cli_path": "contact user search"
         },
         {
           "cli_path": "contact user search-mobile"
@@ -901,34 +894,19 @@
       "id": "devdoc",
       "tools": [
         {
-          "cli_path": "devdoc article legacy-search",
-          "aliases": [
-            "devdoc article-legacy-search"
-          ]
+          "cli_path": "devdoc article legacy-search"
         },
         {
-          "cli_path": "devdoc article legacy-search-open-platform",
-          "aliases": [
-            "devdoc article-legacy-search-open-platform"
-          ]
+          "cli_path": "devdoc article legacy-search-open-platform"
         },
         {
-          "cli_path": "devdoc article rag-pretest",
-          "aliases": [
-            "devdoc article-rag-pretest"
-          ]
+          "cli_path": "devdoc article rag-pretest"
         },
         {
-          "cli_path": "devdoc article search",
-          "aliases": [
-            "devdoc article-search"
-          ]
+          "cli_path": "devdoc article search"
         },
         {
-          "cli_path": "devdoc error diagnose",
-          "aliases": [
-            "devdoc error-diagnose"
-          ]
+          "cli_path": "devdoc error diagnose"
         }
       ]
     },
@@ -1126,10 +1104,7 @@
       "id": "live",
       "tools": [
         {
-          "cli_path": "live list",
-          "aliases": [
-            "live stream list"
-          ]
+          "cli_path": "live stream list"
         }
       ]
     },
@@ -1199,15 +1174,11 @@
         {
           "cli_path": "mail message search",
           "aliases": [
-            "mail message list",
-            "mail search"
+            "mail message list"
           ]
         },
         {
-          "cli_path": "mail message send",
-          "aliases": [
-            "mail send"
-          ]
+          "cli_path": "mail message send"
         },
         {
           "cli_path": "mail tag list"
@@ -1398,8 +1369,7 @@
         {
           "cli_path": "report entry get",
           "aliases": [
-            "report detail",
-            "report get"
+            "report detail"
           ]
         },
         {
@@ -1411,14 +1381,12 @@
         {
           "cli_path": "report entry submit",
           "aliases": [
-            "report create",
-            "report submit"
+            "report create"
           ]
         },
         {
           "cli_path": "report inbox list",
           "aliases": [
-            "report inbox-list",
             "report list"
           ]
         },
@@ -1426,22 +1394,17 @@
           "cli_path": "report outbox list",
           "aliases": [
             "report created",
-            "report outbox-list",
             "report sent"
           ]
         },
         {
           "cli_path": "report template get",
           "aliases": [
-            "report template detail",
-            "report template-get"
+            "report template detail"
           ]
         },
         {
-          "cli_path": "report template list",
-          "aliases": [
-            "report template-list"
-          ]
+          "cli_path": "report template list"
         }
       ]
     },
@@ -1545,9 +1508,6 @@
           "cli_path": "sheet find"
         },
         {
-          "cli_path": "sheet get"
-        },
-        {
           "cli_path": "sheet get-dropdown"
         },
         {
@@ -1605,9 +1565,6 @@
           "cli_path": "sheet range update"
         },
         {
-          "cli_path": "sheet read"
-        },
-        {
           "cli_path": "sheet replace"
         },
         {
@@ -1655,10 +1612,7 @@
           "cli_path": "todo task add-reminder"
         },
         {
-          "cli_path": "todo task create",
-          "aliases": [
-            "todo create"
-          ]
+          "cli_path": "todo task create"
         },
         {
           "cli_path": "todo task create-sub"
@@ -1667,19 +1621,13 @@
           "cli_path": "todo task delete"
         },
         {
-          "cli_path": "todo task done",
-          "aliases": [
-            "todo done"
-          ]
+          "cli_path": "todo task done"
         },
         {
           "cli_path": "todo task get"
         },
         {
-          "cli_path": "todo task list",
-          "aliases": [
-            "todo list"
-          ]
+          "cli_path": "todo task list"
         },
         {
           "cli_path": "todo task remove-executor"
@@ -1698,24 +1646,6 @@
     {
       "id": "wiki",
       "tools": [
-        {
-          "cli_path": "wiki doc list",
-          "aliases": [
-            "wiki node list"
-          ]
-        },
-        {
-          "cli_path": "wiki doc read"
-        },
-        {
-          "cli_path": "wiki doc search",
-          "aliases": [
-            "wiki file search"
-          ]
-        },
-        {
-          "cli_path": "wiki file list"
-        },
         {
           "cli_path": "wiki member add"
         },
@@ -1738,46 +1668,28 @@
           "cli_path": "wiki node delete"
         },
         {
-          "cli_path": "wiki node info"
+          "cli_path": "wiki node list"
         },
         {
           "cli_path": "wiki node move"
         },
         {
-          "cli_path": "wiki node read"
-        },
-        {
           "cli_path": "wiki node search"
         },
         {
-          "cli_path": "wiki space create",
-          "aliases": [
-            "wiki create"
-          ]
+          "cli_path": "wiki space create"
         },
         {
-          "cli_path": "wiki space delete",
-          "aliases": [
-            "wiki delete"
-          ]
+          "cli_path": "wiki space delete"
         },
         {
-          "cli_path": "wiki space get",
-          "aliases": [
-            "wiki get"
-          ]
+          "cli_path": "wiki space get"
         },
         {
-          "cli_path": "wiki space list",
-          "aliases": [
-            "wiki list"
-          ]
+          "cli_path": "wiki space list"
         },
         {
-          "cli_path": "wiki space search",
-          "aliases": [
-            "wiki search"
-          ]
+          "cli_path": "wiki space search"
         }
       ]
     }

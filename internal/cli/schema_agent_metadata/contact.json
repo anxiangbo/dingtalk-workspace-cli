@@ -61,39 +61,12 @@
         "skills/mono/references/products/contact.md"
       ]
     },
-    "contact get": {
-      "use_when": [
-        "查用户详情/部门/主管/管理员"
-      ],
-      "effect": "read",
-      "effect_source": "command-verb",
-      "examples": [
-        "dws contact user get --ids userId1,userId2"
-      ],
-      "source_refs": [
-        "skills/mono/references/products/contact.md"
-      ]
-    },
     "contact relation list-my-followings": {
       "use_when": [
         "我关注了谁/我的特别关注列表/我的星标联系人/特别关注的人有哪些"
       ],
       "effect": "read",
       "effect_source": "command-verb",
-      "source_refs": [
-        "skills/mono/references/products/contact.md"
-      ]
-    },
-    "contact search": {
-      "use_when": [
-        "2. 按名字搜索同事或好友 — 可提取 同事的userId，或好友的openDingTalkId"
-      ],
-      "effect": "read",
-      "effect_source": "command-verb",
-      "examples": [
-        "dws contact user search --query \"张三\"",
-        "dws contact user search --query \"张三\" --format json"
-      ],
       "source_refs": [
         "skills/mono/references/products/contact.md"
       ]
@@ -109,6 +82,19 @@
       "examples": [
         "dws contact user dismission search",
         "dws contact user dismission search --name \"张三\""
+      ],
+      "source_refs": [
+        "skills/mono/references/products/contact.md"
+      ]
+    },
+    "contact user get": {
+      "use_when": [
+        "查用户详情/部门/主管/管理员"
+      ],
+      "effect": "read",
+      "effect_source": "command-verb",
+      "examples": [
+        "dws contact user get --ids userId1,userId2"
       ],
       "source_refs": [
         "skills/mono/references/products/contact.md"
@@ -152,6 +138,20 @@
       "examples": [
         "dws contact user profile get --staff-id STAFF_ID",
         "dws contact user profile get --staff-id STAFF_ID --fields fieldCode1,fieldCode2"
+      ],
+      "source_refs": [
+        "skills/mono/references/products/contact.md"
+      ]
+    },
+    "contact user search": {
+      "use_when": [
+        "2. 按名字搜索同事或好友 — 可提取 同事的userId，或好友的openDingTalkId"
+      ],
+      "effect": "read",
+      "effect_source": "command-verb",
+      "examples": [
+        "dws contact user search --query \"张三\"",
+        "dws contact user search --query \"张三\" --format json"
       ],
       "source_refs": [
         "skills/mono/references/products/contact.md"

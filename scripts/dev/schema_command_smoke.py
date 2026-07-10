@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Run every `dws schema` leaf command in dry-run mode.
+"""Run every executable `dws schema --all` leaf in dry-run mode.
 
-The script treats `dws schema --format json` as the command inventory, expands
+The script treats `dws schema --all --format json` as the command inventory, expands
 each leaf schema, synthesizes flag values from parameter metadata, and executes
 the runnable CLI path with `--dry-run --yes --format json`.
 """
@@ -74,6 +74,21 @@ def kebab_to_words(value: str) -> str:
 
 
 def scalar_value(flag: str, param: dict[str, Any], canonical_path: str) -> str:
+    enum = param.get("enum") or []
+    if enum:
+        return str(enum[0])
+
+    if param.get("example") not in (None, ""):
+        return str(param["example"])
+
+    value_format = str(param.get("format", "")).lower()
+    if value_format in {"numeric-id", "positive-integer"}:
+        return "1"
+    if value_format == "a1-range":
+        return "A1:B2"
+    if value_format == "file-path":
+        return str(Path(tempfile.gettempdir()) / "dws-schema-smoke-fixture.txt")
+
     if "default" in param and param["default"] not in (None, ""):
         return str(param["default"])
 
@@ -106,6 +121,8 @@ def scalar_value(flag: str, param: dict[str, Any], canonical_path: str) -> str:
         return "leave"
     if canonical_path == "attendance.save_self_setting" and flag == "setting-scene":
         return "checkResultNotify"
+    if canonical_path == "attendance.get_attendance_summary" and flag == "date":
+        return "2026-07-09 10:00:00"
     if "json" in haystack:
         if "array" in haystack or "数组" in haystack:
             return "[]"
@@ -160,6 +177,11 @@ def scalar_value(flag: str, param: dict[str, Any], canonical_path: str) -> str:
 
 
 def value_for(flag: str, param: dict[str, Any], canonical_path: str) -> str | None:
+    if canonical_path == "pat.batch_grant" and flag == "scope":
+        return "aitable.record:read"
+    if canonical_path == "sheet.range_batch_set_style" and flag == "batch":
+        return str(Path(tempfile.gettempdir()) / "dws-schema-smoke-style.json")
+
     typ = str(param.get("type", "string")).lower()
     prop = str(param.get("property", ""))
     haystack = " ".join([kebab_to_words(flag), kebab_to_words(prop)])
@@ -195,15 +217,88 @@ def smoke_extra_flags(canonical_path: str) -> set[str]:
     }.get(canonical_path, set())
 
 
+def constraint_groups(leaf: dict[str, Any], name: str) -> list[list[str]]:
+    constraints = leaf.get("constraints") or {}
+    groups = constraints.get(name) or []
+    return [[str(item) for item in group] for group in groups if group]
+
+
+def selected_inputs(leaf: dict[str, Any], include_optional: bool) -> tuple[set[str], set[str]]:
+    params = leaf.get("parameters") or {}
+    positionals = {
+        str(item.get("name")): item
+        for item in (leaf.get("positionals") or [])
+        if item.get("name")
+    }
+    selected_params = {
+        name for name, param in params.items()
+        if include_optional or bool((param or {}).get("required"))
+    }
+    selected_positionals = {
+        name for name, positional in positionals.items()
+        if bool((positional or {}).get("required"))
+    }
+
+    def is_selected(name: str) -> bool:
+        return name in selected_params or name in selected_positionals
+
+    def select(name: str) -> bool:
+        if name in params:
+            selected_params.add(name)
+            return True
+        if name in positionals:
+            selected_positionals.add(name)
+            return True
+        return False
+
+    for group in constraint_groups(leaf, "require_one_of"):
+        if any(is_selected(name) for name in group):
+            continue
+        for name in group:
+            if select(name):
+                break
+
+    changed = True
+    while changed:
+        changed = False
+        for group in constraint_groups(leaf, "require_together"):
+            if not any(is_selected(name) for name in group):
+                continue
+            for name in group:
+                if not is_selected(name) and select(name):
+                    changed = True
+
+    for group in constraint_groups(leaf, "mutually_exclusive"):
+        selected = [name for name in group if is_selected(name)]
+        for name in selected[1:]:
+            selected_params.discard(name)
+            selected_positionals.discard(name)
+
+    return selected_params, selected_positionals
+
+
 def build_command(binary: str, leaf: dict[str, Any], include_optional: bool) -> list[str]:
     cli_path = str(leaf["cli_path"])
     canonical_path = str(leaf.get("canonical_path", ""))
     extra_flags = smoke_extra_flags(canonical_path)
     argv = [binary, *shlex.split(cli_path)]
     params = leaf.get("parameters") or {}
+    selected_params, selected_positionals = selected_inputs(leaf, include_optional)
+
+    positionals = sorted(
+        (leaf.get("positionals") or []),
+        key=lambda item: int(item.get("index", 0)),
+    )
+    for positional in positionals:
+        name = str(positional.get("name", ""))
+        if name not in selected_positionals:
+            continue
+        value = value_for(name, positional, canonical_path)
+        argv.append("" if value is None else value)
+
     for flag in sorted(params):
         param = params[flag] or {}
-        if not include_optional and not bool(param.get("required")) and flag not in extra_flags:
+        if flag not in selected_params and flag not in extra_flags:
             continue
         if str(param.get("type", "")).lower() == "boolean":
             argv.append(f"--{flag}")
@@ -361,11 +456,16 @@ def main() -> int:
     cwd = Path.cwd()
     fixture = Path(tempfile.gettempdir()) / "dws-schema-smoke-fixture.txt"
     fixture.write_text("schema smoke fixture\n", encoding="utf-8")
+    style_fixture = Path(tempfile.gettempdir()) / "dws-schema-smoke-style.json"
+    style_fixture.write_text(
+        '[{"sheetId":"sheet-smoke","range":"A1","fontSize":12}]\n',
+        encoding="utf-8",
+    )
 
     if args.path:
         paths = args.path
     else:
-        listing = run_json([args.binary, "schema", "--format", "json"], cwd, args.timeout)
+        listing = run_json([args.binary, "schema", "--all", "--format", "json"], cwd, args.timeout)
         paths = [tool["canonical_path"] for product in listing["products"] for tool in product["tools"]]
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as executor:

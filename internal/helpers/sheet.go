@@ -257,6 +257,9 @@ func newSheetUpdateCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().Int("frozen-row-count", 0, "冻结行数")
 	cmd.Flags().Int("frozen-column-count", 0, "冻结列数")
 	cmd.Flags().String("tab-color", "", "工作表标签颜色，Hex 格式如 #FF0000；传空字符串清除颜色")
+	annotateFlagConstraints(cmd, nil, [][]string{{
+		"name", "index", "hidden", "frozen-row-count", "frozen-column-count", "tab-color",
+	}}, nil)
 	return cmd
 }
 
@@ -617,6 +620,8 @@ func newSheetDimensionPositionCommand(runner executor.Runner, use, short, tool s
 	cmd.Flags().String("dimension", "", "ROWS 或 COLUMNS (必填)")
 	cmd.Flags().String("position", "", "位置，A1 表示法 (必填)")
 	cmd.Flags().String("length", "", "数量，正整数 (必填)")
+	annotateFlagEnum(cmd, "dimension", "ROWS", "COLUMNS")
+	annotateFlagFormat(cmd, "length", "positive-integer")
 	return cmd
 }
 
@@ -664,6 +669,9 @@ func newSheetUpdateDimensionCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("length", "", "数量，正整数 (必填)")
 	cmd.Flags().Bool("hidden", false, "是否隐藏")
 	cmd.Flags().Int("pixel-size", 0, "行高或列宽")
+	annotateFlagEnum(cmd, "dimension", "ROWS", "COLUMNS")
+	annotateFlagFormat(cmd, "length", "positive-integer")
+	annotateFlagConstraints(cmd, nil, [][]string{{"hidden", "pixel-size"}}, nil)
 	return cmd
 }
 
@@ -690,6 +698,7 @@ func newSheetMoveDimensionCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("start-index", "", "源起始位置 (必填)")
 	cmd.Flags().String("end-index", "", "源结束位置 (必填)")
 	cmd.Flags().String("destination-index", "", "目标位置 (必填)")
+	annotateFlagEnum(cmd, "dimension", "ROWS", "COLUMNS")
 	return cmd
 }
 
@@ -716,6 +725,7 @@ func newSheetAddDimensionCommand(runner executor.Runner) *cobra.Command {
 	addSheetBaseFlags(cmd)
 	cmd.Flags().String("dimension", "", "ROWS 或 COLUMNS (必填)")
 	cmd.Flags().Int("length", 0, "追加数量，正整数 (必填)")
+	annotateFlagEnum(cmd, "dimension", "ROWS", "COLUMNS")
 	return cmd
 }
 
@@ -774,6 +784,7 @@ func newSheetSetDropdownCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("range", "", "目标单元格范围 (必填)")
 	cmd.Flags().String("options", "", "下拉选项 JSON 数组 (必填)")
 	cmd.Flags().Bool("multi-select", false, "是否允许多选")
+	annotateFlagExample(cmd, "options", `[{"value":"SchemaSmoke"}]`)
 	return cmd
 }
 
@@ -960,6 +971,7 @@ func newSheetFilterViewUpdateCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("name", "", "筛选视图新名称")
 	cmd.Flags().String("range", "", "筛选视图新范围")
 	cmd.Flags().String("criteria", "", "筛选条件 JSON 数组")
+	annotateFlagConstraints(cmd, nil, [][]string{{"name", "range", "criteria"}}, nil)
 	return cmd
 }
 
@@ -1031,6 +1043,9 @@ func newSheetFilterViewReadCommand(runner executor.Runner, use, short, mode stri
 		if err != nil {
 			return err
 		}
+		if commandDryRun(cmd) {
+			return writeCommandPayload(cmd, result)
+		}
 		filterViews := sheetResultFilterViews(result.Response)
 		// 不再对空列表提前返回成功：请求了具体 filter-view-id 却找不到（含一个都没有）
 		// 应报"未找到"错误，而非静默成功（与 wukong 对齐）。
@@ -1095,6 +1110,7 @@ func newSheetCondFormatCreateCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("condition", "", "条件类型及参数 JSON 对象 (必填)")
 	cmd.Flags().String("cell-style", "", "单元格样式 JSON 对象")
 	cmd.Flags().String("data-bar-style", "", "数据条样式 JSON 对象")
+	annotateFlagExample(cmd, "ranges", `["A1:B2"]`)
 	return cmd
 }
 
@@ -1115,6 +1131,10 @@ func newSheetCondFormatUpdateCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("condition", "", "条件类型及参数 JSON 对象")
 	cmd.Flags().String("cell-style", "", "单元格样式 JSON 对象")
 	cmd.Flags().String("data-bar-style", "", "数据条样式 JSON 对象")
+	annotateFlagExample(cmd, "ranges", `["A1:B2"]`)
+	annotateFlagConstraints(cmd, nil, [][]string{{
+		"ranges", "condition", "cell-style", "data-bar-style",
+	}}, nil)
 	return cmd
 }
 
@@ -1217,6 +1237,9 @@ func newSheetUpdateFloatImageCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().Int("height", 0, "新的图片高度")
 	cmd.Flags().Int("offset-x", 0, "新的水平偏移量")
 	cmd.Flags().Int("offset-y", 0, "新的垂直偏移量")
+	annotateFlagConstraints(cmd, nil, [][]string{{
+		"src", "range", "width", "height", "offset-x", "offset-y",
+	}}, nil)
 	return cmd
 }
 
@@ -1410,21 +1433,25 @@ func addSheetNodeFlags(cmd *cobra.Command) {
 	addSheetHiddenStringFlag(cmd, "node-id", "--node alias")
 	addSheetHiddenStringFlag(cmd, "doc-id", "--node alias")
 	addSheetHiddenStringFlag(cmd, "file-id", "--node alias")
+	annotateRequiredFlags(cmd, "node")
 }
 
 func addSheetBaseFlags(cmd *cobra.Command) {
 	addSheetNodeFlags(cmd)
 	cmd.Flags().String("sheet-id", "", "工作表 ID 或名称")
+	annotateRequiredFlags(cmd, "sheet-id")
 }
 
 func addSheetFilterViewBaseFlags(cmd *cobra.Command) {
 	addSheetBaseFlags(cmd)
 	cmd.Flags().String("filter-view-id", "", "筛选视图 ID")
+	annotateRequiredFlags(cmd, "filter-view-id")
 }
 
 func addSheetFloatImageBaseFlags(cmd *cobra.Command) {
 	addSheetBaseFlags(cmd)
 	cmd.Flags().String("float-image-id", "", "浮动图片 ID")
+	annotateRequiredFlags(cmd, "float-image-id")
 }
 
 func addSheetRangeTransferFlags(cmd *cobra.Command) {
@@ -1963,6 +1990,8 @@ func newSheetRangeSetStyleCommand(runner executor.Runner) *cobra.Command {
 	addSheetBaseFlags(cmd)
 	cmd.Flags().String("range", "", "目标单元格区域地址 (必填)")
 	bindSheetStyleFlags(cmd)
+	annotateFlagFormat(cmd, "range", "a1-range")
+	annotateSheetStyleConstraints(cmd)
 	return cmd
 }
 
@@ -2034,7 +2063,28 @@ func newSheetRangeBatchSetStyleCommand(runner executor.Runner) *cobra.Command {
 	addSheetNodeFlags(cmd)
 	cmd.Flags().String("batch", "", "批次配置 JSON 文件路径 (必填)")
 	cmd.Flags().Bool("continue-on-error", false, "遇到失败时继续执行")
+	annotateFlagFormat(cmd, "batch", "file-path")
 	return cmd
+}
+
+func annotateSheetStyleConstraints(cmd *cobra.Command) {
+	annotateFlagConstraints(cmd,
+		[][]string{
+			{"bg-color", "bg-colors-json"},
+			{"font-size", "font-sizes-json"},
+			{"h-align", "h-aligns-json"},
+			{"v-align", "v-aligns-json"},
+			{"font-color", "font-colors-json"},
+			{"font-weight", "font-weights-json"},
+		},
+		[][]string{{
+			"bg-color", "bg-colors-json", "font-size", "font-sizes-json",
+			"h-align", "h-aligns-json", "v-align", "v-aligns-json",
+			"font-color", "font-colors-json", "font-weight", "font-weights-json",
+			"word-wrap", "number-format",
+		}},
+		nil,
+	)
 }
 
 func bindSheetStyleFlags(cmd *cobra.Command) {

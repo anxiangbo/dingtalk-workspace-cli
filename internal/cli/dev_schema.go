@@ -116,7 +116,8 @@ func helperLocalLeafSchema(cmd *cobra.Command) map[string]any {
 		canonicalPath = productID + "." + toolName
 	}
 	hint := schemaHintForCanonicalPath(canonicalPath)
-	parameters := runtimeCommandParameters(cmd, hint.Parameters, nil)
+	constraints := runtimeCommandConstraints(cmd)
+	parameters := runtimeCommandParameters(cmd, hint.Parameters, nil, constraints)
 	if parameters == nil {
 		parameters = map[string]any{}
 	}
@@ -140,6 +141,12 @@ func helperLocalLeafSchema(cmd *cobra.Command) map[string]any {
 		"parameters":       parameters,
 		"has_parameters":   len(parameters) > 0,
 		"parameter_count":  len(parameters),
+	}
+	if rendered := runtimeConstraintsPayload(constraints); len(rendered) > 0 {
+		payload["constraints"] = rendered
+	}
+	if positionals := runtimeCommandPositionals(cmd); len(positionals) > 0 {
+		payload["positionals"] = positionals
 	}
 	if len(meta.Aliases) > 0 {
 		payload["aliases"] = meta.Aliases

@@ -497,6 +497,7 @@ func newDevAppRobotConnectStatusCommand() *cobra.Command {
 	preferLegacyLeaf(cmd)
 	cmd.Flags().String("robot-client-id", "", "机器人 clientId（定位守护进程）")
 	cmd.Flags().String("unified-app-id", "", "统一应用 ID（当未用 clientId 起守护进程时定位）")
+	annotateFlagConstraints(cmd, nil, [][]string{{"robot-client-id", "unified-app-id"}}, nil)
 	return cmd
 }
 
@@ -520,6 +521,7 @@ func newDevAppRobotConnectStopCommand() *cobra.Command {
 	preferLegacyLeaf(cmd)
 	cmd.Flags().String("robot-client-id", "", "机器人 clientId（定位守护进程）")
 	cmd.Flags().String("unified-app-id", "", "统一应用 ID（当未用 clientId 起守护进程时定位）")
+	annotateFlagConstraints(cmd, nil, [][]string{{"robot-client-id", "unified-app-id"}}, nil)
 	return cmd
 }
 

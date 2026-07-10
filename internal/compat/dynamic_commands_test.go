@@ -979,6 +979,9 @@ func TestBuildDynamicCommands_RedirectTo(t *testing.T) {
 	if history == nil {
 		t.Fatal("history stub not found")
 	}
+	if !history.Hidden {
+		t.Fatal("redirect stub must be hidden from command help")
+	}
 	out := &strings.Builder{}
 	history.SetOut(out)
 	history.SetErr(out)
@@ -1036,6 +1039,9 @@ func TestBuildDynamicCommands_Hints(t *testing.T) {
 	history := findChild(root, "history")
 	if history == nil {
 		t.Fatal("hint 'history' missing under chat root")
+	}
+	if !history.Hidden {
+		t.Fatal("hint command must be hidden from command help")
 	}
 	if history.Short != "migrated to `message list`" {
 		t.Fatalf("hint description not applied, got %q", history.Short)

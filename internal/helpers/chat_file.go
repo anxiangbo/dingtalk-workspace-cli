@@ -174,6 +174,18 @@ func newChatFileUploadCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("file-name", "", "文件名（可选）")
 	cmd.Flags().String("md5", "", "文件 MD5（可选，本地不传自动计算）")
 	cmd.Flags().String("uuid", "", "幂等 UUID（可选）")
+	annotateFlagFormat(cmd, "file", "file-path")
+	annotateFlagConstraints(cmd,
+		[][]string{
+			{"group", "user", "open-dingtalk-id"},
+			{"file", "url"},
+		},
+		[][]string{
+			{"group", "user", "open-dingtalk-id"},
+			{"file", "url"},
+		},
+		nil,
+	)
 	return cmd
 }
 

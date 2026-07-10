@@ -577,6 +577,13 @@ func newDocUpdateCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("content-format", "", i18n.T("内容格式: markdown / jsonml"))
 	cmd.Flags().Int("revision", 0, i18n.T("文档编辑版本号（JSONML 场景透传）"))
 	addDocJSONMLControlFlags(cmd)
+	annotateRequiredFlags(cmd, "mode")
+	annotateFlagEnum(cmd, "mode", "append", "overwrite")
+	annotateFlagConstraints(cmd,
+		[][]string{{"content", "content-file"}},
+		[][]string{{"content", "content-file"}},
+		nil,
+	)
 	return cmd
 }
 
@@ -1059,6 +1066,7 @@ func newDocBlockInsertCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("content-format", "", i18n.T("输入格式: element / jsonml"))
 	cmd.Flags().String("parent-block", "", i18n.T("父容器块 ID（JSONML 场景透传）"))
 	addDocJSONMLControlFlags(cmd)
+	annotateFlagConstraints(cmd, nil, [][]string{{"text", "heading", "element", "type"}}, nil)
 	return cmd
 }
 
@@ -1122,6 +1130,7 @@ func newDocBlockUpdateCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().Int("level", 1, i18n.T("标题级别"))
 	cmd.Flags().String("content-format", "", i18n.T("输入格式: element / jsonml"))
 	addDocJSONMLControlFlags(cmd)
+	annotateFlagConstraints(cmd, nil, [][]string{{"text", "heading", "element", "type"}}, nil)
 	return cmd
 }
 
@@ -1534,6 +1543,7 @@ func addDocNodeFlags(cmd *cobra.Command) {
 	addDocHiddenStringFlag(cmd, "node-id", "--node alias")
 	addDocHiddenStringFlag(cmd, "doc-id", "--node alias")
 	addDocHiddenStringFlag(cmd, "file-id", "--node alias")
+	annotateRequiredFlags(cmd, "node")
 }
 
 func addDocJSONMLControlFlags(cmd *cobra.Command) {
@@ -2014,6 +2024,7 @@ func newDocExportGetCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("job-id", "", i18n.T("导出任务 ID (必填)"))
 	cmd.Flags().String("output", "", i18n.T("本地落盘路径（可选，提供则自动下载 docx 到本地）"))
 	cmd.Flags().Int("timeout-sec", 300, i18n.T("整体轮询超时（秒），默认 300"))
+	annotateFlagFormat(cmd, "job-id", "numeric-id")
 	return cmd
 }
 
@@ -2151,6 +2162,7 @@ func newDocPermissionAddCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("user", "", i18n.T("被授权用户 userId 列表，逗号分隔，单次最多 30 (必填)"))
 	addDocHiddenStringFlag(cmd, "users", "--user alias")
 	cmd.Flags().String("role", "", i18n.T("权限角色: MANAGER / EDITOR / DOWNLOADER / READER (必填，大小写不敏感)"))
+	annotateFlagEnum(cmd, "role", "MANAGER", "EDITOR", "DOWNLOADER", "READER")
 	cmd.Flags().String("workspace", "", i18n.T("目标知识库 ID 或 URL（选填，辅助构造返回的 docUrl）"))
 	addDocHiddenStringFlag(cmd, "workspace-id", "--workspace alias")
 	return cmd
@@ -2180,6 +2192,7 @@ func newDocPermissionUpdateCommand(runner executor.Runner) *cobra.Command {
 	addDocHiddenStringFlag(cmd, "users", "--user alias")
 	addDocHiddenStringFlag(cmd, "uid", "--user alias")
 	cmd.Flags().String("role", "", i18n.T("新权限角色: MANAGER / EDITOR / DOWNLOADER / READER (必填)"))
+	annotateFlagEnum(cmd, "role", "MANAGER", "EDITOR", "DOWNLOADER", "READER")
 	cmd.Flags().String("workspace", "", i18n.T("目标知识库 ID 或 URL（选填）"))
 	addDocHiddenStringFlag(cmd, "workspace-id", "--workspace alias")
 	return cmd

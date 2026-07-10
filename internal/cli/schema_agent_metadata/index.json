@@ -1,11 +1,11 @@
 {
   "version": 1,
   "source_hash": "sha256:2a8994db5beb9389d5b0a2cf201e67c7160f3d23156996e5747b85bc8474ff74",
-  "surface_hash": "sha256:2499ae17d61030fa3aec1d4adc2efd9d0644d93bc277c4616a8dc327fe893fae",
+  "surface_hash": "sha256:bd65a90baa1568a7126eac505e3e1c7f943583333fb7ed6ef56413ca98d2c83f",
   "coverage": {
     "surface_products": 23,
     "products_with_metadata": 19,
-    "surface_tools": 518,
+    "surface_tools": 511,
     "tools_with_metadata": 304,
     "unmatched_skill_tools": 86
   },

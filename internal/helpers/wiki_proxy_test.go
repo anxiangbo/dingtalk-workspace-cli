@@ -20,6 +20,30 @@ import (
 	"testing"
 )
 
+func TestWikiCompatibilityProxiesAreHidden(t *testing.T) {
+	t.Parallel()
+
+	root := wikiHandler{}.Command(&wikiCommandRunner{})
+	for _, name := range []string{"list", "search", "create", "get", "delete"} {
+		proxy, _, err := root.Find([]string{name})
+		if err != nil || proxy == nil || proxy.Name() != name {
+			t.Fatalf("proxy %q not found: command=%v error=%v", name, proxy, err)
+		}
+		if !proxy.Hidden {
+			t.Fatalf("proxy %q must be hidden from command help", name)
+		}
+	}
+	for _, name := range []string{"file", "doc"} {
+		group, _, err := root.Find([]string{name})
+		if err != nil || group == nil || group.Name() != name {
+			t.Fatalf("proxy group %q not found: command=%v error=%v", name, group, err)
+		}
+		if !group.Hidden {
+			t.Fatalf("proxy group %q must be hidden from command help", name)
+		}
+	}
+}
+
 func TestWikiTopLevelListProxyExecutesSpaceList(t *testing.T) {
 	t.Parallel()
 

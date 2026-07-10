@@ -324,6 +324,8 @@ func newAttendanceSummaryCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().String("user", "", "钉钉用户 ID（必填）")
 	cmd.Flags().String("date", "", "工作日期，格式 yyyy-MM-dd HH:mm:ss，如 2026-03-12 15:00:00（必填）")
 	cmd.Flags().String("stats-type", "", "统计类型：week（周统计）或 month（月统计）（必填，钉钉服务端业务层强制要求）")
+	annotateFlagExample(cmd, "date", "2026-03-12 15:00:00")
+	annotateFlagEnum(cmd, "stats-type", "week", "month")
 	preferLegacyLeaf(cmd)
 	return cmd
 }

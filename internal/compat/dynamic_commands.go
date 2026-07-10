@@ -222,6 +222,7 @@ func BuildDynamicCommands(servers []market.ServerDescriptor, runner executor.Run
 			route.OutputTransform = buildOutputTransform(override.OutputFormat)
 
 			cmd := NewDirectCommand(route, runner)
+			annotateRuntimePositionals(cmd, bindings)
 
 			// Enrich flags with typed parameters from Detail API toolRequest JSON Schema.
 			if dt, ok := detailIndex[toolName]; ok {
@@ -994,6 +995,7 @@ func buildRedirectCommand(name, description, target string) *cobra.Command {
 		Use:                name,
 		Short:              short,
 		Long:               fmt.Sprintf("This command has moved. Please use: %s", target),
+		Hidden:             true,
 		DisableFlagParsing: true,
 		DisableAutoGenTag:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -1001,6 +1003,7 @@ func buildRedirectCommand(name, description, target string) *cobra.Command {
 			return nil
 		},
 	}
+	schemacli.ExcludeFromRuntimeSchema(cmd)
 	return cmd
 }
 
@@ -1028,6 +1031,7 @@ func buildHintCommand(name string, def market.CLIHintDef) *cobra.Command {
 		Use:                name,
 		Short:              short,
 		Long:               short,
+		Hidden:             true,
 		DisableFlagParsing: true,
 		DisableAutoGenTag:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -1039,6 +1043,7 @@ func buildHintCommand(name string, def market.CLIHintDef) *cobra.Command {
 			return apperrors.NewValidation(fmt.Sprintf("use: %s", target))
 		},
 	}
+	schemacli.ExcludeFromRuntimeSchema(cmd)
 	return cmd
 }
 
@@ -1062,12 +1067,14 @@ func applyFlagConstraints(cmd *cobra.Command, override market.CLIToolOverride) {
 		return valid
 	}
 
+	constraints := schemacli.RuntimeSchemaConstraints{}
 	for _, group := range override.MutuallyExclusive {
 		names := validate(group)
 		if len(names) < 2 {
 			continue
 		}
 		cmd.MarkFlagsMutuallyExclusive(names...)
+		constraints.MutuallyExclusive = append(constraints.MutuallyExclusive, names)
 	}
 	for _, group := range override.RequireOneOf {
 		names := validate(group)
@@ -1075,6 +1082,55 @@ func applyFlagConstraints(cmd *cobra.Command, override market.CLIToolOverride) {
 			continue
 		}
 		cmd.MarkFlagsOneRequired(names...)
+		constraints.RequireOneOf = append(constraints.RequireOneOf, names)
+	}
+	for _, group := range override.RequireTogether {
+		names := validate(group)
+		if len(names) < 2 {
+			continue
+		}
+		constraints.RequireTogether = append(constraints.RequireTogether, names)
+	}
+	schemacli.AnnotateRuntimeConstraints(cmd, constraints)
+}
+
+func annotateRuntimePositionals(cmd *cobra.Command, bindings []FlagBinding) {
+	positionals := make([]schemacli.RuntimeSchemaPositional, 0)
+	for _, binding := range bindings {
+		if !binding.Positional {
+			continue
+		}
+		name := strings.TrimSpace(binding.Property)
+		if name == "" {
+			name = strings.TrimSpace(binding.FlagName)
+		}
+		hasFlagAlias := strings.TrimSpace(binding.Alias) != "" ||
+			strings.TrimSpace(binding.FlagName) != "" || len(binding.Aliases) > 0
+		positionals = append(positionals, schemacli.RuntimeSchemaPositional{
+			Name:        name,
+			Type:        runtimeSchemaBindingType(binding.Kind),
+			Description: strings.TrimSpace(binding.Usage),
+			Required:    binding.Required || !hasFlagAlias,
+			Index:       binding.PositionalIndex,
+		})
+	}
+	schemacli.AnnotateRuntimePositionals(cmd, positionals...)
+}
+
+func runtimeSchemaBindingType(kind ValueKind) string {
+	switch kind {
+	case ValueInt:
+		return "integer"
+	case ValueFloat:
+		return "number"
+	case ValueBool:
+		return "boolean"
+	case ValueStringSlice, ValueIntSlice, ValueFloatSlice, ValueBoolSlice:
+		return "array"
+	case ValueJSON:
+		return "object"
+	default:
+		return "string"
 	}
 }
 

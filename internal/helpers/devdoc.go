@@ -210,6 +210,9 @@ func newDevdocErrorDiagnoseCommand(runner executor.Runner) *cobra.Command {
 	cmd.Flags().Int("page", 1, "分页页码 (从 1 开始，默认 1)")
 	cmd.Flags().String("cursor", "", "分页游标，翻页传上次返回的 nextCursor；传入后不再使用 --page")
 	cmd.Flags().Int("size", 10, "分页大小 (默认 10)")
+	annotateFlagConstraints(cmd, nil, [][]string{{
+		"query", "request-id", "error-code", "error-message", "context",
+	}}, nil)
 	return cmd
 }
 

@@ -297,6 +297,7 @@ func newDevAppEventSubscribeCommand(runner executor.Runner) *cobra.Command {
 	}
 	addDevAppUnifiedIDFlag(cmd)
 	cmd.Flags().String("event-codes", "", "事件码，多个用逗号或分号分隔")
+	annotateRequiredFlags(cmd, "event-codes")
 	preferLegacyLeaf(cmd)
 	annotateDevAppTool(cmd, devAppEventSubscribeTool)
 	return cmd
@@ -328,6 +329,7 @@ func newDevAppEventUnsubscribeCommand(runner executor.Runner) *cobra.Command {
 	}
 	addDevAppUnifiedIDFlag(cmd)
 	cmd.Flags().String("event-codes", "", "事件码，多个用逗号或分号分隔")
+	annotateRequiredFlags(cmd, "event-codes")
 	preferLegacyLeaf(cmd)
 	annotateDevAppTool(cmd, devAppEventUnsubscribeTool)
 	return cmd
@@ -738,6 +740,7 @@ func newDevAppPermissionAddCommand(runner executor.Runner) *cobra.Command {
 	}
 	addDevAppUnifiedIDFlag(cmd)
 	cmd.Flags().String("scope-values", "", "权限点 scopeValue，多个用逗号或分号分隔")
+	annotateRequiredFlags(cmd, "scope-values")
 	preferLegacyLeaf(cmd)
 	annotateDevAppTool(cmd, devAppPermissionAddTool)
 	return cmd
@@ -769,6 +772,7 @@ func newDevAppPermissionRemoveCommand(runner executor.Runner) *cobra.Command {
 	}
 	addDevAppUnifiedIDFlag(cmd)
 	cmd.Flags().String("scope-values", "", "待取消权限点 scopeValue，多个用逗号或分号分隔")
+	annotateRequiredFlags(cmd, "scope-values")
 	preferLegacyLeaf(cmd)
 	annotateDevAppTool(cmd, devAppPermissionRmTool)
 	return cmd
