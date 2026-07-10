@@ -1,0 +1,3799 @@
+{
+  "version": 1,
+  "source": "cli-registry",
+  "source_hash": "sha256:b9be71dba2ca9b17668080abae60868f30181bf8accbcbd6a2b2631446338689",
+  "tools": {
+    "aisearch.enterprise_person_search": {
+      "description": "搜索企业人员（支持按姓名/部门/职位/职责/上下级/手机号/工号筛选）",
+      "parameters": {
+        "dimension": {
+          "description": "查询维度: all/name/department/position/duty/supervisor/subordinate/phone/jobNumber，多个用逗号分隔 (默认 all)",
+          "default": "all"
+        },
+        "keyword": {
+          "description": "搜索关键词 (必填，如人名、技能关键词等)",
+          "required": true
+        }
+      }
+    },
+    "aisearch.search_enterprise": {
+      "description": "搜索企业内部知识内容和相关消息（文档/IM/日历/待办/纪要/日志/邮件等）",
+      "parameters": {
+        "queries": {
+          "description": "内容关键词列表，多个用逗号分隔；汇总类场景可留空"
+        },
+        "searchTypes": {
+          "description": "搜索类型: all/document/im/calendar/todo/minute/report/image/link/notable/baike/mail，多个用逗号分隔 (默认 all)",
+          "default": "all"
+        },
+        "timeRange": {
+          "description": "时间范围，仅当用户显式给出时间词时填写，如 今天/本周/9月/过去一周"
+        }
+      }
+    },
+    "aisearch.search_enterprise_behavior": {
+      "description": "搜索明确的发送/创建/分享/编辑/接收等行为记录",
+      "parameters": {
+        "behaviorType": {
+          "description": "行为类型: all/send/create/share/edit/receive (默认 all)",
+          "default": "all"
+        },
+        "chatScope": {
+          "description": "消息所在会话/群范围，仅 IM 类型且用户明确指定群名时填写"
+        },
+        "direction": {
+          "description": "交互方向，如 \"我-\u003e汐峰\"、\"汐峰-\u003e我\"、\"我\u003c-\u003e汐峰\""
+        },
+        "queries": {
+          "description": "内容关键词列表，多个用逗号分隔；汇总类场景可留空"
+        },
+        "searchTypes": {
+          "description": "搜索类型: all/document/im/calendar/todo/minute/report/image/link/notable/baike/mail，多个用逗号分隔 (默认 all)",
+          "default": "all"
+        },
+        "timeRange": {
+          "description": "时间范围，仅当用户显式给出时间词时填写，如 今天/本周/9月/过去一周"
+        }
+      }
+    },
+    "aitable.copy_base": {
+      "description": "复制 AI 表格到指定目录",
+      "parameters": {
+        "baseId": {
+          "description": "源 Base ID",
+          "required": true
+        },
+        "onlyCopyMeta": {
+          "type": "boolean",
+          "description": "仅复制结构（不含数据），默认 false"
+        },
+        "targetFolderId": {
+          "description": "目标文件夹 ID",
+          "required": true
+        }
+      }
+    },
+    "aitable.get_base_primary_doc_id": {
+      "description": "获取主键文档 dentryUuid（baseId+tableId+recordId → 主键字段对应的文档 ID）"
+    },
+    "bot-root.search_bots": {
+      "description": "搜索企业机器人（按关键词模糊匹配 bot 名称）。",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标"
+        },
+        "keyword": {
+          "description": "搜索关键词（必填）",
+          "required": true
+        },
+        "limit": {
+          "type": "integer",
+          "description": "每页返回数量"
+        }
+      }
+    },
+    "bot-root.search_my_robots": {
+      "description": "搜索我的机器人"
+    },
+    "calendar.add_attachments": {
+      "description": "为日程添加附件（先用 drive 上传文件得到 fileId，再以 JSON 数组形式传入）",
+      "parameters": {
+        "attachments": {
+          "description": "附件 JSON 数组 [{id,name}] 或 'fileId:name,...' 形式 (必填)",
+          "required": true
+        },
+        "eventId": {
+          "description": "日程 ID (必填; 查询: dws calendar event list)",
+          "required": true
+        }
+      }
+    },
+    "calendar.create_calendar_event": {
+      "parameters": {
+        "freeBusy": {
+          "description": "忙碌状态: busy(默认)/free"
+        },
+        "location": {
+          "description": "地点信息"
+        },
+        "recurrence.pattern.dayOfMonth": {
+          "type": "integer",
+          "description": "[recurrence.pattern] 每月第几天 (absoluteMonthly/absoluteYearly 必填)"
+        },
+        "recurrence.pattern.daysOfWeek": {
+          "description": "[recurrence.pattern] 周几: sunday,...,saturday (weekly/relativeMonthly 必填)"
+        },
+        "recurrence.pattern.firstDayOfWeek": {
+          "description": "[recurrence.pattern] 一周起始日，默认 sunday"
+        },
+        "recurrence.pattern.index": {
+          "description": "[recurrence.pattern] 每月第几周: first|second|third|fourth|last (relativeMonthly 必填)"
+        },
+        "recurrence.pattern.interval": {
+          "type": "integer",
+          "description": "[recurrence 整体必填] 循环间隔 (\u003e0)"
+        },
+        "recurrence.pattern.type": {
+          "description": "[recurrence 整体必填] 循环类型: daily|weekly|absoluteMonthly|relativeMonthly|absoluteYearly"
+        },
+        "recurrence.range.endDate": {
+          "description": "[recurrence.range] 循环结束时间 ISO-8601 (range-type=endDate 必填)"
+        },
+        "recurrence.range.numberOfOccurrences": {
+          "type": "integer",
+          "description": "[recurrence.range] 循环次数 (range-type=numbered 必填)"
+        },
+        "recurrence.range.type": {
+          "description": "[recurrence 整体必填] 循环范围: noEnd|endDate|numbered"
+        },
+        "richTextDescription": {
+          "description": "HTML 格式的富文本日程描述"
+        },
+        "roomIds": {
+          "description": "会议室 roomId 列表，逗号分隔"
+        }
+      }
+    },
+    "calendar.get_calendar": {
+      "parameters": {
+        "calendarId": {
+          "description": "日历本 ID，主日历为 primary (必填)",
+          "required": true
+        }
+      }
+    },
+    "calendar.get_calendar_detail": {
+      "parameters": {
+        "calendarId": {
+          "description": "日历 ID，默认 primary (主日历)；仅查询指定日历时传"
+        }
+      }
+    },
+    "calendar.list_acls": {
+      "parameters": {
+        "calendarId": {
+          "description": "日历本 ID，默认主日历 primary (可选)"
+        }
+      }
+    },
+    "calendar.list_calendar_events": {
+      "parameters": {
+        "calendarId": {
+          "description": "日历 ID，默认 primary (主日历)；仅查询指定日历时传"
+        },
+        "endTime": {
+          "description": "查询结束时间 ISO-8601；不传默认今天"
+        },
+        "startTime": {
+          "description": "查询起始时间 ISO-8601；不传默认今天"
+        }
+      }
+    },
+    "calendar.list_calendars": {
+      "description": "查询当前用户的所有日历（自有 / 已订阅 / 共享）"
+    },
+    "calendar.list_meeting_room_groups": {
+      "parameters": {
+        "pageIndex": {
+          "description": "分页起始位置，默认 0"
+        },
+        "pageSize": {
+          "description": "页大小，默认 100 (上限 100)"
+        }
+      }
+    },
+    "calendar.query_available_meeting_room": {
+      "parameters": {
+        "roomName": {
+          "description": "会议室名称过滤"
+        }
+      }
+    },
+    "calendar.query_busy_status": {
+      "parameters": {
+        "roomIds": {
+          "description": "会议室 roomId 列表，逗号分隔；与 --users 至少传一个"
+        },
+        "userIds": {
+          "description": "用户 uid 列表，逗号分隔；与 --rooms 至少传一个"
+        }
+      }
+    },
+    "calendar.respond": {
+      "description": "响应日程（接受/拒绝/暂定）",
+      "parameters": {
+        "eventId": {
+          "description": "日程 ID (必填; 查询: dws calendar event list)",
+          "required": true
+        },
+        "responseStatus": {
+          "description": "响应状态: needsAction(未操作)/accepted(接受)/declined(拒绝)/tentative(暂定) (必填)",
+          "required": true
+        }
+      }
+    },
+    "calendar.search_calendar": {
+      "parameters": {
+        "calendarName": {
+          "description": "按日历本名模糊搜索 (必填)",
+          "required": true
+        }
+      }
+    },
+    "calendar.update_calendar_event": {
+      "parameters": {
+        "freeBusy": {
+          "description": "忙碌状态: busy/free"
+        },
+        "location": {
+          "description": "地点信息"
+        },
+        "recurrence.pattern.dayOfMonth": {
+          "type": "integer",
+          "description": "[recurrence.pattern] 每月第几天 (absoluteMonthly/absoluteYearly 必填)"
+        },
+        "recurrence.pattern.daysOfWeek": {
+          "description": "[recurrence.pattern] 周几: sunday,...,saturday (weekly/relativeMonthly 必填)"
+        },
+        "recurrence.pattern.firstDayOfWeek": {
+          "description": "[recurrence.pattern] 一周起始日，默认 sunday"
+        },
+        "recurrence.pattern.index": {
+          "description": "[recurrence.pattern] 每月第几周: first|second|third|fourth|last (relativeMonthly 必填)"
+        },
+        "recurrence.pattern.interval": {
+          "type": "integer",
+          "description": "[recurrence 整体必填] 循环间隔 (\u003e0)"
+        },
+        "recurrence.pattern.type": {
+          "description": "[recurrence 整体必填] 循环类型: daily|weekly|absoluteMonthly|relativeMonthly|absoluteYearly；修改任一循环字段需重传完整 pattern+range"
+        },
+        "recurrence.range.endDate": {
+          "description": "[recurrence.range] 循环结束时间 ISO-8601 (range-type=endDate 必填)"
+        },
+        "recurrence.range.numberOfOccurrences": {
+          "type": "integer",
+          "description": "[recurrence.range] 循环次数 (range-type=numbered 必填)"
+        },
+        "recurrence.range.type": {
+          "description": "[recurrence 整体必填] 循环范围: noEnd|endDate|numbered"
+        },
+        "richTextDescription": {
+          "description": "HTML 格式的富文本日程描述"
+        }
+      }
+    },
+    "contact.get_current_user_profile": {
+      "description": "获取当前用户信息"
+    },
+    "contact.get_dept_info_by_dept_id": {
+      "description": "获取部门详情（部门ID、名称、人数）",
+      "parameters": {
+        "deptId": {
+          "description": "部门 ID",
+          "required": true
+        }
+      }
+    },
+    "contact.get_dept_members_by_deptId": {
+      "description": "查看部门成员（逗号分隔 deptId）",
+      "parameters": {
+        "deptIds": {
+          "description": "部门 ID 列表，逗号分隔",
+          "required": true
+        }
+      }
+    },
+    "contact.get_sub_depts_by_dept_id": {
+      "description": "查看子部门",
+      "parameters": {
+        "deptId": {
+          "description": "父部门 ID",
+          "required": true
+        }
+      }
+    },
+    "contact.get_user_info_by_user_ids": {
+      "description": "批量获取用户详情（逗号分隔 userId）",
+      "parameters": {
+        "user_id_list": {
+          "description": "用户 userId 列表，逗号分隔",
+          "required": true
+        }
+      }
+    },
+    "contact.list_my_followings": {
+      "description": "获取当前用户的特别关注列表"
+    },
+    "contact.search_contact_by_key_word": {
+      "description": "按关键词搜索用户",
+      "parameters": {
+        "keyword": {
+          "description": "搜索关键词",
+          "required": true
+        }
+      }
+    },
+    "contact.search_dept_by_keyword": {
+      "description": "按关键词搜索部门",
+      "parameters": {
+        "query": {
+          "description": "搜索关键词",
+          "required": true
+        }
+      }
+    },
+    "contact.search_user_by_mobile": {
+      "description": "按手机号搜索用户",
+      "parameters": {
+        "mobile": {
+          "description": "手机号",
+          "required": true
+        }
+      }
+    },
+    "devdoc.devdoc_rag_pretest": {
+      "description": "预发新建 RAG 文档搜索工具；按关键词检索钉钉开放平台文档，用于验证新 action 发布后 CLI 链路。",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标，首次不传；翻页传上次返回的 nextCursor。传入后不再使用 page。"
+        },
+        "keyword": {
+          "description": "搜索关键词（必填，可作为 positional 参数直接传入；--query 为兼容别名）",
+          "required": true
+        },
+        "page": {
+          "type": "integer",
+          "description": "分页页码，从 1 开始；默认 1。",
+          "default": "1"
+        },
+        "size": {
+          "type": "integer",
+          "description": "每页数量；默认 20。",
+          "default": "20"
+        }
+      }
+    },
+    "devdoc.search_dingtalk_open_docs": {
+      "description": "旧版钉钉开放平台文档搜索；返回匹配文档条目列表，包含标题、摘要、文档链接和相关标签。用于和 RAG 搜索并行验证。",
+      "parameters": {
+        "keyword": {
+          "description": "搜索关键词（必填，可作为 positional 参数直接传入；--query 为兼容别名）",
+          "required": true
+        },
+        "page": {
+          "type": "integer",
+          "description": "分页页码，从 1 开始；默认 1。",
+          "default": "1"
+        },
+        "size": {
+          "type": "integer",
+          "description": "每页数量；默认 20。",
+          "default": "20"
+        }
+      }
+    },
+    "devdoc.search_open_error_code_rag": {
+      "description": "按原始问题、requestId/traceId 或错误码排查钉钉开放平台调用错误；只返回诊断事实、参考资料、参考资料链接和 RAG 上下文，不生成 AI 分析答案。错误描述、API 名称、上下文请合并到 query。",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标，首次不传；翻页传上次返回的 nextCursor。cursor 表示下一次查询起始 offset，服务端优先使用 cursor。"
+        },
+        "errorCode": {
+          "description": "开放平台错误码，例如 33012"
+        },
+        "query": {
+          "description": "排查问题描述；可合并错误信息、接口名和业务上下文，例如 missing scope 创建日程 应用无权限"
+        },
+        "requestId": {
+          "description": "开放平台调用 requestId；--trace-id 为兼容别名"
+        },
+        "size": {
+          "type": "integer",
+          "description": "每页数量；不传时由服务端默认处理。"
+        }
+      }
+    },
+    "devdoc.search_open_platform_docs": {
+      "description": "旧版 search_open_platform_docs 文档搜索兼容工具；用于 CLI fallback 验证。",
+      "parameters": {
+        "keyword": {
+          "description": "搜索关键词（必填，可作为 positional 参数直接传入；--query 为兼容别名）",
+          "required": true
+        },
+        "page": {
+          "type": "integer",
+          "description": "分页页码，从 1 开始；默认 1。",
+          "default": "1"
+        },
+        "size": {
+          "type": "integer",
+          "description": "每页数量；默认 20。",
+          "default": "20"
+        }
+      }
+    },
+    "devdoc.search_open_platform_docs_rag": {
+      "description": "搜索钉钉开放平台开发文档；只返回参考资料、参考资料链接和 RAG 上下文，不生成 AI 分析答案。",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标，首次不传；翻页传上次返回的 nextCursor。传入后不再使用 page。"
+        },
+        "keyword": {
+          "description": "搜索关键词（必填，可作为 positional 参数直接传入；--query 为兼容别名）",
+          "required": true
+        },
+        "page": {
+          "type": "integer",
+          "description": "分页页码，从 1 开始；默认 1。",
+          "default": "1"
+        },
+        "size": {
+          "type": "integer",
+          "description": "每页数量；默认 20。",
+          "default": "20"
+        }
+      }
+    },
+    "doc-comment.create_comment": {
+      "description": "创建文档评论"
+    },
+    "doc-comment.create_inline_comment": {
+      "description": "创建文档行内评论"
+    },
+    "doc-comment.list_comments": {
+      "description": "查询文档评论列表"
+    },
+    "doc-comment.reply_comment": {
+      "description": "回复文档评论"
+    },
+    "doc.add_permission": {
+      "description": "为指定节点添加协作者（节点级授权，role: MANAGER/EDITOR/DOWNLOADER/READER）"
+    },
+    "doc.delete_document": {
+      "description": "删除整篇文档/文件到回收站（不可逆）"
+    },
+    "doc.download_doc_attachment": {
+      "description": "获取文档附件的临时下载 URL"
+    },
+    "doc.list_permission": {
+      "description": "查询节点的协作者列表"
+    },
+    "doc.query_export_job": {
+      "description": "查询文档导出任务状态（dws doc export 已内置轮询，本命令为手动兜底）"
+    },
+    "doc.update_document": {
+      "parameters": {
+        "content": {
+          "description": "文档内容（字面量 Markdown）。短文本或 stdin 拼接友好；长文请改用 --content-file。"
+        },
+        "contentFile": {
+          "description": "从本地文件读 Markdown 内容（路径或 `-` 表示 stdin）。适合长文、多行、表格。"
+        },
+        "nodeId": {
+          "required": true
+        }
+      }
+    },
+    "doc.update_permission": {
+      "description": "更新已有协作者的角色"
+    },
+    "group-chat.add_group_member": {
+      "description": "向群中添加成员",
+      "parameters": {
+        "openconversation_id": {
+          "description": "群 ID / openconversation_id（必填）",
+          "required": true
+        },
+        "userId": {
+          "description": "要添加的用户 userId 列表，逗号分隔（必填）",
+          "required": true
+        }
+      }
+    },
+    "group-chat.get_group_members": {
+      "description": "查看群成员列表",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标，首次从 0 开始"
+        },
+        "openconversation_id": {
+          "description": "群 ID / openconversation_id（必填）",
+          "required": true
+        }
+      }
+    },
+    "group-chat.list_conversation_message_v2": {
+      "parameters": {
+        "forward": {
+          "type": "boolean",
+          "default": "true"
+        },
+        "limit": {
+          "type": "integer",
+          "default": "50"
+        },
+        "openconversation_id": {
+          "description": "群会话 openconversationId（必填，**仅支持群聊**；查群 ID 用 dws chat search --query \"群名\"。如需查单聊消息请用 dws chat message list-direct --user \u003cuserId\u003e）",
+          "required": true
+        }
+      }
+    },
+    "group-chat.list_individual_chat_message": {
+      "description": "按对方 userId 拉取单聊会话的消息（专用于私聊；查群聊请用 dws chat message list --group \u003copenConversationId\u003e）。",
+      "parameters": {
+        "forward": {
+          "type": "boolean",
+          "description": "true=从老往新，false=从新往老",
+          "default": "true"
+        },
+        "limit": {
+          "type": "integer",
+          "description": "每页返回数量（默认 50）",
+          "default": "50"
+        },
+        "openDingTalkId": {
+          "description": "对方 openDingTalkId（非同组织普通好友场景，与 --user 二选一）"
+        },
+        "time": {
+          "description": "开始时间，格式 yyyy-MM-dd HH:mm:ss（必填）",
+          "required": true
+        },
+        "userId": {
+          "description": "对方 userId（同组织内同事，与 --open-dingtalk-id 二选一）"
+        }
+      }
+    },
+    "group-chat.list_special_focus_messages": {
+      "description": "拉取特别关注人的消息",
+      "parameters": {
+        "cursor": {
+          "type": "integer",
+          "description": "分页游标（首次不传或传 0）"
+        },
+        "limit": {
+          "type": "integer",
+          "description": "每页返回数量（默认 50）",
+          "default": "50"
+        }
+      }
+    },
+    "group-chat.list_top_conversations": {
+      "parameters": {
+        "excludeMuted": {
+          "type": "boolean",
+          "description": "是否排除免打扰会话（可选）"
+        }
+      }
+    },
+    "group-chat.list_topic_replies": {
+      "description": "拉取群话题回复消息列表",
+      "parameters": {
+        "forward": {
+          "type": "boolean",
+          "description": "true=从老往新，false=从新往老（默认 false）",
+          "default": "false"
+        },
+        "openconversationId": {
+          "description": "群会话 openconversationId（必填）",
+          "required": true
+        },
+        "pageSize": {
+          "type": "integer",
+          "description": "返回数量（默认 50）",
+          "default": "50"
+        },
+        "startTime": {
+          "description": "开始时间，格式 yyyy-MM-dd HH:mm:ss（可选）"
+        },
+        "topicId": {
+          "description": "话题 ID（由 chat message list 返回，必填）",
+          "required": true
+        }
+      }
+    },
+    "group-chat.remove_group_member": {
+      "description": "从群中移除成员",
+      "parameters": {
+        "openConversationId": {
+          "description": "群 ID / openconversation_id（必填）",
+          "required": true
+        },
+        "userIdList": {
+          "description": "要移除的用户 userId 列表，逗号分隔（必填）",
+          "required": true
+        }
+      }
+    },
+    "group-chat.search_at_me_message": {
+      "description": "拉取 @我 的消息",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标（默认 \"0\"）",
+          "default": "0"
+        },
+        "endTime": {
+          "description": "结束时间，ISO-8601 格式（必填）",
+          "required": true
+        },
+        "limit": {
+          "type": "integer",
+          "description": "每页返回数量（默认 50）",
+          "default": "50"
+        },
+        "openConversationId": {
+          "description": "群聊 openconversation_id（可选，不传则查全部）"
+        },
+        "startTime": {
+          "description": "开始时间，ISO-8601 格式（必填）",
+          "required": true
+        }
+      }
+    },
+    "group-chat.search_common_groups": {
+      "description": "搜索共同群（指定昵称列表，查询共同所在的群聊）",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标（默认 \"0\"）",
+          "default": "0"
+        },
+        "excludeMuted": {
+          "type": "boolean",
+          "description": "是否排除免打扰会话（可选）"
+        },
+        "limit": {
+          "type": "integer",
+          "description": "每页返回数量（默认 20）",
+          "default": "20"
+        },
+        "matchMode": {
+          "description": "匹配模式：AND=所有人都在群里，OR=任一人在群里",
+          "default": "AND"
+        },
+        "nicks": {
+          "description": "要搜索的昵称列表，逗号分隔（必填）",
+          "required": true
+        }
+      }
+    },
+    "group-chat.search_messages_by_keyword": {
+      "description": "按关键词搜索消息",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标（默认 \"0\"）",
+          "default": "0"
+        },
+        "endTime": {
+          "description": "结束时间，ISO-8601 格式（必填）",
+          "required": true
+        },
+        "keyword": {
+          "description": "搜索关键词（必填）",
+          "required": true
+        },
+        "limit": {
+          "type": "integer",
+          "description": "每页返回数量（默认 100）",
+          "default": "100"
+        },
+        "openConversationId": {
+          "description": "群聊 openconversation_id（可选，不传则搜索所有会话）"
+        },
+        "startTime": {
+          "description": "开始时间，ISO-8601 格式（必填）",
+          "required": true
+        }
+      }
+    },
+    "group-chat.search_messages_by_sender": {
+      "description": "拉取指定发送者的消息（含单聊 / 群聊；两者互斥）",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标（默认 \"0\"，翻页传 nextCursor）",
+          "default": "0"
+        },
+        "endTime": {
+          "description": "结束时间，ISO-8601 格式（必填）",
+          "required": true
+        },
+        "limit": {
+          "type": "integer",
+          "description": "每页返回数量（默认 50）",
+          "default": "50"
+        },
+        "senderOpenDingTalkId": {
+          "description": "发送者 openDingTalkId（与 --sender-user-id 二选一）"
+        },
+        "senderUserId": {
+          "description": "发送者 userId（与 --sender-open-dingtalk-id 二选一）"
+        },
+        "startTime": {
+          "description": "开始时间，ISO-8601 格式（必填）",
+          "required": true
+        }
+      }
+    },
+    "group-chat.search_messages_by_time_range": {
+      "description": "按时间范围分页搜索历史消息，结果包含单聊和群聊（singleChat 字段区分）。若只关心某位同事的单聊，用 dws chat message list-direct --user \u003cuserId\u003e 更直接。",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标（首页传 \"0\"）",
+          "default": "0"
+        },
+        "endTime": {
+          "description": "结束时间，格式 yyyy-MM-dd HH:mm:ss（必填）",
+          "required": true
+        },
+        "limit": {
+          "type": "integer",
+          "description": "每页返回数量（默认 50）",
+          "default": "50"
+        },
+        "startTime": {
+          "description": "起始时间，格式 yyyy-MM-dd HH:mm:ss（必填）",
+          "required": true
+        }
+      }
+    },
+    "group-chat.send_direct_message_as_user": {
+      "description": "按对方 userId 给同事发单聊消息（同组织内同事用 --user；非同组织好友用 --open-dingtalk-id）。如需群发请用 dws chat message send --group。",
+      "parameters": {
+        "receiverOpenDingTalkId": {
+          "description": "对方 openDingTalkId（非同组织普通好友场景，与 --user 二选一）"
+        },
+        "receiverUserId": {
+          "description": "对方 userId（同组织内同事，与 --open-dingtalk-id 二选一）"
+        },
+        "text": {
+          "description": "消息正文（必填，支持 Markdown）",
+          "required": true
+        },
+        "title": {
+          "description": "消息标题（必填）",
+          "required": true
+        }
+      }
+    },
+    "group-chat.send_message_as_user": {
+      "parameters": {
+        "atUserIds": {
+          "description": "@指定成员的 openDingTalkId 列表，逗号分隔（仅群聊）"
+        }
+      }
+    },
+    "group-chat.unread_message_conversation_list": {
+      "description": "获取未读会话列表",
+      "parameters": {
+        "count": {
+          "type": "integer",
+          "description": "返回未读会话条数（可选，不传使用服务端默认）"
+        },
+        "excludeMuted": {
+          "type": "boolean",
+          "description": "是否排除免打扰会话（可选）"
+        }
+      }
+    },
+    "group-chat.update_group_name": {
+      "description": "更新群名称",
+      "parameters": {
+        "group_name": {
+          "description": "修改后的群名称（必填）",
+          "required": true
+        },
+        "openconversation_id": {
+          "description": "群 ID / openconversation_id（必填）",
+          "required": true
+        }
+      }
+    },
+    "hrmregister.get_authorized_emp_rosterInfo": {
+      "description": "查询员工花名册字段信息（学历/家庭/银行卡/合同等）",
+      "parameters": {
+        "fieldCodeList": {
+          "description": "字段集合，逗号分隔"
+        },
+        "staffId": {
+          "description": "查询员工 ID（可选）"
+        }
+      }
+    },
+    "hrmregister.list_authorized_roster_fields": {
+      "description": "查询花名册有权限的字段列表"
+    },
+    "hrmregister.query_dismission_employee_list": {
+      "description": "分页获取离职员工列表，支持按姓名/离职时间范围/部门过滤",
+      "parameters": {
+        "pageNum": {
+          "type": "integer",
+          "description": "页码",
+          "default": "1"
+        },
+        "pageSize": {
+          "type": "integer",
+          "description": "页大小",
+          "default": "20"
+        },
+        "searchVO.depts": {
+          "description": "部门ID列表，逗号分隔"
+        },
+        "searchVO.empName": {
+          "description": "员工姓名，模糊搜索"
+        },
+        "searchVO.endDate": {
+          "description": "离职结束日 YYYY-MM-DD"
+        },
+        "searchVO.hidePartner": {
+          "type": "boolean",
+          "description": "隐藏合作伙伴，默认 false",
+          "default": "false"
+        },
+        "searchVO.hideRetirement": {
+          "type": "boolean",
+          "description": "隐藏退休员工，默认 true",
+          "default": "true"
+        },
+        "searchVO.startDate": {
+          "description": "离职起始日 YYYY-MM-DD"
+        }
+      }
+    },
+    "im.add_custom_group_role": {
+      "description": "新增群自定义角色",
+      "parameters": {
+        "name": {
+          "description": "自定义角色名称（必填）",
+          "required": true
+        },
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.add_emoji_reaction": {
+      "description": "给消息添加表情回复",
+      "parameters": {
+        "emojiName": {
+          "description": "表情名称（必填，系统表情编号或名称）",
+          "required": true
+        },
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        },
+        "openMsgId": {
+          "description": "目标消息 openMessageId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.add_text_emotion": {
+      "description": "添加文字表情",
+      "parameters": {
+        "backgroundId": {
+          "description": "背景 ID（必填）",
+          "required": true
+        },
+        "emotionId": {
+          "description": "文字表情 ID（必填，来自 create-text-emotion 返回）",
+          "required": true
+        },
+        "emotionName": {
+          "description": "文字表情名称（必填）",
+          "required": true
+        },
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        },
+        "openMsgId": {
+          "description": "目标消息 openMessageId（必填）",
+          "required": true
+        },
+        "text": {
+          "description": "文字内容（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.combine_forward_messages": {
+      "description": "将一组消息合并转发到目标会话（合并转发卡片）。",
+      "parameters": {
+        "destOpenCid": {
+          "description": "目标会话 openConversationId（合并卡片送达此群，必填）",
+          "required": true
+        },
+        "srcOpenCid": {
+          "description": "源会话 openConversationId（消息所在群，必填）",
+          "required": true
+        },
+        "srcOpenMessageIds": {
+          "description": "要合并的消息 openMessageId 列表（逗号分隔，必填）",
+          "required": true
+        },
+        "uuid": {
+          "description": "幂等键（可选，重复 uuid 视为同一次操作）"
+        }
+      }
+    },
+    "im.create_and_send_card": {
+      "description": "创建并发送卡片",
+      "parameters": {
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）"
+        },
+        "receiverOpenDingTalkId": {
+          "description": "单聊收件人 openDingTalkId（与 --group 二选一）"
+        }
+      }
+    },
+    "im.create_text_emotion": {
+      "description": "创建文字表情",
+      "parameters": {
+        "backgroundId": {
+          "description": "背景 ID（可选）"
+        },
+        "emotionName": {
+          "description": "文字表情名称（必填）",
+          "required": true
+        },
+        "text": {
+          "description": "表情承载的文本内容（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.dismiss_group": {
+      "description": "解散群（不可恢复，仅群主可用）。",
+      "parameters": {
+        "openConversationId": {
+          "description": "群 openConversationId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.download_media": {
+      "description": "下载聊天消息中的图片/视频/语音等资源到本地文件",
+      "parameters": {
+        "messageId": {
+          "description": "消息 openMessageId（必填，由 chat message list 返回）",
+          "required": true
+        },
+        "openConversationId": {
+          "description": "会话 openConversationId（必填）",
+          "required": true
+        },
+        "resourceId": {
+          "description": "资源 ID，mediaId 类型时为消息中的 mediaId 值；原样传消息里的 mediaId（含 $ 前缀），不要改成 @ 前缀（必填）",
+          "required": true
+        },
+        "type": {
+          "description": "资源类型: mediaId（必填）",
+          "default": "mediaId",
+          "required": true
+        }
+      }
+    },
+    "im.forward_message": {
+      "description": "转发消息",
+      "parameters": {
+        "destOpenCid": {
+          "description": "目标会话 openConversationId（必填）",
+          "required": true
+        },
+        "srcOpenCid": {
+          "description": "源会话 openConversationId（必填）",
+          "required": true
+        },
+        "srcOpenMessageId": {
+          "description": "源消息 openMessageId（必填）",
+          "required": true
+        },
+        "uuid": {
+          "description": "幂等 UUID（可选）"
+        }
+      }
+    },
+    "im.forward_topic": {
+      "description": "转发话题消息到目标会话",
+      "parameters": {
+        "destOpenConversationId": {
+          "description": "目标会话 openConversationId (必填)",
+          "required": true
+        },
+        "srcOpenConvThreadId": {
+          "description": "话题 ID (必填)",
+          "required": true
+        },
+        "srcOpenConversationId": {
+          "description": "源会话 openConversationId (必填)",
+          "required": true
+        },
+        "srcOpenMessageId": {
+          "description": "源消息 openMessageId (必填)",
+          "required": true
+        }
+      }
+    },
+    "im.get_conv_info_by_group_id": {
+      "description": "按内部 groupId 获取会话信息",
+      "parameters": {
+        "groupId": {
+          "description": "内部数字 groupId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.get_group_invite_url": {
+      "description": "获取群邀请链接",
+      "parameters": {
+        "expiresSeconds": {
+          "type": "integer"
+        },
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.list_conversations_by_category": {
+      "description": "按分类拉取会话列表",
+      "parameters": {
+        "categoryId": {
+          "description": "分类 ID（必填）",
+          "required": true
+        },
+        "excludeMuted": {
+          "type": "boolean",
+          "description": "是否排除免打扰会话（可选）"
+        }
+      }
+    },
+    "im.list_custom_group_roles": {
+      "description": "列出群自定义角色",
+      "parameters": {
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.list_messages_by_ids": {
+      "description": "按消息 ID 列表批量获取消息",
+      "parameters": {
+        "openMsgIds": {
+          "description": "消息 openMessageId 列表（必填，逗号分隔，最多 50 条）",
+          "required": true
+        }
+      }
+    },
+    "im.list_owned_or_admin_groups": {
+      "description": "拉取我创建/管理的群（当前用户作为群主或管理员的群列表）。",
+      "parameters": {
+        "excludeMuted": {
+          "type": "boolean",
+          "description": "排除已设置免打扰的群聊（默认 false）"
+        },
+        "limit": {
+          "type": "integer",
+          "description": "最多返回群数量，不传返回全部"
+        },
+        "roleFilter": {
+          "description": "角色过滤: OWNER(仅群主) / ADMIN(仅管理员)，不传返回全部"
+        }
+      }
+    },
+    "im.list_pin_messages": {
+      "description": "拉取会话中钉住的消息列表",
+      "parameters": {
+        "count": {
+          "description": "一次拉取数量 (可选)"
+        },
+        "cursor": {
+          "description": "分页游标 (可选)"
+        },
+        "openConversationId": {
+          "description": "会话 openConversationId (必填)",
+          "required": true
+        }
+      }
+    },
+    "im.list_user_define_conv_categories": {
+      "description": "列出用户自定义会话分类"
+    },
+    "im.query_custom_user_roles": {
+      "description": "查询成员自定义角色",
+      "parameters": {
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        },
+        "openDingTalkId": {
+          "description": "目标成员 openDingTalkId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.query_message_send_status": {
+      "description": "查询消息发送状态（按 openTaskId）",
+      "parameters": {
+        "openTaskId": {
+          "description": "消息任务 ID openTaskId（必填，来自 send-by-bot 返回值）",
+          "required": true
+        }
+      }
+    },
+    "im.query_msg_read_status": {
+      "description": "查询消息已读状态",
+      "parameters": {
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        },
+        "openMessageId": {
+          "description": "消息 openMessageId（必填）",
+          "required": true
+        },
+        "targetOpenDingTalkIds": {
+          "description": "目标用户 openDingTalkId 列表，逗号分隔（可选，不传查所有接收者）"
+        }
+      }
+    },
+    "im.quit_group": {
+      "description": "退出群聊",
+      "parameters": {
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.recall_message": {
+      "description": "撤回单条消息",
+      "parameters": {
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        },
+        "openMessageId": {
+          "description": "消息 openMessageId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.remove_custom_group_role": {
+      "description": "删除群自定义角色",
+      "parameters": {
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        },
+        "openRoleId": {
+          "description": "要删除的自定义角色 openRoleId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.remove_custom_user_roles": {
+      "description": "移除成员自定义角色",
+      "parameters": {
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        },
+        "openDingTalkId": {
+          "description": "目标成员 openDingTalkId（必填）",
+          "required": true
+        },
+        "openRoleIds": {
+          "description": "要移除的自定义角色 openRoleId 列表（必填，逗号分隔）",
+          "required": true
+        }
+      }
+    },
+    "im.remove_emoji_reaction": {
+      "description": "移除消息表情回复",
+      "parameters": {
+        "emojiName": {
+          "description": "要移除的表情名称（必填）",
+          "required": true
+        },
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        },
+        "openMsgId": {
+          "description": "目标消息 openMessageId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.remove_text_emotion": {
+      "description": "移除文字表情",
+      "parameters": {
+        "backgroundId": {
+          "description": "背景 ID（必填）",
+          "required": true
+        },
+        "emotionId": {
+          "description": "文字表情 ID（必填）",
+          "required": true
+        },
+        "emotionName": {
+          "description": "文字表情名称（必填）",
+          "required": true
+        },
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        },
+        "openMsgId": {
+          "description": "目标消息 openMessageId（必填）",
+          "required": true
+        },
+        "text": {
+          "description": "文字内容（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.search_groups": {
+      "description": "根据关键词搜索群聊（im 新版）",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标",
+          "default": "0"
+        },
+        "excludeMuted": {
+          "type": "boolean",
+          "description": "是否排除免打扰的群（可选）"
+        },
+        "keyword": {
+          "description": "搜索关键词（必填）",
+          "required": true
+        },
+        "limit": {
+          "type": "integer",
+          "description": "每页返回数量",
+          "default": "20"
+        }
+      }
+    },
+    "im.search_messages": {
+      "description": "多维度搜索消息",
+      "parameters": {
+        "atMe": {
+          "type": "boolean"
+        },
+        "limit": {
+          "type": "integer"
+        }
+      }
+    },
+    "im.set_custom_user_roles": {
+      "description": "给成员设置自定义角色",
+      "parameters": {
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        },
+        "openDingTalkId": {
+          "description": "目标成员 openDingTalkId（必填）",
+          "required": true
+        },
+        "openRoleIds": {
+          "description": "要赋予的自定义角色 openRoleId 列表（必填，逗号分隔）",
+          "required": true
+        }
+      }
+    },
+    "im.set_group_member_mute_list": {
+      "description": "群成员禁言",
+      "parameters": {
+        "mute": {
+          "type": "boolean",
+          "description": "传 --off 移出禁言名单（默认加入）",
+          "default": "false"
+        },
+        "muteTime": {
+          "type": "integer"
+        },
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        },
+        "openDingTalkIds": {
+          "description": "被禁言成员 openDingTalkId 列表（必填，逗号分隔）",
+          "required": true
+        }
+      }
+    },
+    "im.set_group_mute": {
+      "description": "群全员禁言",
+      "parameters": {
+        "mute": {
+          "type": "boolean",
+          "description": "传 --off 取消全员禁言（默认开启）",
+          "default": "false"
+        },
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.set_pin_message": {
+      "description": "钉住消息 (Pin)",
+      "parameters": {
+        "openConversationId": {
+          "description": "会话 openConversationId (必填)",
+          "required": true
+        },
+        "openMessageId": {
+          "description": "消息 openMessageId (必填)",
+          "required": true
+        }
+      }
+    },
+    "im.set_top_conversation": {
+      "description": "会话置顶（开启/关闭）",
+      "parameters": {
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        },
+        "top": {
+          "type": "boolean",
+          "description": "传 --off 取消置顶（默认置顶）",
+          "default": "false"
+        }
+      }
+    },
+    "im.transfer_group_owner": {
+      "description": "转让群主",
+      "parameters": {
+        "newOwnerOpenDingTalkId": {
+          "description": "新群主 openDingTalkId（必填）",
+          "required": true
+        },
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.unset_pin_message": {
+      "description": "取消钉住消息 (Unpin)",
+      "parameters": {
+        "openConversationId": {
+          "description": "会话 openConversationId (必填)",
+          "required": true
+        },
+        "openMessageId": {
+          "description": "消息 openMessageId (必填)",
+          "required": true
+        }
+      }
+    },
+    "im.update_conv_member_roles": {
+      "description": "设置/取消群管理员",
+      "parameters": {
+        "admin": {
+          "type": "boolean",
+          "description": "传 --off 取消管理员（默认设为管理员）",
+          "default": "false"
+        },
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        },
+        "openDingTalkIds": {
+          "description": "目标成员 openDingTalkId 列表（必填，逗号分隔）",
+          "required": true
+        }
+      }
+    },
+    "im.update_custom_group_role": {
+      "description": "更新群自定义角色",
+      "parameters": {
+        "name": {
+          "description": "自定义角色新名称（必填）",
+          "required": true
+        },
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        },
+        "openRoleId": {
+          "description": "自定义角色 openRoleId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.update_group_icon": {
+      "description": "更新群头像",
+      "parameters": {
+        "iconMediaId": {
+          "description": "群头像 mediaId（必填，先用 media upload 上传获取）",
+          "required": true
+        },
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.update_group_settings": {
+      "description": "更新群设置",
+      "parameters": {
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        },
+        "settingKey": {
+          "description": "群设置项 key（必填，如 searchable / authority / groupLiveAuthority / groupBillAuthority 等）",
+          "required": true
+        },
+        "status": {
+          "description": "设置项的值（必填，通常 0 关闭 / 1 开启，含义随 settingKey 变化）",
+          "required": true
+        }
+      }
+    },
+    "im.update_notification_off": {
+      "description": "会话消息免打扰（开启/关闭）",
+      "parameters": {
+        "mute": {
+          "type": "boolean",
+          "description": "传 --off 关闭免打扰（默认开启）",
+          "default": "false"
+        },
+        "openConversationId": {
+          "description": "群/会话 openConversationId（必填）",
+          "required": true
+        }
+      }
+    },
+    "im.update_show_history_msg_option": {
+      "description": "设置新成员入群可见历史消息策略。",
+      "parameters": {
+        "openConversationId": {
+          "description": "群 openConversationId（必填）",
+          "required": true
+        },
+        "option": {
+          "description": "可见策略：FORBIDDEN=不可见 / RECENT_100=最近 100 条（普通账号无 ALL 权限）",
+          "required": true
+        }
+      }
+    },
+    "im.update_streaming_card": {
+      "description": "更新流式卡片",
+      "parameters": {
+        "bizId": {
+          "description": "流式卡片业务 ID（必填，来自 send-card 返回的 bizId）",
+          "required": true
+        },
+        "flowStatus": {
+          "type": "integer"
+        },
+        "msgContent": {
+          "description": "卡片更新后的内容文本（必填）",
+          "required": true
+        }
+      }
+    },
+    "live.get_my_lives": {
+      "description": "查看我的直播列表"
+    },
+    "mail.batch_delete_message": {
+      "description": "批量删除邮件 (移入已删除文件夹或永久删除)",
+      "parameters": {
+        "email": {
+          "description": "邮件所属邮箱地址 (必填)",
+          "required": true
+        },
+        "ids": {
+          "description": "要删除的邮件 ID 列表，逗号分隔 (必填)",
+          "required": true
+        }
+      }
+    },
+    "mail.batch_delete_user_mail_contacts": {
+      "description": "批量删除邮件联系人",
+      "parameters": {
+        "contactIds": {
+          "description": "要删除的联系人 ID 列表,逗号分隔 (必填)",
+          "required": true
+        },
+        "email": {
+          "description": "用户邮箱地址 (必填)",
+          "required": true
+        }
+      }
+    },
+    "mail.batch_move_message": {
+      "description": "批量移动邮件到指定文件夹",
+      "parameters": {
+        "destinationFolderId": {
+          "description": "目标文件夹 ID (必填, 1=已发送 2=收件箱 3=垃圾邮件 5=草稿 6=已删除)",
+          "required": true
+        },
+        "email": {
+          "description": "邮件所属邮箱地址 (必填)",
+          "required": true
+        },
+        "ids": {
+          "description": "要移动的邮件 ID 列表，逗号分隔 (必填)",
+          "required": true
+        }
+      }
+    },
+    "mail.create_download_session": {
+      "description": "下载邮件附件到本地 (--name 指定文件名, --output 指定保存目录, 默认当前目录)",
+      "parameters": {
+        "attachmentId": {
+          "description": "附件唯一标识，取自 attachment list 的 id 字段 (必填)",
+          "required": true
+        },
+        "email": {
+          "description": "用户邮箱地址 (必填)",
+          "required": true
+        },
+        "messageId": {
+          "description": "邮件唯一标识 messageId (必填)",
+          "required": true
+        }
+      }
+    },
+    "mail.create_draft": {
+      "description": "创建邮件草稿 (保存到草稿箱 folderId:5)",
+      "parameters": {
+        "body": {
+          "description": "邮件正文 (可选)"
+        },
+        "ccRecipients": {
+          "description": "抄送人列表，逗号分隔 (可选)"
+        },
+        "from": {
+          "description": "发件人邮箱 (必填)",
+          "required": true
+        },
+        "subject": {
+          "description": "邮件标题 (必填)",
+          "required": true
+        },
+        "toRecipients": {
+          "description": "收件人列表，逗号分隔 (可选)"
+        }
+      }
+    },
+    "mail.create_forward_draft": {
+      "description": "转发邮件给指定收件人",
+      "parameters": {
+        "body": {
+          "description": "转发附言 (可选)"
+        },
+        "from": {
+          "description": "发件人邮箱 (必填)",
+          "required": true
+        },
+        "messageId": {
+          "description": "要转发的邮件 ID (必填)",
+          "required": true
+        },
+        "subject": {
+          "description": "转发邮件标题 (可选)"
+        },
+        "toRecipients": {
+          "description": "转发收件人列表，逗号分隔 (可选)"
+        }
+      }
+    },
+    "mail.create_mail_folder": {
+      "description": "创建邮件文件夹",
+      "parameters": {
+        "email": {
+          "description": "邮件所属邮箱地址 (必填)",
+          "required": true
+        },
+        "folder": {
+          "description": "父文件夹 ID (可选)"
+        },
+        "name": {
+          "description": "新建文件夹名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "mail.create_reply_draft": {
+      "description": "回复邮件 (仅回复发件人)",
+      "parameters": {
+        "body": {
+          "description": "回复正文 (可选)"
+        },
+        "from": {
+          "description": "发件人邮箱 (必填)",
+          "required": true
+        },
+        "messageId": {
+          "description": "要回复的邮件 ID (必填)",
+          "required": true
+        },
+        "subject": {
+          "description": "回复邮件标题 (可选)"
+        },
+        "to": {
+          "description": "收件人列表 (可选, 覆盖默认回复对象)"
+        }
+      }
+    },
+    "mail.create_replyall_draft": {
+      "description": "回复邮件给发件人及所有原始收件人",
+      "parameters": {
+        "body": {
+          "description": "回复正文 (可选)"
+        },
+        "from": {
+          "description": "发件人邮箱 (必填)",
+          "required": true
+        },
+        "messageId": {
+          "description": "要回复的邮件 ID (必填)",
+          "required": true
+        },
+        "subject": {
+          "description": "回复邮件标题 (可选)"
+        },
+        "toRecipients": {
+          "description": "收件人列表，逗号分隔 (可选, 覆盖默认回复对象)"
+        }
+      }
+    },
+    "mail.create_user_mail_contact": {
+      "description": "创建邮件联系人",
+      "parameters": {
+        "contactEmail": {
+          "description": "联系人邮箱地址 (必填)",
+          "required": true
+        },
+        "displayName": {
+          "description": "联系人显示名 (可选)"
+        },
+        "email": {
+          "description": "用户邮箱地址 (必填)",
+          "required": true
+        },
+        "firstName": {
+          "description": "联系人名 (可选)"
+        },
+        "lastName": {
+          "description": "联系人姓 (可选)"
+        },
+        "middleName": {
+          "description": "联系人中间名 (可选)"
+        }
+      }
+    },
+    "mail.create_user_message_template": {
+      "description": "创建邮件模板",
+      "parameters": {
+        "body": {
+          "description": "模板邮件正文 (必填)",
+          "required": true
+        },
+        "ccRecipients": {
+          "description": "模板抄送人列表,逗号分隔 (可选)"
+        },
+        "email": {
+          "description": "用户邮箱地址 (必填)",
+          "required": true
+        },
+        "from": {
+          "description": "模板发件人邮箱 (可选)"
+        },
+        "isDraft": {
+          "description": "是否为草稿模板 (可选)"
+        },
+        "name": {
+          "description": "模板名称 (必填)",
+          "required": true
+        },
+        "subject": {
+          "description": "模板邮件标题 (必填)",
+          "required": true
+        },
+        "toRecipients": {
+          "description": "模板收件人列表,逗号分隔 (可选)"
+        }
+      }
+    },
+    "mail.delete_mail_folder": {
+      "description": "删除邮件文件夹",
+      "parameters": {
+        "email": {
+          "description": "邮件所属邮箱地址 (必填)",
+          "required": true
+        },
+        "id": {
+          "description": "要删除的文件夹 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "mail.delete_user_message_template": {
+      "description": "删除邮件模板",
+      "parameters": {
+        "email": {
+          "description": "用户邮箱地址 (必填)",
+          "required": true
+        },
+        "id": {
+          "description": "模板唯一标识 (必填)",
+          "required": true
+        }
+      }
+    },
+    "mail.get_email_by_message_id": {
+      "description": "查看邮件完整内容",
+      "parameters": {
+        "email": {
+          "description": "邮件所属邮箱地址 (必填)",
+          "required": true
+        },
+        "messageId": {
+          "description": "邮件 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "mail.get_thread": {
+      "description": "获取会话详情",
+      "parameters": {
+        "conversationId": {
+          "description": "会话唯一标识 conversationId (必填)",
+          "required": true
+        },
+        "email": {
+          "description": "会话所属邮箱地址 (必填)",
+          "required": true
+        }
+      }
+    },
+    "mail.get_user_message_template": {
+      "description": "获取邮件模板详情",
+      "parameters": {
+        "email": {
+          "description": "用户邮箱地址 (必填)",
+          "required": true
+        },
+        "id": {
+          "description": "模板唯一标识 (必填)",
+          "required": true
+        }
+      }
+    },
+    "mail.list_folders": {
+      "description": "列举邮件文件夹",
+      "parameters": {
+        "email": {
+          "description": "邮件所属邮箱地址 (必填)",
+          "required": true
+        },
+        "folderId": {
+          "description": "父文件夹唯一标识，不传则返回顶层文件夹 (可选)"
+        }
+      }
+    },
+    "mail.list_mail_attachments": {
+      "description": "列举邮件附件",
+      "parameters": {
+        "email": {
+          "description": "用户邮箱地址 (必填)",
+          "required": true
+        },
+        "messageId": {
+          "description": "邮件唯一标识 messageId (必填)",
+          "required": true
+        }
+      }
+    },
+    "mail.list_tags": {
+      "description": "列举邮件标签",
+      "parameters": {
+        "email": {
+          "description": "用户的邮箱地址 (必填)",
+          "required": true
+        }
+      }
+    },
+    "mail.list_user_mail_contacts": {
+      "description": "列举邮件联系人",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标 (可选)"
+        },
+        "email": {
+          "description": "用户邮箱地址 (必填)",
+          "required": true
+        },
+        "size": {
+          "description": "每页返回数量 (可选)"
+        }
+      }
+    },
+    "mail.list_user_mailboxes": {
+      "description": "查询可用邮箱地址"
+    },
+    "mail.list_user_message_templates": {
+      "description": "列举邮件模板",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标 (可选)"
+        },
+        "email": {
+          "description": "用户邮箱地址 (必填)",
+          "required": true
+        },
+        "size": {
+          "description": "每页返回数量 (可选)"
+        }
+      }
+    },
+    "mail.search_emails": {
+      "description": "搜索邮件 (KQL 语法)",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标 (首页留空)"
+        },
+        "email": {
+          "description": "搜索目标邮箱地址 (必填)",
+          "required": true
+        },
+        "query": {
+          "description": "KQL 查询表达式 (必填)",
+          "required": true
+        },
+        "size": {
+          "description": "每页返回数量 1-100 (默认 20)",
+          "default": "20"
+        }
+      }
+    },
+    "mail.search_mail_users": {
+      "description": "搜索邮箱用户 (仅企业邮箱可用)",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标，取自响应中的 nextCursor 字段 (可选)"
+        },
+        "email": {
+          "description": "搜索目标邮箱地址 (可选)"
+        },
+        "keyword": {
+          "description": "搜索关键词 (必填)",
+          "required": true
+        },
+        "size": {
+          "description": "每页返回数量 (可选)"
+        }
+      }
+    },
+    "mail.send_draft": {
+      "description": "发送草稿箱中已有的草稿",
+      "parameters": {
+        "email": {
+          "description": "发件人邮箱 (必填)",
+          "required": true
+        },
+        "messageId": {
+          "description": "草稿邮件 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "mail.send_email": {
+      "description": "发送邮件",
+      "parameters": {
+        "body": {
+          "description": "邮件正文 (必填)",
+          "required": true
+        },
+        "ccRecipients": {
+          "description": "抄送人列表，逗号分隔 (可选)"
+        },
+        "from": {
+          "description": "发件人邮箱 (必填)",
+          "required": true
+        },
+        "subject": {
+          "description": "邮件标题 (必填)",
+          "required": true
+        },
+        "toRecipients": {
+          "description": "收件人列表，逗号分隔 (必填)",
+          "required": true
+        }
+      }
+    },
+    "mail.update_draft": {
+      "description": "更新草稿箱中已有草稿的内容",
+      "parameters": {
+        "body": {
+          "description": "邮件正文 (可选)"
+        },
+        "ccRecipients": {
+          "description": "抄送人列表，逗号分隔 (可选)"
+        },
+        "from": {
+          "description": "发件人邮箱 (必填)",
+          "required": true
+        },
+        "id": {
+          "description": "草稿邮件 ID (必填)",
+          "required": true
+        },
+        "subject": {
+          "description": "邮件标题 (可选)"
+        },
+        "toRecipients": {
+          "description": "收件人列表，逗号分隔 (可选)"
+        }
+      }
+    },
+    "mail.update_mail_folder": {
+      "description": "更新邮件文件夹",
+      "parameters": {
+        "email": {
+          "description": "邮件所属邮箱地址 (必填)",
+          "required": true
+        },
+        "id": {
+          "description": "要更新的文件夹 ID (必填)",
+          "required": true
+        },
+        "name": {
+          "description": "更新后的文件夹名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "mail.update_user_mail_contact": {
+      "description": "更新邮件联系人",
+      "parameters": {
+        "contactEmail": {
+          "description": "联系人邮箱地址 (可选)"
+        },
+        "contactId": {
+          "description": "联系人唯一标识 (必填)",
+          "required": true
+        },
+        "displayName": {
+          "description": "联系人显示名 (可选)"
+        },
+        "email": {
+          "description": "用户邮箱地址 (必填)",
+          "required": true
+        },
+        "firstName": {
+          "description": "联系人名 (可选)"
+        },
+        "lastName": {
+          "description": "联系人姓 (可选)"
+        },
+        "middleName": {
+          "description": "联系人中间名 (可选)"
+        }
+      }
+    },
+    "mail.update_user_message_template": {
+      "description": "更新邮件模板",
+      "parameters": {
+        "body": {
+          "description": "模板邮件正文 (可选)"
+        },
+        "ccRecipients": {
+          "description": "模板抄送人列表,逗号分隔 (可选)"
+        },
+        "email": {
+          "description": "用户邮箱地址 (必填)",
+          "required": true
+        },
+        "from": {
+          "description": "模板发件人邮箱 (可选)"
+        },
+        "id": {
+          "description": "模板唯一标识 (必填)",
+          "required": true
+        },
+        "name": {
+          "description": "模板名称 (可选)"
+        },
+        "subject": {
+          "description": "模板邮件标题 (可选)"
+        },
+        "toRecipients": {
+          "description": "模板收件人列表,逗号分隔 (可选)"
+        }
+      }
+    },
+    "minutes.add_member_permission": {
+      "description": "批量添加听记成员并设置权限",
+      "parameters": {
+        "coverPermission": {
+          "description": "是否覆盖已有权限（true/false 字符串，可选）"
+        },
+        "memberUids": {
+          "description": "成员钉钉 UID 列表，逗号分隔 (必填)",
+          "required": true
+        },
+        "policyId": {
+          "type": "integer",
+          "description": "权限类型: 0=管理员, 1=所有者, 2=可编辑, 3=可查看/下载, 4=仅查看 (必填)",
+          "required": true
+        },
+        "roleSubResourceIds": {
+          "description": "权限子模块，逗号分隔: OrigContent/Summary/Analysis/Note (可选)"
+        },
+        "uuids": {
+          "description": "听记 taskUuid 列表，逗号分隔 (必填)",
+          "required": true
+        }
+      }
+    },
+    "minutes.create_speaker_summary": {
+      "description": "触发创建发言人段落总结任务",
+      "parameters": {
+        "uuids": {
+          "description": "听记 taskUuid 列表，逗号分隔 (必填)",
+          "required": true
+        }
+      }
+    },
+    "minutes.get_speaker_summary": {
+      "description": "查询发言人段落总结结果",
+      "parameters": {
+        "uuids": {
+          "description": "听记 taskUuid 列表，逗号分隔 (必填)",
+          "required": true
+        }
+      }
+    },
+    "minutes.list_by_keyword_and_time_range": {
+      "parameters": {
+        "maxResults": {
+          "type": "integer",
+          "default": "10"
+        }
+      }
+    },
+    "minutes.list_my_created_minutes": {
+      "parameters": {
+        "maxResults": {
+          "type": "integer",
+          "default": "10"
+        }
+      }
+    },
+    "minutes.list_my_hotwords": {
+      "description": "查询我的热词列表"
+    },
+    "minutes.list_shared_minutes": {
+      "parameters": {
+        "maxResults": {
+          "type": "integer",
+          "default": "10"
+        }
+      }
+    },
+    "minutes.query_minutes_audio_url": {
+      "description": "获取听记音频/视频地址 (OSS 链接)",
+      "parameters": {
+        "taskUuid": {
+          "description": "听记 taskUuid (必填; 支持 --id / --url / --task-uuid / --uuid 别名)",
+          "required": true
+        }
+      }
+    },
+    "minutes.query_minutes_by_tag_id": {
+      "parameters": {
+        "tagId": {
+          "required": true
+        }
+      }
+    },
+    "minutes.record_pause": {
+      "description": "暂停听记录音",
+      "parameters": {
+        "sessionId": {
+          "description": "AI 助理会话 ID (可选)"
+        },
+        "uuid": {
+          "description": "听记 taskUuid (必填; 支持 --id / --uuid / --task-uuid / --url 别名)",
+          "required": true
+        }
+      }
+    },
+    "minutes.record_resume": {
+      "description": "恢复听记录音",
+      "parameters": {
+        "sessionId": {
+          "description": "AI 助理会话 ID (可选)"
+        },
+        "uuid": {
+          "description": "听记 taskUuid (必填; 支持 --id / --uuid / --task-uuid / --url 别名)",
+          "required": true
+        }
+      }
+    },
+    "minutes.record_start": {
+      "description": "发起听记 (开始录音)",
+      "parameters": {
+        "sessionId": {
+          "description": "AI 助理会话 ID (可选)"
+        }
+      }
+    },
+    "minutes.record_stop": {
+      "description": "结束听记录音",
+      "parameters": {
+        "sessionId": {
+          "description": "AI 助理会话 ID (可选)"
+        },
+        "uuid": {
+          "description": "听记 taskUuid (必填; 支持 --id / --uuid / --task-uuid / --url 别名)",
+          "required": true
+        }
+      }
+    },
+    "minutes.remove_member_permission": {
+      "description": "批量移除听记成员权限",
+      "parameters": {
+        "memberUids": {
+          "description": "成员钉钉 UID 列表，逗号分隔 (必填)",
+          "required": true
+        },
+        "uuids": {
+          "description": "听记 taskUuid 列表，逗号分隔 (必填)",
+          "required": true
+        }
+      }
+    },
+    "oa.dingflow_comments": {
+      "parameters": {
+        "processInstanceId": {
+          "required": true
+        },
+        "text": {
+          "required": true
+        }
+      }
+    },
+    "oa.get_done_tasks": {
+      "parameters": {
+        "pageNumber": {
+          "type": "integer",
+          "default": "1"
+        },
+        "pageSize": {
+          "type": "integer",
+          "default": "20"
+        }
+      }
+    },
+    "oa.get_noticed_instances": {
+      "parameters": {
+        "pageNumber": {
+          "type": "integer",
+          "default": "1"
+        },
+        "pageSize": {
+          "type": "integer",
+          "default": "20"
+        }
+      }
+    },
+    "oa.get_submitted_instances": {
+      "parameters": {
+        "pageNumber": {
+          "type": "integer",
+          "default": "1"
+        },
+        "pageSize": {
+          "type": "integer",
+          "default": "20"
+        }
+      }
+    },
+    "oa.list_initiated_instances": {
+      "description": "查询当前用户已发起的审批实例列表",
+      "parameters": {
+        "endTime": {
+          "description": "结束时间 ISO-8601 (可选, 缺省查到当前)"
+        },
+        "maxResults": {
+          "type": "integer",
+          "description": "每页大小 (最大 20)",
+          "default": "20"
+        },
+        "nextToken": {
+          "type": "integer",
+          "description": "分页游标 (首次传 0)",
+          "default": "0"
+        },
+        "processCode": {
+          "description": "审批表单 processCode (必填) — 来自 dws oa approval list-forms",
+          "required": true
+        },
+        "startTime": {
+          "description": "开始时间 ISO-8601, 例 2026-04-01T00:00:00+08:00 (必填)",
+          "required": true
+        }
+      }
+    },
+    "oa.oa_cc_noticer": {
+      "parameters": {
+        "processInstanceId": {
+          "required": true
+        },
+        "userList": {
+          "required": true
+        }
+      }
+    },
+    "oa.redirect_task": {
+      "parameters": {
+        "taskId": {
+          "required": true
+        },
+        "toActionerId": {
+          "required": true
+        }
+      }
+    },
+    "report.create_report": {
+      "description": "按模版提交一份新日报。contents[].key 必须精确等于模板 field_name；先用 report template get --name \u003c模板名\u003e 查询字段定义。",
+      "parameters": {
+        "contents": {
+          "description": "日志内容 JSON 数组 (必填)，每项含 key/sort/content/contentType/type；key 必须精确等于模板 field_name (用 report template get --name \u003c模板名\u003e 查询)；传 - 表示从 stdin 读取；长内容请改用 --contents-file",
+          "required": true
+        },
+        "contentsFile": {
+          "description": "从文件读取 contents JSON (推荐用于含中文/换行/Markdown 的长内容；优先级：--contents-file \u003e --contents - (stdin) \u003e --contents '\u003cjson\u003e')"
+        },
+        "ddFrom": {
+          "description": "创建来源标识 (默认 dws)",
+          "default": "dws"
+        },
+        "templateId": {
+          "description": "日志模版 ID (必填) — 来自 report template list",
+          "required": true
+        },
+        "toChat": {
+          "type": "boolean",
+          "description": "是否同时发送到接收人单聊 (默认 false)",
+          "default": "false"
+        },
+        "toUserIds": {
+          "description": "接收人 userId 列表，逗号分隔 (可选)"
+        }
+      }
+    },
+    "report.get_available_report_templates": {
+      "description": "列出当前用户可用的日志模版（name / templateId / 控件字段定义入口）"
+    },
+    "report.get_received_report_list": {
+      "description": "列出我收到的日报。时间 flag 只能是 --start / --end (ISO-8601)；禁止 --start-date / --end-date / --date。CLI 只返回 JSON。",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标，首次传 0 (默认 0)",
+          "default": "0"
+        },
+        "endTime": {
+          "description": "结束时间 ISO-8601 (必填，如 2026-03-10T23:59:59+08:00)",
+          "required": true
+        },
+        "senderUserIds": {
+          "description": "发送人 staffId 列表，逗号分隔，用于过滤指定发送人的日志 (可选)"
+        },
+        "size": {
+          "description": "每页条数，最大 20 (默认 20)；--limit 为隐藏 alias",
+          "default": "20"
+        },
+        "startTime": {
+          "description": "开始时间 ISO-8601 (必填，如 2026-03-10T00:00:00+08:00)",
+          "required": true
+        }
+      }
+    },
+    "report.get_report_entry_details": {
+      "description": "读取单份日报正文（含字段明细 + 钉钉跳转链接 dingtalkOpenUrl / dingtalkOpenMarkdownLink）",
+      "parameters": {
+        "report_id": {
+          "description": "日志 ID (必填)；来自 report inbox list / outbox list",
+          "required": true
+        }
+      }
+    },
+    "report.get_report_statistics_by_id": {
+      "description": "读取单份日报的已读统计（读 / 未读名单等）",
+      "parameters": {
+        "report_id": {
+          "description": "日志 ID (必填)；来自 report inbox list / outbox list",
+          "required": true
+        }
+      }
+    },
+    "report.get_send_report_list": {
+      "description": "列出我发出的日报。默认窗口为最近 20 天（服务端单次查询跨度上限 20 天）；不传 --start/--end 时 CLI 会自动补默认值。CLI 只返回 JSON。",
+      "parameters": {
+        "cursor": {
+          "description": "分页游标，首次传 0 (默认 0)",
+          "default": "0"
+        },
+        "endTime": {
+          "description": "创建结束时间 ISO-8601 (可选，默认最近 20 天；服务端单次查询跨度上限 20 天)"
+        },
+        "modifiedEndTime": {
+          "description": "修改结束时间 ISO-8601 (可选)"
+        },
+        "modifiedStartTime": {
+          "description": "修改开始时间 ISO-8601 (可选)"
+        },
+        "report_template_name": {
+          "description": "日志模板名称 (可选，不传查全部)"
+        },
+        "size": {
+          "description": "每页条数，最大 20 (默认 20)；--limit 为隐藏 alias",
+          "default": "20"
+        },
+        "startTime": {
+          "description": "创建开始时间 ISO-8601 (可选，默认最近 20 天；服务端单次查询跨度上限 20 天)"
+        }
+      }
+    },
+    "report.get_template_details_by_name": {
+      "description": "读取单个日志模版的字段定义（取 field_name / field_sort / field_type，submit 时 contents[].key 必须精确等于 field_name）",
+      "parameters": {
+        "report_template_name": {
+          "description": "模版名称 (必填)；来自 report template list",
+          "required": true
+        }
+      }
+    },
+    "sheet.add_dimension": {
+      "description": "在工作表末尾追加空行或空列",
+      "parameters": {
+        "dimension": {
+          "description": "维度类型: ROWS 或 COLUMNS (必填)",
+          "required": true
+        },
+        "length": {
+          "description": "追加数量，正整数 (必填)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.append_rows": {
+      "description": "在工作表末尾追加若干行数据",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "values": {
+          "description": "追加数据，二维 JSON 数组 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.clear_filter_criteria": {
+      "description": "清除单列筛选条件",
+      "parameters": {
+        "column": {
+          "type": "integer",
+          "description": "列偏移量，0-based (必填)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.clear_filter_view_criteria": {
+      "description": "清除筛选视图某列的筛选条件",
+      "parameters": {
+        "column": {
+          "type": "integer",
+          "description": "列索引，0-based (必填)",
+          "required": true
+        },
+        "filterViewId": {
+          "description": "筛选视图 ID (必填)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.clear_range": {
+      "description": "清除工作表指定区域的内容/格式/全部",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "range": {
+          "description": "清除范围，A1 表示法 (必填，如 A1:B3)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "type": {
+          "description": "清除类型: content(默认) / format / all"
+        }
+      }
+    },
+    "sheet.copy_range": {
+      "description": "复制工作表指定区域到目标位置（支持跨工作表）",
+      "parameters": {
+        "destinationRange": {
+          "description": "目标位置，A1 表示法 (必填；支持 Sheet2!A1 指定目标工作表)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "pasteType": {
+          "description": "粘贴类型: values / formulas / formats / all(默认)"
+        },
+        "sheetId": {
+          "description": "源工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "sourceRange": {
+          "description": "源范围，A1 表示法 (必填，如 A1:C5)",
+          "required": true
+        },
+        "targetSheetId": {
+          "description": "目标工作表 ID 或名称（可选）"
+        }
+      }
+    },
+    "sheet.copy_sheet": {
+      "description": "复制工作表",
+      "parameters": {
+        "index": {
+          "type": "integer",
+          "description": "副本位置索引，0-based (不传则放在源工作表之后)"
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "源工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "title": {
+          "description": "副本名称，最长 100 字符 (不传则系统自动生成)"
+        }
+      }
+    },
+    "sheet.create_filter": {
+      "description": "创建全局筛选",
+      "parameters": {
+        "criteria": {
+          "description": "筛选条件 JSON 数组（可选，不传则仅创建空筛选框架）"
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "range": {
+          "description": "筛选范围，A1 表示法，须包含表头行 (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.create_filter_view": {
+      "description": "创建筛选视图",
+      "parameters": {
+        "criteria": {
+          "description": "筛选条件 JSON 数组 (选填，仅接受严格 JSON)"
+        },
+        "name": {
+          "description": "筛选视图名称 (必填)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "range": {
+          "description": "筛选范围，A1 表示法 (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.create_float_image": {
+      "description": "创建浮动图片 (先用 media-upload 获取 resourceUrl 作为 --src)",
+      "parameters": {
+        "height": {
+          "type": "integer",
+          "description": "图片高度，像素 (必填)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "offsetX": {
+          "type": "integer",
+          "description": "水平偏移量，像素 (默认 0)"
+        },
+        "offsetY": {
+          "type": "integer",
+          "description": "垂直偏移量，像素 (默认 0)"
+        },
+        "range": {
+          "description": "锚点单元格位置，A1 表示法 (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "src": {
+          "description": "图片资源路径 (media-upload 返回的 resourceUrl) (必填)",
+          "required": true
+        },
+        "width": {
+          "type": "integer",
+          "description": "图片宽度，像素 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.create_sheet": {
+      "description": "新建工作表",
+      "parameters": {
+        "name": {
+          "description": "工作表名称 (必填)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.create_workspace_sheet": {
+      "description": "创建钉钉表格文档",
+      "parameters": {
+        "folderId": {
+          "description": "目标文件夹 ID 或 URL"
+        },
+        "name": {
+          "description": "表格名称 (必填)",
+          "required": true
+        },
+        "workspaceId": {
+          "description": "目标知识库 ID"
+        }
+      }
+    },
+    "sheet.delete_cond_format": {
+      "description": "删除条件格式规则（不可逆）",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "ruleId": {
+          "description": "条件格式规则 ID (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.delete_dimension": {
+      "description": "删除指定位置起的若干行或列",
+      "parameters": {
+        "dimension": {
+          "description": "删除维度: ROWS 或 COLUMNS (必填)",
+          "required": true
+        },
+        "length": {
+          "description": "删除数量，正整数 (必填)，最大 5000",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "position": {
+          "description": "删除起始位置，A1 表示法 (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.delete_dropdown_lists": {
+      "description": "删除下拉列表",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "range": {
+          "description": "删除范围，A1 表示法 (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.delete_filter": {
+      "description": "删除全局筛选",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.delete_filter_view": {
+      "description": "删除筛选视图",
+      "parameters": {
+        "filterViewId": {
+          "description": "筛选视图 ID (必填)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.delete_float_image": {
+      "description": "删除浮动图片",
+      "parameters": {
+        "floatImageId": {
+          "description": "浮动图片 ID (必填)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.delete_sheet": {
+      "description": "删除工作表（不可逆；不能删隐藏表/最后一个可见表）",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "要删除的工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.fill_range": {
+      "description": "基于源范围自动填充到目标范围",
+      "parameters": {
+        "destinationRange": {
+          "description": "目标填充范围，A1 表示法 (必填，如 A6:A20)",
+          "required": true
+        },
+        "fillType": {
+          "description": "填充类型: 不传则自动检测 / copy / onlystyle / withoutstyle"
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "sourceRange": {
+          "description": "源数据范围，A1 表示法 (必填，如 A1:A5)",
+          "required": true
+        }
+      }
+    },
+    "sheet.find_cells": {
+      "description": "在工作表中搜索单元格内容（支持子串/正则/整格匹配/搜索公式文本/包含隐藏）",
+      "parameters": {
+        "includeHidden": {
+          "type": "boolean",
+          "description": "包含隐藏单元格",
+          "default": "false"
+        },
+        "matchCase": {
+          "type": "boolean",
+          "description": "区分大小写 (默认 true)",
+          "default": "true"
+        },
+        "matchEntireCell": {
+          "type": "boolean",
+          "description": "精确匹配整个单元格内容",
+          "default": "false"
+        },
+        "matchFormulaText": {
+          "type": "boolean",
+          "description": "搜索公式文本而非显示值",
+          "default": "false"
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "range": {
+          "description": "搜索范围，A1 表示法 (如 A1:D10)"
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "text": {
+          "description": "搜索文本 (必填)",
+          "required": true
+        },
+        "useRegExp": {
+          "type": "boolean",
+          "description": "启用正则表达式搜索",
+          "default": "false"
+        }
+      }
+    },
+    "sheet.get_all_sheets": {
+      "description": "获取全部工作表列表",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.get_cond_format": {
+      "description": "获取条件格式规则（不传 --rule-id 返回全部）",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "ruleId": {
+          "description": "条件格式规则 ID (可选)"
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.get_dropdown_lists": {
+      "description": "获取下拉列表配置",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "range": {
+          "description": "查询范围，A1 表示法 (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.get_filter": {
+      "description": "获取全局筛选信息",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.get_filter_views": {
+      "description": "查询工作表的筛选视图列表",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.get_float_image": {
+      "description": "获取浮动图片详情",
+      "parameters": {
+        "floatImageId": {
+          "description": "浮动图片 ID (必填)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.get_range": {
+      "description": "读取工作表数据（别名: get）",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "range": {
+          "description": "读取范围，A1 表示法 (如 A1:D10，不传则读取全部数据)"
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (不传则默认第一个工作表)"
+        }
+      }
+    },
+    "sheet.get_sheet": {
+      "description": "获取指定工作表详情",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (不传则返回第一个工作表)"
+        }
+      }
+    },
+    "sheet.insert_dimension": {
+      "description": "在指定位置插入空行或空列",
+      "parameters": {
+        "dimension": {
+          "description": "插入维度: ROWS 或 COLUMNS (必填)",
+          "required": true
+        },
+        "length": {
+          "description": "插入数量，正整数 (必填)，最大 5000",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "position": {
+          "description": "插入位置，A1 表示法 (必填)。ROWS 时为行号；COLUMNS 时为列字母",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.list_float_images": {
+      "description": "列出工作表所有浮动图片",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.merge_cells": {
+      "description": "合并指定范围的单元格（mergeAll/mergeRows/mergeColumns）",
+      "parameters": {
+        "mergeType": {
+          "description": "合并方式: mergeAll(默认)/mergeRows/mergeColumns"
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "rangeAddress": {
+          "description": "目标单元格区域地址，如 A1:B3 (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.move_dimension": {
+      "description": "移动行或列到指定位置（0-based 索引）",
+      "parameters": {
+        "destinationIndex": {
+          "type": "integer",
+          "description": "目标位置索引，0-based (必填)",
+          "required": true
+        },
+        "dimension": {
+          "description": "维度类型: ROWS 或 COLUMNS (必填)",
+          "required": true
+        },
+        "endIndex": {
+          "type": "integer",
+          "description": "源结束索引，0-based，包含 (必填)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "startIndex": {
+          "type": "integer",
+          "description": "源起始索引，0-based (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.move_range": {
+      "description": "移动工作表指定区域到目标位置（源区域清空，支持跨工作表）",
+      "parameters": {
+        "destinationRange": {
+          "description": "目标位置，A1 表示法 (必填；支持 Sheet2!A1 指定目标工作表)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "源工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "sourceRange": {
+          "description": "源范围，A1 表示法 (必填，如 A1:C5)",
+          "required": true
+        },
+        "targetSheetId": {
+          "description": "目标工作表 ID 或名称（可选）"
+        }
+      }
+    },
+    "sheet.replace_all": {
+      "description": "全局查找替换（支持正则/整格匹配/区分大小写/范围/包含隐藏）",
+      "parameters": {
+        "includeHidden": {
+          "type": "boolean",
+          "description": "包含隐藏行/列",
+          "default": "false"
+        },
+        "matchCase": {
+          "type": "boolean",
+          "description": "区分大小写 (默认 false)",
+          "default": "false"
+        },
+        "matchEntireCell": {
+          "type": "boolean",
+          "description": "完整单元格匹配",
+          "default": "false"
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "range": {
+          "description": "替换范围，A1 表示法 (如 A1:D100)"
+        },
+        "replaceText": {
+          "description": "替换文本 (必填，可为空字符串表示删除；--replace 为别名)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "text": {
+          "description": "查找文本 (必填)",
+          "required": true
+        },
+        "useRegExp": {
+          "type": "boolean",
+          "description": "启用正则表达式匹配",
+          "default": "false"
+        }
+      }
+    },
+    "sheet.set_dropdown_lists": {
+      "description": "设置下拉列表",
+      "parameters": {
+        "enableMultiSelect": {
+          "type": "boolean",
+          "description": "允许多选（默认 false）",
+          "default": "false"
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "options": {
+          "description": "下拉选项 JSON 数组，每项含 value（必填）和 color（可选） (必填)",
+          "required": true
+        },
+        "range": {
+          "description": "目标范围，A1 表示法 (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.set_filter_view_criteria": {
+      "description": "设置/更新筛选视图某列的筛选条件",
+      "parameters": {
+        "column": {
+          "type": "integer",
+          "description": "列索引，0-based (必填)",
+          "required": true
+        },
+        "filterCriteria": {
+          "description": "筛选条件 JSON 对象 (必填)",
+          "required": true
+        },
+        "filterViewId": {
+          "description": "筛选视图 ID (必填)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.set_range_from_csv": {
+      "description": "将 CSV 数据写入表格指定位置（纯值，自动扩容）",
+      "parameters": {
+        "allowOverwrite": {
+          "type": "boolean",
+          "description": "目标区域有数据时是否允许覆盖 (默认 false)",
+          "default": "false"
+        },
+        "csv": {
+          "description": "CSV 文本，支持直接传文本/@filepath/- 从 stdin 读取 (必填)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "startCell": {
+          "description": "起始单元格地址，A1 表示法 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.sort_filter": {
+      "description": "筛选排序",
+      "parameters": {
+        "field.ascending": {
+          "type": "boolean",
+          "description": "升序 (true=升序，false=降序，默认 true)",
+          "default": "true"
+        },
+        "field.column": {
+          "type": "integer",
+          "description": "排序列偏移量，0-based (必填)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.sort_range": {
+      "description": "对工作表指定区域排序（多级排序按 --sort-keys 顺序）",
+      "parameters": {
+        "hasHeader": {
+          "type": "boolean",
+          "description": "首行是否为表头（不参与排序）",
+          "default": "false"
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "range": {
+          "description": "排序范围，A1 表示法 (必填，如 A1:D10)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "sortKeys": {
+          "description": "排序规则 JSON 数组 (必填，如 [{\"column\":\"A\",\"ascending\":true}])",
+          "required": true
+        }
+      }
+    },
+    "sheet.submit_export_job": {
+      "description": "导出表格为 xlsx（异步任务一站式：提交 → 轮询 → 下载）",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.unmerge_range": {
+      "description": "取消指定范围的合并单元格",
+      "parameters": {
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "rangeAddress": {
+          "description": "取消合并的范围，A1 表示法 (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.update_dimension": {
+      "description": "更新指定范围行/列属性（显隐 hidden、行高/列宽 pixel-size，至少一项）",
+      "parameters": {
+        "dimension": {
+          "description": "更新维度: ROWS 或 COLUMNS (必填)",
+          "required": true
+        },
+        "hidden": {
+          "type": "boolean",
+          "description": "是否隐藏 (true=隐藏, false=显示)",
+          "default": "false"
+        },
+        "length": {
+          "description": "更新数量，正整数 (必填)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "pixelSize": {
+          "type": "integer",
+          "description": "行高或列宽（像素）"
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "startIndex": {
+          "description": "起始位置，A1 表示法 (必填)。ROWS 时为行号；COLUMNS 时为列字母",
+          "required": true
+        }
+      }
+    },
+    "sheet.update_filter": {
+      "description": "批量更新筛选条件",
+      "parameters": {
+        "criteria": {
+          "description": "筛选条件 JSON 数组 (必填)",
+          "required": true
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.update_filter_view": {
+      "description": "更新筛选视图（名称/范围/条件）",
+      "parameters": {
+        "criteria": {
+          "description": "新筛选条件 JSON 数组 (选填，仅接受严格 JSON)"
+        },
+        "filterViewId": {
+          "description": "筛选视图 ID (必填)",
+          "required": true
+        },
+        "name": {
+          "description": "新筛选视图名称 (选填)"
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "range": {
+          "description": "新筛选范围 (选填)"
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        }
+      }
+    },
+    "sheet.update_float_image": {
+      "description": "更新浮动图片属性 (--src/--range/--width/--height/--offset-x/--offset-y 至少传一个)",
+      "parameters": {
+        "floatImageId": {
+          "description": "浮动图片 ID (必填)",
+          "required": true
+        },
+        "height": {
+          "type": "integer",
+          "description": "新的图片高度，像素"
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "offsetX": {
+          "type": "integer",
+          "description": "新的水平偏移量，像素"
+        },
+        "offsetY": {
+          "type": "integer",
+          "description": "新的垂直偏移量，像素"
+        },
+        "range": {
+          "description": "新的锚点单元格位置，A1 表示法"
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "src": {
+          "description": "新的图片资源路径"
+        },
+        "width": {
+          "type": "integer",
+          "description": "新的图片宽度，像素"
+        }
+      }
+    },
+    "sheet.update_range": {
+      "description": "更新工作表指定区域内容（--values 与 --hyperlinks 至少传一项）",
+      "parameters": {
+        "hyperlinks": {
+          "description": "超链接，二维 JSON 数组 (与 --values 至少传一项)"
+        },
+        "nodeId": {
+          "description": "表格文档 ID (必填)",
+          "required": true
+        },
+        "numberFormat": {
+          "description": "数字格式，如 General/@/#,##0/0%/yyyy/m/d 等"
+        },
+        "rangeAddress": {
+          "description": "目标单元格区域地址，如 A1:B3 (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "values": {
+          "description": "单元格值，二维 JSON 数组 (与 --hyperlinks 至少传一项)"
+        }
+      }
+    },
+    "sheet.update_sheet": {
+      "description": "更新工作表属性 (--title/--index/--hidden/--frozen-row-count/--frozen-column-count 至少传一个)",
+      "parameters": {
+        "frozenColumnCount": {
+          "type": "integer",
+          "description": "冻结列数，0 表示取消冻结"
+        },
+        "frozenRowCount": {
+          "type": "integer",
+          "description": "冻结行数，0 表示取消冻结"
+        },
+        "hidden": {
+          "type": "boolean",
+          "description": "是否隐藏工作表 (true=隐藏, false=显示)",
+          "default": "false"
+        },
+        "index": {
+          "type": "integer",
+          "description": "工作表新位置索引，0-based"
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "title": {
+          "description": "工作表新标题，最长 100 字符"
+        }
+      }
+    },
+    "sheet.write_image": {
+      "description": "将已上传图片资源写入指定单元格",
+      "parameters": {
+        "height": {
+          "description": "图片显示高度（像素）"
+        },
+        "nodeId": {
+          "description": "表格文档 ID 或 URL (必填)",
+          "required": true
+        },
+        "rangeAddress": {
+          "description": "目标单元格区域地址，如 A1:B3 (必填)",
+          "required": true
+        },
+        "resourceId": {
+          "description": "图片资源 ID (必填，由附件上传接口返回)",
+          "required": true
+        },
+        "resourceUrl": {
+          "description": "图片资源 URL (必填)",
+          "required": true
+        },
+        "sheetId": {
+          "description": "工作表 ID 或名称 (必填)",
+          "required": true
+        },
+        "width": {
+          "description": "图片显示宽度（像素）"
+        }
+      }
+    },
+    "todo.add_task_executors": {
+      "description": "添加待办执行人",
+      "parameters": {
+        "todoExecutorsAddRequest.executorIds": {
+          "description": "执行者 userId 列表，逗号分隔 (必填)",
+          "required": true
+        },
+        "todoExecutorsAddRequest.taskId": {
+          "description": "待办任务 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "todo.add_task_participants": {
+      "description": "添加待办参与人",
+      "parameters": {
+        "todoParticipantsAddRequest.participantIds": {
+          "description": "参与人 userId 列表，逗号分隔 (必填)",
+          "required": true
+        },
+        "todoParticipantsAddRequest.taskId": {
+          "description": "待办任务 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "todo.add_todo_comment": {
+      "description": "新增待办评论",
+      "parameters": {
+        "content": {
+          "description": "评论内容 (必填)",
+          "required": true
+        },
+        "taskId": {
+          "description": "待办任务 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "todo.add_todo_reminder": {
+      "description": "添加待办提醒 (基于截止时间偏移或自定义时间点)",
+      "parameters": {
+        "todoReminderAddRequest.baseTime": {
+          "description": "提醒基准时间: dueTime=基于截止时间 / customTime=自定义时间 (必填)",
+          "required": true
+        },
+        "todoReminderAddRequest.dueDateOffset": {
+          "description": "截止时间偏移量 (整数，baseTime=dueTime 时必填)"
+        },
+        "todoReminderAddRequest.reminderTimeStamp": {
+          "description": "自定义提醒时间 ISO-8601 (baseTime=customTime 时必填)"
+        },
+        "todoReminderAddRequest.taskId": {
+          "description": "待办任务 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "todo.create_personal_sub_todo": {
+      "description": "创建子待办 (隶属于某个父待办)",
+      "parameters": {
+        "PersonalTodoCreateVO.dueTime": {
+          "description": "截止时间 ISO-8601 (如 2026-03-10T18:00:00+08:00)"
+        },
+        "PersonalTodoCreateVO.executorIds": {
+          "description": "执行者 userId 列表，逗号分隔 (必填)",
+          "required": true
+        },
+        "PersonalTodoCreateVO.parentId": {
+          "description": "父待办任务 ID (必填)",
+          "required": true
+        },
+        "PersonalTodoCreateVO.priority": {
+          "description": "优先级: 10=低 / 20=普通 / 30=较高 / 40=紧急"
+        },
+        "PersonalTodoCreateVO.recurrence": {
+          "description": "循环规则 RFC 5545 (DTSTART+RRULE，需与 --due 同时设置)"
+        },
+        "PersonalTodoCreateVO.subject": {
+          "description": "子待办标题 (必填)",
+          "required": true
+        }
+      }
+    },
+    "todo.create_personal_todo": {
+      "description": "创建个人待办",
+      "parameters": {
+        "PersonalTodoCreateVO.dueTime": {
+          "description": "截止时间 ISO-8601 (如 2026-03-10T18:00:00+08:00)"
+        },
+        "PersonalTodoCreateVO.executorIds": {
+          "description": "执行者 userId 列表，逗号分隔 (必填)",
+          "required": true
+        },
+        "PersonalTodoCreateVO.priority": {
+          "description": "优先级: 10=低 / 20=普通 / 30=较高 / 40=紧急"
+        },
+        "PersonalTodoCreateVO.recurrence": {
+          "description": "循环规则 RFC 5545 (DTSTART+RRULE，需与 --due 同时设置)"
+        },
+        "PersonalTodoCreateVO.subject": {
+          "description": "待办标题 (必填)",
+          "required": true
+        }
+      }
+    },
+    "todo.delete_todo": {
+      "description": "删除待办 (不可逆，建议加 --yes 二次确认)",
+      "parameters": {
+        "taskId": {
+          "description": "待办任务 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "todo.delete_todo_comment": {
+      "description": "删除待办评论 (不可逆，建议加 --yes 二次确认)",
+      "parameters": {
+        "commentId": {
+          "description": "评论 ID (必填)",
+          "required": true
+        },
+        "taskId": {
+          "description": "待办任务 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "todo.get_todo_detail": {
+      "description": "查看待办详情",
+      "parameters": {
+        "taskId": {
+          "description": "待办任务 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "todo.get_user_todos_in_current_org": {
+      "description": "查询当前组织下的待办列表",
+      "parameters": {
+        "isDone": {
+          "description": "完成状态过滤: true=已完成, false=未完成"
+        },
+        "pageNum": {
+          "description": "页码 (默认 1)",
+          "default": "1"
+        },
+        "pageSize": {
+          "description": "每页数量 (默认 20)",
+          "default": "20"
+        }
+      }
+    },
+    "todo.list_todo_comment": {
+      "description": "查询待办评论列表",
+      "parameters": {
+        "page": {
+          "description": "页码 (默认 1)",
+          "default": "1"
+        },
+        "pageSize": {
+          "description": "每页数量 (默认 20)",
+          "default": "20"
+        },
+        "taskId": {
+          "description": "待办任务 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "todo.remove_task_executors": {
+      "description": "移除待办执行人",
+      "parameters": {
+        "todoExecutorsRemoveRequest.executorIds": {
+          "description": "执行者 userId 列表，逗号分隔 (必填)",
+          "required": true
+        },
+        "todoExecutorsRemoveRequest.taskId": {
+          "description": "待办任务 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "todo.remove_task_participants": {
+      "description": "移除待办参与人",
+      "parameters": {
+        "todoParticipantsRemoveRequest.participantIds": {
+          "description": "参与人 userId 列表，逗号分隔 (必填)",
+          "required": true
+        },
+        "todoParticipantsRemoveRequest.taskId": {
+          "description": "待办任务 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "todo.reset_todo_reminder": {
+      "description": "重置待办提醒规则 (传空清除所有提醒)",
+      "parameters": {
+        "todoReminderUpdateRequest.reminderRules": {
+          "description": "提醒规则 JSON 数组，为空则清除全部提醒"
+        },
+        "todoReminderUpdateRequest.taskId": {
+          "description": "待办任务 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "todo.update_todo_done_status": {
+      "description": "修改执行者的待办完成状态",
+      "parameters": {
+        "isDone": {
+          "description": "完成状态: true=已完成, false=未完成 (必填)",
+          "required": true
+        },
+        "taskId": {
+          "description": "待办任务 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "todo.update_todo_task": {
+      "description": "更新待办任务 (标题 / 优先级 / 截止时间 / 完成状态)",
+      "parameters": {
+        "TodoUpdateRequest.dueTime": {
+          "description": "截止时间 ISO-8601 (如 2026-03-10T18:00:00+08:00)"
+        },
+        "TodoUpdateRequest.isDone": {
+          "description": "完成状态: true/false"
+        },
+        "TodoUpdateRequest.priority": {
+          "description": "优先级: 10=低 / 20=普通 / 30=较高 / 40=紧急"
+        },
+        "TodoUpdateRequest.subject": {
+          "description": "新标题"
+        },
+        "TodoUpdateRequest.taskId": {
+          "description": "待办任务 ID (必填)",
+          "required": true
+        }
+      }
+    },
+    "wiki.add_member": {
+      "description": "添加知识库成员",
+      "parameters": {
+        "roleId": {
+          "description": "权限角色: MANAGER / EDITOR / DOWNLOADER / READER (必填，CLI 自动转大写)",
+          "required": true
+        },
+        "userIds": {
+          "description": "被添加的用户 userId 列表，逗号分隔 (必填，单次最多 30 个)",
+          "required": true
+        },
+        "workspaceId": {
+          "description": "知识库 ID 或 URL (必填，--workspace 为别名)",
+          "required": true
+        }
+      }
+    },
+    "wiki.create_wikiSpace": {
+      "description": "创建知识库",
+      "parameters": {
+        "description": {
+          "description": "知识库描述 (选填，不超过 500 字符)"
+        },
+        "icon": {
+          "description": "知识库图标标识 (选填)"
+        },
+        "name": {
+          "description": "知识库名称 (必填，不超过 100 字符)",
+          "required": true
+        }
+      }
+    },
+    "wiki.get_wikiSpace": {
+      "description": "查看知识库详情",
+      "parameters": {
+        "workspaceId": {
+          "description": "知识库 ID 或 URL (必填)",
+          "required": true
+        }
+      }
+    },
+    "wiki.list_member": {
+      "description": "查询知识库成员列表（别名: ls）",
+      "parameters": {
+        "filterRoleIds": {
+          "description": "按角色过滤（逗号分隔）：OWNER / MANAGER / EDITOR / DOWNLOADER / READER"
+        },
+        "maxResults": {
+          "description": "返回成员数上限，默认 30，最大 200"
+        },
+        "workspaceId": {
+          "description": "知识库 ID 或 URL (必填，--workspace 为别名)",
+          "required": true
+        }
+      }
+    },
+    "wiki.list_wikiSpaces": {
+      "description": "列出知识库",
+      "parameters": {
+        "pageSize": {
+          "description": "每页数量 1-50 (默认 20)"
+        },
+        "pageToken": {
+          "description": "分页游标 (首页留空)"
+        },
+        "wikiSpaceType": {
+          "description": "知识库类型: myWikiSpace / orgWikiSpace (默认 orgWikiSpace)"
+        }
+      }
+    },
+    "wiki.search_wikiSpaces": {
+      "description": "搜索知识库",
+      "parameters": {
+        "keyword": {
+          "description": "搜索关键词 (必填)",
+          "required": true
+        },
+        "pageSize": {
+          "description": "返回数量 1-20 (默认 10)"
+        }
+      }
+    },
+    "wiki.update_member": {
+      "description": "更新知识库成员权限",
+      "parameters": {
+        "roleId": {
+          "description": "新权限角色: MANAGER / EDITOR / DOWNLOADER / READER (必填，CLI 自动转大写)",
+          "required": true
+        },
+        "userIds": {
+          "description": "被更新的用户 userId 列表，逗号分隔 (必填，单次最多 30 个)",
+          "required": true
+        },
+        "workspaceId": {
+          "description": "知识库 ID 或 URL (必填，--workspace 为别名)",
+          "required": true
+        }
+      }
+    }
+  }
+}

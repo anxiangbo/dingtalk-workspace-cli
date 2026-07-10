@@ -47,7 +47,7 @@ func configureRootHelp(root *cobra.Command) {
 }
 
 func renderRootHelp(root *cobra.Command) {
-	services := visibleMCPRootCommands(root)
+	products := visibleMCPRootCommands(root)
 	utilities := visibleUtilityRootCommands(root)
 	w := root.OutOrStdout()
 
@@ -55,23 +55,23 @@ func renderRootHelp(root *cobra.Command) {
 	_, _ = fmt.Fprintln(w, tui.Rule(76))
 	_, _ = fmt.Fprintln(w)
 
-	if len(services) == 0 {
-		_, _ = fmt.Fprintf(w, "%s %s\n", tui.StateMark("warning"), tui.Warning("No MCP services discovered."))
+	if len(products) == 0 {
+		_, _ = fmt.Fprintf(w, "%s %s\n", tui.StateMark("warning"), tui.Warning("No product commands available."))
 		_, _ = fmt.Fprintln(w)
 	} else {
-		_, _ = fmt.Fprintln(w, tui.Section("Discovered MCP Services:"))
+		_, _ = fmt.Fprintln(w, tui.Section("Product Commands:"))
 		_, _ = fmt.Fprintln(w)
 
 		tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
-		for _, service := range services {
-			_, _ = fmt.Fprintf(tw, "  %s %s\t%s\n", tui.StateMark("ok"), tui.Bold(service.Name()), tui.Dim(strings.TrimSpace(service.Short)))
+		for _, product := range products {
+			_, _ = fmt.Fprintf(tw, "  %s %s\t%s\n", tui.StateMark("ok"), tui.Bold(product.Name()), tui.Dim(strings.TrimSpace(product.Short)))
 		}
 		_ = tw.Flush()
 		_, _ = fmt.Fprintln(w)
 	}
 
 	_, _ = fmt.Fprintln(w, tui.Section("Usage:"))
-	_, _ = fmt.Fprintf(w, "  %s %s\n", tui.Bullet(), tui.White("dws <service> [command] [flags]"))
+	_, _ = fmt.Fprintf(w, "  %s %s\n", tui.Bullet(), tui.White("dws <product> [command] [flags]"))
 	if len(utilities) > 0 {
 		_, _ = fmt.Fprintf(w, "  %s %s\n", tui.Bullet(), tui.White("dws <command> [flags]"))
 	}
@@ -86,7 +86,7 @@ func renderRootHelp(root *cobra.Command) {
 		_ = tw.Flush()
 		_, _ = fmt.Fprintln(w)
 	}
-	_, _ = fmt.Fprintf(w, "%s %s\n", tui.Key("Next"), `Use "dws <service> --help" for more information about a discovered MCP service or "dws <command> --help" for utility commands.`)
+	_, _ = fmt.Fprintf(w, "%s %s\n", tui.Key("Next"), `Use "dws <product> --help" for more information about a product command or "dws <command> --help" for utility commands.`)
 
 	// Render root.Long after the command list so agents see the upgrade
 	// hint (or any other root-level guidance) after browsing all available
@@ -124,6 +124,11 @@ func resolveVisibleProducts() map[string]bool {
 	}
 	for id := range DirectRuntimeProductIDs() {
 		allowed[id] = true
+	}
+	// The developer app helper routes requests to the devapp MCP product, but
+	// the user-facing command tree is mounted at `dws dev`.
+	if allowed[devappProductID] {
+		allowed["dev"] = true
 	}
 	return allowed
 }

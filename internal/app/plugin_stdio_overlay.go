@@ -107,13 +107,13 @@ func toolsToDetails(tools []transport.ToolDescriptor, overlayID string) map[stri
 // server using only its manifest + overlay.json — no subprocess required.
 //
 // Returns (cmds, descriptor, true) when the overlay carries toolOverrides,
-// otherwise (nil, zero, false) so the caller can fall back to discovery-first
-// registration (legacy path).
+// otherwise (nil, zero, false). Startup skips such plugins because runtime
+// discovery is disabled.
 //
 // When a warm tools cache exists for this server, its DetailTools are passed
 // to BuildDynamicCommands so flag types are enriched from the last successful
 // discovery. Fresh installs (or evicted caches) get overlay-declared flags
-// only; the next startup after a successful refresh picks up the full schema.
+// only.
 func registerStdioServerFromOverlay(
 	p *plugin.Plugin,
 	sc plugin.StdioServerClient,
@@ -138,8 +138,8 @@ func registerStdioServerFromOverlay(
 	AppendDynamicServer(descriptor)
 	RegisterStdioClient(p.Manifest.Name+"/"+sc.Key, sc.Client)
 
-	// Warm-cache enrichment: if a prior successful discovery wrote a
-	// non-empty tool list, use its schema to enrich flag types.
+	// Migration enrichment: an existing snapshot from an older version may
+	// still enrich flag types, but cache absence never triggers discovery.
 	var detailsByID map[string][]market.DetailTool
 	if store != nil {
 		cacheKey := pluginCacheKey(p.Manifest.Name, sc.Key)
@@ -158,49 +158,4 @@ func registerStdioServerFromOverlay(
 		"enriched", detailsByID != nil)
 
 	return cmds, descriptor, true
-}
-
-// refreshStdioToolsCache performs Initialize + ListTools on a stdio plugin
-// subprocess and persists the result so the next startup can enrich
-// overlay-registered commands with typed flags. It never constructs cobra
-// commands; command registration has already happened synchronously from
-// the overlay before this function runs.
-//
-// On failure (subprocess not ready, RPC timeout, empty tool list) it skips
-// SaveTools entirely so a transient error cannot poison the warm cache
-// with a null-tools snapshot.
-func refreshStdioToolsCache(
-	p *plugin.Plugin,
-	sc plugin.StdioServerClient,
-	store *cache.Store,
-	timeouts pluginColdTimeouts,
-) {
-	if store == nil {
-		return
-	}
-	tools := discoverStdioTools(p, sc, timeouts)
-	if len(tools) == 0 {
-		slog.Debug("plugin: stdio cache refresh skipped (no tools)",
-			"plugin", p.Manifest.Name, "server", sc.Key)
-		return
-	}
-	cacheKey := pluginCacheKey(p.Manifest.Name, sc.Key)
-	if err := store.SaveTools(config.DefaultPartition, cacheKey, cache.ToolsSnapshot{
-		ServerKey: cacheKey,
-		Tools:     tools,
-	}); err != nil {
-		slog.Warn("plugin: failed to persist stdio tools cache",
-			"plugin", p.Manifest.Name, "server", sc.Key, "error", err)
-		return
-	}
-	slog.Debug("plugin: stdio tools cache refreshed",
-		"plugin", p.Manifest.Name, "server", sc.Key, "tools", len(tools))
-}
-
-// hasOverlayToolOverrides reports whether a stdio plugin server carries
-// enough CLI metadata to be registered via the overlay-first path. Used by
-// loadPlugins to split entries into overlay-first vs. legacy discovery-first
-// buckets without doing the overlay parse twice.
-func hasOverlayToolOverrides(p *plugin.Plugin, sc plugin.StdioServerClient) bool {
-	return len(resolveStdioOverlay(p, sc).ToolOverrides) > 0
 }

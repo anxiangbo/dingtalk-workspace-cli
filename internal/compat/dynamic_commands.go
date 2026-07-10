@@ -24,7 +24,7 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/cli"
+	schemacli "github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/cli"
 	apperrors "github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/errors"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/executor"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/market"
@@ -224,8 +224,11 @@ func BuildDynamicCommands(servers []market.ServerDescriptor, runner executor.Run
 			cmd := NewDirectCommand(route, runner)
 
 			// Enrich flags with typed parameters from Detail API toolRequest JSON Schema.
-			if dt, ok := detailIndex[toolName]; ok && dt.ToolRequest != "" {
-				buildFlagsFromDetailSchema(cmd, dt.ToolRequest, override.Flags)
+			if dt, ok := detailIndex[toolName]; ok {
+				schemacli.AnnotateRuntimeToolMetadata(cmd, dt.ToolTitle, dt.ToolDesc, "mcp-detail")
+				if dt.ToolRequest != "" {
+					buildFlagsFromDetailSchema(cmd, dt.ToolRequest, override.Flags)
+				}
 			}
 
 			// §P2.flagconstraints: must run AFTER schema enrichment because the
@@ -404,7 +407,7 @@ func buildFlagsFromDetailSchema(cmd *cobra.Command, schemaJSON string, flagOverr
 					f.Usage = help
 				}
 			}
-			cli.AnnotateRuntimeFlag(cmd, flagName, key, schemaTypeFromDetailProp(prop.Type), requiredSet[key], prop.Default)
+			schemacli.AnnotateRuntimeFlag(cmd, flagName, key, schemaTypeFromDetailProp(prop.Type), requiredSet[key], prop.Default)
 			continue
 		}
 
@@ -442,7 +445,7 @@ func buildFlagsFromDetailSchema(cmd *cobra.Command, schemaJSON string, flagOverr
 		if requiredSet[key] {
 			_ = cmd.MarkFlagRequired(flagName)
 		}
-		cli.AnnotateRuntimeFlag(cmd, flagName, key, schemaTypeFromDetailProp(prop.Type), requiredSet[key], prop.Default)
+		schemacli.AnnotateRuntimeFlag(cmd, flagName, key, schemaTypeFromDetailProp(prop.Type), requiredSet[key], prop.Default)
 	}
 }
 

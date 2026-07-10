@@ -13,22 +13,14 @@ import (
 // MCP architecture, products are discovered dynamically from MCP servers,
 // and their availability depends on the test environment's fixture data.
 
-func TestHiddenMCPHelpIsReachable(t *testing.T) {
+func TestDeprecatedMCPCommandIsNotRegistered(t *testing.T) {
 	t.Parallel()
 
-	cmd := app.NewRootCommand()
-	var out strings.Builder
-	cmd.SetOut(&out)
-	cmd.SetErr(&out)
-	cmd.SetArgs([]string{"mcp", "--help"})
-
-	if err := cmd.Execute(); err != nil {
-		t.Fatalf("Execute() error = %v", err)
-	}
-
-	got := out.String()
-	if !strings.Contains(got, "Reserved canonical runtime surface") {
-		t.Fatalf("mcp help missing canonical surface text:\n%s", got)
+	root := app.NewRootCommand()
+	for _, command := range root.Commands() {
+		if command.Name() == "mcp" {
+			t.Fatal("deprecated hidden mcp command must not be registered")
+		}
 	}
 }
 

@@ -104,7 +104,7 @@ func TestRuntimeRunnerIncludesContentScanReportWhenEnabled(t *testing.T) {
 	t.Setenv(runtimeContentScanReportOutputEnv, "1")
 	t.Setenv(cli.CatalogFixtureEnv, writeDocCatalogFixture(t, server.RemoteURL("/server/doc"), false))
 
-	cmd := NewRootCommand()
+	cmd := newRuntimeMCPTestRoot(context.Background(), nil)
 	var out bytes.Buffer
 	cmd.SetOut(&out)
 	cmd.SetErr(&out)
@@ -150,7 +150,7 @@ func TestRuntimeRunnerBlocksUnsafeContentWhenEnforced(t *testing.T) {
 	t.Setenv(runtimeContentScanEnforceEnv, "1")
 	t.Setenv(cli.CatalogFixtureEnv, writeDocCatalogFixture(t, server.RemoteURL("/server/doc"), false))
 
-	cmd := NewRootCommand()
+	cmd := newRuntimeMCPTestRoot(context.Background(), nil)
 	cmd.SetOut(&bytes.Buffer{})
 	cmd.SetErr(&bytes.Buffer{})
 	cmd.SetArgs([]string{"mcp", "doc", "search_documents", "--json", `{"keyword":"design"}`, "--token", "test-token"})
@@ -180,7 +180,7 @@ func TestCanonicalCommandUsesRuntimeRunnerWhenEnabled(t *testing.T) {
 		t.Fatalf("fixture sensitive flag mismatch: %#v", catalog.Products)
 	}
 
-	cmd := NewRootCommand()
+	cmd := newRuntimeMCPTestRoot(context.Background(), nil)
 	var out bytes.Buffer
 	cmd.SetOut(&out)
 	cmd.SetErr(&out)
@@ -230,7 +230,7 @@ func TestCanonicalCommandDryRunSkipsExecutionAndReturnsRequestPreview(t *testing
 	fixture := writeDocCatalogFixture(t, server.RemoteURL("/server/doc"), true)
 	t.Setenv(cli.CatalogFixtureEnv, fixture)
 
-	cmd := NewRootCommand()
+	cmd := newRuntimeMCPTestRoot(context.Background(), nil)
 	var out bytes.Buffer
 	cmd.SetOut(&out)
 	cmd.SetErr(&out)
@@ -295,7 +295,7 @@ func TestRuntimeRunnerInjectsAuthTokenFromFlag(t *testing.T) {
 
 	t.Setenv(cli.CatalogFixtureEnv, writeDocCatalogFixture(t, server.URL, false))
 
-	cmd := NewRootCommand()
+	cmd := newRuntimeMCPTestRoot(context.Background(), nil)
 	var out bytes.Buffer
 	cmd.SetOut(&out)
 	cmd.SetErr(&out)
@@ -601,7 +601,7 @@ func TestRuntimeRunnerRejectsUnauthenticatedRequest(t *testing.T) {
 
 	t.Setenv(cli.CatalogFixtureEnv, writeDocCatalogFixture(t, server.RemoteURL("/server/doc"), false))
 
-	cmd := NewRootCommand()
+	cmd := newRuntimeMCPTestRoot(context.Background(), nil)
 	var stdout, stderr bytes.Buffer
 	cmd.SetOut(&stdout)
 	cmd.SetErr(&stderr)
@@ -747,7 +747,7 @@ func TestCanonicalSensitiveToolRequiresConfirmation(t *testing.T) {
 		t.Fatalf("fixture sensitive flag mismatch: %#v", catalog.Products)
 	}
 
-	cmd := NewRootCommand()
+	cmd := newRuntimeMCPTestRoot(context.Background(), nil)
 	var out bytes.Buffer
 	cmd.SetOut(&out)
 	cmd.SetErr(&out)
@@ -770,7 +770,7 @@ func TestCanonicalSensitiveToolAcceptsInteractiveConfirmation(t *testing.T) {
 
 	t.Setenv(cli.CatalogFixtureEnv, writeDocCatalogFixture(t, server.RemoteURL("/server/doc"), true))
 
-	cmd := NewRootCommand()
+	cmd := newRuntimeMCPTestRoot(context.Background(), nil)
 	var out bytes.Buffer
 	var errOut bytes.Buffer
 	cmd.SetOut(&out)
@@ -822,7 +822,7 @@ func TestRuntimeRunnerUsesProductEndpointOverride(t *testing.T) {
 	t.Setenv(cli.CatalogFixtureEnv, writeDocCatalogFixture(t, catalogServer.RemoteURL("/server/doc"), false))
 	t.Setenv("DINGTALK_DOC_MCP_URL", overrideServer.RemoteURL("/server/doc"))
 
-	cmd := NewRootCommand()
+	cmd := newRuntimeMCPTestRoot(context.Background(), nil)
 	var out bytes.Buffer
 	cmd.SetOut(&out)
 	cmd.SetErr(&out)
@@ -1039,7 +1039,7 @@ func TestClassifyToolResultHookPreemptsBusinessError(t *testing.T) {
 
 	t.Setenv(cli.CatalogFixtureEnv, writeDocCatalogFixture(t, server.URL, false))
 
-	cmd := NewRootCommand()
+	cmd := newRuntimeMCPTestRoot(context.Background(), nil)
 	cmd.SetOut(&bytes.Buffer{})
 	cmd.SetErr(&bytes.Buffer{})
 	cmd.SetArgs([]string{"mcp", "doc", "search_documents", "--json", `{"keyword":"design"}`, "--token", "test-token"})
@@ -1119,7 +1119,7 @@ func TestRuntimeRunnerReturnsErrorWhenMCPIsErrorTrue(t *testing.T) {
 
 	t.Setenv(cli.CatalogFixtureEnv, writeDocCatalogFixture(t, server.URL, false))
 
-	cmd := NewRootCommand()
+	cmd := newRuntimeMCPTestRoot(context.Background(), nil)
 	cmd.SetOut(&bytes.Buffer{})
 	cmd.SetErr(&bytes.Buffer{})
 	cmd.SetArgs([]string{"mcp", "doc", "search_documents", "--json", `{"keyword":"design"}`, "--token", "test-token"})

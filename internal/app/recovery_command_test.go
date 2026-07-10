@@ -2,6 +2,7 @@ package app
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -13,7 +14,9 @@ import (
 	"time"
 
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/cli"
+	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/pipeline"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/recovery"
+	"github.com/spf13/cobra"
 )
 
 func TestRecoveryPlanReadsLastSnapshotAndPrintsJSON(t *testing.T) {
@@ -258,6 +261,11 @@ func TestExecuteWritesRecoveryEventIDToStderrOnCapturedFailure(t *testing.T) {
 	defer server.Close()
 
 	t.Setenv(cli.CatalogFixtureEnv, writeDocCatalogFixture(t, server.URL, false))
+	previousRootBuilder := executeRootCommandBuilder
+	executeRootCommandBuilder = func(ctx context.Context, engine *pipeline.Engine) *cobra.Command {
+		return newRuntimeMCPTestRoot(ctx, engine)
+	}
+	t.Cleanup(func() { executeRootCommandBuilder = previousRootBuilder })
 
 	oldArgs := os.Args
 	defer func() { os.Args = oldArgs }()

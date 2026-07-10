@@ -2,6 +2,7 @@ package extensions_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -15,6 +16,8 @@ import (
 	"time"
 
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/app"
+	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/cli"
+	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/executor"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/market"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/transport"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/test/mock_mcp"
@@ -94,7 +97,7 @@ func TestCLIKeepsCachedProtocolSurfaceUntilManualRefreshAfterCacheAges(t *testin
 	server.SetFixture(t, protocolFixturePhase2(t))
 	ageCacheSnapshots(t, cacheDir, time.Now().UTC().Add(-2*time.Hour))
 
-	root := app.NewRootCommand()
+	root := newCanonicalTestRoot()
 	mcp := findChild(root, "mcp")
 	if mcp == nil {
 		t.Fatal("mcp command not found in root command tree")
@@ -104,7 +107,7 @@ func TestCLIKeepsCachedProtocolSurfaceUntilManualRefreshAfterCacheAges(t *testin
 
 	mustRunRoot(t, []string{"cache", "refresh"})
 
-	root = app.NewRootCommand()
+	root = newCanonicalTestRoot()
 	mcp = findChild(root, "mcp")
 	if mcp == nil {
 		t.Fatal("mcp command not found in root command tree")
@@ -618,7 +621,7 @@ func filterServersByCommand(servers []mockmcp.ServerFixture, command string) []m
 func mcpSurface(t *testing.T) map[string][]string {
 	t.Helper()
 
-	root := app.NewRootCommand()
+	root := newCanonicalTestRoot()
 	mcp := findChild(root, "mcp")
 	if mcp == nil {
 		t.Fatal("mcp command not found in root command tree")
@@ -643,7 +646,7 @@ func TestCLIDoesNotSynchronouslyRevalidateWhenCacheAges(t *testing.T) {
 	server.ResetStats()
 	ageCacheSnapshots(t, cacheDir, time.Now().UTC().Add(-2*time.Hour))
 
-	root := app.NewRootCommand()
+	root := newCanonicalTestRoot()
 	mcp := findChild(root, "mcp")
 	if mcp == nil {
 		t.Fatal("mcp command not found in root command tree")
@@ -689,7 +692,7 @@ func TestCLIDoesNotSynchronouslyRevalidateWhenRegistryTTLExpires(t *testing.T) {
 	server.ResetStats()
 	ageCacheSnapshots(t, cacheDir, time.Now().UTC().Add(-25*time.Hour))
 
-	root := app.NewRootCommand()
+	root := newCanonicalTestRoot()
 	mcp := findChild(root, "mcp")
 	if mcp == nil {
 		t.Fatal("mcp command not found in root command tree")
@@ -801,6 +804,9 @@ func mustRunRootJSON(t *testing.T, args []string) map[string]any {
 func runRoot(t *testing.T, args []string) (string, error) {
 	t.Helper()
 	cmd := app.NewRootCommand()
+	if len(args) > 0 && args[0] == "mcp" {
+		cmd = newCanonicalTestRoot()
+	}
 	var out bytes.Buffer
 	cmd.SetOut(&out)
 	cmd.SetErr(&out)
@@ -808,6 +814,26 @@ func runRoot(t *testing.T, args []string) (string, error) {
 	cmd.SetArgs(args)
 	err := cmd.Execute()
 	return out.String(), err
+}
+
+// newCanonicalTestRoot keeps protocol-evolution coverage for the catalog
+// builder without restoring the deprecated production `dws mcp` command.
+// Cache refresh still runs through app.NewRootCommand; this root only reads
+// the resulting snapshots and uses EchoRunner for invocation assertions.
+func newCanonicalTestRoot() *cobra.Command {
+	ctx := context.Background()
+	loader := cli.EnvironmentLoader{
+		LookupEnv:              os.LookupEnv,
+		CatalogBaseURLOverride: app.DiscoveryBaseURL(),
+	}
+	root := &cobra.Command{
+		Use:           "dws",
+		SilenceErrors: true,
+		SilenceUsage:  true,
+	}
+	root.AddCommand(cli.NewMCPCommand(ctx, loader, executor.EchoRunner{}, nil))
+	root.SetContext(ctx)
+	return root
 }
 
 func ageCacheSnapshots(t *testing.T, root string, savedAt time.Time) {

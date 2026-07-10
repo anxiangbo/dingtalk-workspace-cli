@@ -15,6 +15,7 @@ package app
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -88,7 +89,7 @@ func TestPrintExecutionErrorUsesJSONWhenCommandSetsJSONFlag(t *testing.T) {
 	defer server.Close()
 	t.Setenv(cli.CatalogFixtureEnv, writeDocCatalogFixture(t, server.RemoteURL("/server/doc"), false))
 
-	root := NewRootCommand()
+	root := newRuntimeMCPTestRoot(context.Background(), nil)
 	root.SetArgs([]string{"mcp", "doc", "search_documents", "--json", "{"})
 
 	executed, execErr := root.ExecuteC()
@@ -260,8 +261,8 @@ func TestRootHelpDoesNotRequirePINOrLogin(t *testing.T) {
 	if err := root.Execute(); err != nil {
 		t.Fatalf("Execute(--help) error = %v", err)
 	}
-	if !strings.Contains(out.String(), "Discovered MCP Services:") {
-		t.Fatalf("root help output missing MCP summary:\n%s", out.String())
+	if !strings.Contains(out.String(), "Product Commands:") {
+		t.Fatalf("root help output missing product summary:\n%s", out.String())
 	}
 	for _, want := range []string{"Utility Commands:", "skill", "auth", "version"} {
 		if !strings.Contains(out.String(), want) {
@@ -307,8 +308,8 @@ func TestRootShortHelpDoesNotRequirePINOrLogin(t *testing.T) {
 	if err := root.Execute(); err != nil {
 		t.Fatalf("Execute(-h) error = %v", err)
 	}
-	if !strings.Contains(out.String(), "Discovered MCP Services:") {
-		t.Fatalf("root short help output missing MCP summary:\n%s", out.String())
+	if !strings.Contains(out.String(), "Product Commands:") {
+		t.Fatalf("root short help output missing product summary:\n%s", out.String())
 	}
 }
 

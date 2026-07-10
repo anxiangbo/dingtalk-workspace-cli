@@ -17,10 +17,8 @@ import (
 	"fmt"
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/cache"
-	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/cli"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/market"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/transport"
 )
@@ -154,45 +152,4 @@ func TestRegisterStdioClientConcurrent(t *testing.T) {
 			t.Errorf("LookupStdioClient(%q) missing after concurrent registration", key)
 		}
 	}
-}
-
-// TestResolvePluginColdTimeouts covers the three code paths of the env
-// parser: unset (defaults), valid duration (applied to all three slots),
-// and invalid duration (logged and ignored, defaults returned).
-func TestResolvePluginColdTimeouts(t *testing.T) {
-	t.Run("defaults when env unset", func(t *testing.T) {
-		t.Setenv(cli.PluginColdTimeoutEnv, "")
-		got := resolvePluginColdTimeouts()
-		if got.httpNoAuth != 1*time.Second {
-			t.Errorf("httpNoAuth = %v, want 1s", got.httpNoAuth)
-		}
-		if got.httpAuth != 1500*time.Millisecond {
-			t.Errorf("httpAuth = %v, want 1.5s", got.httpAuth)
-		}
-		if got.stdio != 2*time.Second {
-			t.Errorf("stdio = %v, want 2s", got.stdio)
-		}
-	})
-	t.Run("env override applies to all slots", func(t *testing.T) {
-		t.Setenv(cli.PluginColdTimeoutEnv, "3500ms")
-		got := resolvePluginColdTimeouts()
-		want := 3500 * time.Millisecond
-		if got.httpNoAuth != want || got.httpAuth != want || got.stdio != want {
-			t.Errorf("override not propagated: %+v", got)
-		}
-	})
-	t.Run("invalid env falls back to defaults", func(t *testing.T) {
-		t.Setenv(cli.PluginColdTimeoutEnv, "not-a-duration")
-		got := resolvePluginColdTimeouts()
-		if got.httpNoAuth != 1*time.Second || got.stdio != 2*time.Second {
-			t.Errorf("invalid env should not override defaults: %+v", got)
-		}
-	})
-	t.Run("non-positive env falls back to defaults", func(t *testing.T) {
-		t.Setenv(cli.PluginColdTimeoutEnv, "0")
-		got := resolvePluginColdTimeouts()
-		if got.httpNoAuth != 1*time.Second {
-			t.Errorf("zero duration should not override defaults, got %v", got.httpNoAuth)
-		}
-	})
 }

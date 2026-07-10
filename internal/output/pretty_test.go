@@ -78,6 +78,62 @@ func TestPretty_SchemaListRendersProducts(t *testing.T) {
 	}
 }
 
+func TestPretty_SchemaCompactOverviewUsesToolCount(t *testing.T) {
+	forceNoColor(t)
+	payload := map[string]any{
+		"kind":  "schema",
+		"level": "products",
+		"count": 1,
+		"products": []any{
+			map[string]any{
+				"id":          "calendar",
+				"name":        "日历",
+				"description": "日程与会议室",
+				"tool_count":  17,
+			},
+		},
+	}
+
+	var buf bytes.Buffer
+	if err := writePretty(&buf, payload); err != nil {
+		t.Fatalf("writePretty() error = %v", err)
+	}
+	out := buf.String()
+	if !strings.Contains(out, "calendar") || !strings.Contains(out, "tools: 17") {
+		t.Fatalf("compact overview output =\n%s", out)
+	}
+}
+
+func TestPretty_SchemaProductRendersToolSummaries(t *testing.T) {
+	forceNoColor(t)
+	payload := map[string]any{
+		"kind":  "schema",
+		"level": "product",
+		"product": map[string]any{
+			"id":   "calendar",
+			"name": "日历",
+			"tools": []any{
+				map[string]any{
+					"canonical_path": "calendar.create_event",
+					"cli_path":       "calendar event create",
+					"description":    "创建日程",
+				},
+			},
+		},
+	}
+
+	var buf bytes.Buffer
+	if err := writePretty(&buf, payload); err != nil {
+		t.Fatalf("writePretty() error = %v", err)
+	}
+	out := buf.String()
+	for _, want := range []string{"Product calendar", "1 tools", "calendar.create_event", "calendar event create", "创建日程"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("product output missing %q:\n%s", want, out)
+		}
+	}
+}
+
 func TestPretty_SchemaToolRendersAllSections(t *testing.T) {
 	forceNoColor(t)
 

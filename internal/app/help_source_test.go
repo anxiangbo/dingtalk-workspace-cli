@@ -158,7 +158,7 @@ func TestRootHelpUsesMCPOnlySummary(t *testing.T) {
 	}
 
 	got := out.String()
-	for _, want := range []string{"Discovered MCP Services:", "aiapp", "AI应用管理", "aitable", "多维表管理"} {
+	for _, want := range []string{"Product Commands:", "aiapp", "AI应用管理", "aitable", "多维表管理"} {
 		if !strings.Contains(got, want) {
 			t.Fatalf("root help missing %q:\n%s", want, got)
 		}
@@ -212,7 +212,7 @@ func TestRootHelpCustomizationDoesNotAffectSubcommandHelp(t *testing.T) {
 	if !strings.Contains(got, "Usage:") || !strings.Contains(got, "Available Commands:") || !strings.Contains(got, "Flags:") {
 		t.Fatalf("subcommand help should still use cobra default sections:\n%s", got)
 	}
-	if strings.Contains(got, "Discovered MCP Services:") {
+	if strings.Contains(got, "Product Commands:") {
 		t.Fatalf("subcommand help should not render root-only MCP summary:\n%s", got)
 	}
 }

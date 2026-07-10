@@ -104,40 +104,49 @@ func NewMCPCommand(ctx context.Context, loader CatalogLoader, runner executor.Ru
 	return cmd
 }
 
-func NewSchemaCommand(helperTools HelperToolFetcher) *cobra.Command {
+func NewSchemaCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "schema [path]",
-		Short: "查看 MCP 工具 Schema (产品列表 / 工具参数)",
+		Short: "渐进查看 MCP 工具 Schema (产品 / 分组 / 工具参数)",
 		Long: `查看当前可运行命令的 Schema 元数据。
 
-	不带参数时列出当前命令树中可查询 schema 的产品及工具数量；带路径
-	时输出该命令的扁平参数 Schema。普通产品 schema 来自实际运行命令
-	的 overlay/hardcoded metadata，helper-only 命令可按需实时拉取 MCP schema。
+	不带参数时只列出产品和工具数量；传产品或分组路径时逐层展开工具摘要；
+	传具体工具路径时输出扁平参数 Schema。使用 --all 可一次输出完整目录。
+	schema 来自实际运行命令的 Cobra flags、hardcoded metadata 和版本内
+	内嵌 JSON；查询 schema 不执行 MCP tools/list 服务发现。
 
 路径支持三种写法：
+  product                    产品路径 (e.g. calendar)
+  product.group              分组路径 (e.g. calendar.event)
   product.rpc_name           规范路径 (e.g. ding.send_ding_message)
   product.group.cli_name     CLI 点路径 (e.g. ding.message.send)
   "product group cli_name"   CLI 空格/斜杠路径 (e.g. "ding message send")
 
 	示例:
-	  dws schema                                # 列出所有产品
+	  dws schema                                # 紧凑产品概览
+	  dws schema calendar                       # 展开一个产品
+	  dws schema calendar.event                 # 展开一个分组
 	  dws schema ding.send_ding_message         # 规范路径
 	  dws schema "ding message send"            # CLI 路径（空格）
+	  dws schema --all                          # 完整产品 + 工具目录
 	  dws schema --cli-path "ding message send" # 同上，显式 flag（脚本友好）
 	  dws schema ding.send_ding_message --jq '.parameters'
 	  dws schema -f pretty ding.send_ding_message  # ANSI 彩色分区展示
-	  dws schema --jq '.products[] | {id, count: (.tools|length)}'
+	  dws schema --jq '.products[] | {id, tool_count}'
 
-helper-only 命令组（如 dev）也支持查询，schema 从 op-app
-MCP 服务端实时拉取，输出对齐 gws 的扁平格式（parameters 内联 required，
-键为 CLI flag）：
-  dws schema "dev app robot config"         # 实时 MCP 参数 schema（gws-flat）
+helper-only 命令组（如 dev）也支持查询，输出对齐 gws 的扁平格式
+（parameters 内联 required，键为 CLI flag）：
+  dws schema "dev app robot config"         # 版本内 helper 参数 schema
   dws schema "dev app"                      # 列出该分组下的子命令`,
 		Args:              cobra.MaximumNArgs(1),
 		DisableAutoGenTag: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			all, _ := cmd.Flags().GetBool("all")
 			cliPath, _ := cmd.Flags().GetString("cli-path")
 			cliPath = strings.TrimSpace(cliPath)
+			if all && (cliPath != "" || len(args) > 0) {
+				return apperrors.NewValidation("--all cannot be combined with a schema path")
+			}
 			if cliPath != "" {
 				if len(args) > 0 {
 					return apperrors.NewValidation("--cli-path and positional argument are mutually exclusive")
@@ -145,11 +154,11 @@ MCP 服务端实时拉取，输出对齐 gws 的扁平格式（parameters 内联
 				args = []string{cliPath}
 			}
 
-			// Helper-only subtrees (e.g. `dws dev ...`) use the helper's pinned MCP
-			// server (op-app) for schema content. Only the `dev` root claims this
-			// path; everything else falls through to runtime command annotations.
+			// Helper-only subtrees (e.g. `dws dev ...`) are rendered from the
+			// executable Cobra surface and embedded metadata. Schema inspection must
+			// never trigger MCP initialize/tools-list discovery.
 			if len(args) > 0 {
-				payload, ok, err := renderHelperSchema(cmd.Context(), cmd.Root(), args[0], helperTools)
+				payload, ok, err := renderHelperSchema(cmd.Root(), args[0])
 				if err != nil {
 					return err
 				}
@@ -176,7 +185,11 @@ MCP 服务端实时拉取，输出对齐 gws 的扁平格式（parameters 内联
 					if products, ok := payload["products"].([]map[string]any); ok {
 						payload["products"] = append(products, helpers...)
 						payload["count"] = len(payload["products"].([]map[string]any))
+						payload["tool_count"] = schemaCatalogToolCount(payload["products"].([]map[string]any))
 					}
+				}
+				if !all {
+					payload = compactSchemaOverviewPayload(payload)
 				}
 			}
 
@@ -190,7 +203,16 @@ MCP 服务端实时拉取，输出对齐 gws 的扁平格式（parameters 内联
 		},
 	}
 	cmd.Flags().String("cli-path", "", "按 CLI 命令路径查询 (等同于位置参数，便于脚本使用无需转义)")
+	cmd.Flags().Bool("all", false, "输出全部产品和工具摘要（用于审计/CI，内容较大）")
 	return cmd
+}
+
+func schemaCatalogToolCount(products []map[string]any) int {
+	total := 0
+	for _, product := range products {
+		total += schemaProductToolCount(product)
+	}
+	return total
 }
 
 func BuildFlagSpecs(schema map[string]any, hints map[string]ir.CLIFlagHint) []FlagSpec {

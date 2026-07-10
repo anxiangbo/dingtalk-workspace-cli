@@ -30,7 +30,7 @@ This document records issues found while packaging, building, and executing comm
 
 - Symptom: smoke validation found schema parameters missing from command help, including `dev.create_dev_app --app-type` and `dev.publish_dev_app_version --precheck-only`.
 - Cause: helper-only schema was rendered from live MCP parameters without intersecting those parameters with the actual Cobra command flags.
-- Fix: Filtered live helper parameters to command-registered flags, preserved aliases/hints, and added schema tests for the helper command tree.
+- Final fix: helper schema now uses command-registered flags plus versioned metadata and never performs a live `tools/list` query.
 - Verification: full schema smoke passed with no `schema_flag_mismatch` results.
 
 ### Issue 4: dry-run was not consistently honored through inherited/root flags
@@ -72,5 +72,5 @@ This document records issues found while packaging, building, and executing comm
 
 - Symptom: full smoke later discovered 375 leaf commands and failed on several attendance commands: one-of IDs, enum fields, JSON schedule items, and update commands requiring at least one changed field.
 - Cause: flat schema cannot express every one-of/at-least-one group, and the smoke value generator used generic string samples for attendance enums and empty JSON arrays for schedules.
-- Fix: Added attendance schema hints for minimum executable update fields; generated valid attendance enum/JSON samples; allowed dotted flag names such as `--param.use-history-group-and-shift` in help validation; added short retry for live helper schema fetches.
+- Fix: Added attendance schema hints for minimum executable update fields; generated valid attendance enum/JSON samples; allowed dotted flag names such as `--param.use-history-group-and-shift` in help validation; removed live helper schema fetches.
 - Verification: targeted smoke for the 9 failing paths passed 9/9, `go test ./internal/cli ./test/contract -count=1` passed, and full schema smoke passed 375/375.

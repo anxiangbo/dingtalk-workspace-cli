@@ -63,6 +63,16 @@ func writeSchemaPretty(w io.Writer, payload map[string]any) error {
 	if tool, ok := payload["tool"].(map[string]any); ok {
 		return writeSchemaToolPretty(w, payload, tool)
 	}
+	if looksLikeFlatSchemaTool(payload) {
+		return writeSchemaToolPretty(w, payload, payload)
+	}
+	if product, ok := payload["product"].(map[string]any); ok {
+		return writeSchemaProductPretty(w, product)
+	}
+	if tools, ok := payload["tools"].([]any); ok {
+		path, _ := payload["path"].(string)
+		return writeSchemaToolSummaryListPretty(w, "Group "+path, tools)
+	}
 	if products, ok := payload["products"].([]any); ok {
 		return writeSchemaListPretty(w, payload, products)
 	}
@@ -100,11 +110,15 @@ func writeSchemaListPretty(
 		name, _ := p["name"].(string)
 		desc, _ := p["description"].(string)
 		tools, _ := p["tools"].([]any)
+		toolCount := len(tools)
+		if rawCount, ok := p["tool_count"].(float64); ok {
+			toolCount = int(rawCount)
+		}
 		fmt.Fprintf(w, "\n%s %s  %s\n", tui.StateMark("ok"), tui.Bold(id), tui.Dim(name))
 		if desc != "" && desc != name {
 			fmt.Fprintf(w, "  %s\n", tui.Dim(desc))
 		}
-		fmt.Fprintf(w, "  %s %s\n", tui.Key("tools"), tui.Cyan(fmt.Sprintf("%d", len(tools))))
+		fmt.Fprintf(w, "  %s %s\n", tui.Key("tools"), tui.Cyan(fmt.Sprintf("%d", toolCount)))
 		shown := 0
 		for _, t := range tools {
 			tm, ok := t.(map[string]any)
@@ -123,6 +137,49 @@ func writeSchemaListPretty(
 				fmt.Fprintf(w, "    %s\n", tui.Dim(fmt.Sprintf("… %d more", len(tools)-shown)))
 				break
 			}
+		}
+	}
+	return nil
+}
+
+func writeSchemaProductPretty(w io.Writer, product map[string]any) error {
+	id, _ := product["id"].(string)
+	name, _ := product["name"].(string)
+	desc, _ := product["description"].(string)
+	tools, _ := product["tools"].([]any)
+	fmt.Fprintf(w, "%s\n", tui.Header("Product "+id, fmt.Sprintf("%d tools", len(tools))))
+	fmt.Fprintf(w, "%s\n", tui.Rule(72))
+	if name != "" {
+		fmt.Fprintf(w, "  %s\n", tui.Bold(name))
+	}
+	if desc != "" && desc != name {
+		fmt.Fprintf(w, "  %s\n", tui.Dim(desc))
+	}
+	return writeSchemaToolSummaryRows(w, tools)
+}
+
+func writeSchemaToolSummaryListPretty(w io.Writer, title string, tools []any) error {
+	fmt.Fprintf(w, "%s\n", tui.Header(title, fmt.Sprintf("%d tools", len(tools))))
+	fmt.Fprintf(w, "%s\n", tui.Rule(72))
+	return writeSchemaToolSummaryRows(w, tools)
+}
+
+func writeSchemaToolSummaryRows(w io.Writer, tools []any) error {
+	for _, raw := range tools {
+		tool, ok := raw.(map[string]any)
+		if !ok {
+			continue
+		}
+		canonical, _ := tool["canonical_path"].(string)
+		cliPath, _ := tool["cli_path"].(string)
+		desc, _ := tool["description"].(string)
+		fmt.Fprintf(w, "\n  %s %s", tui.Bullet(), tui.Cyan(canonical))
+		if cliPath != "" {
+			fmt.Fprintf(w, " %s %s", tui.Arrow(), tui.Dim(cliPath))
+		}
+		fmt.Fprintln(w)
+		if desc != "" {
+			fmt.Fprintf(w, "    %s\n", tui.Dim(desc))
 		}
 	}
 	return nil

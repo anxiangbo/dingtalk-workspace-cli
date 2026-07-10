@@ -89,28 +89,6 @@ func TestPluginAuthRegistryIsolation(t *testing.T) {
 	}
 }
 
-func TestDeriveToolCLIName(t *testing.T) {
-	tests := []struct {
-		input string
-		want  string
-	}{
-		{"web_search", "web-search"},
-		{"maps.search_poi", "search-poi"},
-		{"maps.geo", "geo"},
-		{"simple", "simple"},
-		{"a.b.deep_nested_name", "deep-nested-name"},
-		{"already-kebab", "already-kebab"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.input, func(t *testing.T) {
-			got := deriveToolCLIName(tt.input)
-			if got != tt.want {
-				t.Errorf("deriveToolCLIName(%q) = %q, want %q", tt.input, got, tt.want)
-			}
-		})
-	}
-}
-
 func TestRegisterPluginAuthFromHeaders(t *testing.T) {
 	// Clean up after test
 	defer func() {

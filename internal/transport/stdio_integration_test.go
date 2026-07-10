@@ -111,6 +111,30 @@ func TestStdioClientStartFailsWithBadCommand(t *testing.T) {
 	}
 }
 
+func TestStdioClientEnsureInitializedStartsLazily(t *testing.T) {
+	helperBin := buildTestHelper(t)
+	client := NewStdioClient(helperBin, nil, nil)
+	defer client.Stop()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if _, err := client.EnsureInitialized(ctx); err != nil {
+		t.Fatalf("EnsureInitialized: %v", err)
+	}
+	// A second call must be idempotent rather than issuing another initialize.
+	if _, err := client.EnsureInitialized(ctx); err != nil {
+		t.Fatalf("second EnsureInitialized: %v", err)
+	}
+	result, err := client.CallTool(ctx, "test_echo", map[string]any{"message": "lazy"})
+	if err != nil {
+		t.Fatalf("CallTool: %v", err)
+	}
+	if len(result.Blocks) == 0 || result.Blocks[0].Text != "Echo: lazy" {
+		t.Fatalf("CallTool result = %#v", result)
+	}
+}
+
 func TestStdioClientCallBeforeStart(t *testing.T) {
 	client := NewStdioClient("echo", nil, nil)
 	_, err := client.CallTool(context.Background(), "test", nil)

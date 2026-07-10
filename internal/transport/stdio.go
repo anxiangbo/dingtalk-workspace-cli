@@ -39,9 +39,12 @@ type StdioClient struct {
 	stdout *bufio.Reader
 	stderr io.ReadCloser
 
-	mu      sync.Mutex // serializes JSON-RPC requests
-	nextID  int64
-	started bool
+	initMu           sync.Mutex // serializes process start and initialization
+	mu               sync.Mutex // serializes JSON-RPC requests
+	nextID           int64
+	started          bool
+	initialized      bool
+	initializeResult InitializeResult
 }
 
 // NewStdioClient creates a StdioClient for the given command.
@@ -56,6 +59,12 @@ func NewStdioClient(command string, args []string, env map[string]string) *Stdio
 
 // Start launches the subprocess.
 func (s *StdioClient) Start(ctx context.Context) error {
+	s.initMu.Lock()
+	defer s.initMu.Unlock()
+	return s.start(ctx)
+}
+
+func (s *StdioClient) start(ctx context.Context) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -108,6 +117,9 @@ func (s *StdioClient) Start(ctx context.Context) error {
 // Stop kills the subprocess and waits for it to exit.
 // A non-zero exit code after Kill is expected and not treated as an error.
 func (s *StdioClient) Stop() error {
+	s.initMu.Lock()
+	defer s.initMu.Unlock()
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -121,15 +133,40 @@ func (s *StdioClient) Stop() error {
 		_ = s.cmd.Process.Kill()
 		_ = s.cmd.Wait()
 		s.started = false
+		s.initialized = false
+		s.initializeResult = InitializeResult{}
 		return nil
 	}
 	err := s.cmd.Wait()
 	s.started = false
+	s.initialized = false
+	s.initializeResult = InitializeResult{}
 	return err
 }
 
 // Initialize sends the JSON-RPC initialize request.
 func (s *StdioClient) Initialize(ctx context.Context) (InitializeResult, error) {
+	s.initMu.Lock()
+	defer s.initMu.Unlock()
+	return s.initialize(ctx)
+}
+
+// EnsureInitialized lazily starts and initializes the subprocess. It is used
+// by command execution so loading plugin overlays has no process or RPC side
+// effects at CLI startup.
+func (s *StdioClient) EnsureInitialized(ctx context.Context) (InitializeResult, error) {
+	s.initMu.Lock()
+	defer s.initMu.Unlock()
+	if err := s.start(ctx); err != nil {
+		return InitializeResult{}, err
+	}
+	return s.initialize(ctx)
+}
+
+func (s *StdioClient) initialize(ctx context.Context) (InitializeResult, error) {
+	if s.initialized {
+		return s.initializeResult, nil
+	}
 	params := map[string]any{
 		"protocolVersion": supportedProtocolVersions[0],
 		"capabilities":    map[string]any{},
@@ -143,6 +180,8 @@ func (s *StdioClient) Initialize(ctx context.Context) (InitializeResult, error) 
 	if err := s.call(ctx, "initialize", params, &result); err != nil {
 		return InitializeResult{}, err
 	}
+	s.initialized = true
+	s.initializeResult = result
 	return result, nil
 }
 

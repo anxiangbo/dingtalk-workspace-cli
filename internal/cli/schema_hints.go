@@ -23,8 +23,8 @@ import (
 
 // ToolSchemaHint is the hardcoded prompt/schema hint for a non-helper MCP tool.
 // Product-specific files register these hints through RegisterSchemaHints.
-// Helper-only dev commands still fetch live helper MCP schemas, while runtime
-// overlay/hardcoded commands can carry curated descriptions through this framework.
+// Helper and runtime commands can carry curated descriptions through this
+// framework without fetching live MCP schemas.
 type ToolSchemaHint struct {
 	Title          string
 	Description    string
@@ -57,6 +57,7 @@ type RuntimeSchemaRootHint struct {
 	Source          string
 	ToolNames       map[string]string
 	PrimaryCLIPaths map[string]string
+	IncludeCLIPaths map[string]bool
 }
 
 func boolPtr(v bool) *bool { return &v }
@@ -114,6 +115,7 @@ func (r *SchemaHintRegistry) RegisterRuntimeRoot(productID string, hint RuntimeS
 		Source:          strings.TrimSpace(hint.Source),
 		ToolNames:       map[string]string{},
 		PrimaryCLIPaths: map[string]string{},
+		IncludeCLIPaths: map[string]bool{},
 	}
 	for path, toolName := range hint.ToolNames {
 		path = strings.Join(splitSchemaPathTokens(path), " ")
@@ -130,6 +132,13 @@ func (r *SchemaHintRegistry) RegisterRuntimeRoot(productID string, hint RuntimeS
 			continue
 		}
 		normalized.PrimaryCLIPaths[toolName] = cliPath
+	}
+	for cliPath, included := range hint.IncludeCLIPaths {
+		cliPath = strings.Join(splitSchemaPathTokens(cliPath), " ")
+		if cliPath == "" || !included {
+			continue
+		}
+		normalized.IncludeCLIPaths[cliPath] = true
 	}
 	r.runtimeRoots[productID] = normalized
 }
@@ -157,6 +166,12 @@ func (r *SchemaHintRegistry) RuntimeRoots() map[string]RuntimeSchemaRootHint {
 			copied.PrimaryCLIPaths = make(map[string]string, len(hint.PrimaryCLIPaths))
 			for toolName, cliPath := range hint.PrimaryCLIPaths {
 				copied.PrimaryCLIPaths[toolName] = cliPath
+			}
+		}
+		if len(hint.IncludeCLIPaths) > 0 {
+			copied.IncludeCLIPaths = make(map[string]bool, len(hint.IncludeCLIPaths))
+			for cliPath, included := range hint.IncludeCLIPaths {
+				copied.IncludeCLIPaths[cliPath] = included
 			}
 		}
 		out[productID] = copied

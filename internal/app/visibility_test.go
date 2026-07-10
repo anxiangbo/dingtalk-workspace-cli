@@ -79,7 +79,7 @@ func TestHideNonDirectRuntimeCommands_PluginVisibleDespiteStaticVisibleProducts(
 }
 
 // TestVisibleMCPRootCommands_IncludesPluginProducts asserts that the help
-// renderer surfaces plugin products in the "Discovered MCP Services" section
+// renderer surfaces plugin products in the "Product Commands" section
 // and does not misclassify them as utility commands.
 func TestVisibleMCPRootCommands_IncludesPluginProducts(t *testing.T) {
 	withCleanDynamicRegistry(t)
@@ -106,6 +106,25 @@ func TestVisibleMCPRootCommands_IncludesPluginProducts(t *testing.T) {
 	}
 	if !containsCommand(utilities, "auth") {
 		t.Errorf("visibleUtilityRootCommands must include genuine utility command, got %v", commandNames(utilities))
+	}
+}
+
+func TestVisibleMCPRootCommands_IncludesDevCommandForDevappHelper(t *testing.T) {
+	withCleanDynamicRegistry(t)
+	overrideVisibleProducts(t, []string{"calendar"})
+
+	root := &cobra.Command{Use: "dws"}
+	devCmd := &cobra.Command{Use: "dev"}
+	root.AddCommand(devCmd)
+
+	hideNonDirectRuntimeCommands(root)
+	if devCmd.Hidden {
+		t.Fatal("dev command must stay visible when devapp helper product is available")
+	}
+
+	services := visibleMCPRootCommands(root)
+	if !containsCommand(services, "dev") {
+		t.Errorf("visibleMCPRootCommands missing dev helper command: %v", commandNames(services))
 	}
 }
 

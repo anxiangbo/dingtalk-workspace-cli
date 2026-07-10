@@ -322,6 +322,100 @@ func TestRuntimeSchemaPayloadResolvesCLIPath(t *testing.T) {
 	}
 }
 
+func TestRuntimeSchemaPayloadBrowsesProductAndGroup(t *testing.T) {
+	t.Parallel()
+
+	root := buildRuntimeSchemaTestRoot()
+	productPayload, err := runtimeSchemaPayload(root, []string{"ding"})
+	if err != nil {
+		t.Fatalf("product payload: %v", err)
+	}
+	if productPayload["level"] != "product" || productPayload["count"] != 2 {
+		t.Fatalf("product payload = %#v", productPayload)
+	}
+	product, _ := productPayload["product"].(map[string]any)
+	tools, _ := product["tools"].([]map[string]any)
+	if product["id"] != "ding" || len(tools) != 2 {
+		t.Fatalf("product = %#v, want ding with two tools", product)
+	}
+
+	groupPayload, err := runtimeSchemaPayload(root, []string{"ding.message"})
+	if err != nil {
+		t.Fatalf("group payload: %v", err)
+	}
+	if groupPayload["level"] != "group" || groupPayload["path"] != "ding message" || groupPayload["count"] != 2 {
+		t.Fatalf("group payload = %#v", groupPayload)
+	}
+}
+
+func TestSchemaCommandProgressiveDisclosure(t *testing.T) {
+	t.Parallel()
+
+	t.Run("default is compact product overview", func(t *testing.T) {
+		cmd := buildSchemaCommandTestRoot()
+		var out bytes.Buffer
+		cmd.SetOut(&out)
+		cmd.SetErr(&bytes.Buffer{})
+		cmd.SetArgs([]string{"schema"})
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf("Execute() error = %v", err)
+		}
+		var payload map[string]any
+		if err := json.Unmarshal(out.Bytes(), &payload); err != nil {
+			t.Fatalf("decode: %v", err)
+		}
+		if payload["level"] != "products" || payload["tool_count"] != float64(3) {
+			t.Fatalf("overview payload = %#v", payload)
+		}
+		products, _ := payload["products"].([]any)
+		if len(products) != 2 {
+			t.Fatalf("products len = %d, want 2", len(products))
+		}
+		for _, raw := range products {
+			product, _ := raw.(map[string]any)
+			if _, hasTools := product["tools"]; hasTools {
+				t.Fatalf("compact product unexpectedly embeds tools: %#v", product)
+			}
+			if product["tool_count"] == nil || product["schema_path"] == nil {
+				t.Fatalf("compact product missing drill-down metadata: %#v", product)
+			}
+		}
+	})
+
+	t.Run("all preserves complete catalog", func(t *testing.T) {
+		cmd := buildSchemaCommandTestRoot()
+		var out bytes.Buffer
+		cmd.SetOut(&out)
+		cmd.SetErr(&bytes.Buffer{})
+		cmd.SetArgs([]string{"schema", "--all"})
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf("Execute() error = %v", err)
+		}
+		var payload map[string]any
+		if err := json.Unmarshal(out.Bytes(), &payload); err != nil {
+			t.Fatalf("decode: %v", err)
+		}
+		if payload["level"] != "catalog" || payload["tool_count"] != float64(3) {
+			t.Fatalf("catalog payload = %#v", payload)
+		}
+		products, _ := payload["products"].([]any)
+		first, _ := products[0].(map[string]any)
+		if tools, _ := first["tools"].([]any); len(tools) == 0 {
+			t.Fatalf("full catalog product has no tools: %#v", first)
+		}
+	})
+
+	t.Run("all rejects path", func(t *testing.T) {
+		cmd := buildSchemaCommandTestRoot()
+		cmd.SetOut(&bytes.Buffer{})
+		cmd.SetErr(&bytes.Buffer{})
+		cmd.SetArgs([]string{"schema", "--all", "ding"})
+		if err := cmd.Execute(); err == nil || !strings.Contains(err.Error(), "cannot be combined") {
+			t.Fatalf("Execute() error = %v, want --all/path validation", err)
+		}
+	})
+}
+
 func TestRuntimeSchemaPayloadMarksCanonicalAliases(t *testing.T) {
 	t.Parallel()
 
@@ -437,8 +531,94 @@ func buildRuntimeSchemaTestRoot() *cobra.Command {
 
 func buildSchemaCommandTestRoot() *cobra.Command {
 	root := buildRuntimeSchemaTestRoot()
-	root.AddCommand(NewSchemaCommand(nil))
+	root.AddCommand(NewSchemaCommand())
 	return root
+}
+
+func TestRuntimeSchemaUsesMCPMetadataAnnotations(t *testing.T) {
+	root := &cobra.Command{Use: "dws"}
+	search := &cobra.Command{Use: "search", Short: "fallback title", Long: "fallback description", Run: func(*cobra.Command, []string) {}}
+	search.Flags().String("start", "", "fallback start")
+	search.Flags().String("status", "", "fallback status")
+	_ = search.Flags().SetAnnotation("start", "x-cli-format", []string{"date-time"})
+	_ = search.Flags().SetAnnotation("status", "x-cli-enum", []string{"confirmed", "cancelled"})
+	AttachRuntimeSchema(search, "calendar", "search_events", "runtime:calendar")
+	AnnotateRuntimeToolMetadata(search, "MCP title", "MCP description", "mcp-detail")
+	AnnotateRuntimeFlag(search, "start", "startTime", "string", true, "")
+	AnnotateRuntimeFlag(search, "status", "status", "string", false, "")
+	calendar := &cobra.Command{Use: "calendar", Short: "Calendar"}
+	calendar.AddCommand(search)
+	root.AddCommand(calendar)
+
+	payload, err := runtimeSchemaPayload(root, []string{"calendar search"})
+	if err != nil {
+		t.Fatalf("runtimeSchemaPayload() error = %v", err)
+	}
+	if payload["title"] != "MCP title" {
+		t.Fatalf("title = %v, want MCP title", payload["title"])
+	}
+	if payload["description"] != "MCP description" {
+		t.Fatalf("description = %v, want MCP description", payload["description"])
+	}
+	if payload["metadata_source"] != "mcp-detail" {
+		t.Fatalf("metadata_source = %v, want mcp-detail", payload["metadata_source"])
+	}
+	params, _ := payload["parameters"].(map[string]any)
+	start, _ := params["start"].(map[string]any)
+	if start["format"] != "date-time" {
+		t.Fatalf("start format = %v, want date-time", start["format"])
+	}
+	status, _ := params["status"].(map[string]any)
+	enum, _ := status["enum"].([]string)
+	if !equalStrings(enum, []string{"confirmed", "cancelled"}) {
+		t.Fatalf("status enum = %#v", status["enum"])
+	}
+}
+
+func TestRuntimeSchemaUsesEmbeddedMCPMetadataFallback(t *testing.T) {
+	prev := runtimeEmbeddedMCPMetadata
+	required := true
+	runtimeEmbeddedMCPMetadata = embeddedMCPMetadata{
+		Tools: map[string]embeddedMCPToolMetadata{
+			"calendar.search_events": {
+				Title:       "Embedded title",
+				Description: "Embedded description",
+				Parameters: map[string]embeddedMCPParamMeta{
+					"startTime": {
+						Description: "Embedded start time",
+						Format:      "date-time",
+						Required:    &required,
+					},
+				},
+			},
+		},
+	}
+	t.Cleanup(func() { runtimeEmbeddedMCPMetadata = prev })
+
+	root := &cobra.Command{Use: "dws"}
+	search := &cobra.Command{Use: "search", Short: "fallback title", Long: "fallback description", Run: func(*cobra.Command, []string) {}}
+	search.Flags().String("start", "", "fallback start")
+	AttachRuntimeSchema(search, "calendar", "search_events", "runtime:calendar")
+	AnnotateRuntimeFlag(search, "start", "startTime", "string", false, "")
+	calendar := &cobra.Command{Use: "calendar", Short: "Calendar"}
+	calendar.AddCommand(search)
+	root.AddCommand(calendar)
+
+	payload, err := runtimeSchemaPayload(root, []string{"calendar search"})
+	if err != nil {
+		t.Fatalf("runtimeSchemaPayload() error = %v", err)
+	}
+	if payload["title"] != "Embedded title" || payload["description"] != "Embedded description" {
+		t.Fatalf("payload metadata = %#v", payload)
+	}
+	if payload["metadata_source"] != "embedded-mcp-metadata" {
+		t.Fatalf("metadata_source = %v", payload["metadata_source"])
+	}
+	params, _ := payload["parameters"].(map[string]any)
+	start, _ := params["start"].(map[string]any)
+	if start["description"] != "Embedded start time" || start["format"] != "date-time" || start["required"] != true {
+		t.Fatalf("start param = %#v", start)
+	}
 }
 
 func keysOf(m map[string]any) []string {
@@ -447,6 +627,18 @@ func keysOf(m map[string]any) []string {
 		out = append(out, k)
 	}
 	return out
+}
+
+func equalStrings(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }
 
 func TestNewMCPCommandReturnsLoaderErrorForInvocations(t *testing.T) {
@@ -1364,7 +1556,7 @@ func newTestMCPCommand(t *testing.T, catalog ir.Catalog, runner executor.Runner)
 func TestSchemaCommandDoesNotNeedDiscovery(t *testing.T) {
 	t.Parallel()
 
-	cmd := NewSchemaCommand(nil)
+	cmd := NewSchemaCommand()
 
 	var out, errOut bytes.Buffer
 	cmd.SetOut(&out)
@@ -1383,6 +1575,53 @@ func TestSchemaCommandDoesNotNeedDiscovery(t *testing.T) {
 	}
 	if errOut.String() != "" {
 		t.Fatalf("stderr = %q, want empty", errOut.String())
+	}
+}
+
+func TestRuntimeSchemaRootIncludesVisibleCommandsAndSkipsHiddenCommands(t *testing.T) {
+	t.Parallel()
+
+	root := &cobra.Command{Use: "dws"}
+	patRoot := &cobra.Command{Use: "pat", Short: "行为授权管理", RunE: func(*cobra.Command, []string) error { return nil }}
+	patRoot.AddCommand(
+		&cobra.Command{Use: "chmod", Short: "授权", RunE: func(*cobra.Command, []string) error { return nil }},
+		&cobra.Command{Use: "browser-policy", Short: "本地策略", RunE: func(*cobra.Command, []string) error { return nil }},
+		&cobra.Command{Use: "hidden", Hidden: true, RunE: func(*cobra.Command, []string) error { return nil }},
+	)
+	root.AddCommand(patRoot)
+
+	payload, err := runtimeSchemaPayload(root, nil)
+	if err != nil {
+		t.Fatalf("runtimeSchemaPayload() error = %v", err)
+	}
+	products, ok := payload["products"].([]map[string]any)
+	if !ok {
+		t.Fatalf("products type = %T, want []map[string]any", payload["products"])
+	}
+	var paths []string
+	for _, product := range products {
+		if product["id"] != "pat" {
+			continue
+		}
+		tools, ok := product["tools"].([]map[string]any)
+		if !ok {
+			t.Fatalf("tools type = %T, want []map[string]any", product["tools"])
+		}
+		for _, tool := range tools {
+			paths = append(paths, tool["cli_path"].(string))
+		}
+	}
+	got := map[string]bool{}
+	for _, path := range paths {
+		got[path] = true
+	}
+	for _, want := range []string{"pat chmod", "pat browser-policy"} {
+		if !got[want] {
+			t.Fatalf("pat schema cli paths = %q, missing %q", strings.Join(paths, ","), want)
+		}
+	}
+	if got["pat hidden"] {
+		t.Fatalf("pat schema cli paths = %q, hidden command must not be included", strings.Join(paths, ","))
 	}
 }
 

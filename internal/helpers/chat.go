@@ -37,8 +37,8 @@ func init() {
 // (intelligent tool routing, current-user resolution, response normalization,
 // or stdin/@file input support that dynamic commands do not yet provide).
 // Thin wrappers — search, group rename, group members list/add/remove/add-bot,
-// bot search — are now produced by the dynamic service-discovery envelope
-// (envelope/pre-discovery.json) so the helper does not have to duplicate them.
+// bot search — are produced from the versioned command registry so the helper
+// does not have to duplicate them.
 type chatHandler struct{}
 
 func (chatHandler) Name() string {
@@ -49,7 +49,7 @@ func (chatHandler) Command(runner executor.Runner) *cobra.Command {
 	root := &cobra.Command{
 		Use:               "chat",
 		Short:             "群聊 / 消息 / 机器人",
-		Long:              "钉钉会话与群聊：发送消息（用户/机器人/Webhook）、撤回机器人消息、创建群。其余命令由服务发现 envelope 提供。",
+		Long:              "钉钉会话与群聊：发送消息（用户/机器人/Webhook）、撤回机器人消息、创建群。其余命令由版本化命令注册表提供。",
 		Args:              cobra.NoArgs,
 		TraverseChildren:  true,
 		DisableAutoGenTag: true,

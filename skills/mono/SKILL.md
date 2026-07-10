@@ -55,6 +55,7 @@ cli_version: ">=1.0.15"
 | `drive`           | 钉钉云盘：文件列表/元数据/文件夹/上传(两步)/下载                        | [drive.md](./references/products/drive.md)                     |
 | `minutes`         | AI听记：听记列表/摘要/关键词/转写/待办/思维导图/发言人/发言人段落总结/热词/录音控制/成员权限/上传 | [minutes.md](./references/products/minutes.md)                 |
 | `oa`              | OA审批：待处理/详情/同意/拒绝/撤销/记录/已发起/任务/转交/评论/抄送              | [oa.md](./references/products/oa.md)                           |
+| `pat`             | PAT 行为授权：授予 Agent 操作 scope、配置授权时是否允许打开浏览器               | [pat.md](./references/products/pat.md)                         |
 | `report`          | 日志：按模版创建/收件箱/已发送/模版查看/详情/已读统计                         | [report.md](./references/products/report.md)                   |
 | `mail`            | 邮箱：邮箱地址查询/邮件搜索(KQL)/邮件详情/发送邮件                        | [mail.md](./references/products/mail.md)                       |
 | `sheet`           | 在线电子表格(axls)：工作表 CRUD/区域读写/CSV 批量写入/行列增删/合并/查找替换/筛选视图/全局筛选/排序/下拉列表/浮动图片/导出(两步) | [sheet.md](./references/products/sheet.md)                     |
@@ -109,6 +110,7 @@ cli_version: ">=1.0.15"
 用户提到"听记/AI听记/会议纪要/转写/摘要/思维导图/发言人/热词" → `minutes`
 用户提到"邮箱/邮件/发邮件/收邮件/搜邮件/查邮件/邮件草稿/转发邮件/回复邮件/邮件附件/抄送" → `mail`
 用户提到"审批/请假/报销/出差/加班/同意/拒绝/撤销审批" → `oa`
+用户提到"PAT/行为授权/授权 scope/永久授权/会话授权/授权时打开浏览器" → `pat`
 用户提到"日志/日报/周报/日志统计/写日报/提交周报/发日志/填日志" → `report`
 用户提到"在线电子表格/钉钉表格/axls/工作表/单元格读写/合并单元格/筛选视图/导出 xlsx" → `sheet`
 用户提到"待办/TODO/任务提醒/循环待办" → `todo`
@@ -149,6 +151,7 @@ cli_version: ">=1.0.15"
 | `ding` | `message recall` | 撤回已发 DING 消息 |
 | `oa` | `approval revoke` | 撤销自己发起的审批实例 |
 | `oa` | `approval reject` | 拒绝待审批（需加明确理由） |
+| `pat` | `chmod` | 批量修改 Agent 行为授权 scope，可能扩大可执行权限 |
 | `todo` | `task delete` | 删除待办 |
 | `minutes` | `replace-text` | 全文批量替换转写与摘要 |
 

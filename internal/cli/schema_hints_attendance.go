@@ -14,7 +14,49 @@
 package cli
 
 func init() {
+	RegisterRuntimeSchemaRoot("attendance", RuntimeSchemaRootHint{
+		Source: "hardcoded:attendance",
+		ToolNames: map[string]string{
+			"attendance record get":  "get_user_attendance_record",
+			"attendance record list": "get_user_attendance_record",
+			"attendance shift list":  "batch_get_employee_shifts",
+			"attendance summary":     "get_attendance_summary",
+			"attendance rules":       "query_attendance_group_or_rules",
+		},
+		PrimaryCLIPaths: map[string]string{
+			"get_user_attendance_record": "attendance record get",
+		},
+	})
+
 	RegisterSchemaHints("attendance", map[string]ToolSchemaHint{
+		"get_user_attendance_record": {
+			Parameters: map[string]ParameterSchemaHint{
+				"user":  {Required: boolPtr(true)},
+				"date":  {Required: boolPtr(true)},
+				"users": {Type: "array", Required: boolPtr(true)},
+				"start": {Required: boolPtr(true)},
+				"end":   {Required: boolPtr(true)},
+			},
+		},
+		"batch_get_employee_shifts": {
+			Parameters: map[string]ParameterSchemaHint{
+				"users": {Type: "array", Required: boolPtr(true)},
+				"start": {Required: boolPtr(true)},
+				"end":   {Required: boolPtr(true)},
+			},
+		},
+		"get_attendance_summary": {
+			Parameters: map[string]ParameterSchemaHint{
+				"user":       {Required: boolPtr(true)},
+				"date":       {Required: boolPtr(true)},
+				"stats-type": {Required: boolPtr(true)},
+			},
+		},
+		"query_attendance_group_or_rules": {
+			Parameters: map[string]ParameterSchemaHint{
+				"date": {Required: boolPtr(true)},
+			},
+		},
 		"boss_check": {
 			Parameters: map[string]ParameterSchemaHint{
 				"plan-id": {Required: boolPtr(true)},

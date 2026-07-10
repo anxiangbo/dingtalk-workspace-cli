@@ -14,6 +14,8 @@
 package cli
 
 import (
+	_ "embed"
+	"encoding/json"
 	"sort"
 	"strings"
 
@@ -22,16 +24,67 @@ import (
 	"github.com/spf13/pflag"
 )
 
+//go:embed schema_mcp_metadata.json
+var embeddedMCPMetadataJSON []byte
+
 const (
 	runtimeSchemaProductAnnotation = "dws.schema.product"
 	runtimeSchemaToolAnnotation    = "dws.schema.tool"
 	runtimeSchemaSourceAnnotation  = "dws.schema.source"
+	runtimeSchemaTitleAnnotation   = "dws.schema.title"
+	runtimeSchemaDescAnnotation    = "dws.schema.description"
+	runtimeSchemaMetaAnnotation    = "dws.schema.metadata_source"
 
 	runtimeSchemaFlagPropertyAnnotation = "dws.schema.property"
 	runtimeSchemaFlagTypeAnnotation     = "dws.schema.type"
 	runtimeSchemaFlagRequiredAnnotation = "dws.schema.required"
 	runtimeSchemaFlagDefaultAnnotation  = "dws.schema.default"
 )
+
+type embeddedMCPMetadata struct {
+	Version    int                                `json:"version"`
+	Source     string                             `json:"source"`
+	SourceHash string                             `json:"source_hash"`
+	Tools      map[string]embeddedMCPToolMetadata `json:"tools"`
+}
+
+type embeddedMCPToolMetadata struct {
+	Title       string                          `json:"title,omitempty"`
+	Description string                          `json:"description,omitempty"`
+	Parameters  map[string]embeddedMCPParamMeta `json:"parameters,omitempty"`
+}
+
+type embeddedMCPParamMeta struct {
+	Type        string   `json:"type,omitempty"`
+	Description string   `json:"description,omitempty"`
+	Default     string   `json:"default,omitempty"`
+	Format      string   `json:"format,omitempty"`
+	Enum        []string `json:"enum,omitempty"`
+	Required    *bool    `json:"required,omitempty"`
+}
+
+var runtimeEmbeddedMCPMetadata = loadEmbeddedMCPMetadata()
+
+func loadEmbeddedMCPMetadata() embeddedMCPMetadata {
+	var metadata embeddedMCPMetadata
+	if err := json.Unmarshal(embeddedMCPMetadataJSON, &metadata); err != nil {
+		return embeddedMCPMetadata{Tools: map[string]embeddedMCPToolMetadata{}}
+	}
+	if metadata.Tools == nil {
+		metadata.Tools = map[string]embeddedMCPToolMetadata{}
+	}
+	return metadata
+}
+
+func interfaceMetadataSummary() map[string]any {
+	metadata := runtimeEmbeddedMCPMetadata
+	return map[string]any{
+		"source":      strings.TrimSpace(metadata.Source),
+		"version":     metadata.Version,
+		"source_hash": strings.TrimSpace(metadata.SourceHash),
+		"tool_count":  len(metadata.Tools),
+	}
+}
 
 // AttachRuntimeSchema marks a runnable command as part of the runtime schema
 // surface. `dws schema` scans only commands with these annotations, so the
@@ -53,6 +106,26 @@ func AttachRuntimeSchema(cmd *cobra.Command, productID, toolName, source string)
 	cmd.Annotations[runtimeSchemaToolAnnotation] = toolName
 	if source = strings.TrimSpace(source); source != "" {
 		cmd.Annotations[runtimeSchemaSourceAnnotation] = source
+	}
+}
+
+// AnnotateRuntimeToolMetadata preserves MCP-provided tool metadata on a Cobra
+// leaf so `dws schema` can render richer descriptions without refetching.
+func AnnotateRuntimeToolMetadata(cmd *cobra.Command, title, description, source string) {
+	if cmd == nil {
+		return
+	}
+	if cmd.Annotations == nil {
+		cmd.Annotations = map[string]string{}
+	}
+	if title = strings.TrimSpace(title); title != "" {
+		cmd.Annotations[runtimeSchemaTitleAnnotation] = title
+	}
+	if description = strings.TrimSpace(description); description != "" {
+		cmd.Annotations[runtimeSchemaDescAnnotation] = description
+	}
+	if source = strings.TrimSpace(source); source != "" {
+		cmd.Annotations[runtimeSchemaMetaAnnotation] = source
 	}
 }
 
@@ -98,26 +171,31 @@ func runtimeSchemaPayload(root *cobra.Command, args []string) (map[string]any, e
 	}
 
 	entry, ok := resolveRuntimeSchemaEntry(entries, args[0])
-	if !ok {
-		return nil, apperrors.NewValidation("unknown runtime schema path " + strconvQuote(args[0]))
+	if ok {
+		return runtimeToolPayload(entry), nil
 	}
-	return runtimeToolPayload(entry), nil
+	if payload, ok := runtimeSchemaBrowsePayload(entries, args[0]); ok {
+		return payload, nil
+	}
+	return nil, apperrors.NewValidation("unknown runtime schema path " + strconvQuote(args[0]))
 }
 
 type runtimeSchemaEntry struct {
-	ProductID      string
-	ProductName    string
-	ToolName       string
-	CLIName        string
-	Group          string
-	CLIPath        string
-	Title          string
-	Description    string
-	Source         string
-	Command        *cobra.Command
-	PrimaryCLIPath string
-	Aliases        []string
-	IsAlias        bool
+	ProductID       string
+	SourceProductID string
+	ProductName     string
+	ToolName        string
+	CLIName         string
+	Group           string
+	CLIPath         string
+	Title           string
+	Description     string
+	Source          string
+	MetadataSource  string
+	Command         *cobra.Command
+	PrimaryCLIPath  string
+	Aliases         []string
+	IsAlias         bool
 }
 
 func collectRuntimeSchemaEntries(root *cobra.Command) []runtimeSchemaEntry {
@@ -139,21 +217,25 @@ func collectRuntimeSchemaEntries(root *cobra.Command) []runtimeSchemaEntry {
 		if len(parts) > 2 {
 			group = strings.Join(parts[1:len(parts)-1], ".")
 		}
+		displayProductID := productID
 		productName := ""
 		if top := topLevelCommand(leaf); top != nil {
+			displayProductID = strings.TrimSpace(top.Name())
 			productName = strings.TrimSpace(top.Short)
 		}
 		entry := runtimeSchemaEntry{
-			ProductID:   productID,
-			ProductName: productName,
-			ToolName:    toolName,
-			CLIName:     leaf.Name(),
-			Group:       group,
-			CLIPath:     strings.Join(parts, " "),
-			Title:       strings.TrimSpace(leaf.Short),
-			Description: runtimeCommandDescription(leaf),
-			Source:      source,
-			Command:     leaf,
+			ProductID:       displayProductID,
+			SourceProductID: productID,
+			ProductName:     productName,
+			ToolName:        toolName,
+			CLIName:         leaf.Name(),
+			Group:           group,
+			CLIPath:         strings.Join(parts, " "),
+			Title:           runtimeCommandTitle(leaf),
+			Description:     runtimeCommandDescription(leaf),
+			Source:          source,
+			MetadataSource:  runtimeCommandMetadataSource(leaf),
+			Command:         leaf,
 		}
 		entries = append(entries, entry)
 		seen[entryKey(entry)] = true
@@ -170,6 +252,9 @@ func collectRuntimeSchemaEntries(root *cobra.Command) []runtimeSchemaEntry {
 				return
 			}
 			cliPath := strings.Join(parts, " ")
+			if len(hint.IncludeCLIPaths) > 0 && !hint.IncludeCLIPaths[cliPath] {
+				return
+			}
 			toolName := strings.TrimSpace(hint.ToolNames[cliPath])
 			if toolName == "" {
 				toolName = derivedRuntimeToolName(parts)
@@ -183,16 +268,18 @@ func collectRuntimeSchemaEntries(root *cobra.Command) []runtimeSchemaEntry {
 				source = "hardcoded:" + productID
 			}
 			entry := runtimeSchemaEntry{
-				ProductID:   productID,
-				ProductName: productName,
-				ToolName:    toolName,
-				CLIName:     leaf.Name(),
-				Group:       group,
-				CLIPath:     cliPath,
-				Title:       strings.TrimSpace(leaf.Short),
-				Description: runtimeCommandDescription(leaf),
-				Source:      source,
-				Command:     leaf,
+				ProductID:       productID,
+				SourceProductID: productID,
+				ProductName:     productName,
+				ToolName:        toolName,
+				CLIName:         leaf.Name(),
+				Group:           group,
+				CLIPath:         cliPath,
+				Title:           runtimeCommandTitle(leaf),
+				Description:     runtimeCommandDescription(leaf),
+				Source:          source,
+				MetadataSource:  runtimeCommandMetadataSource(leaf),
+				Command:         leaf,
 			}
 			if seen[entryKey(entry)] {
 				return
@@ -285,6 +372,39 @@ func schemaPrimaryCLIPath(productID, toolName string) string {
 	return ""
 }
 
+func runtimeSchemaHintForEntry(entry runtimeSchemaEntry) ToolSchemaHint {
+	if hint := schemaHintForCanonicalPath(entry.ProductID + "." + entry.ToolName); !isZeroToolSchemaHint(hint) {
+		return hint
+	}
+	if entry.SourceProductID != "" && entry.SourceProductID != entry.ProductID {
+		return schemaHintForCanonicalPath(entry.SourceProductID + "." + entry.ToolName)
+	}
+	return ToolSchemaHint{}
+}
+
+func embeddedMCPMetadataForEntry(entry runtimeSchemaEntry) (embeddedMCPToolMetadata, bool) {
+	for _, key := range []string{
+		entry.SourceProductID + "." + entry.ToolName,
+		entry.ProductID + "." + entry.ToolName,
+	} {
+		key = strings.Trim(key, ".")
+		if key == "" {
+			continue
+		}
+		if meta, ok := runtimeEmbeddedMCPMetadata.Tools[key]; ok {
+			return meta, true
+		}
+	}
+	return embeddedMCPToolMetadata{}, false
+}
+
+func isZeroToolSchemaHint(hint ToolSchemaHint) bool {
+	return strings.TrimSpace(hint.Title) == "" &&
+		strings.TrimSpace(hint.Description) == "" &&
+		strings.TrimSpace(hint.PrimaryCLIPath) == "" &&
+		len(hint.Parameters) == 0
+}
+
 func derivedRuntimeToolName(parts []string) string {
 	if len(parts) <= 1 {
 		return "command"
@@ -305,14 +425,38 @@ func runtimeSchemaAnnotations(cmd *cobra.Command) (productID, toolName, source s
 	return productID, toolName, source
 }
 
+func runtimeCommandTitle(cmd *cobra.Command) string {
+	if cmd == nil {
+		return ""
+	}
+	if cmd.Annotations != nil {
+		if title := strings.TrimSpace(cmd.Annotations[runtimeSchemaTitleAnnotation]); title != "" {
+			return title
+		}
+	}
+	return strings.TrimSpace(cmd.Short)
+}
+
 func runtimeCommandDescription(cmd *cobra.Command) string {
 	if cmd == nil {
 		return ""
+	}
+	if cmd.Annotations != nil {
+		if desc := strings.TrimSpace(cmd.Annotations[runtimeSchemaDescAnnotation]); desc != "" {
+			return desc
+		}
 	}
 	if desc := strings.TrimSpace(cmd.Long); desc != "" {
 		return desc
 	}
 	return strings.TrimSpace(cmd.Short)
+}
+
+func runtimeCommandMetadataSource(cmd *cobra.Command) string {
+	if cmd == nil || cmd.Annotations == nil {
+		return ""
+	}
+	return strings.TrimSpace(cmd.Annotations[runtimeSchemaMetaAnnotation])
 }
 
 func commandPathParts(cmd *cobra.Command) []string {
@@ -347,38 +491,224 @@ func runtimeSchemaListPayload(entries []runtimeSchemaEntry) map[string]any {
 	sort.Strings(ids)
 
 	products := make([]map[string]any, 0, len(ids))
+	totalTools := 0
 	for _, id := range ids {
 		productEntries := byProduct[id]
 		tools := make([]map[string]any, 0, len(productEntries))
 		for _, entry := range productEntries {
-			tool := map[string]any{
-				"name":             entry.ToolName,
-				"cli_name":         entry.CLIName,
-				"canonical_path":   entry.ProductID + "." + entry.ToolName,
-				"cli_path":         entry.CLIPath,
-				"primary_cli_path": entry.PrimaryCLIPath,
-				"description":      entry.Description,
-			}
-			if len(entry.Aliases) > 0 {
-				tool["aliases"] = entry.Aliases
-			}
-			tools = append(tools, tool)
+			tools = append(tools, runtimeToolSummary(entry))
 		}
+		totalTools += len(tools)
 		products = append(products, map[string]any{
 			"id":          id,
 			"name":        productEntries[0].ProductName,
 			"description": productEntries[0].ProductName,
+			"tool_count":  len(tools),
 			"tools":       tools,
 			"runtime":     true,
 		})
+		applyAgentProductMetadata(products[len(products)-1], id, productEntries[0].SourceProductID)
 	}
 
 	return map[string]any{
-		"kind":     "schema",
-		"count":    len(products),
-		"products": products,
-		"source":   "runtime-command",
+		"kind":               "schema",
+		"level":              "catalog",
+		"count":              len(products),
+		"tool_count":         totalTools,
+		"products":           products,
+		"source":             "runtime-command",
+		"interface_metadata": interfaceMetadataSummary(),
+		"agent_metadata":     agentMetadataSummary(),
 	}
+}
+
+// compactSchemaOverviewPayload projects the complete catalog into a small
+// first-hop response. Agents can then query one product or group instead of
+// loading every tool description into context up front.
+func compactSchemaOverviewPayload(payload map[string]any) map[string]any {
+	products, _ := payload["products"].([]map[string]any)
+	compact := make([]map[string]any, 0, len(products))
+	totalTools := 0
+	for _, product := range products {
+		id, _ := product["id"].(string)
+		toolCount := schemaProductToolCount(product)
+		totalTools += toolCount
+		entry := map[string]any{
+			"id":          id,
+			"name":        product["name"],
+			"description": product["description"],
+			"tool_count":  toolCount,
+			"schema_path": id,
+		}
+		if helper, _ := product["helper"].(bool); helper {
+			entry["helper"] = true
+		}
+		applyAgentProductMetadata(entry, id)
+		compact = append(compact, entry)
+	}
+	return map[string]any{
+		"kind":               "schema",
+		"level":              "products",
+		"count":              len(compact),
+		"tool_count":         totalTools,
+		"products":           compact,
+		"source":             payload["source"],
+		"interface_metadata": payload["interface_metadata"],
+		"agent_metadata":     payload["agent_metadata"],
+	}
+}
+
+func schemaProductToolCount(product map[string]any) int {
+	switch value := product["tool_count"].(type) {
+	case int:
+		return value
+	case int64:
+		return int(value)
+	case float64:
+		return int(value)
+	}
+	if tools, ok := product["tools"].([]map[string]any); ok {
+		return len(tools)
+	}
+	if tools, ok := product["tools"].([]any); ok {
+		return len(tools)
+	}
+	return 0
+}
+
+func runtimeToolSummary(entry runtimeSchemaEntry) map[string]any {
+	title, description, metadataSource := runtimeToolTextMetadata(entry)
+	tool := map[string]any{
+		"name":             entry.ToolName,
+		"cli_name":         entry.CLIName,
+		"canonical_path":   entry.ProductID + "." + entry.ToolName,
+		"cli_path":         entry.CLIPath,
+		"primary_cli_path": entry.PrimaryCLIPath,
+		"description":      description,
+	}
+	if title != "" && title != description {
+		tool["title"] = title
+	}
+	if entry.SourceProductID != "" && entry.SourceProductID != entry.ProductID {
+		tool["source_product_id"] = entry.SourceProductID
+	}
+	if metadataSource != "" {
+		tool["metadata_source"] = metadataSource
+	}
+	if len(entry.Aliases) > 0 {
+		tool["aliases"] = entry.Aliases
+	}
+	applyAgentToolMetadata(tool, false,
+		entry.PrimaryCLIPath,
+		entry.CLIPath,
+		entry.ProductID+"."+entry.ToolName,
+	)
+	return tool
+}
+
+func runtimeToolTextMetadata(entry runtimeSchemaEntry) (title, description, metadataSource string) {
+	title = entry.Title
+	description = entry.Description
+	metadataSource = entry.MetadataSource
+	embeddedMeta, hasEmbeddedMeta := embeddedMCPMetadataForEntry(entry)
+	if metadataSource == "" && hasEmbeddedMeta {
+		if value := strings.TrimSpace(embeddedMeta.Title); value != "" {
+			title = value
+		}
+		if value := strings.TrimSpace(embeddedMeta.Description); value != "" {
+			description = value
+		}
+		metadataSource = "embedded-mcp-metadata"
+	}
+	hint := runtimeSchemaHintForEntry(entry)
+	if value := strings.TrimSpace(hint.Title); value != "" {
+		title = value
+	}
+	if value := strings.TrimSpace(hint.Description); value != "" {
+		description = value
+	}
+	return strings.TrimSpace(title), strings.TrimSpace(description), strings.TrimSpace(metadataSource)
+}
+
+func runtimeSchemaBrowsePayload(entries []runtimeSchemaEntry, raw string) (map[string]any, bool) {
+	tokens := splitSchemaPathTokens(raw)
+	if len(tokens) == 0 {
+		return nil, false
+	}
+	path := strings.Join(tokens, " ")
+	if len(tokens) == 1 {
+		productEntries := runtimeSchemaEntriesForProduct(entries, tokens[0])
+		if len(productEntries) == 0 {
+			return nil, false
+		}
+		product := runtimeSchemaProductObject(productEntries)
+		return map[string]any{
+			"kind":               "schema",
+			"level":              "product",
+			"count":              len(productEntries),
+			"product":            product,
+			"source":             "runtime-command",
+			"interface_metadata": interfaceMetadataSummary(),
+			"agent_metadata":     agentMetadataSummary(),
+		}, true
+	}
+
+	groupEntries := make([]runtimeSchemaEntry, 0)
+	prefix := path + " "
+	for _, entry := range entries {
+		if entry.IsAlias || !strings.HasPrefix(entry.CLIPath, prefix) {
+			continue
+		}
+		groupEntries = append(groupEntries, entry)
+	}
+	if len(groupEntries) == 0 {
+		return nil, false
+	}
+	tools := make([]map[string]any, 0, len(groupEntries))
+	for _, entry := range groupEntries {
+		tools = append(tools, runtimeToolSummary(entry))
+	}
+	return map[string]any{
+		"kind":               "schema",
+		"level":              "group",
+		"path":               path,
+		"count":              len(tools),
+		"tools":              tools,
+		"source":             "runtime-command",
+		"interface_metadata": interfaceMetadataSummary(),
+		"agent_metadata":     agentMetadataSummary(),
+	}, true
+}
+
+func runtimeSchemaEntriesForProduct(entries []runtimeSchemaEntry, productID string) []runtimeSchemaEntry {
+	productID = strings.TrimSpace(productID)
+	out := make([]runtimeSchemaEntry, 0)
+	for _, entry := range entries {
+		if !entry.IsAlias && entry.ProductID == productID {
+			out = append(out, entry)
+		}
+	}
+	return out
+}
+
+func runtimeSchemaProductObject(entries []runtimeSchemaEntry) map[string]any {
+	if len(entries) == 0 {
+		return map[string]any{}
+	}
+	tools := make([]map[string]any, 0, len(entries))
+	for _, entry := range entries {
+		tools = append(tools, runtimeToolSummary(entry))
+	}
+	product := map[string]any{
+		"id":          entries[0].ProductID,
+		"name":        entries[0].ProductName,
+		"description": entries[0].ProductName,
+		"tool_count":  len(tools),
+		"tools":       tools,
+		"runtime":     true,
+	}
+	applyAgentProductMetadata(product, entries[0].ProductID, entries[0].SourceProductID)
+	return product
 }
 
 func resolveRuntimeSchemaEntry(entries []runtimeSchemaEntry, raw string) (runtimeSchemaEntry, bool) {
@@ -397,22 +727,20 @@ func resolveRuntimeSchemaEntry(entries []runtimeSchemaEntry, raw string) (runtim
 		if raw == entry.ProductID+"."+entry.ToolName && !entry.IsAlias {
 			return entry, true
 		}
+		if entry.SourceProductID != "" && entry.SourceProductID != entry.ProductID &&
+			raw == entry.SourceProductID+"."+entry.ToolName && !entry.IsAlias {
+			return entry, true
+		}
 	}
 	return runtimeSchemaEntry{}, false
 }
 
 func runtimeToolPayload(entry runtimeSchemaEntry) map[string]any {
 	canonicalPath := entry.ProductID + "." + entry.ToolName
-	hint := schemaHintForCanonicalPath(canonicalPath)
-	title := entry.Title
-	if strings.TrimSpace(hint.Title) != "" {
-		title = strings.TrimSpace(hint.Title)
-	}
-	description := entry.Description
-	if strings.TrimSpace(hint.Description) != "" {
-		description = strings.TrimSpace(hint.Description)
-	}
-	parameters := runtimeCommandParameters(entry.Command, hint.Parameters)
+	hint := runtimeSchemaHintForEntry(entry)
+	embeddedMeta, hasEmbeddedMeta := embeddedMCPMetadataForEntry(entry)
+	title, description, metadataSource := runtimeToolTextMetadata(entry)
+	parameters := runtimeCommandParameters(entry.Command, hint.Parameters, embeddedMeta.Parameters)
 	if parameters == nil {
 		parameters = map[string]any{}
 	}
@@ -436,13 +764,24 @@ func runtimeToolPayload(entry runtimeSchemaEntry) map[string]any {
 	if entry.Group != "" {
 		payload["group"] = entry.Group
 	}
+	if entry.SourceProductID != "" && entry.SourceProductID != entry.ProductID {
+		payload["source_product_id"] = entry.SourceProductID
+	}
+	if metadataSource != "" {
+		payload["metadata_source"] = metadataSource
+	} else if hasEmbeddedMeta {
+		payload["metadata_source"] = "embedded-mcp-metadata"
+	}
 	if len(entry.Aliases) > 0 {
 		payload["aliases"] = entry.Aliases
 	}
+	paths := []string{entry.PrimaryCLIPath, entry.CLIPath, canonicalPath}
+	paths = append(paths, entry.Aliases...)
+	applyAgentToolMetadata(payload, true, paths...)
 	return payload
 }
 
-func runtimeCommandParameters(cmd *cobra.Command, hints map[string]ParameterSchemaHint) map[string]any {
+func runtimeCommandParameters(cmd *cobra.Command, hints map[string]ParameterSchemaHint, embeddedParams map[string]embeddedMCPParamMeta) map[string]any {
 	if cmd == nil {
 		return nil
 	}
@@ -456,20 +795,30 @@ func runtimeCommandParameters(cmd *cobra.Command, hints map[string]ParameterSche
 			property = lowerCamelFlagName(flag.Name)
 		}
 		hint, _, hasHint := lookupParameterSchemaHint(hints, property, flag.Name)
+		embeddedParam, hasEmbeddedParam := lookupEmbeddedMCPParam(embeddedParams, property, flag.Name)
 		flagName := flag.Name
 		if hasHint && strings.TrimSpace(hint.FlagName) != "" {
 			flagName = strings.TrimSpace(hint.FlagName)
 		}
 
 		paramType := runtimeFlagType(flag)
+		if hasEmbeddedParam && strings.TrimSpace(embeddedParam.Type) != "" {
+			paramType = strings.TrimSpace(embeddedParam.Type)
+		}
 		if hasHint && strings.TrimSpace(hint.Type) != "" {
 			paramType = strings.TrimSpace(hint.Type)
 		}
 		description := strings.TrimSpace(flag.Usage)
+		if hasEmbeddedParam && strings.TrimSpace(embeddedParam.Description) != "" {
+			description = strings.TrimSpace(embeddedParam.Description)
+		}
 		if hasHint && strings.TrimSpace(hint.Description) != "" {
 			description = strings.TrimSpace(hint.Description)
 		}
 		required := runtimeFlagRequired(flag)
+		if hasEmbeddedParam && embeddedParam.Required != nil {
+			required = *embeddedParam.Required
+		}
 		if hasHint && hint.Required != nil {
 			required = *hint.Required
 		}
@@ -484,8 +833,20 @@ func runtimeCommandParameters(cmd *cobra.Command, hints map[string]ParameterSche
 		}
 		if hasHint && strings.TrimSpace(hint.Default) != "" {
 			entry["default"] = strings.TrimSpace(hint.Default)
+		} else if hasEmbeddedParam && strings.TrimSpace(embeddedParam.Default) != "" {
+			entry["default"] = strings.TrimSpace(embeddedParam.Default)
 		} else if def := runtimeFlagDefault(flag); def != "" {
 			entry["default"] = def
+		}
+		if format := firstFlagAnnotation(flag, "x-cli-format"); format != "" {
+			entry["format"] = format
+		} else if hasEmbeddedParam && strings.TrimSpace(embeddedParam.Format) != "" {
+			entry["format"] = strings.TrimSpace(embeddedParam.Format)
+		}
+		if enum := runtimeFlagEnum(flag); len(enum) > 0 {
+			entry["enum"] = enum
+		} else if hasEmbeddedParam && len(embeddedParam.Enum) > 0 {
+			entry["enum"] = append([]string(nil), embeddedParam.Enum...)
 		}
 		params[flagName] = entry
 	})
@@ -493,6 +854,19 @@ func runtimeCommandParameters(cmd *cobra.Command, hints map[string]ParameterSche
 		return nil
 	}
 	return params
+}
+
+func lookupEmbeddedMCPParam(params map[string]embeddedMCPParamMeta, property, flagName string) (embeddedMCPParamMeta, bool) {
+	if len(params) == 0 {
+		return embeddedMCPParamMeta{}, false
+	}
+	if meta, ok := params[property]; ok {
+		return meta, true
+	}
+	if meta, ok := params[flagName]; ok {
+		return meta, true
+	}
+	return embeddedMCPParamMeta{}, false
 }
 
 func isGenericPayloadFlag(flag *pflag.Flag) bool {
@@ -604,6 +978,23 @@ func firstFlagAnnotation(flag *pflag.Flag, key string) string {
 		return ""
 	}
 	return strings.TrimSpace(values[0])
+}
+
+func runtimeFlagEnum(flag *pflag.Flag) []string {
+	if flag == nil || flag.Annotations == nil {
+		return nil
+	}
+	values := flag.Annotations["x-cli-enum"]
+	if len(values) == 0 {
+		return nil
+	}
+	out := make([]string, 0, len(values))
+	for _, value := range values {
+		if value = strings.TrimSpace(value); value != "" {
+			out = append(out, value)
+		}
+	}
+	return out
 }
 
 func strconvQuote(value string) string {

@@ -220,8 +220,10 @@ func (r *runtimeRunner) Run(ctx context.Context, invocation executor.Invocation)
 	}
 
 	endpoint := product.Endpoint
+	explicitEndpointOverride := false
 	if override, ok := productEndpointOverride(invocation.CanonicalProduct); ok {
 		endpoint = override
+		explicitEndpointOverride = true
 	}
 	// Multi-server tool-name authority correction.
 	//
@@ -233,8 +235,14 @@ func (r *runtimeRunner) Run(ctx context.Context, invocation executor.Invocation)
 	// the per-tool endpoint exists and differs from the per-product endpoint
 	// catalog returned, trust the tool-owner endpoint (the server that
 	// actually declares this tool in its toolOverrides).
-	if toolEndpoint, ok := directRuntimeToolEndpoint(invocation.Tool); ok && toolEndpoint != "" && toolEndpoint != endpoint {
-		endpoint = toolEndpoint
+	// Explicit product overrides and catalog fixtures are authoritative. The
+	// tool-owner correction exists only for a live merged discovery catalog;
+	// applying it to either source lets unrelated process-global discovery
+	// state override a caller-selected or deterministic endpoint.
+	if !explicitEndpointOverride && strings.TrimSpace(os.Getenv(cli.CatalogFixtureEnv)) == "" {
+		if toolEndpoint, ok := directRuntimeToolEndpoint(invocation.Tool); ok && toolEndpoint != "" && toolEndpoint != endpoint {
+			endpoint = toolEndpoint
+		}
 	}
 	return r.executeInvocation(ctx, endpoint, invocation)
 }
@@ -547,6 +555,14 @@ func (r *runtimeRunner) executeStdioInvocation(ctx context.Context, invocation e
 		var cancel context.CancelFunc
 		callCtx, cancel = context.WithTimeout(ctx, time.Duration(r.globalFlags.Timeout)*time.Second)
 		defer cancel()
+	}
+
+	if _, err := client.EnsureInitialized(callCtx); err != nil {
+		return executor.Result{}, apperrors.NewAPI(
+			fmt.Sprintf("stdio initialize failed: %v", err),
+			apperrors.WithOperation("initialize"),
+			apperrors.WithReason("stdio_error"),
+		)
 	}
 
 	callResult, err := client.CallTool(callCtx, invocation.Tool, invocation.Params)

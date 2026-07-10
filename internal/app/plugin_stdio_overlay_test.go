@@ -219,9 +219,8 @@ type leafMatch struct {
 }
 
 // TestRegisterStdioServerFromOverlay_OverlayWithoutOverridesReturnsFalse
-// asserts the fallback contract: when overlay.json is missing toolOverrides,
-// the overlay-first path declines so the caller can route the entry through
-// the legacy discovery-first registerStdioServer.
+// asserts the startup contract: when overlay.json is missing toolOverrides,
+// the plugin contributes no command instead of triggering discovery.
 func TestRegisterStdioServerFromOverlay_OverlayWithoutOverridesReturnsFalse(t *testing.T) {
 	withCleanDynamicRegistry(t)
 	withCleanStdioRegistry(t)
@@ -247,50 +246,6 @@ func TestRegisterStdioServerFromOverlay_OverlayWithoutOverridesReturnsFalse(t *t
 	}
 	if _, found := LookupStdioClient("legacy-plugin/legacy-plugin"); found {
 		t.Error("stdio client must NOT be registered in fallback case")
-	}
-}
-
-// TestRefreshStdioToolsCache_FailurePreservesCache guards against the
-// "negative cache poisoning" bug: if discovery fails (subprocess not ready,
-// timeout, empty tool list), the existing warm cache must remain intact so
-// the next startup still enriches flags from the last good snapshot.
-func TestRefreshStdioToolsCache_FailurePreservesCache(t *testing.T) {
-	withCleanDynamicRegistry(t)
-	withCleanStdioRegistry(t)
-
-	p, sc := newOverlayFixture(t, "refresh-plugin", "refresh-plugin", market.CLIOverlay{
-		ID:      "refresh-plugin",
-		Command: "refresh-plugin",
-	})
-
-	store := cache.NewStore(t.TempDir())
-	cacheKey := pluginCacheKey(p.Manifest.Name, sc.Key)
-	goodSnapshot := cache.ToolsSnapshot{
-		SavedAt:   time.Now().UTC(),
-		ServerKey: cacheKey,
-		Tools: []transport.ToolDescriptor{
-			{
-				Name:        "ping",
-				Description: "Health check",
-				InputSchema: map[string]any{"type": "object"},
-			},
-		},
-	}
-	if err := store.SaveTools(config.DefaultPartition, cacheKey, goodSnapshot); err != nil {
-		t.Fatalf("seed SaveTools: %v", err)
-	}
-
-	// /usr/bin/true exits immediately, so Initialize + ListTools will fail
-	// (no MCP handshake). discoverStdioTools returns nil → refresh must be
-	// a no-op and must NOT overwrite the good cache with a null snapshot.
-	refreshStdioToolsCache(p, sc, store, pluginColdTimeouts{stdio: 200 * time.Millisecond})
-
-	got, _, err := store.LoadTools(config.DefaultPartition, cacheKey)
-	if err != nil {
-		t.Fatalf("LoadTools after failed refresh: %v", err)
-	}
-	if len(got.Tools) != 1 || got.Tools[0].Name != "ping" {
-		t.Errorf("warm cache was overwritten by failed refresh: %+v", got.Tools)
 	}
 }
 
@@ -358,41 +313,5 @@ func TestLoadPlugins_OverlayFirstVisibleBeforeDiscovery(t *testing.T) {
 	services := visibleMCPRootCommands(root)
 	if !containsCommand(services, "conference-local") {
 		t.Errorf("visibleMCPRootCommands missing conference-local: %v", commandNames(services))
-	}
-}
-
-// TestHasOverlayToolOverrides exercises the split-decision helper used by
-// loadPlugins to route stdio entries to overlay-first vs. legacy buckets.
-func TestHasOverlayToolOverrides(t *testing.T) {
-	cases := []struct {
-		name    string
-		overlay market.CLIOverlay
-		want    bool
-	}{
-		{
-			name:    "empty overlay",
-			overlay: market.CLIOverlay{ID: "x", Command: "x"},
-			want:    false,
-		},
-		{
-			name: "overlay with overrides",
-			overlay: market.CLIOverlay{
-				ID:      "x",
-				Command: "x",
-				ToolOverrides: map[string]market.CLIToolOverride{
-					"foo": {CLIName: "foo"},
-				},
-			},
-			want: true,
-		},
-	}
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			p, sc := newOverlayFixture(t, "x", "x", tc.overlay)
-			got := hasOverlayToolOverrides(p, sc)
-			if got != tc.want {
-				t.Errorf("hasOverlayToolOverrides = %v, want %v", got, tc.want)
-			}
-		})
 	}
 }
