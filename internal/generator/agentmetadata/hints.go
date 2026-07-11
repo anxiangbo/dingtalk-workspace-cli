@@ -27,11 +27,12 @@ const HintFileVersion = 1
 // baseline; explicit files can override scalar fields while Skills continue to
 // supply routing and workflow context.
 type HintFile struct {
-	Version  int                    `json:"version"`
-	Source   HintSource             `json:"source"`
-	Coverage HintCoverage           `json:"coverage,omitempty"`
-	Products map[string]HintProduct `json:"products,omitempty"`
-	Tools    map[string]HintTool    `json:"tools,omitempty"`
+	Version         int                        `json:"version"`
+	Source          HintSource                 `json:"source"`
+	Coverage        HintCoverage               `json:"coverage,omitempty"`
+	Products        map[string]HintProduct     `json:"products,omitempty"`
+	Tools           map[string]HintTool        `json:"tools,omitempty"`
+	ReferenceReview map[string]ReferenceReview `json:"reference_review,omitempty"`
 }
 
 type HintSource struct {
@@ -60,20 +61,23 @@ type HintProduct struct {
 }
 
 type HintTool struct {
-	AgentSummary  string        `json:"agent_summary,omitempty"`
-	UseWhen       []string      `json:"use_when,omitempty"`
-	AvoidWhen     []string      `json:"avoid_when,omitempty"`
-	Prerequisites []string      `json:"prerequisites,omitempty"`
-	Tips          []string      `json:"tips,omitempty"`
-	Effect        string        `json:"effect,omitempty"`
-	Risk          string        `json:"risk,omitempty"`
-	Confirmation  string        `json:"confirmation,omitempty"`
-	Idempotency   string        `json:"idempotency,omitempty"`
-	WorkflowRefs  []string      `json:"workflow_refs,omitempty"`
-	Examples      []string      `json:"examples,omitempty"`
-	Reviewed      *bool         `json:"reviewed,omitempty"`
-	SourceRefs    []string      `json:"source_refs,omitempty"`
-	InterfaceRef  *InterfaceRef `json:"interface_ref,omitempty"`
+	AgentSummary    string        `json:"agent_summary,omitempty"`
+	UseWhen         []string      `json:"use_when,omitempty"`
+	AvoidWhen       []string      `json:"avoid_when,omitempty"`
+	Prerequisites   []string      `json:"prerequisites,omitempty"`
+	Tips            []string      `json:"tips,omitempty"`
+	Effect          string        `json:"effect,omitempty"`
+	Risk            string        `json:"risk,omitempty"`
+	Confirmation    string        `json:"confirmation,omitempty"`
+	Idempotency     string        `json:"idempotency,omitempty"`
+	WorkflowRefs    []string      `json:"workflow_refs,omitempty"`
+	Examples        []string      `json:"examples,omitempty"`
+	Reviewed        *bool         `json:"reviewed,omitempty"`
+	SourceRefs      []string      `json:"source_refs,omitempty"`
+	InterfaceRef    *InterfaceRef `json:"interface_ref,omitempty"`
+	InterfaceMode   string        `json:"interface_mode,omitempty"`
+	Availability    string        `json:"availability,omitempty"`
+	InterfaceReason string        `json:"interface_reason,omitempty"`
 }
 
 type parsedHintSource struct {
@@ -108,7 +112,20 @@ func parseHintSources(out *File, files []sourceFile, opts Options, stats *Stats,
 			return fmt.Errorf("decode Agent hint %s: unsupported source kind %q", file.display, hint.Source.Kind)
 		}
 		for path, tool := range hint.Tools {
+			tool.InterfaceMode = strings.TrimSpace(tool.InterfaceMode)
+			tool.Availability = strings.TrimSpace(tool.Availability)
+			tool.InterfaceReason = strings.TrimSpace(tool.InterfaceReason)
+			if tool.InterfaceMode != "" && tool.InterfaceMode != "mcp" && tool.InterfaceMode != "composite" && tool.InterfaceMode != "local" && tool.InterfaceMode != "unavailable" {
+				return fmt.Errorf("decode Agent hint %s: tool %s has unsupported interface_mode %q", file.display, path, tool.InterfaceMode)
+			}
+			if tool.Availability != "" && tool.Availability != "available" && tool.Availability != "unavailable" {
+				return fmt.Errorf("decode Agent hint %s: tool %s has unsupported availability %q", file.display, path, tool.Availability)
+			}
+			if tool.InterfaceMode == "unavailable" && tool.Availability != "unavailable" {
+				return fmt.Errorf("decode Agent hint %s: unavailable tool %s must set availability=unavailable", file.display, path)
+			}
 			if tool.InterfaceRef == nil {
+				hint.Tools[path] = tool
 				continue
 			}
 			tool.InterfaceRef.ProductID = strings.TrimSpace(tool.InterfaceRef.ProductID)
@@ -117,6 +134,28 @@ func parseHintSources(out *File, files []sourceFile, opts Options, stats *Stats,
 				return fmt.Errorf("decode Agent hint %s: tool %s has incomplete interface_ref", file.display, path)
 			}
 			hint.Tools[path] = tool
+		}
+		for path, review := range hint.ReferenceReview {
+			status := strings.TrimSpace(review.Status)
+			target := normalizeCommandPath(review.Target)
+			reason := strings.TrimSpace(review.Reason)
+			switch status {
+			case "alias":
+				if target == "" {
+					return fmt.Errorf("decode Agent hint %s: reference %s alias is missing target", file.display, path)
+				}
+			case "group", "stale", "out_of_surface":
+				if target != "" {
+					return fmt.Errorf("decode Agent hint %s: reference %s status %s cannot have target", file.display, path, status)
+				}
+			default:
+				return fmt.Errorf("decode Agent hint %s: reference %s has unsupported status %q", file.display, path, status)
+			}
+			if reason == "" {
+				return fmt.Errorf("decode Agent hint %s: reference %s is missing reason", file.display, path)
+			}
+			review.Status, review.Target, review.Reason = status, target, reason
+			hint.ReferenceReview[path] = review
 		}
 		hint.Source.Kind = kind
 		parsed = append(parsed, parsedHintSource{file: file, hint: hint})
@@ -146,6 +185,16 @@ func applyHintSource(out *File, parsed parsedHintSource, stats *Stats, origins s
 	explicit := hint.Source.Kind == "explicit"
 	sourceLabel := hintSourceLabel(hint.Source, parsed.file.display)
 	stats.HintFiles++
+	for rawPath, review := range hint.ReferenceReview {
+		path := normalizeCommandPath(rawPath)
+		if path == "" {
+			continue
+		}
+		review.Status = strings.TrimSpace(review.Status)
+		review.Target = normalizeCommandPath(review.Target)
+		review.Reason = strings.TrimSpace(review.Reason)
+		stats.referenceReviews[path] = review
+	}
 
 	productIDs := make([]string, 0, len(hint.Products))
 	for productID := range hint.Products {
@@ -190,12 +239,27 @@ func applyHintSource(out *File, parsed parsedHintSource, stats *Stats, origins s
 			metadata.AgentSummary = value
 			metadata.AgentSummarySource = sourceLabel
 		}
-		metadata.UseWhen = append(metadata.UseWhen, incoming.UseWhen...)
-		metadata.AvoidWhen = append(metadata.AvoidWhen, incoming.AvoidWhen...)
+		if explicit && len(incoming.UseWhen) > 0 {
+			metadata.UseWhen = append([]string(nil), incoming.UseWhen...)
+			metadata.useWhenExplicit = true
+		} else {
+			metadata.UseWhen = append(metadata.UseWhen, incoming.UseWhen...)
+		}
+		if explicit && len(incoming.AvoidWhen) > 0 {
+			metadata.AvoidWhen = append([]string(nil), incoming.AvoidWhen...)
+			metadata.avoidWhenExplicit = true
+		} else {
+			metadata.AvoidWhen = append(metadata.AvoidWhen, incoming.AvoidWhen...)
+		}
 		metadata.Prerequisites = append(metadata.Prerequisites, incoming.Prerequisites...)
 		metadata.Tips = append(metadata.Tips, incoming.Tips...)
 		metadata.WorkflowRefs = append(metadata.WorkflowRefs, incoming.WorkflowRefs...)
-		metadata.Examples = append(metadata.Examples, incoming.Examples...)
+		if explicit && len(incoming.Examples) > 0 {
+			metadata.Examples = append([]string(nil), incoming.Examples...)
+			metadata.examplesExplicit = true
+		} else {
+			metadata.Examples = append(metadata.Examples, incoming.Examples...)
+		}
 		applyHintScalar(&metadata.Effect, incoming.Effect, explicit)
 		if metadata.Effect != "" && metadata.EffectSource == "" {
 			metadata.EffectSource = "agent-hint"
@@ -211,6 +275,9 @@ func applyHintSource(out *File, parsed parsedHintSource, stats *Stats, origins s
 			value := *incoming.InterfaceRef
 			metadata.InterfaceRef = &value
 		}
+		applyHintScalar(&metadata.InterfaceMode, incoming.InterfaceMode, explicit)
+		applyHintScalar(&metadata.Availability, incoming.Availability, explicit)
+		applyHintScalar(&metadata.InterfaceReason, incoming.InterfaceReason, explicit)
 		metadata.SourceRefs = append(metadata.SourceRefs, parsed.file.display)
 		metadata.SourceRefs = append(metadata.SourceRefs, incoming.SourceRefs...)
 		out.Tools[path] = metadata
@@ -236,7 +303,10 @@ func hasAgentHintFields(hint HintTool) bool {
 		len(hint.Examples) > 0 ||
 		hint.Reviewed != nil ||
 		len(hint.SourceRefs) > 0 ||
-		hint.InterfaceRef != nil
+		hint.InterfaceRef != nil ||
+		strings.TrimSpace(hint.InterfaceMode) != "" ||
+		strings.TrimSpace(hint.Availability) != "" ||
+		strings.TrimSpace(hint.InterfaceReason) != ""
 }
 
 func applyHintScalar(target *string, incoming string, override bool) {

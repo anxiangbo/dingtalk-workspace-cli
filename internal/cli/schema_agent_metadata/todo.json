@@ -8,6 +8,9 @@
         "7. 给待办新增评论",
         "给待办加条评论/留个备注"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“给待办添加评论”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -20,8 +23,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.todo.add_todo_comment",
-        "skills/mono/references/products/todo.md"
-      ]
+        "skills/mono/references/products/todo.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo comment delete": {
       "agent_summary": "删除待办的评论",
@@ -30,21 +36,26 @@
         "9. 删除待办评论",
         "删除这条评论"
       ],
+      "avoid_when": [
+        "用户未明确要求“删除待办的评论”、目标不清楚或尚未确认时不要使用"
+      ],
       "effect": "destructive",
       "effect_source": "agent-hint",
       "risk": "high",
       "confirmation": "user_required",
       "idempotency": "unknown",
       "examples": [
-        "dws todo comment delete --task-id \u003ctaskId\u003e --comment-id \u003ccommentId\u003e",
-        "dws todo comment delete --task-id \u003ctaskId\u003e --comment-id \u003ccommentId\u003e --yes"
+        "dws todo comment delete --task-id \u003ctaskId\u003e --comment-id \u003ccommentId\u003e"
       ],
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.todo.delete_todo_comment",
         "skills/mono/references/products/todo.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo comment list": {
       "agent_summary": "获取待办的评论",
@@ -52,6 +63,9 @@
       "use_when": [
         "8. 查看待办评论列表",
         "看看这个待办的评论"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取待办的评论”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -65,14 +79,20 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.todo.list_todo_comment",
-        "skills/mono/references/products/todo.md"
-      ]
+        "skills/mono/references/products/todo.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo task add-attachment": {
       "agent_summary": "添加待办任务附件",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "18. 上传附件（真实上传，先确认待办存在）— 从返回 result.attachmentIds 取 attachmentId"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“添加待办任务附件”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -86,8 +106,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.todo.add_todo_attachment",
-        "skills/mono/references/products/todo.md"
-      ]
+        "skills/mono/references/products/todo.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo task add-executor": {
       "agent_summary": "添加待办执行人",
@@ -95,6 +118,9 @@
       "use_when": [
         "10. 添加待办执行人",
         "加个执行人/添加执行者"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“添加待办执行人”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -108,8 +134,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.todo.add_task_executors",
-        "skills/mono/references/products/todo.md"
-      ]
+        "skills/mono/references/products/todo.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo task add-participant": {
       "agent_summary": "添加待办参与人",
@@ -117,6 +146,9 @@
       "use_when": [
         "12. 添加待办参与人",
         "加个参与人/添加参与者"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“添加待办参与人”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -130,8 +162,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.todo.add_task_participants",
-        "skills/mono/references/products/todo.md"
-      ]
+        "skills/mono/references/products/todo.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo task add-reminder": {
       "agent_summary": "添加待办提醒",
@@ -140,6 +175,9 @@
         "14. 添加待办提醒（基于截止时间偏移，待办必须有截止时间）",
         "15. 添加待办提醒（自定义时间戳）",
         "给待办加个提醒/设置提醒"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“添加待办提醒”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -153,8 +191,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.todo.add_todo_reminder",
-        "skills/mono/references/products/todo.md"
-      ]
+        "skills/mono/references/products/todo.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo task create": {
       "agent_summary": "创建待办",
@@ -164,6 +205,9 @@
         "1b. 创建按天循环的待办（必须先有 --due；recurrence 与 MCP create_personal_todo 一致）",
         "加个待办/记一下/TODO",
         "每天重复/循环待办/按天重复"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“创建待办”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -177,12 +221,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.todo.prod.json#todo.create_personal_todo",
         "skills/mono/references/products/todo.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "todo",
         "rpc_name": "create_personal_todo"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo task create-sub": {
       "agent_summary": "在当前企业组织内创建一条个人待办的子待办事项（要求父待办必须是操作者本人创建），支持设置标题、执行人列表、截止时间、优先级（如高/中/低）。",
@@ -190,6 +237,9 @@
       "use_when": [
         "1c. 创建子待办（需先获取父待办 ID）",
         "加个子任务/创建子待办"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“在当前企业组织内创建一条个人待办的子待办事项（要求父待办必须是操作者本人创建），支持设置标题、执行人列表、截止时间、优先级（如高/中/低）。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -203,8 +253,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.todo.create_personal_sub_todo",
-        "skills/mono/references/products/todo.md"
-      ]
+        "skills/mono/references/products/todo.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo task delete": {
       "agent_summary": "删除待办",
@@ -213,25 +266,30 @@
         "6. 删除待办",
         "删除待办/取消待办"
       ],
+      "avoid_when": [
+        "用户未明确要求“删除待办”、目标不清楚或尚未确认时不要使用"
+      ],
       "effect": "destructive",
       "effect_source": "skill-explicit",
       "risk": "high",
       "confirmation": "user_required",
       "idempotency": "unknown",
       "examples": [
-        "dws todo task delete --task-id \u003ctaskId\u003e",
-        "dws todo task delete --task-id \u003ctaskId\u003e --yes"
+        "dws todo task delete --task-id \u003ctaskId\u003e"
       ],
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.todo.prod.json#todo.delete_todo",
         "skills/mono/SKILL.md",
         "skills/mono/references/products/todo.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "todo",
         "rpc_name": "delete_todo"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo task done": {
       "agent_summary": "修改执行者的待办完成状态",
@@ -239,6 +297,9 @@
       "use_when": [
         "5. 标记待办完成",
         "做完了/完成待办/标记完成"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“修改执行者的待办完成状态”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -252,12 +313,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.todo.prod.json#todo.update_todo_done_status",
         "skills/mono/references/products/todo.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "todo",
         "rpc_name": "update_todo_done_status"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo task get": {
       "agent_summary": "待办详情",
@@ -265,6 +329,9 @@
       "use_when": [
         "3. 查看待办详情",
         "看看待办详情"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“待办详情”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -278,12 +345,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.todo.prod.json#todo.get_todo_detail",
         "skills/mono/references/products/todo.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "todo",
         "rpc_name": "get_todo_detail"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo task list": {
       "agent_summary": "获取当前用户在所属组织中的个人待办事项列表，返回每项待办的标题、截止日期、优先级（如高/中/低）、完成状态。",
@@ -291,6 +361,9 @@
       "use_when": [
         "2. 查看未完成待办",
         "看看待办/我有啥要做"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取当前用户在所属组织中的个人待办事项列表，返回每项待办的标题、截止日期、优先级（如高/中/低）、完成状态。”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -304,8 +377,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.todo.get_user_todos_in_current_org",
-        "skills/mono/references/products/todo.md"
-      ]
+        "skills/mono/references/products/todo.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo task remove-executor": {
       "agent_summary": "移除待办执行人",
@@ -313,6 +389,9 @@
       "use_when": [
         "11. 移除待办执行人",
         "移除执行人/删除执行者"
+      ],
+      "avoid_when": [
+        "用户未明确要求“移除待办执行人”、目标不清楚或尚未确认时不要使用"
       ],
       "effect": "destructive",
       "effect_source": "agent-hint",
@@ -327,8 +406,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.todo.remove_task_executors",
         "skills/mono/references/products/todo.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo task remove-participant": {
       "agent_summary": "移除待办参与人",
@@ -336,6 +418,9 @@
       "use_when": [
         "13. 移除待办参与人",
         "移除参与人/删除参与者"
+      ],
+      "avoid_when": [
+        "用户未明确要求“移除待办参与人”、目标不清楚或尚未确认时不要使用"
       ],
       "effect": "destructive",
       "effect_source": "agent-hint",
@@ -350,8 +435,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.todo.remove_task_participants",
         "skills/mono/references/products/todo.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo task reset-reminder": {
       "agent_summary": "重置待办提醒",
@@ -360,6 +448,9 @@
         "16. 重置待办提醒",
         "17. 重置待办提醒（指定新规则）",
         "重置提醒/清除提醒/修改提醒规则"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“重置待办提醒”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -373,8 +464,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.todo.reset_todo_reminder",
-        "skills/mono/references/products/todo.md"
-      ]
+        "skills/mono/references/products/todo.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "todo task update": {
       "agent_summary": "修改待办任务",
@@ -382,6 +476,9 @@
       "use_when": [
         "4. 修改待办信息",
         "改个待办/修改待办标题/改优先级"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“修改待办任务”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -395,12 +492,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.todo.prod.json#todo.update_todo_task",
         "skills/mono/references/products/todo.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "todo",
         "rpc_name": "update_todo_task"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     }
   }
 }

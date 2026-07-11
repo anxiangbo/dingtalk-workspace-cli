@@ -38,12 +38,17 @@ type File struct {
 }
 
 type Coverage struct {
-	SurfaceProducts      int `json:"surface_products,omitempty"`
-	ProductsWithMetadata int `json:"products_with_metadata"`
-	SurfaceTools         int `json:"surface_tools,omitempty"`
-	ToolsWithMetadata    int `json:"tools_with_metadata"`
-	ToolsWithSummary     int `json:"tools_with_agent_summary,omitempty"`
-	UnmatchedSkillTools  int `json:"unmatched_skill_tools,omitempty"`
+	SurfaceProducts        int `json:"surface_products,omitempty"`
+	ProductsWithMetadata   int `json:"products_with_metadata"`
+	SurfaceTools           int `json:"surface_tools,omitempty"`
+	ToolsWithMetadata      int `json:"tools_with_metadata"`
+	ToolsWithSummary       int `json:"tools_with_agent_summary,omitempty"`
+	ToolsWithUseWhen       int `json:"tools_with_use_when,omitempty"`
+	ToolsWithAvoidWhen     int `json:"tools_with_avoid_when,omitempty"`
+	ToolsWithExamples      int `json:"tools_with_examples,omitempty"`
+	ToolsWithInterfaceMode int `json:"tools_with_interface_mode,omitempty"`
+	UnmatchedSkillTools    int `json:"unmatched_skill_tools,omitempty"`
+	UnreviewedSkillTools   int `json:"unreviewed_skill_tools,omitempty"`
 }
 
 type ProductMetadata struct {
@@ -78,6 +83,12 @@ type ToolMetadata struct {
 	Reviewed           *bool         `json:"reviewed,omitempty"`
 	SourceRefs         []string      `json:"source_refs,omitempty"`
 	InterfaceRef       *InterfaceRef `json:"interface_ref,omitempty"`
+	InterfaceMode      string        `json:"interface_mode,omitempty"`
+	Availability       string        `json:"availability,omitempty"`
+	InterfaceReason    string        `json:"interface_reason,omitempty"`
+	useWhenExplicit    bool
+	avoidWhenExplicit  bool
+	examplesExplicit   bool
 }
 
 type Options struct {
@@ -111,16 +122,28 @@ type Stats struct {
 	SkillProductsOutsideSurface   []string
 	SurfaceProductsWithoutRouting []string
 	UnmatchedReferences           []UnmatchedReference
+	referenceReviews              map[string]ReferenceReview
+	unreviewedSkillTools          int
 }
 
 // UnmatchedReference identifies one Skill command reference that cannot be
 // resolved against the versioned command surface. It is emitted only in the
 // build-time audit and is not embedded in the runtime Agent schema.
 type UnmatchedReference struct {
-	ToolPath   string   `json:"tool_path"`
-	Source     string   `json:"source,omitempty"`
-	Line       int      `json:"line,omitempty"`
-	Candidates []string `json:"candidates,omitempty"`
+	ToolPath   string           `json:"tool_path"`
+	Source     string           `json:"source,omitempty"`
+	Line       int              `json:"line,omitempty"`
+	Candidates []string         `json:"candidates,omitempty"`
+	Review     *ReferenceReview `json:"review,omitempty"`
+}
+
+// ReferenceReview is the fixed disposition of a Skill command reference that
+// is not a current public leaf. It prevents fuzzy matching from silently
+// binding stale prose or command groups to an unrelated tool.
+type ReferenceReview struct {
+	Status string `json:"status"`
+	Target string `json:"target,omitempty"`
+	Reason string `json:"reason"`
 }
 
 // Audit contains build-time diagnostics that are intentionally kept separate
@@ -189,7 +212,7 @@ func Generate(opts Options) (File, Stats, error) {
 		Products:    map[string]ProductMetadata{},
 		Tools:       map[string]ToolMetadata{},
 	}
-	stats := Stats{SourceFiles: len(files)}
+	stats := Stats{SourceFiles: len(files), referenceReviews: map[string]ReferenceReview{}}
 	origins := sourceTracker{}
 
 	skillDisplay := displayPath(opts.Root, resolvePath(opts.Root, opts.SkillPath))
@@ -260,21 +283,39 @@ func Generate(opts Options) (File, Stats, error) {
 	}
 	stats.Products = len(out.Products)
 	stats.Tools = len(out.Tools)
-	toolsWithSummary := 0
+	toolsWithSummary, toolsWithUseWhen, toolsWithAvoidWhen := 0, 0, 0
+	toolsWithExamples, toolsWithInterfaceMode := 0, 0
 	for _, metadata := range out.Tools {
 		stats.ToolIntents += len(metadata.UseWhen)
 		stats.Examples += len(metadata.Examples)
 		if strings.TrimSpace(metadata.AgentSummary) != "" {
 			toolsWithSummary++
 		}
+		if len(metadata.UseWhen) > 0 {
+			toolsWithUseWhen++
+		}
+		if len(metadata.AvoidWhen) > 0 {
+			toolsWithAvoidWhen++
+		}
+		if len(metadata.Examples) > 0 {
+			toolsWithExamples++
+		}
+		if strings.TrimSpace(metadata.InterfaceMode) != "" {
+			toolsWithInterfaceMode++
+		}
 	}
 	out.Coverage = Coverage{
-		SurfaceProducts:      len(opts.ProductIDs),
-		ProductsWithMetadata: len(out.Products),
-		SurfaceTools:         opts.SurfaceToolCount,
-		ToolsWithMetadata:    len(out.Tools),
-		ToolsWithSummary:     toolsWithSummary,
-		UnmatchedSkillTools:  stats.UnmatchedTools,
+		SurfaceProducts:        len(opts.ProductIDs),
+		ProductsWithMetadata:   len(out.Products),
+		SurfaceTools:           opts.SurfaceToolCount,
+		ToolsWithMetadata:      len(out.Tools),
+		ToolsWithSummary:       toolsWithSummary,
+		ToolsWithUseWhen:       toolsWithUseWhen,
+		ToolsWithAvoidWhen:     toolsWithAvoidWhen,
+		ToolsWithExamples:      toolsWithExamples,
+		ToolsWithInterfaceMode: toolsWithInterfaceMode,
+		UnmatchedSkillTools:    stats.UnmatchedTools,
+		UnreviewedSkillTools:   stats.unreviewedSkillTools,
 	}
 	return out, stats, nil
 }
@@ -318,19 +359,35 @@ func reconcileSurface(file *File, opts Options, stats *Stats, origins sourceTrac
 		metadata := file.Tools[skillPath]
 		livePath, ok := opts.ToolPaths[skillPath]
 		if !ok {
+			review, reviewed := stats.referenceReviews[skillPath]
+			if reviewed && review.Status == "alias" {
+				if target, targetOK := opts.ToolPaths[normalizeCommandPath(review.Target)]; targetOK {
+					existing := reconciled[target]
+					reconciled[target] = mergeToolMetadata(existing, metadata)
+					continue
+				}
+			}
 			stats.UnmatchedTools++
+			if !reviewed {
+				stats.unreviewedSkillTools++
+			}
 			locations := origins.locations(skillPath)
 			if len(locations) == 0 {
 				locations = []sourceLocation{{}}
 			}
 			candidates := candidateToolPaths(skillPath, opts.ToolPaths, 3)
 			for _, location := range locations {
-				stats.UnmatchedReferences = append(stats.UnmatchedReferences, UnmatchedReference{
+				reference := UnmatchedReference{
 					ToolPath:   skillPath,
 					Source:     location.source,
 					Line:       location.line,
 					Candidates: append([]string(nil), candidates...),
-				})
+				}
+				if reviewed {
+					value := review
+					reference.Review = &value
+				}
+				stats.UnmatchedReferences = append(stats.UnmatchedReferences, reference)
 			}
 			continue
 		}
@@ -355,12 +412,27 @@ func mergeToolMetadata(left, right ToolMetadata) ToolMetadata {
 		left.AgentSummary = right.AgentSummary
 		left.AgentSummarySource = right.AgentSummarySource
 	}
-	left.UseWhen = append(left.UseWhen, right.UseWhen...)
-	left.AvoidWhen = append(left.AvoidWhen, right.AvoidWhen...)
+	if right.useWhenExplicit {
+		left.UseWhen = append([]string(nil), right.UseWhen...)
+		left.useWhenExplicit = true
+	} else if !left.useWhenExplicit {
+		left.UseWhen = append(left.UseWhen, right.UseWhen...)
+	}
+	if right.avoidWhenExplicit {
+		left.AvoidWhen = append([]string(nil), right.AvoidWhen...)
+		left.avoidWhenExplicit = true
+	} else if !left.avoidWhenExplicit {
+		left.AvoidWhen = append(left.AvoidWhen, right.AvoidWhen...)
+	}
 	left.Prerequisites = append(left.Prerequisites, right.Prerequisites...)
 	left.Tips = append(left.Tips, right.Tips...)
 	left.WorkflowRefs = append(left.WorkflowRefs, right.WorkflowRefs...)
-	left.Examples = append(left.Examples, right.Examples...)
+	if right.examplesExplicit {
+		left.Examples = append([]string(nil), right.Examples...)
+		left.examplesExplicit = true
+	} else if !left.examplesExplicit {
+		left.Examples = append(left.Examples, right.Examples...)
+	}
 	left.SourceRefs = append(left.SourceRefs, right.SourceRefs...)
 	if left.Effect == "" || effectSourceRank(right.EffectSource) > effectSourceRank(left.EffectSource) {
 		left.Effect = right.Effect
@@ -380,6 +452,15 @@ func mergeToolMetadata(left, right ToolMetadata) ToolMetadata {
 	}
 	if left.InterfaceRef == nil {
 		left.InterfaceRef = right.InterfaceRef
+	}
+	if left.InterfaceMode == "" {
+		left.InterfaceMode = right.InterfaceMode
+	}
+	if left.Availability == "" {
+		left.Availability = right.Availability
+	}
+	if left.InterfaceReason == "" {
+		left.InterfaceReason = right.InterfaceReason
 	}
 	left.UseWhen = normalizedStrings(left.UseWhen)
 	left.AvoidWhen = normalizedStrings(left.AvoidWhen)

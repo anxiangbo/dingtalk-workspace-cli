@@ -100,7 +100,10 @@ parameter binding 快照由历史 Catalog 的 311 条非默认映射一次性审
 - `confirmation`: `not_required | user_required`；
 - `idempotency`: `idempotent | non_idempotent | unknown`。
 
-可选增强字段包括 `use_when`、`avoid_when`、`prerequisites`、`tips`、`workflow_refs` 和 `examples`。
+每个公开工具都必须固定 `use_when`、`avoid_when`、安全示例、
+`interface_mode` 和 `availability`。`prerequisites`、`tips`、
+`workflow_refs` 按需要补充。选择语义来自版本化
+`selection-review.json`，禁止从上一版 Catalog 自举。
 
 合并优先级为：
 
@@ -116,13 +119,16 @@ parameter binding 快照由历史 Catalog 的 311 条非默认映射一次性审
 - 产品元数据：21/21；
 - 工具元数据与 summary：504/504；
 - effect/safety 字段：504/504；
+- use/avoid/example/interface mode：504/504；
 - MCP 接口 summary 应用：271；
-- intents：1166；
-- examples：746；
-- reviewed one-of/互斥/联动约束：21；
+- 固定单 RPC interface_ref：461；
+- 复合实现：7，本地实现：3，明确不可用兼容工具：33；
+- intents：1290；
+- examples：793，且禁止包含 `--yes`；
+- reviewed one-of/互斥/联动约束：30；
 - destructive safety：48/48 通过。
 
-`unmatched_skill_tools` 是 Skill 文档中的旧路径或复合表达未映射到公开工具，不代表命令缺失。它保留在 audit 中作为文档治理债务。
+`unmatched_skill_tools` 是 Skill 文档中的旧路径、分组或复合表达，不代表命令缺失。207 个原始引用已在 `reference-review.json` 中固定分类：25 个别名映射到现行工具，其余引用保留 `group`、`stale` 或 `out_of_surface` 状态；未审查引用数必须为 0。
 
 ## 6. `--help` 与 `schema`
 
@@ -180,7 +186,10 @@ make generate-schema-command-surface
 
 - 公开 surface、Agent index、MCP snapshot、Catalog 数量一致；
 - Catalog canonical paths 与审核 surface 完全一致；
-- 504 个工具均具备 summary/effect/safety；
+- 504 个工具均具备 summary/effect/safety/use/avoid/example/interface mode；
+- 461 个单 RPC 工具具备固定 interface_ref，43 个例外均有明确实现类型和原因；
+- Skill 未匹配引用全部有固定审核状态，未审核数为 0；
+- 示例必须以工具主 CLI path 开头且不得包含 `--yes`；
 - destructive 操作必须为 high risk 且要求用户确认；
 - reviewed 组合约束数量固定，避免生成时静默丢失；
 - Catalog 不含 endpoint 或凭据字段；

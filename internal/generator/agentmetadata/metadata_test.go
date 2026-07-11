@@ -264,6 +264,10 @@ func TestGenerateMergesVersionedHintsByCanonicalPath(t *testing.T) {
     "calendar.get_calendar_detail": {
       "agent_summary": "读取一个日程的完整详情",
       "use_when": ["已经取得 eventId，需要查看详情"],
+	  "avoid_when": ["需要修改日程时不要使用"],
+	  "examples": ["dws calendar event get --id reviewed"],
+	  "interface_mode": "mcp",
+	  "availability": "available",
       "reviewed": true
     },
     "aitable.base_copy": {
@@ -297,8 +301,11 @@ func TestGenerateMergesVersionedHintsByCanonicalPath(t *testing.T) {
 	if tool.AgentSummary != "读取一个日程的完整详情" || tool.AgentSummarySource != "schema-review" {
 		t.Fatalf("tool summary = %#v", tool)
 	}
-	if len(tool.Examples) != 1 || len(tool.UseWhen) != 1 || tool.Risk != "high" || tool.Confirmation != "user_required" {
+	if len(tool.Examples) != 1 || tool.Examples[0] != "dws calendar event get --id reviewed" || len(tool.UseWhen) != 1 || len(tool.AvoidWhen) != 1 || tool.Risk != "high" || tool.Confirmation != "user_required" {
 		t.Fatalf("merged tool metadata = %#v", tool)
+	}
+	if tool.InterfaceMode != "mcp" || tool.Availability != "available" {
+		t.Fatalf("interface disposition = %#v", tool)
 	}
 	if tool.Reviewed == nil || !*tool.Reviewed {
 		t.Fatalf("reviewed = %#v", tool.Reviewed)
@@ -312,6 +319,50 @@ func TestGenerateMergesVersionedHintsByCanonicalPath(t *testing.T) {
 	}
 	if interfaceOnly.InterfaceRef.ProductID != "aitable" || interfaceOnly.InterfaceRef.RPCName != "copy_base" {
 		t.Fatalf("interface ref = %#v", interfaceOnly.InterfaceRef)
+	}
+}
+
+func TestGenerateAppliesReviewedSkillReferenceDispositions(t *testing.T) {
+	root := t.TempDir()
+	writeFixture(t, root, "skills/mono/SKILL.md", "# DWS\n")
+	writeFixture(t, root, "skills/mono/references/intent-guide.md", "# Intent guide\n")
+	writeFixture(t, root, "skills/mono/references/products/sheet.md", "# Sheet\n"+
+		"dws sheet range old --node NODE\n"+
+		"dws sheet range removed --node NODE\n")
+	writeFixture(t, root, "skills/mono/schema-hints/reference-review.json", `{
+  "version": 1,
+  "source": {"kind": "explicit", "name": "reference-review"},
+  "reference_review": {
+    "sheet range old": {"status": "alias", "target": "sheet range read", "reason": "renamed"},
+    "sheet range removed": {"status": "stale", "reason": "removed from the public surface"}
+  }
+}`)
+
+	metadata, stats, err := Generate(Options{
+		Root:            root,
+		SkillPath:       "skills/mono/SKILL.md",
+		ProductsDir:     "skills/mono/references/products",
+		IntentGuidePath: "skills/mono/references/intent-guide.md",
+		HintsDir:        "skills/mono/schema-hints",
+		ToolPaths: map[string]string{
+			"sheet.range_read": "sheet range read",
+			"sheet range read": "sheet range read",
+		},
+		ProductIDs:       map[string]bool{"sheet": true},
+		SurfaceToolCount: 1,
+	})
+	if err != nil {
+		t.Fatalf("Generate() error = %v", err)
+	}
+	if _, ok := metadata.Tools["sheet range read"]; !ok {
+		t.Fatalf("reviewed alias was not merged: %#v", metadata.Tools)
+	}
+	if stats.UnmatchedTools != 1 || stats.unreviewedSkillTools != 0 || len(stats.UnmatchedReferences) != 1 {
+		t.Fatalf("reference review stats = %#v", stats)
+	}
+	reference := stats.UnmatchedReferences[0]
+	if reference.ToolPath != "sheet range removed" || reference.Review == nil || reference.Review.Status != "stale" {
+		t.Fatalf("reviewed unmatched reference = %#v", reference)
 	}
 }
 

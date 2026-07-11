@@ -28,12 +28,15 @@
         "internal/cli/schema_mcp_metadata.json#tools.chat.search_bots",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "bot",
         "rpc_name": "search_bots"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat bot search": {
       "agent_summary": "搜索我创建的机器人",
@@ -62,12 +65,15 @@
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
         "skills/mono/schema-hints/imported/wukong.json",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "bot",
         "rpc_name": "search_my_robots"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat category list": {
       "agent_summary": "获取用户自定义会话分组",
@@ -75,6 +81,9 @@
       "use_when": [
         "查看会话分组/自定义分组",
         "查看会话分组/自定义分组；获取会话分组"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取用户自定义会话分组”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -88,8 +97,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.list_user_define_conv_categories",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat category list-conversations": {
       "agent_summary": "拉取用户指定自定义会话分组下的会话",
@@ -97,6 +109,9 @@
       "use_when": [
         "某个分组下有哪些会话；分组下会话列表",
         "某个分组下的会话/分组会话列表"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“拉取用户指定自定义会话分组下的会话”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -111,12 +126,21 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.list_conversations_by_category",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat conversation-info": {
       "agent_summary": "获取会话的基础信息",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "获取会话的基础信息"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取会话的基础信息”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
@@ -129,8 +153,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.get_conversation_info",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group bots": {
       "agent_summary": "获取群内所有机器人",
@@ -138,6 +165,9 @@
       "use_when": [
         "群机器人列表/群里有哪些机器人/查看群机器人",
         "群里有哪些机器人/查看群机器人/列出群机器人；查看群内机器人列表"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取群内所有机器人”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -152,12 +182,15 @@
         "internal/cli/schema_mcp_metadata.json#tools.chat.list_group_bots",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "bot",
         "rpc_name": "list_group_bots"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group create": {
       "agent_summary": "创建一个群聊，支持指定群名称、初始成员列表等参数。",
@@ -165,6 +198,9 @@
       "use_when": [
         "帮我建一个项目群；创建群聊",
         "建群/创建群聊"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“创建一个群聊，支持指定群名称、初始成员列表等参数。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -179,12 +215,15 @@
         "internal/cli/schema_mcp_metadata.json#tools.chat.create_group_conversation",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "im",
         "rpc_name": "create_group_conversation"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group dismiss": {
       "agent_summary": "解散群聊",
@@ -192,6 +231,9 @@
       "use_when": [
         "解散群/解散群聊",
         "解散群/解散群聊；解散群聊"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“解散群聊”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -205,8 +247,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.dismiss_group",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group get-by-group-id": {
       "agent_summary": "根据群号获取群聊信息",
@@ -214,6 +259,9 @@
       "use_when": [
         "根据群号查群信息/群号查群/群号转openConversationId",
         "根据群号查群信息/群号转openConversationId；群号查群聊信息"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“根据群号获取群聊信息”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -227,14 +275,20 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.get_conv_info_by_group_id",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group invite-url": {
       "agent_summary": "获取群邀请链接",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "群邀请链接/入群链接/加群链接"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取群邀请链接”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -248,8 +302,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.get_group_invite_url",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group list-my-groups": {
       "agent_summary": "拉取我创建/管理的群",
@@ -274,8 +331,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.list_owned_or_admin_groups",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group members add": {
       "agent_summary": "向群中添加成员",
@@ -299,12 +359,15 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.chat.prod.json#chat.add_group_member",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "chat",
         "rpc_name": "add_group_member"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group members add-bot": {
       "agent_summary": "将机器人添加到群中",
@@ -330,29 +393,44 @@
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
         "skills/mono/schema-hints/imported/wukong.json",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "bot",
         "rpc_name": "add_robot_to_group"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group members list": {
       "agent_summary": "查看群成员列表",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
+      "use_when": [
+        "查看群成员列表"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查看群成员列表”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
       "confirmation": "not_required",
       "idempotency": "idempotent",
+      "examples": [
+        "dws chat group members list --id \u003cid\u003e"
+      ],
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.chat.prod.json#chat.get_group_members",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "chat",
         "rpc_name": "get_group_members"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group members remove": {
       "agent_summary": "从群中移除成员",
@@ -376,12 +454,15 @@
         "skills/mono/SKILL.md",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "chat",
         "rpc_name": "remove_group_member"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group members remove-bot": {
       "agent_summary": "从群内移除机器人",
@@ -389,6 +470,9 @@
       "use_when": [
         "从群里移除机器人/踢出机器人",
         "从群里移除机器人/踢机器人；移除群内机器人"
+      ],
+      "avoid_when": [
+        "用户未明确要求“从群内移除机器人”、目标不清楚或尚未确认时不要使用"
       ],
       "effect": "destructive",
       "effect_source": "agent-hint",
@@ -404,12 +488,15 @@
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
         "skills/mono/schema-hints/destructive-safety.json",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "bot",
         "rpc_name": "remove_robot_in_group"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group quit": {
       "agent_summary": "用户退群",
@@ -432,8 +519,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.quit_group",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group rename": {
       "agent_summary": "更新群名称",
@@ -458,12 +548,15 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.chat.prod.json#chat.update_group_name",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "chat",
         "rpc_name": "update_group_name"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group set-admin": {
       "agent_summary": "设置/取消群成员为管理员",
@@ -480,12 +573,18 @@
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws chat group set-admin --group \u003cgroup\u003e --users \u003cusers\u003e"
+      ],
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.update_conv_member_roles",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group set-history": {
       "agent_summary": "设置新成员入群可查看历史消息选项",
@@ -493,6 +592,9 @@
       "use_when": [
         "新成员看历史/历史消息可见范围；设置新成员可见历史消息",
         "设置历史消息/新成员看历史/新成员可见消息"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“设置新成员入群可查看历史消息选项”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -507,14 +609,20 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.update_show_history_msg_option",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group transfer-owner": {
       "agent_summary": "群主转让",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "转让群主/换群主/群主转让"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“群主转让”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -528,14 +636,20 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.transfer_group_owner",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group update-icon": {
       "agent_summary": "更新群头像",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "改群头像/更新群头像；更新群头像"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“更新群头像”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -549,8 +663,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.update_group_icon",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group update-settings": {
       "agent_summary": "更新群设置",
@@ -574,8 +691,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.update_group_settings",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group-mute": {
       "agent_summary": "设置/取消群全员禁言",
@@ -592,12 +712,18 @@
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws chat group-mute --group \u003cgroup\u003e"
+      ],
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.set_group_mute",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group-mute-member": {
       "agent_summary": "管理群禁言成员",
@@ -614,18 +740,27 @@
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws chat group-mute-member --group \u003cgroup\u003e --users \u003cusers\u003e"
+      ],
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.set_group_member_mute_list",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group-role add": {
       "agent_summary": "添加群身份",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "创建/添加群身份"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“添加群身份”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -638,14 +773,20 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.add_custom_group_role",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group-role list": {
       "agent_summary": "拉取会话的群身份",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "查看群身份/群的自定义身份列表"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“拉取会话的群身份”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -658,14 +799,20 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.list_custom_group_roles",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group-role query-user": {
       "agent_summary": "根据用户提供的群和成员为在群里查询成员的群身份",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "查询某人的群身份/某人在群里有什么身份"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“根据用户提供的群和成员为在群里查询成员的群身份”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -678,14 +825,20 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.query_custom_user_roles",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group-role remove": {
       "agent_summary": "删除群身份",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "删除群身份"
+      ],
+      "avoid_when": [
+        "用户未明确要求“删除群身份”、目标不清楚或尚未确认时不要使用"
       ],
       "effect": "destructive",
       "effect_source": "agent-hint",
@@ -699,14 +852,20 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.remove_custom_group_role",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group-role remove-user": {
       "agent_summary": "移除用户的群身份",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "移除某人的群身份/撤销群身份"
+      ],
+      "avoid_when": [
+        "用户未明确要求“移除用户的群身份”、目标不清楚或尚未确认时不要使用"
       ],
       "effect": "destructive",
       "effect_source": "agent-hint",
@@ -720,14 +879,20 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.remove_custom_user_roles",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group-role set-user": {
       "agent_summary": "根据用户提供的群和身份为用户设置群身份",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "给某人设置群身份/设定用户的群身份"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“根据用户提供的群和身份为用户设置群身份”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -740,14 +905,20 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.set_custom_user_roles",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat group-role update": {
       "agent_summary": "更新群身份",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "修改/更新群身份名称"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“更新群身份”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -760,8 +931,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.update_custom_group_role",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat list-top-conversations": {
       "agent_summary": "拉取用户的置顶会话",
@@ -787,14 +961,20 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.list_top_conversations",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message add-emoji": {
       "agent_summary": "消息添加 emoji 回应",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "emoji回应/表情回应/给消息加表情"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“消息添加 emoji 回应”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -808,14 +988,20 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.add_emoji_reaction",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message add-text-emotion": {
       "agent_summary": "添加文字表情",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "文字表情回应/添加文字表情"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“添加文字表情”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -828,8 +1014,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.add_text_emotion",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message combine-forward": {
       "agent_summary": "合并转发消息",
@@ -837,6 +1026,9 @@
       "use_when": [
         "合并转发/批量转发/合并转发多条消息",
         "合并转发/批量转发/合并转发多条消息；合并转发多条消息"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“合并转发消息”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -851,14 +1043,20 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.combine_forward_messages",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message create-text-emotion": {
       "agent_summary": "创建文字表情",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "创建文字表情/新建文字表情"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“创建文字表情”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -872,14 +1070,20 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.create_text_emotion",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message download-media": {
       "agent_summary": "下载聊天消息中的图片/视频/语音等资源到本地文件",
       "agent_summary_source": "dws-command-surface-review",
       "use_when": [
         "下载聊天消息中的图片/视频/语音等资源到本地文件"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“下载聊天消息中的图片/视频/语音等资源到本地文件”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -893,8 +1097,12 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "composite",
+      "availability": "available",
+      "interface_reason": "命令包含多个 RPC、条件分派或本地 HTTP/文件步骤，不能绑定为单一 interface_ref"
     },
     "chat message forward": {
       "agent_summary": "单条消息转发",
@@ -919,8 +1127,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.forward_message",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message forward-topic": {
       "agent_summary": "转发某个话题到其他会话",
@@ -928,6 +1139,9 @@
       "use_when": [
         "转发话题/转发话题消息",
         "转发话题/转发话题消息/话题转发到另一个群；转发话题消息"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“转发某个话题到其他会话”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -941,8 +1155,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.forward_topic",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message list": {
       "agent_summary": "拉取指定群聊的会话消息内容",
@@ -975,8 +1192,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.list_conversation_message_v2",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message list-all": {
       "agent_summary": "拉取指定时间范围内当前用户的所有会话消息",
@@ -1002,18 +1222,24 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.chat.prod.json#chat.search_messages_by_time_range",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "chat",
         "rpc_name": "search_messages_by_time_range"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message list-by-ids": {
       "agent_summary": "批量查消息",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "批量查消息/按ID查消息/根据消息ID查"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“批量查消息”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -1026,8 +1252,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.list_messages_by_ids",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message list-by-sender": {
       "agent_summary": "拉取指定发送者的消息（含单聊 / 群聊；两者互斥）",
@@ -1053,25 +1282,40 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.chat.prod.json#chat.search_messages_by_sender",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "chat",
         "rpc_name": "search_messages_by_sender"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message list-direct": {
       "agent_summary": "拉取指定用户的单聊会话消息内容",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "拉取指定用户的单聊会话消息内容"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“拉取指定用户的单聊会话消息内容”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
       "confirmation": "not_required",
       "idempotency": "idempotent",
+      "examples": [
+        "dws chat message list-direct --time \u003ctime\u003e --user \u003cuser\u003e"
+      ],
       "reviewed": false,
       "source_refs": [
-        "internal/cli/schema_mcp_metadata.json#tools.chat.list_individual_chat_message"
-      ]
+        "internal/cli/schema_mcp_metadata.json#tools.chat.list_individual_chat_message",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message list-focused": {
       "agent_summary": "拉取特别关注人的消息",
@@ -1079,6 +1323,9 @@
       "use_when": [
         "我特别关注的人最近发了什么消息/关注的人最近聊了啥/星标联系人最近的动态",
         "特别关注人的消息/关注的人的消息/星标联系人的消息"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“拉取特别关注人的消息”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -1092,12 +1339,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.chat.prod.json#chat.list_special_focus_messages",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "chat",
         "rpc_name": "list_special_focus_messages"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message list-mentions": {
       "agent_summary": "拉取 @我 的消息",
@@ -1106,6 +1356,9 @@
         "@我的消息/at我的/提及我的",
         "@我的消息/提及我的",
         "谁@了我/查看提及我的消息；查询@我的消息"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“拉取 @我 的消息”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -1120,18 +1373,24 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.chat.prod.json#chat.search_at_me_message",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "chat",
         "rpc_name": "search_at_me_message"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message list-pin-msg": {
       "agent_summary": "拉取会话中钉住的(pin)消息列表",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "查看钉住的消息/Pin列表/钉住消息列表；拉取钉住消息列表"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“拉取会话中钉住的(pin)消息列表”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -1146,8 +1405,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.list_pin_messages",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message list-topic-replies": {
       "agent_summary": "拉取群话题回复消息列表",
@@ -1155,6 +1417,9 @@
       "use_when": [
         "群里某条话题的回复",
         "话题回复/群话题消息回复/拉取话题回复"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“拉取群话题回复消息列表”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -1168,12 +1433,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.chat.prod.json#chat.list_topic_replies",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "chat",
         "rpc_name": "list_topic_replies"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message list-unread-conversations": {
       "agent_summary": "获取未读会话列表",
@@ -1200,12 +1468,15 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.chat.prod.json#chat.unread_message_conversation_list",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "chat",
         "rpc_name": "unread_message_conversation_list"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message query-send-status": {
       "agent_summary": "查询以当前用户的身份发送的消息的发送状态",
@@ -1213,6 +1484,9 @@
       "use_when": [
         "查询消息发送状态/消息发没发成功/消息状态",
         "消息发没发成功/查询消息发送状态；查询消息发送状态"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询以当前用户的身份发送的消息的发送状态”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -1226,8 +1500,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.query_message_send_status",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message read-status": {
       "agent_summary": "查询消息的已读/未读状态",
@@ -1253,8 +1530,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.query_msg_read_status",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message recall": {
       "agent_summary": "撤回用户发送的消息",
@@ -1279,8 +1559,11 @@
         "internal/cli/schema_mcp_metadata.json#tools.chat.recall_message",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message recall-by-bot": {
       "agent_summary": "机器人撤回消息（--group 群聊 / 不传为单聊）",
@@ -1307,14 +1590,21 @@
         "skills/mono/SKILL.md",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "composite",
+      "availability": "available",
+      "interface_reason": "命令包含多个 RPC、条件分派或本地 HTTP/文件步骤，不能绑定为单一 interface_ref"
     },
     "chat message remove-emoji": {
       "agent_summary": "消息删除emoji回应",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "取消emoji回应/移除表情回应"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“消息删除emoji回应”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1327,14 +1617,20 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.remove_emoji_reaction",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message remove-text-emotion": {
       "agent_summary": "删除文字表情",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "取消文字表情回应/移除文字表情"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“删除文字表情”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1347,8 +1643,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.remove_text_emotion",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message reply": {
       "agent_summary": "以当前用户身份引用一条已有消息并回复",
@@ -1380,16 +1679,22 @@
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
         "skills/mono/schema-hints/catalog-completeness.json",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "chat",
         "rpc_name": "send_personal_message"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message search": {
       "agent_summary": "按关键词搜索消息",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
+      "use_when": [
+        "按关键词搜索消息"
+      ],
       "avoid_when": [
         "按发送者搜索/指定多个群搜索/多维度搜消息；多维度搜索消息",
         "搜一下智能化方案/最近 OKR 相关邮件/最近发版相关消息；搜企业知识内容"
@@ -1407,12 +1712,15 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.chat.prod.json#chat.search_messages_by_keyword",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "chat",
         "rpc_name": "search_messages_by_keyword"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message search-advanced": {
       "agent_summary": "搜索消息，支持多种维度：时间范围、关键词、发送者、at我的、at指定用户、会话",
@@ -1423,6 +1731,9 @@
         "搜一下消息里的changefree链接；消息搜索",
         "搜索消息/查找关键词/搜一下消息里的XX",
         "搜索消息里的关键词/包含XX的消息"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“搜索消息，支持多种维度：时间范围、关键词、发送者、at我的、at指定用户、会话”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -1437,8 +1748,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.search_messages",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message send": {
       "agent_summary": "以当前用户身份向群聊或单聊发送文本、Markdown、图片或本地文件",
@@ -1489,12 +1803,15 @@
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
         "skills/mono/schema-hints/catalog-completeness.json",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "chat",
         "rpc_name": "send_personal_message"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message send-by-bot": {
       "agent_summary": "机器人发送消息（--group 群聊 / --users 单聊）",
@@ -1530,8 +1847,12 @@
       "source_refs": [
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "composite",
+      "availability": "available",
+      "interface_reason": "命令包含多个 RPC、条件分派或本地 HTTP/文件步骤，不能绑定为单一 interface_ref"
     },
     "chat message send-by-webhook": {
       "agent_summary": "自定义机器人 Webhook 发送群消息",
@@ -1540,6 +1861,9 @@
         "7. Webhook 发告警",
         "CPU 超过 90% 自动告警；Webhook 告警",
         "Webhook 发消息/告警消息"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“自定义机器人 Webhook 发送群消息”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1555,12 +1879,15 @@
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
         "skills/mono/schema-hints/imported/wukong.json",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "bot",
         "rpc_name": "send_message_by_custom_robot"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message send-card": {
       "agent_summary": "创建并推送流式卡片",
@@ -1584,8 +1911,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.create_and_send_card",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message set-pin-msg": {
       "agent_summary": "设置钉住(pin)某条消息",
@@ -1608,14 +1938,20 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.set_pin_message",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message unset-pin-msg": {
       "agent_summary": "取消某条钉住的(pin)消息",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "取消钉住/Unpin消息；取消钉住消息"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“取消某条钉住的(pin)消息”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1629,14 +1965,20 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.unset_pin_message",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat message update-card": {
       "agent_summary": "流式更新卡片内容",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "更新卡片/流式更新卡片；流式更新卡片内容"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“流式更新卡片内容”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1651,8 +1993,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.update_streaming_card",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat mute": {
       "agent_summary": "群免打扰开关",
@@ -1678,8 +2023,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.update_notification_off",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat search": {
       "agent_summary": "根据名称搜索会话列表",
@@ -1707,12 +2055,15 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.chat.prod.json#chat.search_groups_by_keyword",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "chat",
         "rpc_name": "search_groups_by_keyword"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat search-common": {
       "agent_summary": "搜索共同群（指定昵称列表，查询共同所在的群聊）",
@@ -1721,6 +2072,9 @@
         "我和XX的共同群/我们都在哪些群/查共同群",
         "我和某人的共同群",
         "我和风雷的共同群/我们都在哪些群；搜索共同群"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“搜索共同群（指定昵称列表，查询共同所在的群聊）”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -1735,12 +2089,15 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.chat.prod.json#chat.search_common_groups",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/chat.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "chat",
         "rpc_name": "search_common_groups"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "chat set-top": {
       "agent_summary": "会话置顶/取消置顶",
@@ -1758,12 +2115,18 @@
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws chat set-top --conversation-id \u003cconversation-id\u003e"
+      ],
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.chat.set_top_conversation",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/chat.md"
-      ]
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     }
   }
 }

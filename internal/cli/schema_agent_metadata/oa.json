@@ -8,6 +8,9 @@
         "4a. 同意审批",
         "同意审批/批准"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“同意审批”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -21,12 +24,15 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.oa.prod.json#oa.approve_processInstance",
         "skills/mono/references/products/oa.md",
         "skills/mono/references/products/simple.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "oa",
         "rpc_name": "approve_processInstance"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "oa approval detail": {
       "agent_summary": "获取审批实例详情",
@@ -34,6 +40,9 @@
       "use_when": [
         "2. 查看审批详情 — 了解审批内容",
         "审批详情/看审批"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取审批实例详情”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -47,12 +56,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.oa.prod.json#oa.get_processInstance_detail",
         "skills/mono/references/products/oa.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "oa",
         "rpc_name": "get_processInstance_detail"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "oa approval list-cc": {
       "agent_summary": "获取抄送用户的列表",
@@ -60,6 +72,9 @@
       "use_when": [
         "11. 抄送我的审批单",
         "抄送我的审批单"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取抄送用户的列表”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -73,8 +88,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.oa.get_noticed_instances",
-        "skills/mono/references/products/oa.md"
-      ]
+        "skills/mono/references/products/oa.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "oa approval list-executed": {
       "agent_summary": "获取员工已处理任务列表",
@@ -82,6 +100,9 @@
       "use_when": [
         "9. 我处理过的审批单",
         "我审批/处理过的审批单"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取员工已处理任务列表”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -95,8 +116,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.oa.get_done_tasks",
-        "skills/mono/references/products/oa.md"
-      ]
+        "skills/mono/references/products/oa.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "oa approval list-forms": {
       "agent_summary": "获取当前用户可见的审批表单列表",
@@ -104,6 +128,9 @@
       "use_when": [
         "7. 获取可见审批表单（得到 processCode）",
         "有哪些审批表单/可见表单"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取当前用户可见的审批表单列表”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -117,12 +144,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.oa.prod.json#oa.list_user_visible_process",
         "skills/mono/references/products/oa.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "oa",
         "rpc_name": "list_user_visible_process"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "oa approval list-initiated": {
       "agent_summary": "查询已发起的审批实例列表",
@@ -130,6 +160,9 @@
       "use_when": [
         "8. 查看自己发起的审批列表（--process-code 来自 list-forms / search-forms / detail）",
         "我发起的审批"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询已发起的审批实例列表”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -144,12 +177,15 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.oa.prod.json#oa.list_initiated_instances",
         "skills/mono/references/products/oa.md",
         "skills/mono/references/products/simple.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "oa",
         "rpc_name": "list_initiated_instances"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "oa approval list-pending": {
       "agent_summary": "查询待我处理的审批",
@@ -158,6 +194,9 @@
         "1. 查看待我处理的审批 — 提取 processInstanceId",
         "待审批/待处理审批",
         "待我审批/我要审批的"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询待我处理的审批”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -172,12 +211,15 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.oa.prod.json#oa.list_pending_approvals",
         "skills/mono/references/products/oa.md",
         "skills/mono/references/products/simple.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "oa",
         "rpc_name": "list_pending_approvals"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "oa approval list-submitted": {
       "agent_summary": "获取已提交实例列表",
@@ -185,6 +227,9 @@
       "use_when": [
         "10. 我发起的审批单",
         "我发起的审批单"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取已提交实例列表”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -198,8 +243,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.oa.get_submitted_instances",
-        "skills/mono/references/products/oa.md"
-      ]
+        "skills/mono/references/products/oa.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "oa approval oa-cc-noticer": {
       "agent_summary": "抄送审批人",
@@ -207,6 +255,9 @@
       "use_when": [
         "14. 对审批实例进行抄送（processInstanceId 来自 list-pending 或 detail）",
         "抄送审批/添加抄送人"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“抄送审批人”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -220,8 +271,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.oa.oa_cc_noticer",
-        "skills/mono/references/products/oa.md"
-      ]
+        "skills/mono/references/products/oa.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "oa approval oa-comments": {
       "agent_summary": "用户添加审批评论",
@@ -229,6 +283,9 @@
       "use_when": [
         "13. 对审批实例添加评论（processInstanceId 来自 list-pending 或 detail）",
         "评论审批/添加评论/写评论"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“用户添加审批评论”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -242,8 +299,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.oa.dingflow_comments",
-        "skills/mono/references/products/oa.md"
-      ]
+        "skills/mono/references/products/oa.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "oa approval records": {
       "agent_summary": "获取审批操作记录",
@@ -251,6 +311,9 @@
       "use_when": [
         "6. 查看审批操作记录",
         "审批记录/操作历史"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取审批操作记录”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -264,12 +327,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.oa.prod.json#oa.get_processInstance_records",
         "skills/mono/references/products/oa.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "oa",
         "rpc_name": "get_processInstance_records"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "oa approval redirect-task": {
       "agent_summary": "转交审批任务",
@@ -277,6 +343,9 @@
       "use_when": [
         "12. 转交审批任务（taskId 来自 tasks，toActionerId 来自 contact user search）",
         "转交审批/转交任务"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“转交审批任务”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -290,8 +359,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.oa.redirect_task",
-        "skills/mono/references/products/oa.md"
-      ]
+        "skills/mono/references/products/oa.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "oa approval reject": {
       "agent_summary": "拒绝审批",
@@ -299,6 +371,9 @@
       "use_when": [
         "4b. 拒绝审批",
         "拒绝审批/驳回"
+      ],
+      "avoid_when": [
+        "用户未明确要求“拒绝审批”、目标不清楚或尚未确认时不要使用"
       ],
       "effect": "destructive",
       "effect_source": "skill-explicit",
@@ -314,12 +389,15 @@
         "skills/mono/SKILL.md",
         "skills/mono/references/products/oa.md",
         "skills/mono/references/products/simple.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "oa",
         "rpc_name": "reject_processInstance"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "oa approval revoke": {
       "agent_summary": "撤销已发起的审批",
@@ -329,26 +407,31 @@
         "撤回审批/取消审批",
         "撤销审批/撤回"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“撤销已发起的审批”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "skill-explicit",
       "risk": "high",
       "confirmation": "user_required",
       "idempotency": "unknown",
       "examples": [
-        "dws oa approval revoke --instance-id \u003cid\u003e --yes",
-        "dws oa approval revoke --instance-id \u003cid\u003e --remark \"误发起\" --yes"
+        "dws oa approval revoke --instance-id \u003cinstance-id\u003e"
       ],
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.oa.prod.json#oa.revoke_processInstance",
         "skills/mono/SKILL.md",
         "skills/mono/references/products/oa.md",
         "skills/mono/references/products/simple.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "oa",
         "rpc_name": "revoke_processInstance"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "oa approval tasks": {
       "agent_summary": "查询待我审批的任务 ID",
@@ -358,6 +441,9 @@
         "同意审批/批准",
         "我有哪些待审的任务",
         "拒绝审批/驳回"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询待我审批的任务 ID”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -371,12 +457,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.oa.prod.json#oa.list_pending_tasks",
         "skills/mono/references/products/oa.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "oa",
         "rpc_name": "list_pending_tasks"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     }
   }
 }

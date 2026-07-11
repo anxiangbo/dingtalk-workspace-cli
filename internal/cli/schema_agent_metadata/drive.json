@@ -4,6 +4,12 @@
     "drive commit": {
       "agent_summary": "提交文件上传",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
+      "use_when": [
+        "提交文件上传"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“提交文件上传”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -16,12 +22,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.drive.prod.json#drive.commit_upload",
         "skills/mono/references/products/drive.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "drive",
         "rpc_name": "commit_upload"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "drive copy": {
       "agent_summary": "将指定节点复制到目标文件夹。",
@@ -31,6 +40,9 @@
         "── 场景 C: 复制钉盘文件到钉盘 space 下的子文件夹 ──",
         "── 场景默认: 用户未指定目标位置 → 复制/移动到「我的文件」根目录 ──",
         "复制文件/移动文件/搬到/移到"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“将指定节点复制到目标文件夹。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -45,12 +57,15 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.drive.copy_document",
         "skills/mono/references/products/drive.md",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "doc",
         "rpc_name": "copy_document"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "drive delete": {
       "agent_summary": "将指定节点移入回收站，30 天内可从回收站恢复，超过 30 天将被永久删除。",
@@ -59,26 +74,31 @@
         "删除文件/删除文件夹/移到回收站",
         "正确流程：1.向用户展示\"即将删除「文件名」到回收站\" → 2.等用户确认 → 3.执行下面命令"
       ],
+      "avoid_when": [
+        "用户未明确要求“将指定节点移入回收站，30 天内可从回收站恢复，超过 30 天将被永久删除。”、目标不清楚或尚未确认时不要使用"
+      ],
       "effect": "destructive",
       "effect_source": "agent-hint",
       "risk": "high",
       "confirmation": "user_required",
       "idempotency": "unknown",
       "examples": [
-        "dws drive delete --node \u003cdentryUuid\u003e --format json    # 查询 fileId: dws drive list",
-        "dws drive delete --node \u003cdentryUuid\u003e --yes --format json"
+        "dws drive delete --node \u003cdentryUuid\u003e --format json    # 查询 fileId: dws drive list"
       ],
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.drive.delete_document",
         "skills/mono/references/products/drive.md",
         "skills/mono/schema-hints/destructive-safety.json",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "doc",
         "rpc_name": "delete_document"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "drive download": {
       "agent_summary": "获取文件下载链接",
@@ -104,13 +124,17 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.drive.prod.json#drive.download_file",
         "skills/mono/references/intent-guide.md",
+        "skills/mono/references/products/doc.md",
         "skills/mono/references/products/drive.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "drive",
         "rpc_name": "download_file"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "drive info": {
       "agent_summary": "获取文件元数据信息",
@@ -118,6 +142,9 @@
       "use_when": [
         "3. 查看文件元数据",
         "文件详情/文件信息"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取文件元数据信息”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -131,12 +158,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.drive.prod.json#drive.get_file_info",
         "skills/mono/references/products/drive.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "drive",
         "rpc_name": "get_file_info"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "drive list": {
       "agent_summary": "获取文件/文件夹列表",
@@ -164,17 +194,24 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.drive.prod.json#drive.list_files",
         "skills/mono/references/intent-guide.md",
+        "skills/mono/references/products/doc.md",
         "skills/mono/references/products/drive.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "drive",
         "rpc_name": "list_files"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "drive list-spaces": {
       "agent_summary": "获取当前用户可访问的空间列表。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "获取当前用户可访问的空间列表。"
+      ],
       "avoid_when": [
         "列出钉盘团队空间；列出钉盘空间"
       ],
@@ -191,8 +228,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.drive.list_spaces",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/drive.md"
-      ]
+        "skills/mono/references/products/drive.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "drive mkdir": {
       "agent_summary": "创建文件夹",
@@ -200,6 +240,9 @@
       "use_when": [
         "5. 创建文件夹",
         "新建文件夹/创建目录"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“创建文件夹”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -212,19 +255,26 @@
       ],
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.drive.prod.json#drive.create_folder",
+        "skills/mono/references/products/doc.md",
         "skills/mono/references/products/drive.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "drive",
         "rpc_name": "create_folder"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "drive move": {
       "agent_summary": "将指定节点移动到目标文件夹。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "── 场景 B: 移动钉盘文件到另一个钉盘 space 根目录 ──"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“将指定节点移动到目标文件夹。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -239,18 +289,24 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.drive.move_document",
         "skills/mono/references/products/drive.md",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "doc",
         "rpc_name": "move_document"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "drive permission add": {
       "agent_summary": "为知识库下的节点（文档、文件夹、文件）添加指定角色的企业用户成员（仅支持 USER 类型）。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "给文档授权/分享权限"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“为知识库下的节点（文档、文件夹、文件）添加指定角色的企业用户成员（仅支持 USER 类型）。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -264,16 +320,25 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.drive.add_permission",
         "skills/mono/references/products/drive.md",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "doc",
         "rpc_name": "add_permission"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "drive permission list": {
       "agent_summary": "查询知识库节点当前的成员权限列表。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "查询知识库节点当前的成员权限列表。"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询知识库节点当前的成员权限列表。”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
@@ -286,16 +351,25 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.drive.list_permission",
         "skills/mono/references/products/drive.md",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "doc",
         "rpc_name": "list_permission"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "drive permission remove": {
       "agent_summary": "从知识库节点移除指定企业用户的权限（仅支持 USER 类型）。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "从知识库节点移除指定企业用户的权限（仅支持 USER 类型）。"
+      ],
+      "avoid_when": [
+        "用户未明确要求“从知识库节点移除指定企业用户的权限（仅支持 USER 类型）。”、目标不清楚或尚未确认时不要使用"
+      ],
       "effect": "destructive",
       "effect_source": "agent-hint",
       "risk": "high",
@@ -309,16 +383,25 @@
         "internal/cli/schema_mcp_metadata.json#tools.drive.permission_remove",
         "skills/mono/references/products/drive.md",
         "skills/mono/schema-hints/destructive-safety.json",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "doc",
         "rpc_name": "remove_permission"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "drive permission update": {
       "agent_summary": "修改企业用户在知识库节点上的角色（仅支持 USER 类型）。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "修改企业用户在知识库节点上的角色（仅支持 USER 类型）。"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“修改企业用户在知识库节点上的角色（仅支持 USER 类型）。”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -331,18 +414,24 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.drive.permission_update",
         "skills/mono/references/products/drive.md",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "doc",
         "rpc_name": "update_permission"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "drive rename": {
       "agent_summary": "对指定节点进行重命名。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "重命名/改名"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“对指定节点进行重命名。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -356,12 +445,15 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.drive.rename_document",
         "skills/mono/references/products/drive.md",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "doc",
         "rpc_name": "rename_document"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "drive search": {
       "agent_summary": "在钉盘空间中搜索文件、文件夹或空间，支持通过 searchTarget 参数切换搜索目标。",
@@ -388,8 +480,13 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.drive.search_files",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/drive.md"
-      ]
+        "skills/mono/references/products/doc.md",
+        "skills/mono/references/products/drive.md",
+        "skills/mono/references/products/wiki.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "drive upload": {
       "agent_summary": "上传本地文件到钉盘",
@@ -402,6 +499,9 @@
         "上传本地文件到钉盘",
         "帮我把这个文件传到网盘；钉盘上传",
         "查看具体命令的完整参数说明"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“上传本地文件到钉盘”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -416,12 +516,22 @@
       "source_refs": [
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/drive.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "composite",
+      "availability": "available",
+      "interface_reason": "命令包含多个 RPC、条件分派或本地 HTTP/文件步骤，不能绑定为单一 interface_ref"
     },
     "drive upload-info": {
       "agent_summary": "获取文件上传信息",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
+      "use_when": [
+        "获取文件上传信息"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取文件上传信息”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
@@ -434,12 +544,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.drive.prod.json#drive.get_upload_info",
         "skills/mono/references/products/drive.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "drive",
         "rpc_name": "get_upload_info"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     }
   }
 }

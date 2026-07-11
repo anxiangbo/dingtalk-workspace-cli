@@ -21,12 +21,16 @@ catalog_product_count="$(jq -r '.catalog.count' internal/cli/schema_catalog.json
 interface_surface_count="$(jq -r '.coverage.surface_tools' internal/cli/schema_mcp_metadata.json)"
 agent_surface_count="$(jq -r '.coverage.surface_tools' internal/cli/schema_agent_metadata/index.json)"
 agent_product_count="$(jq -r '.coverage.products_with_metadata' internal/cli/schema_agent_metadata/index.json)"
+agent_selection_count="$(jq -r '[.coverage.tools_with_use_when, .coverage.tools_with_avoid_when, .coverage.tools_with_examples, .coverage.tools_with_interface_mode] | min' internal/cli/schema_agent_metadata/index.json)"
+agent_unreviewed_refs="$(jq -r '.coverage.unreviewed_skill_tools // 0' internal/cli/schema_agent_metadata/index.json)"
 if [ "$surface_count" != "504" ] ||
 	[ "$catalog_count" != "$surface_count" ] ||
 	[ "$catalog_product_count" != "21" ] ||
 	[ "$interface_surface_count" != "$surface_count" ] ||
 	[ "$agent_surface_count" != "$surface_count" ] ||
-	[ "$agent_product_count" != "$catalog_product_count" ]; then
+	[ "$agent_product_count" != "$catalog_product_count" ] ||
+	[ "$agent_selection_count" != "$surface_count" ] ||
+	[ "$agent_unreviewed_refs" != "0" ]; then
 	printf 'schema counts disagree: surface=%s catalog=%s products=%s interface=%s agent=%s/%s\n' \
 		"$surface_count" "$catalog_count" "$catalog_product_count" \
 		"$interface_surface_count" "$agent_product_count" "$agent_surface_count" >&2
@@ -50,11 +54,40 @@ if ! jq -e '
     (.risk == "low" or .risk == "medium" or .risk == "high") and
     (.confirmation == "not_required" or .confirmation == "user_required") and
     (.idempotency == "idempotent" or .idempotency == "non_idempotent" or .idempotency == "unknown") and
+	((.use_when // []) | length) > 0 and
+	((.avoid_when // []) | length) > 0 and
+	((.examples // []) | length) > 0 and
+	(.interface_mode == "mcp" or .interface_mode == "composite" or .interface_mode == "local" or .interface_mode == "unavailable") and
+	(.availability == "available" or .availability == "unavailable") and
+	(. as $tool | all(.examples[];
+	  startswith("dws " + $tool.primary_cli_path) and
+	  (test("(^|\\s)--yes(\\s|$)") | not)
+	)) and
+	(if .interface_mode == "mcp" then .interface_ref != null and .availability == "available" else true end) and
+	(if .interface_mode == "composite" or .interface_mode == "local" then .interface_ref == null and .availability == "available" and ((.interface_reason // "") | length) > 0 else true end) and
+	(if .interface_mode == "unavailable" then .interface_ref == null and .availability == "unavailable" and ((.interface_reason // "") | length) > 0 else true end) and
     (if .effect == "destructive" then .risk == "high" and .confirmation == "user_required" else true end) and
     (if .risk == "high" then .confirmation == "user_required" else true end)
   )
 ' internal/cli/schema_catalog.json >/dev/null; then
 	printf '%s\n' 'schema tools must have complete Agent summary/effect/safety metadata' >&2
+	exit 1
+fi
+
+if [ "$(jq '[.tools[] | select(.interface_ref != null)] | length' internal/cli/schema_catalog.json)" != "461" ]; then
+	printf '%s\n' 'schema interface disposition must cover 461 fixed MCP tools and 43 reviewed exceptions' >&2
+	exit 1
+fi
+
+mcp_source_hash="$(jq -r '.source_hash' internal/cli/schema_mcp_metadata.json)"
+if ! jq -e --arg source_hash "$mcp_source_hash" '
+  .version == 1 and
+  .snapshot_source_hash == $source_hash and
+  (.missing_services | keys) == ["notify"] and
+  .missing_services.notify.status == "out_of_surface" and
+  ((.missing_services.notify.reason // "") | length) > 0
+' internal/cli/schema_mcp_service_review.json >/dev/null; then
+	printf '%s\n' 'missing MCP service review is stale or incomplete' >&2
 	exit 1
 fi
 
@@ -119,6 +152,7 @@ fi
 if rg -n 'mcp-gw\.dingtalk\.com|mcp\.dingtalk\.com/server|Authorization[^[:alnum:]]*:|Bearer [A-Za-z0-9]|access[_-]?token|client[_-]?secret' \
 	internal/cli/schema_catalog.json \
 	internal/cli/schema_mcp_metadata.json \
+	internal/cli/schema_mcp_service_review.json \
 	internal/cli/schema_agent_metadata \
 	internal/cli/schema_parameter_bindings.json \
 	skills/mono/schema-hints; then

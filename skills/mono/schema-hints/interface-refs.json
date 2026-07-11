@@ -35,6 +35,9 @@
     "aitable.base_search": {
       "interface_ref": {"product_id": "aitable", "rpc_name": "search_bases"}
     },
+    "aitable.create": {
+      "interface_ref": {"product_id": "aitable", "rpc_name": "create_base"}
+    },
     "aitable.dashboard_arrange": {
       "interface_ref": {"product_id": "aitable-helper", "rpc_name": "align_dashboard"}
     },
@@ -227,6 +230,102 @@
     "chat.send_personal_message": {
       "interface_ref": {"product_id": "chat", "rpc_name": "send_personal_message"}
     },
+    "dev.add_dev_app_members": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "add_dev_app_members"}
+    },
+    "dev.apply_dev_app_permissions": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "apply_dev_app_permissions"}
+    },
+    "dev.create_dev_app": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "create_dev_app"}
+    },
+    "dev.create_dev_app_version": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "create_dev_app_version"}
+    },
+    "dev.delete_dev_app": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "delete_dev_app"}
+    },
+    "dev.disable_dev_app": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "disable_dev_app"}
+    },
+    "dev.disable_dev_app_robot": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "disable_dev_app_robot"}
+    },
+    "dev.enable_dev_app": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "enable_dev_app"}
+    },
+    "dev.enable_dev_app_robot": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "enable_dev_app_robot"}
+    },
+    "dev.get_dev_app": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "get_dev_app"}
+    },
+    "dev.get_dev_app_credentials": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "get_dev_app_credentials"}
+    },
+    "dev.get_dev_app_version_detail": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "get_dev_app_version_detail"}
+    },
+    "dev.get_dev_app_version_status": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "get_dev_app_version_status"}
+    },
+    "dev.get_extension_robot_config": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "get_extension_robot_config"}
+    },
+    "dev.get_extension_webapp_config": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "get_extension_webapp_config"}
+    },
+    "dev.list_dev_app": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "list_dev_app"}
+    },
+    "dev.list_dev_app_events": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "list_dev_app_events"}
+    },
+    "dev.list_dev_app_members": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "list_dev_app_members"}
+    },
+    "dev.list_dev_app_permissions": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "list_dev_app_permissions"}
+    },
+    "dev.list_dev_app_versions": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "list_dev_app_versions"}
+    },
+    "dev.publish_dev_app_version": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "publish_dev_app_version"}
+    },
+    "dev.query_robot_create_result": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "query_robot_create_result"}
+    },
+    "dev.remove_dev_app_members": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "remove_dev_app_members"}
+    },
+    "dev.remove_dev_app_permissions": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "remove_dev_app_permissions"}
+    },
+    "dev.search_open_platform_docs_rag": {
+      "interface_ref": {"product_id": "devdoc", "rpc_name": "search_open_platform_docs"}
+    },
+    "dev.set_extension_robot_config": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "set_extension_robot_config"}
+    },
+    "dev.set_extension_webapp_config": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "set_extension_webapp_config"}
+    },
+    "dev.submit_robot_create_task": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "submit_robot_create_task"}
+    },
+    "dev.subscribe_dev_app_events": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "subscribe_dev_app_events"}
+    },
+    "dev.unsubscribe_dev_app_events": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "unsubscribe_dev_app_events"}
+    },
+    "dev.update_dev_app": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "update_dev_app"}
+    },
+    "dev.update_dev_app_security_config": {
+      "interface_ref": {"product_id": "devapp", "rpc_name": "update_dev_app_security_config"}
+    },
     "doc.create_comment": {
       "interface_ref": {"product_id": "doc-comment", "rpc_name": "create_comment"}
     },
@@ -263,6 +362,18 @@
     "drive.rename_document": {
       "interface_ref": {"product_id": "doc", "rpc_name": "rename_document"}
     },
+    "minutes.record_pause": {
+      "interface_ref": {"product_id": "minutes", "rpc_name": "执行听记指令-发起AI听记录音"}
+    },
+    "minutes.record_resume": {
+      "interface_ref": {"product_id": "minutes", "rpc_name": "执行听记指令-发起AI听记录音"}
+    },
+    "minutes.record_start": {
+      "interface_ref": {"product_id": "minutes", "rpc_name": "执行听记指令-发起AI听记录音"}
+    },
+    "minutes.record_stop": {
+      "interface_ref": {"product_id": "minutes", "rpc_name": "执行听记指令-发起AI听记录音"}
+    },
     "pat.batch_grant": {
       "interface_ref": {"product_id": "pat", "rpc_name": "pat.batch_grant"}
     },
@@ -271,6 +382,18 @@
     },
     "sheet.filter_view_delete_criteria": {
       "interface_ref": {"product_id": "sheet", "rpc_name": "clear_filter_view_criteria"}
+    },
+    "sheet.filter_view_get_criteria": {
+      "interface_ref": {"product_id": "sheet", "rpc_name": "get_filter_views"}
+    },
+    "sheet.filter_view_info": {
+      "interface_ref": {"product_id": "sheet", "rpc_name": "get_filter_views"}
+    },
+    "sheet.filter_view_list_criteria": {
+      "interface_ref": {"product_id": "sheet", "rpc_name": "get_filter_views"}
+    },
+    "sheet.filter_view_update_criteria": {
+      "interface_ref": {"product_id": "sheet", "rpc_name": "set_filter_view_criteria"}
     },
     "sheet.range_batch_set_style": {
       "interface_ref": {"product_id": "sheet", "rpc_name": "update_range"}

@@ -9,6 +9,9 @@
         "再下载指定附件到当前目录（每次只能下载一个附件）",
         "步骤 5.3：对每个附件逐个下载（没有批量下载命令，必须循环调用）"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“下载邮件附件”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
@@ -21,8 +24,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.create_download_session",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail attachment list": {
       "agent_summary": "列举邮件附件",
@@ -30,6 +36,9 @@
       "use_when": [
         "先列出附件获取 id 和 name",
         "（对搜索结果中的每封邮件都要执行一次）"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“列举邮件附件”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -42,12 +51,21 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.list_mail_attachments",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail contact batch-delete": {
       "agent_summary": "批量删除用户邮箱联系人",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "批量删除用户邮箱联系人"
+      ],
+      "avoid_when": [
+        "用户未明确要求“批量删除用户邮箱联系人”、目标不清楚或尚未确认时不要使用"
+      ],
       "effect": "destructive",
       "effect_source": "agent-hint",
       "risk": "high",
@@ -60,12 +78,21 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.batch_delete_user_mail_contacts",
         "skills/mono/references/products/mail.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail contact create": {
       "agent_summary": "创建用户邮箱联系人",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "创建用户邮箱联系人"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“创建用户邮箱联系人”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -78,12 +105,21 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.create_user_mail_contact",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail contact list": {
       "agent_summary": "列出用户邮箱联系人",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "列出用户邮箱联系人"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“列出用户邮箱联系人”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
@@ -96,12 +132,21 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.list_user_mail_contacts",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail contact update": {
       "agent_summary": "修改用户邮箱联系人信息",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "修改用户邮箱联系人信息"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“修改用户邮箱联系人信息”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -114,12 +159,21 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.update_user_mail_contact",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail draft create": {
       "agent_summary": "创建邮件草稿",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "创建邮件草稿"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“创建邮件草稿”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -132,12 +186,21 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.create_draft",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail draft send": {
       "agent_summary": "发送草稿箱中的邮件",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "发送草稿箱中的邮件"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“发送草稿箱中的邮件”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -149,12 +212,21 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.send_draft",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail draft update": {
       "agent_summary": "更新邮件草稿",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "更新邮件草稿"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“更新邮件草稿”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -167,8 +239,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.update_draft",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail folder create": {
       "agent_summary": "创建邮件文件夹",
@@ -177,6 +252,9 @@
         "1b. 创建顶层邮件文件夹",
         "1c. 创建子文件夹 — 先通过 folder list 获取父文件夹 id，再传给 --folder",
         "创建邮件文件夹/新建邮箱文件夹/新建邮件目录"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“创建邮件文件夹”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -190,18 +268,24 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.mail.prod.json#mail.create_mail_folder",
         "skills/mono/references/products/mail.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "mail",
         "rpc_name": "create_mail_folder"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail folder delete": {
       "agent_summary": "删除邮件文件夹",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
       "use_when": [
         "1d. 更新或删除邮件文件夹 — 先通过 folder list 获取目标文件夹 id，再传给 --id"
+      ],
+      "avoid_when": [
+        "用户未明确要求“删除邮件文件夹”、目标不清楚或尚未确认时不要使用"
       ],
       "effect": "destructive",
       "effect_source": "agent-hint",
@@ -216,12 +300,15 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.mail.prod.json#mail.delete_mail_folder",
         "skills/mono/references/products/mail.md",
         "skills/mono/schema-hints/destructive-safety.json",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "mail",
         "rpc_name": "delete_mail_folder"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail folder list": {
       "agent_summary": "列举邮件文件夹",
@@ -235,6 +322,9 @@
         "在某个邮件文件夹下创建子文件夹",
         "重命名邮件文件夹/修改邮箱文件夹名称/更新邮件目录名称"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“列举邮件文件夹”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
@@ -247,18 +337,24 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.mail.prod.json#mail.list_folders",
         "skills/mono/references/products/mail.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "mail",
         "rpc_name": "list_folders"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail folder update": {
       "agent_summary": "更新邮件文件夹",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
       "use_when": [
         "1d. 更新或删除邮件文件夹 — 先通过 folder list 获取目标文件夹 id，再传给 --id"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“更新邮件文件夹”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -272,12 +368,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.mail.prod.json#mail.update_mail_folder",
         "skills/mono/references/products/mail.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "mail",
         "rpc_name": "update_mail_folder"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail mailbox list": {
       "agent_summary": "查询可用邮箱地址",
@@ -288,6 +387,9 @@
         "发邮件/写邮件",
         "我的邮箱/邮箱地址",
         "获取/查找/得到 某人的邮箱地址"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询可用邮箱地址”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -301,16 +403,25 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.mail.prod.json#mail.list_user_mailboxes",
         "skills/mono/references/products/mail.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "mail",
         "rpc_name": "list_user_mailboxes"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail message batch-delete": {
       "agent_summary": "批量删除邮件",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "批量删除邮件"
+      ],
+      "avoid_when": [
+        "用户未明确要求“批量删除邮件”、目标不清楚或尚未确认时不要使用"
+      ],
       "effect": "destructive",
       "effect_source": "agent-hint",
       "risk": "high",
@@ -323,12 +434,21 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.batch_delete_message",
         "skills/mono/references/products/mail.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail message batch-move": {
       "agent_summary": "批量移动邮件到指定文件夹",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "批量移动邮件到指定文件夹"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“批量移动邮件到指定文件夹”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -340,12 +460,21 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.batch_move_message",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail message forward": {
       "agent_summary": "创建转发草稿",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "创建转发草稿"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“创建转发草稿”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -358,14 +487,20 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.create_forward_draft",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail message get": {
       "agent_summary": "查看邮件完整内容",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
       "use_when": [
         "3. 查看邮件详情"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查看邮件完整内容”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -379,16 +514,25 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.mail.prod.json#mail.get_email_by_message_id",
         "skills/mono/references/products/mail.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "mail",
         "rpc_name": "get_email_by_message_id"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail message reply": {
       "agent_summary": "创建回复草稿",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "创建回复草稿"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“创建回复草稿”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -401,12 +545,21 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.create_reply_draft",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail message reply-all": {
       "agent_summary": "创建回复全部草稿",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "创建回复全部草稿"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“创建回复全部草稿”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -419,8 +572,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.create_replyall_draft",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail message search": {
       "agent_summary": "搜索邮件 (KQL 语法)",
@@ -439,24 +595,29 @@
         "示例：下载4月所有发票邮件的附件",
         "第一页"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“搜索邮件 (KQL 语法)”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
       "confirmation": "not_required",
       "idempotency": "idempotent",
       "examples": [
-        "dws mail message list --email user@company.com",
-        "dws mail message list --email user@company.com --folder-id 1"
+        "dws mail message search --email \u003cemail\u003e --query \u003cquery\u003e"
       ],
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.mail.prod.json#mail.search_emails",
         "skills/mono/references/products/mail.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "mail",
         "rpc_name": "search_emails"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail message send": {
       "agent_summary": "发送邮件",
@@ -465,6 +626,9 @@
         "4. 发送邮件（纯文本）",
         "4b. 发送带附件的邮件（自动编排：创建草稿→上传附件→发送草稿）",
         "4c. 发送带内联图片的邮件（正文自动转 HTML，\u003cimg\u003e 标签自动注入）"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“发送邮件”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -478,12 +642,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.mail.prod.json#mail.send_email",
         "skills/mono/references/products/mail.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "mail",
         "rpc_name": "send_email"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail tag list": {
       "agent_summary": "列举邮件标签",
@@ -495,6 +662,9 @@
         "在某个邮件标签下创建子标签",
         "查看邮件标签/列出邮箱标签/查看邮箱 label",
         "重命名邮件标签/修改邮箱标签名称/更新 label 名称"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“列举邮件标签”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -508,16 +678,25 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.mail.prod.json#mail.list_tags",
         "skills/mono/references/products/mail.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "mail",
         "rpc_name": "list_tags"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail template create": {
       "agent_summary": "创建个人邮件模板",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "创建个人邮件模板"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“创建个人邮件模板”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -530,12 +709,21 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.create_user_message_template",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail template delete": {
       "agent_summary": "删除用户邮件模板",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "删除用户邮件模板"
+      ],
+      "avoid_when": [
+        "用户未明确要求“删除用户邮件模板”、目标不清楚或尚未确认时不要使用"
+      ],
       "effect": "destructive",
       "effect_source": "agent-hint",
       "risk": "high",
@@ -548,12 +736,21 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.delete_user_message_template",
         "skills/mono/references/products/mail.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail template get": {
       "agent_summary": "获取用户邮件模板详情",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "获取用户邮件模板详情"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取用户邮件模板详情”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
@@ -565,12 +762,21 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.get_user_message_template",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail template list": {
       "agent_summary": "列出用户邮件模板",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "列出用户邮件模板"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“列出用户邮件模板”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
@@ -583,12 +789,21 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.list_user_message_templates",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail template update": {
       "agent_summary": "更新用户邮件模板",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
+      "use_when": [
+        "更新用户邮件模板"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“更新用户邮件模板”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -601,8 +816,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.update_user_message_template",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail thread get": {
       "agent_summary": "获取会话详情",
@@ -610,6 +828,9 @@
       "use_when": [
         "步骤 5.2：用 conversationId 获取会话详情",
         "步骤 5.3（可选）：同时返回会话内所有邮件列表"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取会话详情”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -623,12 +844,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.mail.prod.json#mail.get_thread",
         "skills/mono/references/products/mail.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "mail",
         "rpc_name": "get_thread"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "mail user search": {
       "agent_summary": "搜索账号",
@@ -637,6 +861,9 @@
         "搜索/查找/联系 邮箱用户/联系人/某人的邮箱地址",
         "翻页继续搜索联系人/通讯录",
         "路径 2：mail user search（仅企业邮箱可用，个人邮箱会报权限错误可忽略）"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“搜索账号”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -650,8 +877,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.mail.search_mail_users",
-        "skills/mono/references/products/mail.md"
-      ]
+        "skills/mono/references/products/mail.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     }
   }
 }

@@ -8,6 +8,9 @@
         "4b. 获取音频/视频地址（用于下载或播放原始媒体文件）",
         "音频地址/音频链接/录音文件/下载录音/音频下载/视频文件/媒体地址"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询听记的音频/视频地址，入参为 taskUuid 和操作人 uid，操作人需拥有该听记的\"读\"权限及以上才会返回；”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
@@ -19,14 +22,20 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.minutes.query_minutes_audio_url",
-        "skills/mono/references/products/minutes.md"
-      ]
+        "skills/mono/references/products/minutes.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes get batch": {
       "agent_summary": "批量查询听记详情 (标题 / 时长 / 参与人 / 创建时间 / 状态)",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
       "use_when": [
         "批量查询/查多个听记"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“批量查询听记详情 (标题 / 时长 / 参与人 / 创建时间 / 状态)”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -39,18 +48,24 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.batch_get_minutes_details",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "batch_get_minutes_details"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes get info": {
       "agent_summary": "获取听记基础信息 (创建人 / 起止时间 / 标题 / 访问链接)",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
       "use_when": [
         "听记详情/听记信息"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取听记基础信息 (创建人 / 起止时间 / 标题 / 访问链接)”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -63,18 +78,24 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.get_minutes_basic_info",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "get_minutes_basic_info"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes get keywords": {
       "agent_summary": "获取听记关键字列表",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
       "use_when": [
         "关键字/关键词"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取听记关键字列表”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -87,12 +108,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.get_minutes_keywords",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "get_minutes_keywords"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes get summary": {
       "agent_summary": "获取听记 AI 摘要 (Markdown 格式)",
@@ -102,6 +126,9 @@
         "修改纪要/更新纪要/编辑纪要内容/重新整理纪要/纪要格式优化/纪要精简",
         "把 XX 改成 YY；用户只要整体纪要、未指定特定人物",
         "摘要/总结/会议纪要/纪要"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取听记 AI 摘要 (Markdown 格式)”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -115,12 +142,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.get_minutes_ai_summary",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "get_minutes_ai_summary"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes get todos": {
       "agent_summary": "获取听记中提取的待办事项",
@@ -129,6 +159,9 @@
         "4. 提取待办事项",
         "会议待办/听记待办/待办事项",
         "把 XX 改成 YY；用户想提取待办"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取听记中提取的待办事项”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -142,12 +175,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.list_minutes_todos",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "list_minutes_todos"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes get transcription": {
       "agent_summary": "获取听记语音转写原文 (含发言人 / 时间戳)",
@@ -155,6 +191,9 @@
       "use_when": [
         "3. 查看完整转写原文（拉完后默认按时间线返回，AI 必须主动追问\"是否按发言人聚类\"）",
         "原文/转写/录音文字/逐字稿"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取听记语音转写原文 (含发言人 / 时间戳)”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -168,12 +207,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.get_minutes_transcription",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "get_minutes_transcription"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes hot-word add": {
       "agent_summary": "添加个人热词 (优化识别专有名词 / 人名)",
@@ -181,6 +223,9 @@
       "use_when": [
         "10. 添加个人热词",
         "加热词/添加热词/设置热词/把某个词加到热词里/这个词总是识别错"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“添加个人热词 (优化识别专有名词 / 人名)”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -194,18 +239,24 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.add_personal_hot_word",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "add_personal_hot_word"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes hot-word list": {
       "agent_summary": "查询我的热词列表，返回个人的所有听记配置过的热词列表",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "看看我的热词/我加了哪些热词/热词列表/查热词"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询我的热词列表，返回个人的所有听记配置过的热词列表”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -218,8 +269,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.minutes.list_my_hotwords",
-        "skills/mono/references/products/minutes.md"
-      ]
+        "skills/mono/references/products/minutes.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes list mine": {
       "agent_summary": "新版：查询我的听记列表，支持输入关键词或者时间范围查询，返回听记列表。",
@@ -243,20 +297,25 @@
         "按时间范围搜索",
         "某时间段内的听记/按时间查听记/按关键词查听记"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“新版：查询我的听记列表，支持输入关键词或者时间范围查询，返回听记列表。”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
       "confirmation": "not_required",
       "idempotency": "idempotent",
       "examples": [
-        "dws minutes list all",
-        "dws minutes list all --max 20"
+        "dws minutes list mine"
       ],
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.minutes.list_by_keyword_and_time_range",
-        "skills/mono/references/products/minutes.md"
-      ]
+        "skills/mono/references/products/minutes.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes mind-graph create": {
       "agent_summary": "触发思维导图生成任务 (完成状态走 mind-graph status 轮询)",
@@ -264,6 +323,9 @@
       "use_when": [
         "8. 思维导图",
         "生成思维导图/创建脑图/帮我添加思维导图/基于这个听记做思维导图/把会议内容做成脑图"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“触发思维导图生成任务 (完成状态走 mind-graph status 轮询)”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -277,12 +339,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.create_mind_graph",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "create_mind_graph"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes mind-graph status": {
       "agent_summary": "查询思维导图任务状态 (0=进行中 / 1=成功 / 2=失败)",
@@ -290,6 +355,9 @@
       "use_when": [
         "8. 思维导图",
         "思维导图状态/脑图进度/思维导图好了吗"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询思维导图任务状态 (0=进行中 / 1=成功 / 2=失败)”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -303,12 +371,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.query_mind_graph_status",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "query_mind_graph_status"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes permission add": {
       "agent_summary": "批量给多个听记增加成员，并且设置成员的权限。",
@@ -318,6 +389,9 @@
         "把某人加到这个听记中/共享听记给某人/给某人添加听记权限/把听记分享给同事/让某人也能看这个听记",
         "添加参会者/加参会者/批量添加参会者/添加成员/加成员/批量添加成员/加参会人/添加参会人",
         "添加参会者/批量添加参会者/添加成员/批量添加成员/加参会人/加入成员"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“批量给多个听记增加成员，并且设置成员的权限。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -331,8 +405,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.minutes.add_member_permission",
-        "skills/mono/references/products/minutes.md"
-      ]
+        "skills/mono/references/products/minutes.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes permission remove": {
       "agent_summary": "批量移除多个听记的成员的权限。",
@@ -340,6 +417,9 @@
       "use_when": [
         "移除/取消/删除/不让...看",
         "移除某人的权限/取消共享/不让某人看这个听记了"
+      ],
+      "avoid_when": [
+        "用户未明确要求“批量移除多个听记的成员的权限。”、目标不清楚或尚未确认时不要使用"
       ],
       "effect": "destructive",
       "effect_source": "agent-hint",
@@ -354,8 +434,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.minutes.remove_member_permission",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes record pause": {
       "agent_summary": "暂停听记录音",
@@ -364,6 +447,9 @@
         "7. 录音控制（基于 start 返回的 taskUuid）",
         "暂停一下/暂停录音",
         "暂停听记录音"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“暂停听记录音”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -377,8 +463,16 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "minutes",
+        "rpc_name": "执行听记指令-发起AI听记录音"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes record resume": {
       "agent_summary": "恢复听记录音",
@@ -387,6 +481,9 @@
         "7. 录音控制（基于 start 返回的 taskUuid）",
         "恢复听记录音",
         "继续/继续录音"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“恢复听记录音”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -400,8 +497,16 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "minutes",
+        "rpc_name": "执行听记指令-发起AI听记录音"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes record start": {
       "agent_summary": "发起听记 (开始录音)",
@@ -410,6 +515,9 @@
         "0. 发起听记（开始录音）",
         "发起听记 (开始录音)",
         "开始听记/开始录音/发起一个听记/启动听记/开始听记录这次会议/我要开始听记了/录音开始/我要听记"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“发起听记 (开始录音)”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -423,8 +531,16 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "minutes",
+        "rpc_name": "执行听记指令-发起AI听记录音"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes record stop": {
       "agent_summary": "结束听记录音",
@@ -433,6 +549,9 @@
         "7. 录音控制（基于 start 返回的 taskUuid）",
         "结束听记/结束录音/停止录音/结束",
         "结束听记录音"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“结束听记录音”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -446,8 +565,16 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "minutes",
+        "rpc_name": "执行听记指令-发起AI听记录音"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes replace-text": {
       "agent_summary": "在段落 + 纪要中全量替换文字 (区分大小写，精确匹配)",
@@ -455,6 +582,9 @@
       "use_when": [
         "11. 查找替换听记文字",
         "把所有的A替换成B/查找替换/批量替换文字"
+      ],
+      "avoid_when": [
+        "用户未明确要求“在段落 + 纪要中全量替换文字 (区分大小写，精确匹配)”、目标不清楚或尚未确认时不要使用"
       ],
       "effect": "destructive",
       "effect_source": "skill-explicit",
@@ -469,12 +599,15 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.replace_minutes_text",
         "skills/mono/SKILL.md",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "replace_minutes_text"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes speaker replace": {
       "agent_summary": "批量替换听记中指定发言人",
@@ -484,6 +617,9 @@
         "9. 替换发言人",
         "把 XX 改成 YY；用户直接说\"把发言人1改成张三",
         "替换发言人/修改发言人/换发言人名字/把说话人改成某某/发言人标注错了"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“批量替换听记中指定发言人”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -497,18 +633,24 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.replace_speaker",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "replace_speaker"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes speaker summary create": {
       "agent_summary": "触发创建发言人的段落总结任务，该任务将听记的发言人的所有撰写内容汇总总结，触发后需要继续调用查询接口去查询总结任务的结果",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "9b. 发言人段落总结（异步：create 触发 → 延迟 5s → 轮询 get，最多 20 次）"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“触发创建发言人的段落总结任务，该任务将听记的发言人的所有撰写内容汇总总结，触发后需要继续调用查询接口去查询总结任务的结果”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -522,14 +664,20 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.minutes.create_speaker_summary",
-        "skills/mono/references/products/minutes.md"
-      ]
+        "skills/mono/references/products/minutes.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes speaker summary get": {
       "agent_summary": "查询发言人的段落总结任务的结果，该任务将听记的发言人的所有撰写内容汇总总结返回，配合创建任务使用",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "等待至少 5 秒..."
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询发言人的段落总结任务的结果，该任务将听记的发言人的所有撰写内容汇总总结返回，配合创建任务使用”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -543,8 +691,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.minutes.get_speaker_summary",
-        "skills/mono/references/products/minutes.md"
-      ]
+        "skills/mono/references/products/minutes.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes tag list": {
       "agent_summary": "查询我的的听记的标签或者分组列表，标签或者分组在听记页面创建。",
@@ -553,6 +704,9 @@
         "我的听记标签/听记分组/听记有哪些标签/有哪些分组",
         "按标签查/某个标签下的听记/标签筛选",
         "标签列表/分组列表/有哪些标签/有哪些分组"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询我的的听记的标签或者分组列表，标签或者分组在听记页面创建。”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -565,14 +719,20 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.minutes.query_user_tag_list",
-        "skills/mono/references/products/minutes.md"
-      ]
+        "skills/mono/references/products/minutes.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes tag query": {
       "agent_summary": "根据用户的标签或者分组信息来查询听记列表信息，用户的标签通过听记页面手动创建。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "查看某个标签下的听记/这个标签下有哪些听记/按标签查听记"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“根据用户的标签或者分组信息来查询听记列表信息，用户的标签通过听记页面手动创建。”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -586,14 +746,20 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.minutes.query_minutes_by_tag_id",
-        "skills/mono/references/products/minutes.md"
-      ]
+        "skills/mono/references/products/minutes.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes update summary": {
       "agent_summary": "全量覆盖纪要内容 (不触发 AI 重算)",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
       "use_when": [
         "6. 更新纪要内容"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“全量覆盖纪要内容 (不触发 AI 重算)”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -607,12 +773,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.update_minutes_summary",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "update_minutes_summary"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes update title": {
       "agent_summary": "修改听记标题",
@@ -620,6 +789,9 @@
       "use_when": [
         "5. 修改标题",
         "改听记标题/重命名听记/修改标题"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“修改听记标题”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -633,12 +805,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.update_minutes_title",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "update_minutes_title"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes upload cancel": {
       "agent_summary": "取消文件上传会话，释放服务端资源",
@@ -646,6 +821,9 @@
       "use_when": [
         "12d.（可选）取消上传会话",
         "取消上传"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“取消文件上传会话，释放服务端资源”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -659,18 +837,24 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.cancel_upload_session",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "cancel_upload_session"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes upload complete": {
       "agent_summary": "完成文件上传并创建听记（幂等：同一 sessionId 重复调用返回已有任务）",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
       "use_when": [
         "12c. 通知服务端上传完成，创建听记"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“完成文件上传并创建听记（幂等：同一 sessionId 重复调用返回已有任务）”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -684,12 +868,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.complete_upload_session",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "complete_upload_session"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "minutes upload create": {
       "agent_summary": "创建文件上传会话（获取预签名 URL，供 HTTP PUT 上传）",
@@ -697,6 +884,9 @@
       "use_when": [
         "12a. 创建上传会话，获取预签名 URL 和 sessionId",
         "把文件转成听记/上传音频文件/上传录音/把这个 mp3 转成听记/帮我把会议录音转写一下/把附件里的音频文件做转写"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“创建文件上传会话（获取预签名 URL，供 HTTP PUT 上传）”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -710,12 +900,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.minutes.prod.json#minutes.create_upload_session",
         "skills/mono/references/products/minutes.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "minutes",
         "rpc_name": "create_upload_session"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     }
   }
 }

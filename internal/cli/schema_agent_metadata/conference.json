@@ -4,431 +4,860 @@
     "conference appearance background-setting": {
       "agent_summary": "打开虚拟背景设置面板",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "打开虚拟背景设置面板"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference appearance background-setting"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference appearance beauty-setting": {
       "agent_summary": "打开美颜设置面板",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "打开美颜设置面板"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference appearance beauty-setting"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference camera close": {
       "agent_summary": "关闭摄像头",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "关闭摄像头"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference camera close"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference camera open": {
       "agent_summary": "打开摄像头",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "打开摄像头"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference camera open"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference end": {
       "agent_summary": "结束整场会议并让所有参会者退出（不可逆）",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "结束整场会议并让所有参会者退出（不可逆）"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "high",
       "confirmation": "user_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference end"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference get-id": {
       "agent_summary": "获取当前所在会议的会议 ID（需在会议中）",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "获取当前所在会议的会议 ID（需在会议中）"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "read",
       "effect_source": "agent-hint",
       "risk": "low",
       "confirmation": "not_required",
       "idempotency": "idempotent",
+      "examples": [
+        "dws conference get-id"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference interaction panel": {
       "agent_summary": "打开表情互动面板",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "打开表情互动面板"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference interaction panel"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference interpretation close": {
       "agent_summary": "关闭同声传译",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "关闭同声传译"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference interpretation close"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference interpretation open": {
       "agent_summary": "开启同声传译",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "开启同声传译"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference interpretation open"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference invite all": {
       "agent_summary": "一键呼叫所有人",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "一键呼叫所有人"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference invite all"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference invite panel": {
       "agent_summary": "打开邀请选人面板",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "打开邀请选人面板"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference invite panel"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference leave": {
       "agent_summary": "本人离开当前会议（其他人继续）",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "本人离开当前会议（其他人继续）"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference leave"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference mic mute": {
       "agent_summary": "静音自己",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "静音自己"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference mic mute"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference mic mute-all": {
       "agent_summary": "主持人将会议内全体参会者静音",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "主持人将会议内全体参会者静音"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference mic mute-all"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference mic unmute": {
       "agent_summary": "取消静音",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "取消静音"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference mic unmute"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference photo take": {
       "agent_summary": "发起全员合影",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "发起全员合影"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference photo take"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference record request": {
       "agent_summary": "申请录制权限",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "申请录制权限"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference record request"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference record start": {
       "agent_summary": "开始云端录制当前会议",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "开始云端录制当前会议"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference record start"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference record stop": {
       "agent_summary": "停止当前会议的云端录制",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "停止当前会议的云端录制"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference record stop"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference security menu": {
       "agent_summary": "打开安全设置菜单",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "打开安全设置菜单"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference security menu"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference share annotate": {
       "agent_summary": "打开共享批注",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "打开共享批注"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference share annotate"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference share panel": {
       "agent_summary": "打开共享选择面板",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "打开共享选择面板"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference share panel"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference share start": {
       "agent_summary": "开始共享桌面",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "开始共享桌面"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference share start"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference share stop": {
       "agent_summary": "停止屏幕共享",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "停止屏幕共享"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference share stop"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference start": {
       "agent_summary": "发起一场即时会议",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "发起一场即时会议"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference start"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference status": {
       "agent_summary": "查询当前会议状态（是否在会议中）",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "查询当前会议状态（是否在会议中）"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "read",
       "effect_source": "agent-hint",
       "risk": "low",
       "confirmation": "not_required",
       "idempotency": "idempotent",
+      "examples": [
+        "dws conference status"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference subtitle close": {
       "agent_summary": "关闭实时字幕",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "关闭实时字幕"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference subtitle close"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference subtitle open": {
       "agent_summary": "开启实时字幕",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "开启实时字幕"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference subtitle open"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference transcript close": {
       "agent_summary": "关闭智能听记",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "关闭智能听记"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference transcript close"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference transcript open": {
       "agent_summary": "开启智能听记",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "开启智能听记"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference transcript open"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference view grid": {
       "agent_summary": "切换宫格视图",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "切换宫格视图"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference view grid"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference view speaker": {
       "agent_summary": "切换演讲者视图",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "切换演讲者视图"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference view speaker"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     },
     "conference view standard": {
       "agent_summary": "切换标准视图",
       "agent_summary_source": "conference-schema-review",
+      "use_when": [
+        "切换标准视图"
+      ],
+      "avoid_when": [
+        "当前开源版本未提供可用会议后端；未安装并启用受审查的会议插件时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws conference view standard"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/conference.json"
-      ]
+        "skills/mono/schema-hints/conference.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "unavailable",
+      "availability": "unavailable",
+      "interface_reason": "当前开源版本的 conference 产品已下线，仅保留冻结兼容命令面，未注册静态 MCP 后端"
     }
   }
 }

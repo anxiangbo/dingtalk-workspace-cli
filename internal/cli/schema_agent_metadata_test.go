@@ -14,6 +14,7 @@
 package cli
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/spf13/cobra"
@@ -29,6 +30,27 @@ func TestEmbeddedAgentMetadataLoadsSplitDomains(t *testing.T) {
 	}
 	if _, ok := metadata.Tools["calendar event create"]; !ok {
 		t.Fatalf("calendar domain did not load: %#v", metadata.Domains)
+	}
+	coverage := metadata.Coverage
+	if coverage.ToolsWithUseWhen != len(metadata.Tools) ||
+		coverage.ToolsWithAvoidWhen != len(metadata.Tools) ||
+		coverage.ToolsWithExamples != len(metadata.Tools) ||
+		coverage.ToolsWithInterfaceMode != len(metadata.Tools) ||
+		coverage.UnreviewedSkillTools != 0 {
+		t.Fatalf("selection metadata coverage = %#v, tools=%d", coverage, len(metadata.Tools))
+	}
+	for path, tool := range metadata.Tools {
+		if len(tool.UseWhen) == 0 || len(tool.AvoidWhen) == 0 || len(tool.Examples) == 0 {
+			t.Errorf("tool %s has incomplete selection metadata: %#v", path, tool)
+		}
+		if tool.InterfaceMode == "" || tool.Availability == "" {
+			t.Errorf("tool %s has incomplete interface disposition: %#v", path, tool)
+		}
+		for _, example := range tool.Examples {
+			if strings.Contains(" "+example+" ", " --yes ") {
+				t.Errorf("tool %s example bypasses confirmation: %q", path, example)
+			}
+		}
 	}
 }
 
@@ -47,11 +69,15 @@ func TestRuntimeSchemaIncludesEmbeddedAgentMetadata(t *testing.T) {
 		},
 		Tools: map[string]agentToolMetadata{
 			"doc create": {
-				UseWhen:      []string{"新建文档"},
-				Effect:       "write",
-				EffectSource: "command-verb",
-				Examples:     []string{"dws doc create --title test"},
-				SourceRefs:   []string{"skills/mono/references/products/doc.md"},
+				UseWhen:         []string{"新建文档"},
+				AvoidWhen:       []string{"只需读取文档时"},
+				Effect:          "write",
+				EffectSource:    "command-verb",
+				Examples:        []string{"dws doc create --title test"},
+				SourceRefs:      []string{"skills/mono/references/products/doc.md"},
+				InterfaceMode:   "local",
+				Availability:    "available",
+				InterfaceReason: "test local implementation",
 			},
 		},
 	}
@@ -64,6 +90,9 @@ func TestRuntimeSchemaIncludesEmbeddedAgentMetadata(t *testing.T) {
 	}
 	if leaf["effect"] != "write" || leaf["agent_metadata_source"] != embeddedAgentMetadataSource {
 		t.Fatalf("leaf Agent metadata = %#v", leaf)
+	}
+	if leaf["interface_mode"] != "local" || leaf["availability"] != "available" || leaf["interface_reason"] != "test local implementation" {
+		t.Fatalf("leaf interface disposition = %#v", leaf)
 	}
 	if examples, _ := leaf["examples"].([]string); len(examples) != 1 {
 		t.Fatalf("leaf examples = %#v", leaf["examples"])

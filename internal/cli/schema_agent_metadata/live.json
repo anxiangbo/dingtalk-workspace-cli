@@ -4,6 +4,12 @@
     "live stream list": {
       "agent_summary": "查看我的直播列表",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
+      "use_when": [
+        "查看我的直播列表"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查看我的直播列表”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
@@ -14,12 +20,15 @@
       ],
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.live.prod.json#live.get_my_lives",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "live",
         "rpc_name": "get_my_lives"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     }
   }
 }

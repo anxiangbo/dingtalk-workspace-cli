@@ -26,12 +26,15 @@
         "skills/mono/SKILL.md",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/ding.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "ding",
         "rpc_name": "recall_ding_message"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "ding message send": {
       "agent_summary": "发送 DING 消息（应用内 / 短信 / 电话）",
@@ -58,12 +61,15 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.ding.prod.json#ding.send_ding_message",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/ding.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "ding",
         "rpc_name": "send_ding_message"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     }
   }
 }

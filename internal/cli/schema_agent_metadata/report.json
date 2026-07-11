@@ -13,6 +13,9 @@
         "我发过 / 我创建的日志",
         "我收到的日志"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“读取单份日报正文（含字段明细 + 钉钉跳转链接）”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
@@ -25,12 +28,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.report.prod.json#report.get_report_entry_details",
         "skills/mono/references/products/report.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "report",
         "rpc_name": "get_report_entry_details"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "report entry stats": {
       "agent_summary": "读取单份日报的已读统计",
@@ -38,6 +44,9 @@
       "use_when": [
         "5. 查看日报已读统计",
         "日志统计/已读统计"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“读取单份日报的已读统计”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -51,12 +60,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.report.prod.json#report.get_report_statistics_by_id",
         "skills/mono/references/products/report.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "report",
         "rpc_name": "get_report_statistics_by_id"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "report entry submit": {
       "agent_summary": "提交一份新日报（按模版）",
@@ -65,6 +77,9 @@
         "2b. 提交日志（从步骤 1/2 取 templateId 与 contents 字段）— 推荐 --contents-file 传入避免 shell 引号",
         "内联（短内容）",
         "推荐：长内容走文件，避免 shell 引号问题"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“提交一份新日报（按模版）”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -78,12 +93,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.report.prod.json#report.create_report",
         "skills/mono/references/products/report.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "report",
         "rpc_name": "create_report"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "report inbox list": {
       "agent_summary": "列出我收到的日报",
@@ -93,6 +111,9 @@
         "别人发给我的日志/我收到的日志",
         "我收到的日志",
         "查日志/看日报/看正文"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“列出我收到的日报”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -106,12 +127,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.report.prod.json#report.get_received_report_list",
         "skills/mono/references/products/report.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "report",
         "rpc_name": "get_received_report_list"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "report outbox list": {
       "agent_summary": "列出我发出的日报",
@@ -120,6 +144,9 @@
         "6. 查看我发出的日报列表",
         "我发过 / 我创建的日志",
         "我发过的日志/我创建的日志"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“列出我发出的日报”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -133,18 +160,24 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.report.prod.json#report.get_send_report_list",
         "skills/mono/references/products/report.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "report",
         "rpc_name": "get_send_report_list"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "report template get": {
       "agent_summary": "读取单个日志模版的字段定义",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
       "use_when": [
         "2. 按名称读取模版字段定义"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“读取单个日志模版的字段定义”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -158,12 +191,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.report.prod.json#report.get_template_details_by_name",
         "skills/mono/references/products/report.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "report",
         "rpc_name": "get_template_details_by_name"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "report template list": {
       "agent_summary": "获取当前用户可用的日志模版列表",
@@ -172,6 +208,9 @@
         "1. 获取当前用户可用的日志模版",
         "写日报/提交周报/发日志/填日志",
         "有什么日志模版"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取当前用户可用的日志模版列表”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -185,12 +224,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.report.prod.json#report.get_available_report_templates",
         "skills/mono/references/products/report.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "report",
         "rpc_name": "get_available_report_templates"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     }
   }
 }

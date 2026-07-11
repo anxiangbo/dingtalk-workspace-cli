@@ -38,12 +38,17 @@ type embeddedAgentMetadata struct {
 }
 
 type embeddedAgentMetadataCoverage struct {
-	SurfaceProducts      int `json:"surface_products,omitempty"`
-	ProductsWithMetadata int `json:"products_with_metadata"`
-	SurfaceTools         int `json:"surface_tools,omitempty"`
-	ToolsWithMetadata    int `json:"tools_with_metadata"`
-	ToolsWithSummary     int `json:"tools_with_agent_summary,omitempty"`
-	UnmatchedSkillTools  int `json:"unmatched_skill_tools,omitempty"`
+	SurfaceProducts        int `json:"surface_products,omitempty"`
+	ProductsWithMetadata   int `json:"products_with_metadata"`
+	SurfaceTools           int `json:"surface_tools,omitempty"`
+	ToolsWithMetadata      int `json:"tools_with_metadata"`
+	ToolsWithSummary       int `json:"tools_with_agent_summary,omitempty"`
+	ToolsWithUseWhen       int `json:"tools_with_use_when,omitempty"`
+	ToolsWithAvoidWhen     int `json:"tools_with_avoid_when,omitempty"`
+	ToolsWithExamples      int `json:"tools_with_examples,omitempty"`
+	ToolsWithInterfaceMode int `json:"tools_with_interface_mode,omitempty"`
+	UnmatchedSkillTools    int `json:"unmatched_skill_tools,omitempty"`
+	UnreviewedSkillTools   int `json:"unreviewed_skill_tools,omitempty"`
 }
 
 type agentProductMetadata struct {
@@ -71,6 +76,9 @@ type agentToolMetadata struct {
 	Reviewed           *bool                    `json:"reviewed,omitempty"`
 	SourceRefs         []string                 `json:"source_refs,omitempty"`
 	InterfaceRef       *embeddedMCPInterfaceRef `json:"interface_ref,omitempty"`
+	InterfaceMode      string                   `json:"interface_mode,omitempty"`
+	Availability       string                   `json:"availability,omitempty"`
+	InterfaceReason    string                   `json:"interface_reason,omitempty"`
 }
 
 type embeddedAgentMetadataDomain struct {
@@ -175,6 +183,9 @@ func applyAgentToolMetadata(target map[string]any, includeExamples bool, paths .
 	setString(target, "risk", metadata.Risk)
 	setString(target, "confirmation", metadata.Confirmation)
 	setString(target, "idempotency", metadata.Idempotency)
+	setString(target, "interface_mode", metadata.InterfaceMode)
+	setString(target, "availability", metadata.Availability)
+	setString(target, "interface_reason", metadata.InterfaceReason)
 	setStringSlice(target, "workflow_refs", metadata.WorkflowRefs)
 	if metadata.Reviewed != nil {
 		target["reviewed"] = *metadata.Reviewed

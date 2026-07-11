@@ -451,6 +451,28 @@ def is_auth_required(output: str) -> bool:
     )
 
 
+def is_external_required(output: str) -> bool:
+    """Identify failures that require real tenant resources or backend state.
+
+    Dry-run support is not uniform across legacy helpers: some resolve users or
+    fetch an existing object before rendering their request. These failures are
+    external coverage blockers, not local command-contract failures.
+    """
+    lowered = output.lower()
+    return any(
+        token in lowered
+        for token in [
+            '"category": "api"',
+            '"server_error_code"',
+            '"trace_id"',
+            "mcp_tool_error",
+            "cannot resolve userid",
+            "response missing downloadurl",
+            "requested resource not found",
+        ]
+    )
+
+
 def run_smoke_case(
     binary: str,
     cwd: Path,
@@ -476,6 +498,8 @@ def run_smoke_case(
             status = "pass"
         elif is_auth_required(combined):
             status = "auth_required"
+        elif is_external_required(combined):
+            status = "external_required"
         else:
             status = "fail"
         return SmokeResult(
@@ -611,7 +635,7 @@ def write_markdown(results: list[SmokeResult], output: Path, tool_count: int) ->
     ]
     for status in sorted(counts):
         lines.append(f"- {status}: {counts[status]}")
-    lines.extend(["", "## Failures", ""])
+    lines.extend(["", "## Non-passing cases", ""])
 
     failures = [r for r in results if r.status != "pass"]
     if not failures:
@@ -653,7 +677,7 @@ def main() -> int:
     parser.add_argument(
         "--strict-external",
         action="store_true",
-        help="treat auth-required dry-runs as failures",
+        help="treat auth/backend-dependent dry-runs as failures",
     )
     parser.add_argument("--path", action="append", help="canonical schema path to run; repeatable")
     args = parser.parse_args()
@@ -703,7 +727,7 @@ def main() -> int:
 
     accepted = {"pass"}
     if not args.strict_external:
-        accepted.add("auth_required")
+        accepted.update({"auth_required", "external_required"})
     failures = [result for result in results if result.status not in accepted]
     print(f"tools={len(paths)}")
     print(f"total={len(results)}")

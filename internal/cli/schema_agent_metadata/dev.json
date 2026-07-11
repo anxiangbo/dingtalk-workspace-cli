@@ -9,20 +9,30 @@
         "创建开放平台企业内部应用",
         "创建开放平台应用，拿 unifiedAppId"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“创建开放平台企业内部应用”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
       "examples": [
-        "dws dev app create --name \"我的 AI 机器人\" --desc \"接 opencode\" --dry-run --format json",
-        "dws dev app create --name \"我的 AI 机器人\" --desc \"接 opencode\" --yes --format json"
+        "dws dev app create --name \"我的 AI 机器人\" --desc \"接 opencode\" --dry-run --format json"
       ],
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "create_dev_app"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app credentials get": {
       "agent_summary": "读取开放平台应用凭证",
@@ -30,6 +40,9 @@
       "use_when": [
         "查询 clientId/clientSecret（credentials 下只有 get 子命令）",
         "读取开放平台应用凭证"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“读取开放平台应用凭证”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -42,8 +55,16 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "get_dev_app_credentials"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app delete": {
       "agent_summary": "删除开放平台企业内部应用（不可逆，需 --confirm-name 二次确认）",
@@ -52,19 +73,30 @@
         "删除应用（不可逆，需 --confirm-name 二次确认）",
         "删除开放平台企业内部应用（不可逆，需 --confirm-name 二次确认）"
       ],
+      "avoid_when": [
+        "用户未明确要求“删除开放平台企业内部应用（不可逆，需 --confirm-name 二次确认）”、目标不清楚或尚未确认时不要使用"
+      ],
       "effect": "destructive",
       "effect_source": "skill-comment",
       "risk": "high",
       "confirmation": "user_required",
       "idempotency": "unknown",
       "examples": [
-        "dws dev app delete --unified-app-id \u003cunifiedAppId\u003e --confirm-name \u003c应用名\u003e --yes --format json"
+        "dws dev app delete --unified-app-id \u003cunified-app-id\u003e"
       ],
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "delete_dev_app"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app disable": {
       "agent_summary": "停用开放平台应用，停用后应用能力对外不可用（可重新启用）",
@@ -72,19 +104,30 @@
       "use_when": [
         "停用/启用应用"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“停用开放平台应用，停用后应用能力对外不可用（可重新启用）”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "agent-hint",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
       "examples": [
-        "dws dev app disable --unified-app-id \u003cunifiedAppId\u003e --yes --format json"
+        "dws dev app disable --unified-app-id \u003cunified-app-id\u003e"
       ],
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "disable_dev_app"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app enable": {
       "agent_summary": "启用开放平台企业内部应用",
@@ -93,25 +136,39 @@
         "停用/启用应用",
         "启用开放平台企业内部应用"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“启用开放平台企业内部应用”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
       "examples": [
-        "dws dev app enable  --unified-app-id \u003cunifiedAppId\u003e --yes --format json"
+        "dws dev app enable --unified-app-id \u003cunified-app-id\u003e"
       ],
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "enable_dev_app"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app event list": {
       "agent_summary": "查询应用已订阅的事件列表",
       "agent_summary_source": "dws-command-surface-review",
       "use_when": [
         "查询应用已订阅的事件列表"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询应用已订阅的事件列表”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -124,14 +181,25 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "list_dev_app_events"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app event subscribe": {
       "agent_summary": "订阅应用事件回调",
       "agent_summary_source": "dws-command-surface-review",
       "use_when": [
         "订阅应用事件回调"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“订阅应用事件回调”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -144,8 +212,16 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "subscribe_dev_app_events"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app event unsubscribe": {
       "agent_summary": "取消订阅应用事件",
@@ -153,19 +229,30 @@
       "use_when": [
         "取消订阅应用事件"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“取消订阅应用事件”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
       "examples": [
-        "dws dev app event unsubscribe --unified-app-id \u003cunifiedAppId\u003e --event-codes \u003ccode1\u003e,\u003ccode2\u003e --yes --format json"
+        "dws dev app event unsubscribe --event-codes \u003cevent-codes\u003e --unified-app-id \u003cunified-app-id\u003e"
       ],
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "unsubscribe_dev_app_events"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app get": {
       "agent_summary": "查询开放平台企业内部应用详情",
@@ -173,6 +260,9 @@
       "use_when": [
         "查询单个应用详情",
         "查询开放平台企业内部应用详情"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询开放平台企业内部应用详情”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -185,8 +275,16 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "get_dev_app"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app list": {
       "agent_summary": "查询开放平台企业内部应用列表",
@@ -194,6 +292,9 @@
       "use_when": [
         "查询应用列表",
         "查询开放平台企业内部应用列表"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询开放平台企业内部应用列表”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -206,8 +307,16 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "list_dev_app"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app member add": {
       "agent_summary": "添加开放平台应用成员",
@@ -215,15 +324,29 @@
       "use_when": [
         "添加开放平台应用成员"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“添加开放平台应用成员”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws dev app member add --member-type \u003cmember-type\u003e --unified-app-id \u003cunified-app-id\u003e --user-ids \u003cuser-ids\u003e"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "add_dev_app_members"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app member list": {
       "agent_summary": "查询开放平台应用成员",
@@ -231,34 +354,68 @@
       "use_when": [
         "查询开放平台应用成员"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询开放平台应用成员”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
       "confirmation": "not_required",
       "idempotency": "idempotent",
+      "examples": [
+        "dws dev app member list --unified-app-id \u003cunified-app-id\u003e"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "list_dev_app_members"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app member remove": {
       "agent_summary": "移除开放平台应用的协作成员",
       "agent_summary_source": "destructive-safety-review",
+      "use_when": [
+        "移除开放平台应用的协作成员"
+      ],
+      "avoid_when": [
+        "用户未明确要求“移除开放平台应用的协作成员”、目标不清楚或尚未确认时不要使用"
+      ],
       "effect": "destructive",
       "effect_source": "agent-hint",
       "risk": "high",
       "confirmation": "user_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws dev app member remove --member-type \u003cmember-type\u003e --unified-app-id \u003cunified-app-id\u003e --user-ids \u003cuser-ids\u003e"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "remove_dev_app_members"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app permission add": {
       "agent_summary": "申请开放平台应用权限点",
       "agent_summary_source": "dws-command-surface-review",
       "use_when": [
         "申请开放平台应用权限点"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“申请开放平台应用权限点”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -271,14 +428,25 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "apply_dev_app_permissions"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app permission list": {
       "agent_summary": "查询开放平台应用权限列表",
       "agent_summary_source": "dws-command-surface-review",
       "use_when": [
         "查询开放平台应用权限列表"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询开放平台应用权限列表”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -291,25 +459,47 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "list_dev_app_permissions"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app permission remove": {
       "agent_summary": "移除开放平台应用已授予的权限点",
       "agent_summary_source": "destructive-safety-review",
+      "use_when": [
+        "移除开放平台应用已授予的权限点"
+      ],
+      "avoid_when": [
+        "用户未明确要求“移除开放平台应用已授予的权限点”、目标不清楚或尚未确认时不要使用"
+      ],
       "effect": "destructive",
       "effect_source": "agent-hint",
       "risk": "high",
       "confirmation": "user_required",
       "idempotency": "unknown",
       "examples": [
-        "dws dev app permission remove --unified-app-id \u003cunifiedAppId\u003e --scope-values \u003cscopeValue\u003e --yes --format json"
+        "dws dev app permission remove --scope-values \u003cscope-values\u003e --unified-app-id \u003cunified-app-id\u003e"
       ],
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "remove_dev_app_permissions"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app robot config": {
       "agent_summary": "创建或更新现有应用的机器人配置（upsert）",
@@ -319,26 +509,39 @@
         "创建或更新现有应用的机器人配置（upsert）",
         "在明确的 unifiedAppId 上配置机器人能力"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“创建或更新现有应用的机器人配置（upsert）”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
       "examples": [
-        "dws dev app robot config --unified-app-id \u003cunifiedAppId\u003e --name \"小助手\" --desc \"接 opencode\" --dry-run --format json",
-        "dws dev app robot config --unified-app-id \u003cunifiedAppId\u003e --name \"小助手\" --desc \"接 opencode\" --yes --format json"
+        "dws dev app robot config --unified-app-id \u003cunifiedAppId\u003e --name \"小助手\" --desc \"接 opencode\" --dry-run --format json"
       ],
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "set_extension_robot_config"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app robot disable": {
       "agent_summary": "停用开放平台应用的机器人（可重新启用）",
       "agent_summary_source": "destructive-safety-review",
       "use_when": [
         "启用/停用机器人"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“停用开放平台应用的机器人（可重新启用）”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "agent-hint",
@@ -351,8 +554,16 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "disable_dev_app_robot"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app robot enable": {
       "agent_summary": "启用现有应用机器人能力（纯启用，无需配置字段）",
@@ -360,6 +571,9 @@
       "use_when": [
         "启用/停用机器人",
         "启用现有应用机器人能力（纯启用，无需配置字段）"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“启用现有应用机器人能力（纯启用，无需配置字段）”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -372,8 +586,16 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "enable_dev_app_robot"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app robot get": {
       "agent_summary": "查询现有应用的机器人配置",
@@ -381,6 +603,9 @@
       "use_when": [
         "查询现有应用的机器人配置",
         "查询现有机器人配置"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询现有应用的机器人配置”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -393,8 +618,16 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "get_extension_robot_config"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app robot result": {
       "agent_summary": "查询机器人异步创建任务结果",
@@ -402,6 +635,9 @@
       "use_when": [
         "建号：轮询结果",
         "查询机器人异步创建任务结果"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询机器人异步创建任务结果”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -414,8 +650,16 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "query_robot_create_result"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app robot submit": {
       "agent_summary": "异步提交钉钉智能体机器人创建任务（支持失败重试）",
@@ -424,20 +668,30 @@
         "建号：异步提交",
         "异步提交钉钉智能体机器人创建任务（支持失败重试）"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“异步提交钉钉智能体机器人创建任务（支持失败重试）”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
       "examples": [
-        "dws dev app robot submit --name \u003c智能体名\u003e --robot-name \u003c机器人名\u003e --desc \u003c描述\u003e --dry-run --format json",
-        "dws dev app robot submit --name \u003c智能体名\u003e --robot-name \u003c机器人名\u003e --desc \u003c描述\u003e --yes --format json"
+        "dws dev app robot submit --name \u003c智能体名\u003e --robot-name \u003c机器人名\u003e --desc \u003c描述\u003e --dry-run --format json"
       ],
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "submit_robot_create_task"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app security config": {
       "agent_summary": "更新开放平台应用安全配置",
@@ -445,15 +699,29 @@
       "use_when": [
         "更新开放平台应用安全配置"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“更新开放平台应用安全配置”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws dev app security config --redirect-urls \u003credirect-urls\u003e --unified-app-id \u003cunified-app-id\u003e"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "update_dev_app_security_config"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app update": {
       "agent_summary": "修改开放平台企业内部应用基础信息",
@@ -462,20 +730,30 @@
         "修改开放平台企业内部应用基础信息",
         "更新应用信息（写操作：先 --dry-run 预览，确认后加 --yes 执行；不加 --yes 会被拦下）"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“修改开放平台企业内部应用基础信息”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
       "examples": [
-        "dws dev app update --unified-app-id \u003cunifiedAppId\u003e --name \u003c新名称\u003e --dry-run --format json",
-        "dws dev app update --unified-app-id \u003cunifiedAppId\u003e --name \u003c新名称\u003e --yes --format json"
+        "dws dev app update --unified-app-id \u003cunifiedAppId\u003e --name \u003c新名称\u003e --dry-run --format json"
       ],
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "update_dev_app"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app version create": {
       "agent_summary": "基于当前配置创建应用新版本",
@@ -484,20 +762,30 @@
         "基于当前配置创建应用新版本",
         "版本发布/审批，线上搜索、加群、路由消息以 RELEASE 为准"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“基于当前配置创建应用新版本”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
       "examples": [
-        "dws dev app version create --unified-app-id \u003cunifiedAppId\u003e --desc \"发布机器人能力\" --dry-run --format json",
-        "dws dev app version create --unified-app-id \u003cunifiedAppId\u003e --desc \"发布机器人能力\" --yes --format json"
+        "dws dev app version create --unified-app-id \u003cunifiedAppId\u003e --desc \"发布机器人能力\" --dry-run --format json"
       ],
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "create_dev_app_version"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app version get": {
       "agent_summary": "查询指定版本详情",
@@ -505,15 +793,29 @@
       "use_when": [
         "查询指定版本详情"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询指定版本详情”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
       "confirmation": "not_required",
       "idempotency": "idempotent",
+      "examples": [
+        "dws dev app version get --unified-app-id \u003cunified-app-id\u003e --version-id \u003cversion-id\u003e"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "get_dev_app_version_detail"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app version list": {
       "agent_summary": "分页查询应用版本列表",
@@ -521,15 +823,29 @@
       "use_when": [
         "分页查询应用版本列表"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“分页查询应用版本列表”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
       "confirmation": "not_required",
       "idempotency": "idempotent",
+      "examples": [
+        "dws dev app version list --unified-app-id \u003cunified-app-id\u003e"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "list_dev_app_versions"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app version publish": {
       "agent_summary": "发布指定版本（含高敏权限需 --confirmed-sensitive）",
@@ -538,20 +854,30 @@
         "发布指定版本（含高敏权限需 --confirmed-sensitive）",
         "版本发布/审批，线上搜索、加群、路由消息以 RELEASE 为准"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“发布指定版本（含高敏权限需 --confirmed-sensitive）”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
       "confirmation": "not_required",
       "idempotency": "idempotent",
       "examples": [
-        "dws dev app version check-approval --unified-app-id \u003cunifiedAppId\u003e --version-id \u003cversionId\u003e --format json",
         "dws dev app version publish --unified-app-id \u003cunifiedAppId\u003e --version-id \u003cversionId\u003e --dry-run --format json"
       ],
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "publish_dev_app_version"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app version status": {
       "agent_summary": "查询版本发布/审批状态",
@@ -559,6 +885,9 @@
       "use_when": [
         "查询版本发布/审批状态",
         "版本发布/审批，线上搜索、加群、路由消息以 RELEASE 为准"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询版本发布/审批状态”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -572,8 +901,16 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "get_dev_app_version_status"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app webapp config": {
       "agent_summary": "配置网页应用能力",
@@ -581,15 +918,29 @@
       "use_when": [
         "配置网页应用能力"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“配置网页应用能力”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
       "confirmation": "not_required",
       "idempotency": "unknown",
+      "examples": [
+        "dws dev app webapp config --homepage-url \u003chomepage-url\u003e --unified-app-id \u003cunified-app-id\u003e"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "set_extension_webapp_config"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev app webapp get": {
       "agent_summary": "查询网页应用配置",
@@ -597,15 +948,29 @@
       "use_when": [
         "查询网页应用配置"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询网页应用配置”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
       "confirmation": "not_required",
       "idempotency": "idempotent",
+      "examples": [
+        "dws dev app webapp get --unified-app-id \u003cunified-app-id\u003e"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devapp",
+        "rpc_name": "get_extension_webapp_config"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "dev connect status": {
       "agent_summary": "查看后台连接器守护进程状态（pid、运行时长、日志路径）",
@@ -613,6 +978,9 @@
       "use_when": [
         "查看/停止后台连接器（status/list 忽略全局 --format，出 JSON 用专属 --json）",
         "查看后台连接器守护进程状态（pid、运行时长、日志路径）"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查看后台连接器守护进程状态（pid、运行时长、日志路径）”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -625,8 +993,12 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "命令仅操作本地进程或策略文件，不调用 MCP 接口"
     },
     "dev connect stop": {
       "agent_summary": "优雅停止后台连接器守护进程（释放单实例锁与 Stream 连接）",
@@ -634,6 +1006,9 @@
       "use_when": [
         "优雅停止后台连接器守护进程（释放单实例锁与 Stream 连接）",
         "查看/停止后台连接器（status/list 忽略全局 --format，出 JSON 用专属 --json）"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“优雅停止后台连接器守护进程（释放单实例锁与 Stream 连接）”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -646,8 +1021,12 @@
       "reviewed": true,
       "source_refs": [
         "skills/mono/references/products/dev.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "命令仅操作本地进程或策略文件，不调用 MCP 接口"
     },
     "dev doc search": {
       "agent_summary": "搜索开放平台文档",
@@ -655,15 +1034,29 @@
       "use_when": [
         "搜索开放平台文档"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“搜索开放平台文档”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
       "confirmation": "not_required",
       "idempotency": "idempotent",
+      "examples": [
+        "dws dev doc search --query \u003cquery\u003e"
+      ],
       "reviewed": true,
       "source_refs": [
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "devdoc",
+        "rpc_name": "search_open_platform_docs"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     }
   }
 }

@@ -7,6 +7,9 @@
       "use_when": [
         "追加空行/追加空列/增加行数/增加列数/扩展表格/在末尾加空行；追加空行/空列"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“在钉钉表格的指定工作表末尾追加空行或空列。”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -20,8 +23,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.add_dimension",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-dimension-operations.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-dimension-operations.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet append": {
       "agent_summary": "在钉钉电子表格的指定工作表末尾追加若干行数据。",
@@ -31,6 +37,9 @@
         "4. 追加多行数据",
         "插入行/插入列/在某行前插入/在某列前插入；在末尾追加",
         "追加数据/添加行/在末尾加数据/新增记录；追加数据"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“在钉钉电子表格的指定工作表末尾追加若干行数据。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -46,8 +55,11 @@
         "internal/cli/schema_mcp_metadata.json#tools.sheet.append_rows",
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-dimension-operations.md",
-        "skills/mono/references/products/sheet/sheet-write-data.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-write-data.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet cond-format create": {
       "agent_summary": "在指定工作表中创建一条条件格式规则。",
@@ -62,6 +74,9 @@
         "虽然逻辑等价，但产物里缺辅助列 → 用户打开表格看不到\"是/否\"列",
         "重复值高亮"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“在指定工作表中创建一条条件格式规则。”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -74,8 +89,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.create_cond_format",
-        "skills/mono/references/products/sheet/sheet-conditional-format.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-conditional-format.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet cond-format delete": {
       "agent_summary": "删除指定工作表中的一条条件格式规则。",
@@ -84,20 +102,26 @@
         "删除条件格式/移除条件格式/取消条件格式；删除条件格式规则",
         "删除条件格式规则（必须加 --yes 确认）"
       ],
+      "avoid_when": [
+        "用户未明确要求“删除指定工作表中的一条条件格式规则。”、目标不清楚或尚未确认时不要使用"
+      ],
       "effect": "destructive",
       "effect_source": "agent-hint",
       "risk": "high",
       "confirmation": "user_required",
       "idempotency": "unknown",
       "examples": [
-        "dws sheet cond-format delete --node \u003cNODE_ID\u003e --sheet-id \u003cSHEET_ID\u003e --rule-id \u003cRULE_ID\u003e --yes"
+        "dws sheet cond-format delete --node \u003cnode\u003e --rule-id \u003crule-id\u003e --sheet-id \u003csheet-id\u003e"
       ],
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.delete_cond_format",
         "skills/mono/references/products/sheet/sheet-conditional-format.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet cond-format list": {
       "agent_summary": "获取指定工作表中的所有条件格式规则，或通过 ruleId 获取单个规则的详情。",
@@ -107,6 +131,9 @@
         "条件格式/条件样式/自动变色/满足条件时高亮/按条件设样式/条件格式规则；查看指定规则详情",
         "获取单个规则的详情",
         "获取所有条件格式规则"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取指定工作表中的所有条件格式规则，或通过 ruleId 获取单个规则的详情。”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -119,8 +146,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.get_cond_format",
-        "skills/mono/references/products/sheet/sheet-conditional-format.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-conditional-format.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet cond-format update": {
       "agent_summary": "更新指定工作表中的一条条件格式规则。",
@@ -130,6 +160,9 @@
         "修改条件格式/更新条件格式规则/改条件/改样式/改范围；更新条件格式规则",
         "修改条件（改为大于 90）",
         "修改样式"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“更新指定工作表中的一条条件格式规则。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -143,8 +176,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.update_cond_format",
-        "skills/mono/references/products/sheet/sheet-conditional-format.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-conditional-format.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet copy": {
       "agent_summary": "复制钉钉电子表格中的指定工作表，在同一表格中创建一个副本，可同时指定副本的目标位置。",
@@ -156,6 +192,9 @@
         "复制工作表/拷贝工作表/克隆工作表/工作表副本；复制并指定名称",
         "指定副本名称和位置",
         "按默认位置复制"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“复制钉钉电子表格中的指定工作表，在同一表格中创建一个副本，可同时指定副本的目标位置。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -170,8 +209,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.copy_sheet",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-workbook.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-workbook.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet create": {
       "agent_summary": "创建钉钉表格文档",
@@ -181,6 +223,9 @@
         "4. 完整流程: 创建表格 → 上传附件",
         "4. 完整流程: 创建表格 → 写表头 → 写入图片",
         "创建表格/新建电子表格；创建表格文档"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“创建钉钉表格文档”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -193,16 +238,20 @@
       ],
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.sheet.prod.json#sheet.create_workspace_sheet",
+        "skills/mono/references/products/doc.md",
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-media-image.md",
         "skills/mono/references/products/sheet/sheet-workbook.md",
         "skills/mono/references/products/sheet/sheet-write-data.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "sheet",
         "rpc_name": "create_workspace_sheet"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet create-float-image": {
       "agent_summary": "在钉钉电子表格的指定工作表中插入一张浮动图片。",
@@ -210,6 +259,9 @@
       "use_when": [
         "再创建浮动图片",
         "带偏移量"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“在钉钉电子表格的指定工作表中插入一张浮动图片。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -224,8 +276,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.create_float_image",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-media-image.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-media-image.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet csv-get": {
       "agent_summary": "以 RFC 4180 CSV 格式读取钉钉电子表格中指定工作表的指定范围数据。",
@@ -233,6 +288,9 @@
       "use_when": [
         "2. 查看数据范围确认列对应关系",
         "读数据/看表格内容；快速查看纯值数据、批量处理、大表分批读"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“以 RFC 4180 CSV 格式读取钉钉电子表格中指定工作表的指定范围数据。”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -247,8 +305,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.get_range_as_csv",
         "skills/mono/references/products/sheet/sheet-chart.md",
-        "skills/mono/references/products/sheet/sheet-read-data.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-read-data.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet csv-put": {
       "agent_summary": "将 RFC 4180 格式的 CSV 文本写入指定工作表的指定单元格位置。",
@@ -257,6 +318,9 @@
         "内联多行 CSV：必须用 $'...' 让 \\n 变成真换行；普通单引号 '...\\n...' 里的 \\n 是字面量，会写成一行含字面 \\n 的错误数据",
         "多行数据推荐用 @文件，最稳妥",
         "批量写入CSV/导入CSV/CSV写入表格/把CSV贴到表格里；写入 CSV"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“将 RFC 4180 格式的 CSV 文本写入指定工作表的指定单元格位置。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -271,8 +335,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.set_range_from_csv",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-write-data.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-write-data.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet delete-dimension": {
       "agent_summary": "在钉钉表格指定工作表中，从指定位置起删除若干连续的行或列。",
@@ -286,6 +353,9 @@
         "从第 3 行开始删除 2 行",
         "使用工作表前缀（忽略 --sheet-id）",
         "删除行/删除列/删掉第几行/删掉某列/移除行/移除列；删除行或列"
+      ],
+      "avoid_when": [
+        "用户未明确要求“在钉钉表格指定工作表中，从指定位置起删除若干连续的行或列。”、目标不清楚或尚未确认时不要使用"
       ],
       "effect": "destructive",
       "effect_source": "agent-hint",
@@ -301,14 +371,20 @@
         "internal/cli/schema_mcp_metadata.json#tools.sheet.delete_dimension",
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-dimension-operations.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet delete-dropdown": {
       "agent_summary": "删除钉钉表格指定单元格范围内的下拉列表配置。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "删除下拉列表/移除下拉/取消下拉/清除下拉；删除下拉列表"
+      ],
+      "avoid_when": [
+        "用户未明确要求“删除钉钉表格指定单元格范围内的下拉列表配置。”、目标不清楚或尚未确认时不要使用"
       ],
       "effect": "destructive",
       "effect_source": "agent-hint",
@@ -324,14 +400,20 @@
         "internal/cli/schema_mcp_metadata.json#tools.sheet.delete_dropdown_lists",
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-dropdown.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet delete-float-image": {
       "agent_summary": "删除钉钉电子表格中指定的浮动图片。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "删除浮动图片/移除浮动图片；删除浮动图片"
+      ],
+      "avoid_when": [
+        "用户未明确要求“删除钉钉电子表格中指定的浮动图片。”、目标不清楚或尚未确认时不要使用"
       ],
       "effect": "destructive",
       "effect_source": "agent-hint",
@@ -346,14 +428,20 @@
         "internal/cli/schema_mcp_metadata.json#tools.sheet.delete_float_image",
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-media-image.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet delete-sheet": {
       "agent_summary": "删除钉钉电子表格中的指定工作表",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "删除工作表/移除工作表/删掉这个Sheet；删除工作表"
+      ],
+      "avoid_when": [
+        "用户未明确要求“删除钉钉电子表格中的指定工作表”、目标不清楚或尚未确认时不要使用"
       ],
       "effect": "destructive",
       "effect_source": "agent-hint",
@@ -367,8 +455,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.delete_sheet",
         "skills/mono/references/products/sheet/sheet-workbook.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet export": {
       "agent_summary": "用于将钉钉在线表格导出为 xlsx。",
@@ -384,6 +475,9 @@
         "导出并自动下载为本地文件",
         "把这个在线表格导出为 xlsx 文件；在线表格格式转换"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“用于将钉钉在线表格导出为 xlsx。”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
@@ -398,8 +492,11 @@
         "internal/cli/schema_mcp_metadata.json#tools.sheet.submit_export_job",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-export.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-export.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet filter clear-criteria": {
       "agent_summary": "清除钉钉电子表格中指定工作表筛选的某一列的筛选条件。",
@@ -408,6 +505,9 @@
         "清除第 1 列（A 列）的筛选条件",
         "清除第 2 列（B 列）的筛选条件",
         "筛选/过滤/只看某些值/只显示满足条件的行/筛选数据/创建筛选/删除筛选/设置筛选条件/清除筛选/排序；清除某一列条件"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“清除钉钉电子表格中指定工作表筛选的某一列的筛选条件。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -423,12 +523,15 @@
         "internal/cli/schema_mcp_metadata.json#tools.sheet.filter_clear_criteria",
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-filter.md",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "sheet",
         "rpc_name": "clear_filter_criteria"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet filter create": {
       "agent_summary": "在钉钉电子表格的指定工作表中创建筛选。",
@@ -438,6 +541,9 @@
         "创建筛选并设置条件筛选",
         "创建筛选框架（不设条件）",
         "筛选/过滤/只看某些值/只显示满足条件的行/筛选数据/创建筛选/删除筛选/设置筛选条件/清除筛选/排序；创建筛选"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“在钉钉电子表格的指定工作表中创建筛选。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -452,8 +558,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.create_filter",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-filter.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-filter.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet filter delete": {
       "agent_summary": "删除钉钉电子表格中指定工作表的筛选。",
@@ -461,27 +570,36 @@
       "use_when": [
         "筛选/过滤/只看某些值/只显示满足条件的行/筛选数据/创建筛选/删除筛选/设置筛选条件/清除筛选/排序；删除筛选"
       ],
+      "avoid_when": [
+        "用户未明确要求“删除钉钉电子表格中指定工作表的筛选。”、目标不清楚或尚未确认时不要使用"
+      ],
       "effect": "destructive",
       "effect_source": "agent-hint",
       "risk": "high",
       "confirmation": "user_required",
       "idempotency": "unknown",
       "examples": [
-        "dws sheet filter delete --node \u003cNODE_ID\u003e --sheet-id \u003cSHEET_ID\u003e --yes"
+        "dws sheet filter delete --node \u003cnode\u003e --sheet-id \u003csheet-id\u003e"
       ],
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.delete_filter",
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-filter.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet filter get": {
       "agent_summary": "获取钉钉电子表格中指定工作表的筛选信息。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "筛选/过滤/只看某些值/只显示满足条件的行/筛选数据/创建筛选/删除筛选/设置筛选条件/清除筛选/排序；查看当前筛选"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取钉钉电子表格中指定工作表的筛选信息。”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -496,8 +614,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.get_filter",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-filter.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-filter.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet filter sort": {
       "agent_summary": "对钉钉电子表格中指定工作表的筛选范围内的数据进行排序。",
@@ -506,6 +627,9 @@
         "按第 1 列（A 列）升序排序",
         "按第 3 列（C 列）降序排序",
         "筛选/过滤/只看某些值/只显示满足条件的行/筛选数据/创建筛选/删除筛选/设置筛选条件/清除筛选/排序；按列排序"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“对钉钉电子表格中指定工作表的筛选范围内的数据进行排序。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -520,8 +644,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.sort_filter",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-filter.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-filter.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet filter update": {
       "agent_summary": "批量更新钉钉电子表格中指定工作表的筛选条件。",
@@ -530,6 +657,9 @@
         "同时设置多列的筛选条件",
         "按颜色筛选",
         "筛选/过滤/只看某些值/只显示满足条件的行/筛选数据/创建筛选/删除筛选/设置筛选条件/清除筛选/排序；批量设置多列条件"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“批量更新钉钉电子表格中指定工作表的筛选条件。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -544,8 +674,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.update_filter",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-filter.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-filter.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet filter-view create": {
       "agent_summary": "在钉钉电子表格的指定工作表中创建一个筛选视图。",
@@ -558,6 +691,9 @@
         "创建筛选视图/新建筛选视图/添加筛选视图；创建筛选视图",
         "创建筛选视图时直接指定筛选条件",
         "查看具体命令的完整参数说明"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“在钉钉电子表格的指定工作表中创建一个筛选视图。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -572,8 +708,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.create_filter_view",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-filter-view.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-filter-view.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet filter-view delete": {
       "agent_summary": "删除钉钉电子表格中指定工作表的筛选视图。",
@@ -581,6 +720,9 @@
       "use_when": [
         "8. 删除筛选视图",
         "删除筛选视图/移除筛选视图；删除筛选视图"
+      ],
+      "avoid_when": [
+        "用户未明确要求“删除钉钉电子表格中指定工作表的筛选视图。”、目标不清楚或尚未确认时不要使用"
       ],
       "effect": "destructive",
       "effect_source": "agent-hint",
@@ -596,8 +738,11 @@
         "internal/cli/schema_mcp_metadata.json#tools.sheet.delete_filter_view",
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-filter-view.md",
-        "skills/mono/schema-hints/destructive-safety.json"
-      ]
+        "skills/mono/schema-hints/destructive-safety.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet filter-view delete-criteria": {
       "agent_summary": "清除钉钉电子表格中指定工作表筛选视图的某一列的筛选条件。",
@@ -607,6 +752,9 @@
         "删除第 1 列（A 列）的筛选条件",
         "删除第 3 列（C 列）的筛选条件",
         "清除筛选条件/移除筛选条件/取消筛选条件；清除筛选视图列条件"
+      ],
+      "avoid_when": [
+        "用户未明确要求“清除钉钉电子表格中指定工作表筛选视图的某一列的筛选条件。”、目标不清楚或尚未确认时不要使用"
       ],
       "effect": "destructive",
       "effect_source": "agent-hint",
@@ -623,12 +771,15 @@
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-filter-view.md",
         "skills/mono/schema-hints/destructive-safety.json",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "sheet",
         "rpc_name": "clear_filter_view_criteria"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet filter-view get-criteria": {
       "agent_summary": "获取单列筛选条件",
@@ -638,6 +789,9 @@
         "查看第 3 列（偏移量 2）的筛选条件",
         "查看筛选条件/有哪些筛选条件/筛选视图设了什么条件/列出筛选条件；查看某一列的条件",
         "获取单列筛选条件"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取单列筛选条件”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -652,8 +806,16 @@
       "source_refs": [
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-filter-view.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "sheet",
+        "rpc_name": "get_filter_views"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet filter-view info": {
       "agent_summary": "获取单个筛选视图详情",
@@ -662,6 +824,9 @@
         "查看指定筛选视图的详情",
         "筛选视图详情/查看某个筛选视图/筛选视图信息/筛选视图配置；获取单个筛选视图详情",
         "获取单个筛选视图详情"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取单个筛选视图详情”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -675,8 +840,16 @@
       "source_refs": [
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-filter-view.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "sheet",
+        "rpc_name": "get_filter_views"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet filter-view list": {
       "agent_summary": "获取钉钉电子表格中指定工作表的所有筛选视图列表。",
@@ -684,6 +857,9 @@
       "use_when": [
         "2. 查看已有筛选视图",
         "筛选视图/查看筛选视图/有哪些筛选视图/筛选视图列表；获取所有筛选视图"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取钉钉电子表格中指定工作表的所有筛选视图列表。”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -698,8 +874,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.get_filter_views",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-filter-view.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-filter-view.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet filter-view list-criteria": {
       "agent_summary": "列出筛选视图所有列条件",
@@ -708,6 +887,9 @@
         "列出筛选视图所有列条件",
         "列出筛选视图的所有条件",
         "查看筛选条件/有哪些筛选条件/筛选视图设了什么条件/列出筛选条件；列出所有列条件"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“列出筛选视图所有列条件”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -721,8 +903,16 @@
       "source_refs": [
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-filter-view.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "sheet",
+        "rpc_name": "get_filter_views"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet filter-view update": {
       "agent_summary": "更新钉钉电子表格中指定工作表的筛选视图属性（名称、范围和/或筛选条件）。",
@@ -733,6 +923,9 @@
         "更新筛选视图/修改筛选视图/改筛选视图名称/改筛选视图范围；更新筛选视图属性",
         "更新筛选视图名称",
         "更新筛选视图范围"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“更新钉钉电子表格中指定工作表的筛选视图属性（名称、范围和/或筛选条件）。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -747,8 +940,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.update_filter_view",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-filter-view.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-filter-view.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet filter-view update-criteria": {
       "agent_summary": "更新筛选视图列条件",
@@ -765,6 +961,9 @@
         "更新筛选视图列条件",
         "设置筛选条件/添加筛选条件/配置筛选视图条件/按值筛选/按条件筛选/按颜色筛选；设置筛选视图列条件"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“更新筛选视图列条件”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -778,8 +977,16 @@
       "source_refs": [
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-filter-view.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_ref": {
+        "product_id": "sheet",
+        "rpc_name": "set_filter_view_criteria"
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet find": {
       "agent_summary": "在钉钉电子表格的指定工作表中查找匹配指定文本的所有单元格，返回匹配的单元格地址列表。",
@@ -801,6 +1008,9 @@
         "正则表达式搜索（不区分大小写）",
         "精确匹配整个单元格内容"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“在钉钉电子表格的指定工作表中查找匹配指定文本的所有单元格，返回匹配的单元格地址列表。”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
@@ -814,14 +1024,20 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.find_cells",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-search-replace.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-search-replace.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet get-dropdown": {
       "agent_summary": "查询钉钉表格指定范围内的下拉列表配置。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "查看下拉列表/获取下拉配置/下拉列表有哪些选项；获取下拉列表配置"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询钉钉表格指定范围内的下拉列表配置。”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -836,14 +1052,20 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.get_dropdown_lists",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-dropdown.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-dropdown.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet get-float-image": {
       "agent_summary": "获取钉钉电子表格中指定浮动图片的详细信息。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "查看浮动图片/有哪些浮动图片/浮动图片列表；查看某个浮动图片详情"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取钉钉电子表格中指定浮动图片的详细信息。”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -857,8 +1079,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.get_float_image",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-media-image.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-media-image.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet info": {
       "agent_summary": "获取指定工作表详情",
@@ -869,6 +1094,9 @@
         "2. 查看工作表详情（行列数、最后非空位置等）",
         "看工作表/有哪些工作表/表格结构；工作表详情",
         "读数据/看表格内容；需要查看合并单元格 / 表头合并结构"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取指定工作表详情”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -885,12 +1113,15 @@
         "skills/mono/references/products/sheet/sheet-read-data.md",
         "skills/mono/references/products/sheet/sheet-workbook.md",
         "skills/mono/references/products/sheet/sheet-write-data.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "sheet",
         "rpc_name": "get_sheet"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet insert-dimension": {
       "agent_summary": "在钉钉表格指定工作表的指定位置之前（before）插入若干空行或空列。",
@@ -906,6 +1137,9 @@
         "插入行/插入列/在某行前插入/在某列前插入；插入行或列",
         "查看具体命令的完整参数说明"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“在钉钉表格指定工作表的指定位置之前（before）插入若干空行或空列。”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -919,8 +1153,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.insert_dimension",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-dimension-operations.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-dimension-operations.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet list": {
       "agent_summary": "获取全部工作表列表",
@@ -932,6 +1169,9 @@
         "导出/下载xlsx/存为Excel/存成表格文件/把表格变成xlsx/导出表格/下载表格/导出为 excel；\"这个表格有哪些工作表",
         "导出/下载xlsx/存为Excel/存成表格文件/把表格变成xlsx/导出表格/下载表格/导出为 excel；extension=axls",
         "看工作表/有哪些工作表/表格结构；列出工作表"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取全部工作表列表”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -953,18 +1193,24 @@
         "skills/mono/references/products/sheet/sheet-style-format.md",
         "skills/mono/references/products/sheet/sheet-workbook.md",
         "skills/mono/references/products/sheet/sheet-write-data.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "sheet",
         "rpc_name": "get_all_sheets"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet list-float-images": {
       "agent_summary": "列出钉钉电子表格指定工作表中的所有浮动图片。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "查看浮动图片/有哪些浮动图片/浮动图片列表；列出所有浮动图片"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“列出钉钉电子表格指定工作表中的所有浮动图片。”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -978,8 +1224,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.list_float_images",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-media-image.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-media-image.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet media-upload": {
       "agent_summary": "上传附件到表格",
@@ -995,6 +1244,9 @@
         "提取 nodeId 后:",
         "浮动图片/悬浮图片/在表格上放一张图/加个浮动的图；创建浮动图片"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“上传附件到表格”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -1008,8 +1260,12 @@
       "source_refs": [
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-media-image.md",
-        "skills/mono/schema-hints/catalog-completeness.json"
-      ]
+        "skills/mono/schema-hints/catalog-completeness.json",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "composite",
+      "availability": "available",
+      "interface_reason": "命令包含多个 RPC、条件分派或本地 HTTP/文件步骤，不能绑定为单一 interface_ref"
     },
     "sheet merge-cells": {
       "agent_summary": "将钉钉电子表格中指定工作表的指定区域内的单元格合并为一个或多个合并区域。",
@@ -1026,6 +1282,9 @@
         "按列合并",
         "按行合并"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“将钉钉电子表格中指定工作表的指定区域内的单元格合并为一个或多个合并区域。”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -1039,8 +1298,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.merge_cells",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-style-format.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-style-format.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet move-dimension": {
       "agent_summary": "在钉钉表格的指定工作表中，将指定范围的行或列移动到目标位置。",
@@ -1053,6 +1315,9 @@
         "将第 2~4 行移动到第 1 行之前",
         "将第 2~4 行（共 3 行）移动到第 1 行的位置（最前面）",
         "移动行/移动列/调整行顺序/调整列顺序/行列拖拽/把第N行移到第M行；移动行或列"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“在钉钉表格的指定工作表中，将指定范围的行或列移动到目标位置。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1067,8 +1332,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.move_dimension",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-dimension-operations.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-dimension-operations.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet new": {
       "agent_summary": "新建工作表",
@@ -1076,6 +1344,9 @@
       "use_when": [
         "1. 新建工作表",
         "加工作表/新增Sheet；新建工作表"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“新建工作表”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1090,18 +1361,24 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.sheet.prod.json#sheet.create_sheet",
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-workbook.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "sheet",
         "rpc_name": "create_sheet"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet range batch-set-style": {
       "agent_summary": "对于一个钉钉在线表格，更新指定区域内单元格信息，包括单元格中的值、超链接、数字格式等内容。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "设置样式/改颜色/设背景色/加粗/居中/换行/字体颜色/字号；批量设置不同 range 的样式"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“对于一个钉钉在线表格，更新指定区域内单元格信息，包括单元格中的值、超链接、数字格式等内容。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1117,12 +1394,15 @@
         "internal/cli/schema_mcp_metadata.json#tools.sheet.range_batch_set_style",
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-style-format.md",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "sheet",
         "rpc_name": "update_range"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet range clear": {
       "agent_summary": "清除钉钉电子表格中指定工作表指定范围的单元格内容、格式或全部。",
@@ -1134,6 +1414,9 @@
         "清空/清除区域/擦除内容/清除格式；全部清除",
         "清空/清除区域/擦除内容/清除格式；清除区域",
         "清空整片区域请改用 range clear"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“清除钉钉电子表格中指定工作表指定范围的单元格内容、格式或全部。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1148,8 +1431,11 @@
         "internal/cli/schema_mcp_metadata.json#tools.sheet.clear_range",
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-dimension-operations.md",
-        "skills/mono/references/products/sheet/sheet-range-operations.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-range-operations.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet range copy-to": {
       "agent_summary": "将源范围的数据复制到目标位置。",
@@ -1157,6 +1443,9 @@
       "use_when": [
         "复制区域/把这块数据复制到/复制到另一个工作表；复制区域",
         "复制区域/把这块数据复制到/复制到另一个工作表；跨工作表"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“将源范围的数据复制到目标位置。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1171,18 +1460,24 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.range_copy_to",
         "skills/mono/references/products/sheet/sheet-range-operations.md",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "sheet",
         "rpc_name": "copy_range"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet range fill": {
       "agent_summary": "基于源数据范围自动填充到目标范围。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "自动填充/填充序列/向下填充/拖拽填充/序列递增；自动填充"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“基于源数据范围自动填充到目标范围。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1196,8 +1491,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.fill_range",
-        "skills/mono/references/products/sheet/sheet-range-operations.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-range-operations.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet range move-to": {
       "agent_summary": "将源范围的数据移动到目标位置，源区域将被清空。",
@@ -1205,6 +1503,9 @@
       "use_when": [
         "移动区域/把数据移到/剪切粘贴/移到另一个工作表；移动区域",
         "移动区域/把数据移到/剪切粘贴/移到另一个工作表；跨工作表"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“将源范围的数据移动到目标位置，源区域将被清空。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1219,12 +1520,15 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.range_move_to",
         "skills/mono/references/products/sheet/sheet-range-operations.md",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "sheet",
         "rpc_name": "move_range"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet range read": {
       "agent_summary": "读取工作表数据",
@@ -1255,12 +1559,15 @@
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-read-data.md",
         "skills/mono/references/products/sheet/sheet-workbook.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "sheet",
         "rpc_name": "get_range"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet range set-style": {
       "agent_summary": "对于一个钉钉在线表格，更新指定区域内单元格信息，包括单元格中的值、超链接、数字格式等内容。",
@@ -1278,6 +1585,9 @@
         "设置样式/改颜色/设背景色/加粗/居中/换行/字体颜色/字号；仅设样式不改值",
         "设置样式/改颜色/设背景色/加粗/居中/换行/字体颜色/字号；设置单元格样式"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“对于一个钉钉在线表格，更新指定区域内单元格信息，包括单元格中的值、超链接、数字格式等内容。”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -1293,18 +1603,24 @@
         "skills/mono/references/products/sheet.md",
         "skills/mono/references/products/sheet/sheet-style-format.md",
         "skills/mono/references/products/sheet/sheet-write-data.md",
-        "skills/mono/schema-hints/interface-refs.json"
+        "skills/mono/schema-hints/interface-refs.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "sheet",
         "rpc_name": "update_range"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet range sort": {
       "agent_summary": "对钉钉电子表格中指定工作表指定范围的数据进行排序。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "排序/给数据排序/按某列排序/升序/降序；区域排序"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“对钉钉电子表格中指定工作表指定范围的数据进行排序。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1318,8 +1634,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.sort_range",
-        "skills/mono/references/products/sheet/sheet-range-operations.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-range-operations.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet range update": {
       "agent_summary": "更新工作表指定区域内容（--values 与 --hyperlinks 至少传一项）",
@@ -1348,6 +1667,9 @@
         "设置数字格式/改成百分比/用人民币显示/按日期显示/文本格式/保留几位小数；写值时顺带设置数字格式",
         "设置样式/改颜色/设背景色/加粗/居中/换行/字体颜色/字号；写值同时附带样式"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“更新工作表指定区域内容（--values 与 --hyperlinks 至少传一项）”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -1365,12 +1687,15 @@
         "skills/mono/references/products/sheet/sheet-style-format.md",
         "skills/mono/references/products/sheet/sheet-workbook.md",
         "skills/mono/references/products/sheet/sheet-write-data.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "sheet",
         "rpc_name": "update_range"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet replace": {
       "agent_summary": "在钉钉表格的指定工作表中，全局查找并替换文本内容。",
@@ -1380,6 +1705,9 @@
         "替换/查找替换/全局替换/批量替换/把A替换成B/把所有的X改成Y；查找替换",
         "替换/查找替换/全局替换/批量替换/把A替换成B/把所有的X改成Y；正则替换",
         "替换/查找替换/全局替换/批量替换/把A替换成B/把所有的X改成Y；精确匹配后替换（只替换内容完全等于的单元格）"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“在钉钉表格的指定工作表中，全局查找并替换文本内容。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1394,8 +1722,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.replace_all",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-search-replace.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-search-replace.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet set-dropdown": {
       "agent_summary": "在钉钉表格的指定单元格范围内设置下拉列表。",
@@ -1405,6 +1736,9 @@
         "设置下拉列表/下拉选项/下拉菜单/添加下拉/配置下拉；设置多选下拉",
         "设置单选下拉列表",
         "设置带颜色的多选下拉列表"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“在钉钉表格的指定单元格范围内设置下拉列表。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1419,14 +1753,20 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.set_dropdown_lists",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-dropdown.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-dropdown.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet unmerge-cells": {
       "agent_summary": "取消钉钉表格指定工作表中指定范围内的合并单元格。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
       "use_when": [
         "取消合并/拆分单元格/还原合并；取消合并单元格"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“取消钉钉表格指定工作表中指定范围内的合并单元格。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1440,8 +1780,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.unmerge_range",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-style-format.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-style-format.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet update": {
       "agent_summary": "更新钉钉电子表格中指定工作表的属性，包括名称、位置、可见性、冻结行列等。",
@@ -1460,6 +1803,9 @@
         "移动工作表到第一个位置",
         "隐藏工作表"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“更新钉钉电子表格中指定工作表的属性，包括名称、位置、可见性、冻结行列等。”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -1473,8 +1819,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.update_sheet",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-workbook.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-workbook.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet update-dimension": {
       "agent_summary": "批量更新钉钉表格指定工作表中连续多行/多列的属性，支持设置显隐状态（hidden）与行高/列宽（pixelSize）。",
@@ -1493,6 +1842,9 @@
         "隐藏行/隐藏列/显示行/显示列/设置行高/设置列宽/调整行高/调整列宽/行列属性；设置行高/列宽",
         "隐藏行/隐藏列/显示行/显示列/设置行高/设置列宽/调整行高/调整列宽/行列属性；隐藏/显示行或列"
       ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“批量更新钉钉表格指定工作表中连续多行/多列的属性，支持设置显隐状态（hidden）与行高/列宽（pixelSize）。”所述变更时不要使用"
+      ],
       "effect": "write",
       "effect_source": "command-verb",
       "risk": "medium",
@@ -1506,8 +1858,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.update_dimension",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-dimension-operations.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-dimension-operations.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet update-float-image": {
       "agent_summary": "更新钉钉电子表格中指定浮动图片的属性。",
@@ -1517,6 +1872,9 @@
         "移动浮动图片/调整浮动图片大小/修改浮动图片/更新浮动图片；更新浮动图片属性",
         "移动浮动图片到新位置",
         "调整尺寸"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“更新钉钉电子表格中指定浮动图片的属性。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1531,8 +1889,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.update_float_image",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-media-image.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-media-image.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "sheet write-image": {
       "agent_summary": "在钉钉表格的指定单元格中插入图片。",
@@ -1544,6 +1905,9 @@
         "写入图片/插入图片/加图片/放图片到单元格/嵌入图片到表格；写入图片",
         "写入图片/插入图片/加图片/放图片到单元格/嵌入图片到表格；用户指定了图片尺寸",
         "提取 nodeId 后:"
+      ],
+      "avoid_when": [
+        "仅需查询状态或预览结果、不应产生“在钉钉表格的指定单元格中插入图片。”所述变更时不要使用"
       ],
       "effect": "write",
       "effect_source": "command-verb",
@@ -1558,8 +1922,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.sheet.write_image",
         "skills/mono/references/products/sheet.md",
-        "skills/mono/references/products/sheet/sheet-media-image.md"
-      ]
+        "skills/mono/references/products/sheet/sheet-media-image.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     }
   }
 }

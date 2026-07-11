@@ -10,6 +10,9 @@
         "研发部的详细信息/部门信息；查部门详情",
         "部门详情/部门信息/部门多少人"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“根据指定的部门 ID，获取部门详情。”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
@@ -23,8 +26,11 @@
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.contact.get_dept_info_by_dept_id",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/references/products/contact.md"
-      ]
+        "skills/mono/references/products/contact.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "contact dept list-children": {
       "agent_summary": "根据指定的部门 ID，获取其直接子部门列表，返回每个子部门的部门 ID、名称。",
@@ -32,6 +38,9 @@
       "use_when": [
         "5. 查看直属子部门 — 提取子 deptId 列表",
         "子部门/下设部门/部门有哪些下级部门/枚举二级部门"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“根据指定的部门 ID，获取其直接子部门列表，返回每个子部门的部门 ID、名称。”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -45,8 +54,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.contact.get_sub_depts_by_dept_id",
-        "skills/mono/references/products/contact.md"
-      ]
+        "skills/mono/references/products/contact.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "contact dept list-members": {
       "agent_summary": "查看部门成员（逗号分隔 deptId）",
@@ -72,12 +84,15 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.contact.prod.json#contact.get_dept_members_by_deptId",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/contact.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "contact",
         "rpc_name": "get_dept_members_by_deptId"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "contact dept search": {
       "agent_summary": "按关键词搜索部门",
@@ -85,6 +100,9 @@
       "use_when": [
         "3. 查看部门结构 — 提取 deptId",
         "找部门/哪个部门"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“按关键词搜索部门”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -98,12 +116,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.contact.prod.json#contact.search_dept_by_keyword",
         "skills/mono/references/products/contact.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "contact",
         "rpc_name": "search_dept_by_keyword"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "contact relation list-my-followings": {
       "agent_summary": "获取我的特别关注列表",
@@ -111,16 +132,25 @@
       "use_when": [
         "我关注了谁/我的特别关注列表/我的星标联系人/特别关注的人有哪些"
       ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取我的特别关注列表”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
       "confirmation": "not_required",
       "idempotency": "idempotent",
+      "examples": [
+        "dws contact relation list-my-followings"
+      ],
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.contact.list_my_followings",
-        "skills/mono/references/products/contact.md"
-      ]
+        "skills/mono/references/products/contact.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "contact user dismission search": {
       "agent_summary": "获取离职员工列表，支持按照员工姓名、离职时间范围、部门过滤",
@@ -129,6 +159,9 @@
         "13. 查询全部离职员工",
         "14. 按姓名/时间范围/部门筛选离职员工",
         "离职员工/离职名单/离职人员/已离职"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取离职员工列表，支持按照员工姓名、离职时间范围、部门过滤”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -142,14 +175,20 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.contact.query_dismission_employee_list",
-        "skills/mono/references/products/contact.md"
-      ]
+        "skills/mono/references/products/contact.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "contact user get": {
       "agent_summary": "批量获取用户详情（逗号分隔 userId）",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
       "use_when": [
         "查用户详情/部门/主管/管理员"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“批量获取用户详情（逗号分隔 userId）”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -163,12 +202,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.contact.prod.json#contact.get_user_info_by_user_ids",
         "skills/mono/references/products/contact.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "contact",
         "rpc_name": "get_user_info_by_user_ids"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "contact user get-self": {
       "agent_summary": "获取当前用户信息",
@@ -176,6 +218,9 @@
       "use_when": [
         "1. 查看自己的信息 — 提取 userId",
         "我是谁/我的信息/我的 userId/当前用户/本人/self/me/whoami"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“获取当前用户信息”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -189,12 +234,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.contact.prod.json#contact.get_current_user_profile",
         "skills/mono/references/products/contact.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "contact",
         "rpc_name": "get_current_user_profile"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "contact user profile fields": {
       "agent_summary": "查询花名册有权限的字段列表，根据当前用户查询花名册有权限的字段列表",
@@ -202,6 +250,9 @@
       "use_when": [
         "10. 查询花名册有权限的字段列表",
         "花名册字段/有哪些字段/字段列表"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询花名册有权限的字段列表，根据当前用户查询花名册有权限的字段列表”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -214,8 +265,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.contact.list_authorized_roster_fields",
-        "skills/mono/references/products/contact.md"
-      ]
+        "skills/mono/references/products/contact.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "contact user profile get": {
       "agent_summary": "查询员工花名册字段信息，根据当前用户指定员工和字段列表，查询相应管理范围内员工的字段值信息",
@@ -224,6 +278,9 @@
         "11. 根据字段 code 查询指定员工的花名册信息",
         "12. 查询所有可见字段的花名册信息",
         "花名册/员工档案/学历/家庭/银行卡/紧急联系人/合同"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“查询员工花名册字段信息，根据当前用户指定员工和字段列表，查询相应管理范围内员工的字段值信息”"
       ],
       "effect": "read",
       "effect_source": "command-verb",
@@ -237,8 +294,11 @@
       "reviewed": false,
       "source_refs": [
         "internal/cli/schema_mcp_metadata.json#tools.contact.get_authorized_emp_rosterInfo",
-        "skills/mono/references/products/contact.md"
-      ]
+        "skills/mono/references/products/contact.md",
+        "skills/mono/schema-hints/selection-review.json"
+      ],
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "contact user search": {
       "agent_summary": "按关键词搜索用户",
@@ -262,16 +322,25 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.contact.prod.json#contact.search_contact_by_key_word",
         "skills/mono/references/intent-guide.md",
         "skills/mono/references/products/contact.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "contact",
         "rpc_name": "search_contact_by_key_word"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     },
     "contact user search-mobile": {
       "agent_summary": "按手机号搜索用户",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
+      "use_when": [
+        "按手机号搜索用户"
+      ],
+      "avoid_when": [
+        "需要创建、修改或删除数据时不要使用；本命令只用于“按手机号搜索用户”"
+      ],
       "effect": "read",
       "effect_source": "command-verb",
       "risk": "low",
@@ -283,12 +352,15 @@
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.contact.prod.json#contact.search_user_by_mobile",
         "skills/mono/references/products/contact.md",
-        "skills/mono/schema-hints/imported/wukong.json"
+        "skills/mono/schema-hints/imported/wukong.json",
+        "skills/mono/schema-hints/selection-review.json"
       ],
       "interface_ref": {
         "product_id": "contact",
         "rpc_name": "search_user_by_mobile"
-      }
+      },
+      "interface_mode": "mcp",
+      "availability": "available"
     }
   }
 }
