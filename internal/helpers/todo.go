@@ -572,7 +572,7 @@ func newTodoCommand() *cobra.Command {
 	todoTaskCreateSubCmd.Flags().String("priority", "", "优先级: 10低/20普通/30较高/40紧急")
 	todoTaskCreateSubCmd.Flags().String("recurrence", "", "循环待办 (需先设置 --due); 格式: DTSTART:20260320T100000Z\\nRRULE:FREQ=DAILY;INTERVAL=1")
 
-	todoTaskListCmd.Flags().String("page", "1", "页码 (必填)")
+	todoTaskListCmd.Flags().String("page", "1", "页码（默认 1）")
 	todoTaskListCmd.Flags().String("size", "20", "获取数量，超过 20 自动分页 (默认 20)")
 	todoTaskListCmd.Flags().String("status", "", "true=已完成, false=未完成")
 	todoTaskListCmd.Flags().String("priority", "", "优先级: 10 低/20 普通/30 较高/40 紧急")

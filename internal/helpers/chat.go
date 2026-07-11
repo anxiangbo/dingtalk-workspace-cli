@@ -2533,7 +2533,7 @@ func newChatCommand() *cobra.Command {
 	_ = chatMessageListAllCmd.MarkFlagRequired("start")
 	chatMessageListAllCmd.Flags().String("end", "", "结束时间，格式: yyyy-MM-dd HH:mm:ss (必填)")
 	_ = chatMessageListAllCmd.MarkFlagRequired("end")
-	chatMessageListAllCmd.Flags().Int("limit", 50, "每页返回数量 (必填，默认 50)")
+	chatMessageListAllCmd.Flags().Int("limit", 50, "每页返回数量（默认 50）")
 	chatMessageListAllCmd.Flags().Int("size", 0, "--limit 的旧版别名")
 	_ = chatMessageListAllCmd.Flags().MarkHidden("size")
 	chatMessageListAllCmd.Flags().String("cursor", "0", "分页游标（首页传 \"0\"，后续从响应中获取）")

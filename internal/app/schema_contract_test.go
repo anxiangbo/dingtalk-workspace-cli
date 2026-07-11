@@ -201,6 +201,35 @@ func TestChatSchemaSeparatesSendAndReply(t *testing.T) {
 	}
 }
 
+func TestDefaultedPaginationSchemaFlagsAreOptional(t *testing.T) {
+	definitions := map[string]cli.CatalogCommandDefinition{}
+	for _, definition := range cli.EmbeddedSchemaCommandDefinitions() {
+		definitions[definition.CanonicalPath] = definition
+	}
+	for canonicalPath, flags := range map[string][]string{
+		"chat.search_messages_by_time_range": {"limit"},
+		"oa.list_user_visible_process":       {"cursor", "limit"},
+		"report.get_received_report_list":    {"cursor", "size"},
+		"todo.get_user_todos_in_current_org": {"page"},
+	} {
+		parameters := map[string]cli.CatalogParameterDefinition{}
+		for _, parameter := range definitions[canonicalPath].Parameters {
+			parameters[parameter.Name] = parameter
+		}
+		for _, flagName := range flags {
+			if parameters[flagName].Required {
+				t.Errorf("%s --%s has a CLI default and must remain optional", canonicalPath, flagName)
+			}
+		}
+	}
+
+	for _, parameter := range definitions["aitable.section_reorder"].Parameters {
+		if parameter.Name == "target-index" && !parameter.Required {
+			t.Error("aitable.section_reorder --target-index uses -1 as a sentinel and must remain required")
+		}
+	}
+}
+
 func TestPATSchemaKeepsCLIContract(t *testing.T) {
 	root := NewRootCommand()
 	cli.AnnotateEmbeddedSchemaCommands(root)

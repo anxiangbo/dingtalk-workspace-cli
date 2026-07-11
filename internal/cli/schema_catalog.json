@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "source_hash": "sha256:faa338ecc8292450d41b10115ea13aafe3ff5e86bde442b544bc0bd7ac08d4a9",
+  "source_hash": "sha256:5a3b488d80cd89a16b4074835411c8b8ae4548501b4049f1d254848c323310b3",
   "surface_hash": "sha256:c0a9b75b4e38934db73f4ce1d337b4c64aa5e541257dd9e84c4947da9c9ab664",
   "catalog": {
     "agent_metadata": {
@@ -24990,11 +24990,11 @@
         },
         "limit": {
           "default": "50",
-          "description": "每页返回数量 (必填，默认 50)",
+          "description": "每页返回数量（默认 50）",
           "interface_description": "limit",
           "interface_type": "number",
           "property": "limit",
-          "required": true,
+          "required": false,
           "type": "integer"
         },
         "start": {
@@ -38879,20 +38879,20 @@
       "parameters": {
         "cursor": {
           "default": "0",
-          "description": "分页游标，首次传 0 (必填)",
+          "description": "分页游标（默认 0，翻页传返回的 cursor）",
           "interface_description": "分页游标，首次调用需要传0",
           "interface_type": "number",
           "property": "cursor",
-          "required": true,
+          "required": false,
           "type": "string"
         },
         "limit": {
           "default": "100",
-          "description": "每页大小，最大 100 (必填)",
+          "description": "每页大小（默认 100，最大 100）",
           "interface_description": "每页大小，最大值100",
           "interface_type": "number",
           "property": "pageSize",
-          "required": true,
+          "required": false,
           "type": "string"
         }
       },
@@ -39534,11 +39534,11 @@
       "parameter_count": 5,
       "parameters": {
         "cursor": {
-          "description": "分页游标，首次传 0 (必填, 默认 0)",
+          "description": "分页游标（默认 0，翻页传返回的 cursor）",
           "interface_description": "起始游标，从 0 开始，示例值：1734048000000，必填",
           "interface_type": "number",
           "property": "cursor",
-          "required": true,
+          "required": false,
           "type": "integer"
         },
         "end": {
@@ -39559,11 +39559,11 @@
         },
         "size": {
           "default": "20",
-          "description": "每页条数，最大 20 (必填, 默认 20)",
+          "description": "每页条数（默认 20，最大 20）",
           "interface_description": "每页条数，最大 20，示例值：1734048000000，必填",
           "interface_type": "number",
           "property": "size",
-          "required": true,
+          "required": false,
           "type": "integer"
         },
         "start": {
@@ -45300,9 +45300,9 @@
       "parameters": {
         "page": {
           "default": "1",
-          "description": "页码 (必填)",
+          "description": "页码（默认 1）",
           "property": "page",
-          "required": true,
+          "required": false,
           "type": "string"
         },
         "plan-finish-date-end": {

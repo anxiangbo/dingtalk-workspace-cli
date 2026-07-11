@@ -426,8 +426,8 @@ func addReportStatsFlags(cmd *cobra.Command) {
 func addReportListFlags(cmd *cobra.Command) {
 	cmd.Flags().String("start", "", "开始时间 ISO-8601 (如 2026-03-10T00:00:00+08:00) (必填)")
 	cmd.Flags().String("end", "", "结束时间 ISO-8601 (如 2026-03-10T23:59:59+08:00) (必填)")
-	cmd.Flags().Int("cursor", 0, "分页游标，首次传 0 (必填, 默认 0)")
-	cmd.Flags().Int("size", 20, "每页条数，最大 20 (必填, 默认 20)")
+	cmd.Flags().Int("cursor", 0, "分页游标（默认 0，翻页传返回的 cursor）")
+	cmd.Flags().Int("size", 20, "每页条数（默认 20，最大 20）")
 	cmd.Flags().Int("limit", 0, "--size 的别名")
 	_ = cmd.Flags().MarkHidden("limit")
 	// 发送人过滤（来自 develop 分支 feature/select_report_staff）
