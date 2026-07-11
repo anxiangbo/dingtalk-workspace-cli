@@ -85,6 +85,8 @@ def scalar_value(flag: str, param: dict[str, Any], canonical_path: str) -> str:
         return str(enum[0])
 
     value_format = str(param.get("format", "")).lower()
+
+    is_end = flag == "end" or flag.startswith("end-") or flag.endswith("-end")
     if value_format in {"numeric-id", "positive-integer"}:
         return "1"
     if value_format == "a1-range":
@@ -92,9 +94,9 @@ def scalar_value(flag: str, param: dict[str, Any], canonical_path: str) -> str:
     if value_format == "file-path":
         return str(Path(tempfile.gettempdir()) / "dws-schema-smoke-fixture.txt")
     if value_format == "date-time":
-        return "2027-01-15T10:00:00+08:00"
+        return "2027-01-15T11:00:00+08:00" if is_end else "2027-01-15T10:00:00+08:00"
     if value_format == "date":
-        return "2027-01-15"
+        return "2027-01-16" if is_end else "2027-01-15"
 
     if "default" in param and param["default"] not in (None, ""):
         return str(param["default"])
@@ -108,7 +110,7 @@ def scalar_value(flag: str, param: dict[str, Any], canonical_path: str) -> str:
     )
 
     if flag in {"start", "end", "start-time", "end-time"}:
-        return "2027-01-15T10:00:00+08:00"
+        return "2027-01-15T11:00:00+08:00" if is_end else "2027-01-15T10:00:00+08:00"
 
     if flag == "fields":
         return '[{"fieldName":"Name","type":"text"}]'
@@ -191,6 +193,8 @@ def value_for(flag: str, param: dict[str, Any], canonical_path: str) -> str | No
         return "aitable.record:read"
     if canonical_path == "sheet.range_batch_set_style" and flag == "batch":
         return str(Path(tempfile.gettempdir()) / "dws-schema-smoke-style.json")
+    if canonical_path == "report.create_report" and flag == "contents-file":
+        return "tmp/dws-schema-smoke-report.json"
 
     if param.get("example") not in (None, ""):
         return str(param["example"])
@@ -284,6 +288,8 @@ def required_when_matches(
             actual_value = "true" if actual is None else str(actual)
         elif controller_param.get("default") not in (None, ""):
             actual_value = str(controller_param["default"])
+        elif str(controller_param.get("type", "")).lower() == "boolean":
+            actual_value = "false"
         else:
             return False
         expected = [item.strip() for item in re.split(r"\s+or\s+", expected_raw)]
@@ -424,12 +430,12 @@ def help_flags(binary: str, cwd: Path, cli_path: str, timeout: int) -> set[str]:
             f"{binary} {cli_path} --help exited {proc.returncode}: "
             f"{(proc.stderr or proc.stdout).strip()}"
         )
-    flags_match = re.search(
-        r"(?ms)^Flags:\s*\n(?P<body>.*?)(?:^Global Flags:\s*$|\Z)",
-        proc.stdout,
+    return set(
+        re.findall(
+            r"(?m)^\s*(?:-[a-zA-Z0-9],\s*)?--([a-zA-Z0-9][a-zA-Z0-9_.-]*)(?:[ =]|$)",
+            proc.stdout,
+        )
     )
-    flags_body = flags_match.group("body") if flags_match else ""
-    return set(re.findall(r"--([a-zA-Z0-9][a-zA-Z0-9_.-]*)", flags_body))
 
 
 def is_auth_required(output: str) -> bool:
@@ -658,6 +664,13 @@ def main() -> int:
     style_fixture = Path(tempfile.gettempdir()) / "dws-schema-smoke-style.json"
     style_fixture.write_text(
         '[{"sheetId":"sheet-smoke","range":"A1","fontSize":12}]\n',
+        encoding="utf-8",
+    )
+    report_fixture = cwd / "tmp" / "dws-schema-smoke-report.json"
+    report_fixture.parent.mkdir(parents=True, exist_ok=True)
+    report_fixture.write_text(
+        '[{"content":"schema smoke","sort":"0","key":"work",'
+        '"contentType":"markdown","type":"1"}]\n',
         encoding="utf-8",
     )
 

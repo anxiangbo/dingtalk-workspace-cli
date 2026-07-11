@@ -26,13 +26,13 @@ func TestSchemaParameterBindingsMatchEmbeddedCatalog(t *testing.T) {
 			}
 		}
 	}
-	if count != 308 {
-		t.Fatalf("active parameter binding count = %d, want 308", count)
+	if count != 316 {
+		t.Fatalf("active parameter binding count = %d, want 316", count)
 	}
 	snapshot := runtimeSchemaParameterBindingSnapshot
-	if snapshot.HistoricalBindingCount != 311 || len(snapshot.Migrations) != 5 || len(snapshot.Excluded) != 3 {
-		t.Fatalf("binding seed audit = historical:%d migrations:%d excluded:%d",
-			snapshot.HistoricalBindingCount, len(snapshot.Migrations), len(snapshot.Excluded))
+	if snapshot.HistoricalBindingCount != 311 || len(snapshot.Migrations) != 5 || len(snapshot.Excluded) != 3 || len(snapshot.Added) != 8 {
+		t.Fatalf("binding seed audit = historical:%d migrations:%d excluded:%d added:%d",
+			snapshot.HistoricalBindingCount, len(snapshot.Migrations), len(snapshot.Excluded), len(snapshot.Added))
 	}
 	if snapshot.SourceCatalogHash != "sha256:6dc63141d35119ff6095d189ef9d8994cd35162ecf9fff9ad23b2ab68e4e2b7f" {
 		t.Fatalf("binding source catalog hash = %q", snapshot.SourceCatalogHash)
@@ -41,11 +41,14 @@ func TestSchemaParameterBindingsMatchEmbeddedCatalog(t *testing.T) {
 		t.Fatalf("calendar.get_calendar --id property = %q, want calendarId", got)
 	}
 	for canonical, flagName := range map[string]string{
-		"contact.get_dept_info_by_dept_id":   "dept",
-		"contact.get_dept_members_by_deptId": "depts",
-		"contact.get_sub_depts_by_dept_id":   "dept",
-		"oa.list_pending_approvals":          "limit",
-		"oa.list_user_visible_process":       "limit",
+		"calendar.add_calendar_participant":    "event",
+		"calendar.get_calendar_participants":   "event",
+		"calendar.remove_calendar_participant": "event",
+		"contact.get_dept_info_by_dept_id":     "dept",
+		"contact.get_dept_members_by_deptId":   "depts",
+		"contact.get_sub_depts_by_dept_id":     "dept",
+		"oa.list_pending_approvals":            "limit",
+		"oa.list_user_visible_process":         "limit",
 	} {
 		if runtimeSchemaParameterBindings[canonical][flagName] == "" {
 			t.Errorf("migrated binding %s --%s is missing", canonical, flagName)

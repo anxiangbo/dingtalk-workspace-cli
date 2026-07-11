@@ -2475,7 +2475,7 @@ func newChatCommand() *cobra.Command {
 		RequireOneOf:      [][]string{{"group", "user", "open-dingtalk-id"}},
 	})
 	cli.AnnotateRuntimePositionals(chatMessageSendCmd, cli.RuntimeSchemaPositional{
-		Name:        "text",
+		Name:        "content",
 		Type:        "string",
 		Description: "消息内容（也可使用 --text；富媒体消息可省略）",
 		Required:    false,

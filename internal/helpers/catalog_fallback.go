@@ -166,6 +166,7 @@ func registerCatalogFallbackFlag(cmd *cobra.Command, parameter cli.CatalogParame
 		interfaceType = parameter.Type
 	}
 	cli.AnnotateRuntimeFlag(cmd, parameter.Name, parameter.Property, interfaceType, parameter.Required, parameter.Default)
+	cli.AnnotateRuntimeFlagRequiredWhen(cmd, parameter.Name, parameter.RequiredWhen)
 	if parameter.Format != "" {
 		cli.AnnotateRuntimeFlagFormat(cmd, parameter.Name, parameter.Format)
 	}

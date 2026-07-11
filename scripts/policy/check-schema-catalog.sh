@@ -71,18 +71,28 @@ if ! jq -e '
 	exit 1
 fi
 
-if [ "$(jq '[.tools[] | select(.constraints != null)] | length' internal/cli/schema_catalog.json)" != "21" ]; then
-	printf '%s\n' 'schema command constraints are incomplete' >&2
+if ! jq -e '
+  [.tools[] | select(.constraints != null)] as $tools |
+  ($tools | length) >= 21 and
+  all($tools[];
+    (((.parameters // {}) | keys) + ((.positionals // []) | map(.name))) as $names |
+    all((.constraints.mutually_exclusive // [])[]; length > 1 and all(.[]; IN($names[]))) and
+    all((.constraints.require_one_of // [])[]; length > 1 and all(.[]; IN($names[]))) and
+    all((.constraints.require_together // [])[]; length > 1 and all(.[]; IN($names[])))
+  )
+' internal/cli/schema_catalog.json >/dev/null; then
+	printf '%s\n' 'schema command constraints are incomplete or reference unknown parameters' >&2
 	exit 1
 fi
 
 binding_count="$(jq '[.bindings[] | length] | add' internal/cli/schema_parameter_bindings.json)"
-if [ "$binding_count" != "308" ] || ! jq -e --slurpfile bindings internal/cli/schema_parameter_bindings.json '
+if [ "$binding_count" != "316" ] || ! jq -e --slurpfile bindings internal/cli/schema_parameter_bindings.json '
   . as $catalog |
-  $bindings[0].version == 1 and
+  $bindings[0].version == 2 and
   $bindings[0].historical_binding_count == 311 and
   ($bindings[0].migrations | length) == 5 and
   ($bindings[0].excluded | length) == 3 and
+  ($bindings[0].added | length) == 8 and
   ([$bindings[0].bindings | to_entries[] |
     .key as $tool | .value | to_entries[] |
     {tool: $tool, flag: .key, property: .value}

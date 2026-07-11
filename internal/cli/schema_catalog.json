@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "source_hash": "sha256:ac9f6328bcf1c95aa23483dc0a79c3511c3f5a13fec44697dae2d20b140e2b7f",
+  "source_hash": "sha256:faa338ecc8292450d41b10115ea13aafe3ff5e86bde442b544bc0bd7ac08d4a9",
   "surface_hash": "sha256:c0a9b75b4e38934db73f4ce1d337b4c64aa5e541257dd9e84c4947da9c9ab664",
   "catalog": {
     "agent_metadata": {
@@ -12553,7 +12553,7 @@
         "dws aisearch person --keyword \"张三\" --dimension name --format json",
         "dws aisearch person --keyword \"产品部\" --dimension department --format json"
       ],
-      "has_parameters": false,
+      "has_parameters": true,
       "idempotency": "idempotent",
       "interface_ref": {
         "product_id": "aisearch",
@@ -12562,8 +12562,25 @@
       "is_alias": false,
       "metadata_source": "embedded-mcp-metadata",
       "name": "enterprise_person_search",
-      "parameter_count": 0,
-      "parameters": {},
+      "parameter_count": 2,
+      "parameters": {
+        "dimension": {
+          "default": "all",
+          "description": "查询维度: all/name/department/position/duty/supervisor/subordinate/phone/jobNumber，多个用逗号分隔",
+          "interface_description": "查询维度，根据用户意图自动映射。可选值：\\n- all: 默认，全部维度\\n- name: 姓名（用户提到'姓名'、'叫什么'、'是谁'时使用）\\n- department: 部门（用户提到'部门'、'团队'时使用）\\n- position: 职位（用户提到'职位'、'岗位'时使用）\\n- duty: 职责/技能（用户提到'负责'、'职责'、'技能'时使用）\\n- supervisor: 上级（用户提到'上级'、'领导'、'主管'时使用）\\n- subordinate: 下级（用户提到'下级'、'下属'时使用）\\n- phone: 手机号（用户提到'手机号'、'电话'、'手机'时使用）\\n- jobNumber: 工号（用户提到'工号'、'员工编号'时使用）\\n\\n【重要】：从用户问题中识别维度词并映射到此字段，不要将维度词放入keyword中。",
+          "interface_type": "array",
+          "property": "dimension",
+          "required": false,
+          "type": "string"
+        },
+        "keyword": {
+          "description": "搜索关键词 (必填，如人名、技能关键词等)",
+          "interface_description": "搜索关键词。仅填入实际的搜索目标（人名、技能关键词等），不包含查询维度词。 【关键词提取规则】： 以下维度词必须从keyword中排除，改为映射到dimension： - '上级'、'领导'、'主管' → dimension: ['supervisor'] - '下级'、'下属'、'团队成员' → dimension: ['subordinate'] - '部门'、'团队'、'组织' → dimension: ['department'] - '职位'、'岗位'、'职级' → dimension: ['position'] - '职责'、'负责'、'技能' → dimension: ['duty'] - '姓名'、'叫什么' → dimension: ['name'] 【示例】： - 用户问'五道的上级是谁' → keyword: '五道', dimension: ['supervisor'] - 用户问'张三负责什么' → keyword: '张三', dimension: ['duty'] - 用户问'AI搜问的负责人是谁' → keyword: 'AI搜问', dimension: ['duty'] - 用户问'产品部有谁' → keyword: '产品部', dimension: ['department'] - 用户问'李四是哪个部门的' → keyword: '李四', dimension: ['department']- 用户问'手机号13800138000是谁' → keyword: '13800138000', dimension: ['phone']\\n- 用户问'工号A12345是谁' → keyword: 'A12345', dimension: ['jobNumber']",
+          "property": "keyword",
+          "required": true,
+          "type": "string"
+        }
+      },
       "path": "aisearch.enterprise_person_search",
       "primary_cli_path": "aisearch person",
       "product_id": "aisearch",
@@ -15592,7 +15609,7 @@
           "interface_description": "可选。指定要获取的记录 ID 列表，单次最多 100 个。传入时直接按 ID 返回，忽略 filters 和 sort。\n适用于已知 recordId（如关联字段中的 linkedRecordIds）时的精准取数。",
           "interface_type": "array",
           "property": "recordIds",
-          "required": false,
+          "required": true,
           "type": "string"
         },
         "sort": {
@@ -15828,7 +15845,7 @@
           "interface_description": "可选。指定要获取的记录 ID 列表，单次最多 100 个。传入时直接按 ID 返回，忽略 filters 和 sort。\n适用于已知 recordId（如关联字段中的 linkedRecordIds）时的精准取数。",
           "interface_type": "array",
           "property": "recordIds",
-          "required": false,
+          "required": true,
           "type": "string"
         },
         "table-id": {
@@ -17091,6 +17108,15 @@
       "cli_name": "update",
       "cli_path": "aitable table update",
       "confirmation": "not_required",
+      "constraints": {
+        "require_one_of": [
+          [
+            "name",
+            "description",
+            "record-name-key"
+          ]
+        ]
+      },
       "description": "重命名指定 Table（数据表）。若新名称不符合命名要求、与同一 Base 下其他表重名或无权限，将返回错误。",
       "display": "AI 表格操作",
       "effect": "write",
@@ -18718,8 +18744,10 @@
         },
         "json": {
           "description": "filter 数组 JSON",
+          "example": "[{\"operator\":\"and\",\"operands\":[{\"operator\":\"eq\",\"operands\":[\"fldX\",\"value\"]}]}]",
+          "format": "json",
           "property": "json",
-          "required": false,
+          "required": true,
           "type": "string"
         },
         "table-id": {
@@ -18862,8 +18890,10 @@
         },
         "json": {
           "description": "group 数组 JSON",
+          "example": "[{\"fieldId\":\"fldX\",\"direction\":\"asc\"}]",
+          "format": "json",
           "property": "json",
-          "required": false,
+          "required": true,
           "type": "string"
         },
         "table-id": {
@@ -19073,8 +19103,10 @@
         },
         "json": {
           "description": "sort 数组 JSON",
+          "example": "[{\"fieldId\":\"fldX\",\"direction\":\"asc\"}]",
+          "format": "json",
           "property": "json",
-          "required": false,
+          "required": true,
           "type": "string"
         },
         "table-id": {
@@ -19564,12 +19596,14 @@
       "parameters": {
         "end": {
           "description": "结束日期，格式 YYYY-MM-DD (必填)",
+          "format": "date",
           "property": "end",
           "required": true,
           "type": "string"
         },
         "start": {
           "description": "开始日期，格式 YYYY-MM-DD (必填)",
+          "format": "date",
           "property": "start",
           "required": true,
           "type": "string"
@@ -19814,6 +19848,8 @@
         },
         "files": {
           "description": "附件列表，格式 \u003cfileId\u003e:\u003cname\u003e，多项逗号分隔 (必填)",
+          "example": "file-smoke:report.pdf",
+          "format": "file-id-name-list",
           "interface_description": "attachments",
           "interface_type": "array",
           "property": "attachments",
@@ -19867,11 +19903,27 @@
       "is_alias": false,
       "metadata_source": "embedded-mcp-metadata",
       "name": "add_calendar_participant",
-      "parameter_count": 2,
+      "parameter_count": 4,
       "parameters": {
         "attendees": {
           "description": "参会人 userId 列表，逗号分隔 (必填，最多500人)",
-          "property": "attendees",
+          "interface_description": "需要添加的参与人uid列表。",
+          "interface_type": "array",
+          "property": "attendeesToAdd",
+          "required": true,
+          "type": "string"
+        },
+        "calendar-id": {
+          "description": "日历 ID (可选，默认 primary 主日历；指定其他日历本时填写，可通过 book list 获取)。注意：订阅日历下的日程无参会人",
+          "interface_description": "日历本id，可选，默认值为 \"primary\"，表示主日历本。",
+          "property": "calendarId",
+          "required": false,
+          "type": "string"
+        },
+        "event": {
+          "description": "日程 ID (必填)",
+          "interface_description": "日程ID，可调用创建日程接口或查询日程列表接口获取id参数值",
+          "property": "eventId",
           "required": true,
           "type": "string"
         },
@@ -20437,7 +20489,7 @@
         "dws calendar participant list --event EVENT_ID  # 查询 eventId: dws calendar event list"
       ],
       "group": "attendee",
-      "has_parameters": false,
+      "has_parameters": true,
       "idempotency": "idempotent",
       "interface_ref": {
         "product_id": "calendar",
@@ -20446,8 +20498,23 @@
       "is_alias": false,
       "metadata_source": "embedded-mcp-metadata",
       "name": "get_calendar_participants",
-      "parameter_count": 0,
-      "parameters": {},
+      "parameter_count": 2,
+      "parameters": {
+        "calendar-id": {
+          "description": "日历 ID (可选，默认 primary 主日历；指定其他日历本时填写，可通过 book list 获取)。注意：订阅日历下的日程无参会人",
+          "interface_description": "日历本id，可选，默认值为 \"primary\"，表示主日历本。",
+          "property": "calendarId",
+          "required": false,
+          "type": "string"
+        },
+        "event": {
+          "description": "日程 ID (必填)",
+          "interface_description": "日程ID，可调用创建日程接口或查询日程列表接口获取id参数值。",
+          "property": "eventId",
+          "required": true,
+          "type": "string"
+        }
+      },
       "path": "calendar.get_calendar_participants",
       "primary_cli_path": "calendar attendee list",
       "product_id": "calendar",
@@ -20980,11 +21047,27 @@
       "is_alias": false,
       "metadata_source": "embedded-mcp-metadata",
       "name": "remove_calendar_participant",
-      "parameter_count": 1,
+      "parameter_count": 3,
       "parameters": {
         "attendees": {
           "description": "参会人 userId 列表，逗号分隔 (必填)",
-          "property": "attendees",
+          "interface_description": "需要被删除的日程参与者userId列表。",
+          "interface_type": "array",
+          "property": "attendeesToRemove",
+          "required": true,
+          "type": "string"
+        },
+        "calendar-id": {
+          "description": "日历 ID (可选，默认 primary 主日历；指定其他日历本时填写，可通过 book list 获取)。注意：订阅日历下的日程无参会人",
+          "interface_description": "日历本id，可选，默认值为 \"primary\"，表示在 主日历本",
+          "property": "calendarId",
+          "required": false,
+          "type": "string"
+        },
+        "event": {
+          "description": "日程 ID (必填)",
+          "interface_description": "日程ID，可调用创建日程接口或查询日程列表接口获取id参数值。",
+          "property": "eventId",
           "required": true,
           "type": "string"
         }
@@ -21047,6 +21130,12 @@
         },
         "status": {
           "description": "响应状态: needsAction(未操作)|accepted(接受)|declined(拒绝)|tentative(暂定) (必填)",
+          "enum": [
+            "needsAction",
+            "accepted",
+            "declined",
+            "tentative"
+          ],
           "interface_description": "设置响应状态，可取值和对应说明如下：\n1. needsAction：未操作（默认值）\n2. accepted：接受\n3. declined：拒绝\n4. tentative：暂定",
           "property": "responseStatus",
           "required": true,
@@ -21763,6 +21852,20 @@
       "cli_name": "send-card",
       "cli_path": "chat message send-card",
       "confirmation": "not_required",
+      "constraints": {
+        "mutually_exclusive": [
+          [
+            "group",
+            "receiver"
+          ]
+        ],
+        "require_one_of": [
+          [
+            "group",
+            "receiver"
+          ]
+        ]
+      },
       "description": "创建并推送流式卡片",
       "display": "群聊 / 消息 / 机器人",
       "effect": "write",
@@ -22049,6 +22152,9 @@
         },
         "type": {
           "description": "资源类型: mediaId (必填)",
+          "enum": [
+            "mediaId"
+          ],
           "property": "type",
           "required": true,
           "type": "string"
@@ -22280,6 +22386,22 @@
       "cli_name": "conversation-info",
       "cli_path": "chat conversation-info",
       "confirmation": "not_required",
+      "constraints": {
+        "mutually_exclusive": [
+          [
+            "group",
+            "user",
+            "open-dingtalk-id"
+          ]
+        ],
+        "require_one_of": [
+          [
+            "group",
+            "user",
+            "open-dingtalk-id"
+          ]
+        ]
+      },
       "description": "获取会话的基础信息",
       "display": "群聊 / 消息 / 机器人",
       "effect": "read",
@@ -22456,6 +22578,22 @@
       "cli_name": "list",
       "cli_path": "chat message list",
       "confirmation": "not_required",
+      "constraints": {
+        "mutually_exclusive": [
+          [
+            "group",
+            "user",
+            "open-dingtalk-id"
+          ]
+        ],
+        "require_one_of": [
+          [
+            "group",
+            "user",
+            "open-dingtalk-id"
+          ]
+        ]
+      },
       "description": "拉取指定群聊的会话消息内容",
       "display": "群聊 / 消息 / 机器人",
       "effect": "read",
@@ -22708,6 +22846,20 @@
       "cli_name": "list-direct",
       "cli_path": "chat message list-direct",
       "confirmation": "not_required",
+      "constraints": {
+        "mutually_exclusive": [
+          [
+            "user",
+            "open-dingtalk-id"
+          ]
+        ],
+        "require_one_of": [
+          [
+            "user",
+            "open-dingtalk-id"
+          ]
+        ]
+      },
       "description": "拉取指定用户的单聊会话消息内容",
       "display": "群聊 / 消息 / 机器人",
       "effect": "read",
@@ -25061,6 +25213,11 @@
             "group",
             "user",
             "open-dingtalk-id"
+          ],
+          [
+            "text",
+            "content",
+            "msg-type"
           ]
         ]
       },
@@ -25109,6 +25266,7 @@
           "format": "file-path",
           "property": "filePath",
           "required": false,
+          "required_when": "msg-type is file or audio or video",
           "type": "string"
         },
         "group": {
@@ -25119,8 +25277,10 @@
         },
         "media-id": {
           "description": "图片 mediaId（通过 dt_media_upload 上传后用 extract_media_id.py 提取，仅 msgType=image）",
+          "example": "@lADP_schema_smoke",
           "property": "mediaId",
           "required": false,
+          "required_when": "msg-type is image",
           "type": "string"
         },
         "msg-type": {
@@ -25173,7 +25333,7 @@
         {
           "description": "消息内容（也可使用 --text；富媒体消息可省略）",
           "index": 0,
-          "name": "text",
+          "name": "content",
           "required": false,
           "type": "string"
         }
@@ -25412,6 +25572,14 @@
       "cli_name": "group-mute-member",
       "cli_path": "chat group-mute-member",
       "confirmation": "not_required",
+      "constraints": {
+        "require_one_of": [
+          [
+            "users",
+            "user"
+          ]
+        ]
+      },
       "description": "管理群禁言成员",
       "display": "群聊 / 消息 / 机器人",
       "effect": "write",
@@ -25436,10 +25604,18 @@
         },
         "mute-time": {
           "description": "禁言时长（毫秒），支持 300000/3600000/86400000/604800000/2592000000",
+          "enum": [
+            "300000",
+            "3600000",
+            "86400000",
+            "604800000",
+            "2592000000"
+          ],
           "interface_description": "muteTime",
           "interface_type": "number",
           "property": "muteTime",
           "required": false,
+          "required_when": "off is false",
           "type": "integer"
         },
         "off": {
@@ -25666,6 +25842,20 @@
       "cli_name": "transfer-owner",
       "cli_path": "chat group transfer-owner",
       "confirmation": "not_required",
+      "constraints": {
+        "mutually_exclusive": [
+          [
+            "new-owner",
+            "user"
+          ]
+        ],
+        "require_one_of": [
+          [
+            "new-owner",
+            "user"
+          ]
+        ]
+      },
       "description": "群主转让",
       "display": "群聊 / 消息 / 机器人",
       "effect": "write",
@@ -25858,6 +26048,14 @@
       "cli_name": "set-admin",
       "cli_path": "chat group set-admin",
       "confirmation": "not_required",
+      "constraints": {
+        "require_one_of": [
+          [
+            "users",
+            "user"
+          ]
+        ]
+      },
       "description": "设置/取消群成员为管理员",
       "display": "群聊 / 消息 / 机器人",
       "effect": "write",
@@ -26020,6 +26218,8 @@
         },
         "icon-media-id": {
           "description": "群头像 mediaId (必填)",
+          "example": "@lADP_schema_smoke",
+          "format": "dingtalk-media-id",
           "interface_description": "iconMediaId",
           "property": "iconMediaId",
           "required": true,
@@ -26287,6 +26487,11 @@
         },
         "option": {
           "description": "可见范围: FORBIDDEN | RECENT_100 | ALL (必填)",
+          "enum": [
+            "FORBIDDEN",
+            "RECENT_100",
+            "ALL"
+          ],
           "interface_description": "可选值: \"FORBIDDEN\"-禁止查看历史消息；\"RECENT_100\"-可查看最近100条消息；\"ALL\"-可查看全部历史消息",
           "property": "option",
           "required": true,
@@ -27544,6 +27749,7 @@
       "parameters": {
         "dept": {
           "description": "部门 ID (必填)",
+          "format": "numeric-id",
           "interface_description": "部门Id",
           "interface_type": "number",
           "property": "deptId",
@@ -27657,6 +27863,7 @@
       "parameters": {
         "dept": {
           "description": "部门 ID (必填)",
+          "format": "numeric-id",
           "interface_description": "部门Id",
           "interface_type": "number",
           "property": "deptId",
@@ -28154,7 +28361,7 @@
         "scope-values": {
           "description": "权限点 scopeValue，多个用逗号或分号分隔",
           "property": "scopeValues",
-          "required": false,
+          "required": true,
           "type": "string"
         },
         "unified-app-id": {
@@ -29455,7 +29662,7 @@
         "scope-values": {
           "description": "待取消权限点 scopeValue，多个用逗号或分号分隔",
           "property": "scopeValues",
-          "required": false,
+          "required": true,
           "type": "string"
         },
         "unified-app-id": {
@@ -29821,7 +30028,7 @@
         "event-codes": {
           "description": "事件码，多个用逗号或分号分隔",
           "property": "eventCodes",
-          "required": false,
+          "required": true,
           "type": "string"
         },
         "unified-app-id": {
@@ -29871,7 +30078,7 @@
         "event-codes": {
           "description": "事件码，多个用逗号或分号分隔",
           "property": "eventCodes",
-          "required": false,
+          "required": true,
           "type": "string"
         },
         "unified-app-id": {
@@ -31486,8 +31693,7 @@
           [
             "text",
             "heading",
-            "element",
-            "type"
+            "element"
           ]
         ]
       },
@@ -32627,8 +32833,7 @@
           [
             "text",
             "heading",
-            "element",
-            "type"
+            "element"
           ]
         ]
       },
@@ -36341,6 +36546,13 @@
         },
         "policy": {
           "description": "权限类型: 0=管理员, 1=所有者, 2=可编辑, 3=可查看/下载, 4=仅查看 (必填)",
+          "enum": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
           "interface_description": "策略id：MANAGER(0L, \"管理员\"),      OWNER(1L, \"所有者\"),      EDITOR(2L, \"可编辑\"),      READ_DOWNLOAD(3L, \"可查看/下载\"),      READ(4L, \"仅查看\");",
           "interface_type": "number",
           "property": "policyId",
@@ -39114,8 +39326,12 @@
         },
         "enabled": {
           "description": "PAT 撞墙时是否允许本地打开浏览器",
+          "enum": [
+            "true",
+            "false"
+          ],
           "property": "enabled",
-          "required": false,
+          "required": true,
           "type": "boolean"
         }
       },
@@ -39149,6 +39365,14 @@
       "cli_name": "submit",
       "cli_path": "report entry submit",
       "confirmation": "not_required",
+      "constraints": {
+        "require_one_of": [
+          [
+            "contents",
+            "contents-file"
+          ]
+        ]
+      },
       "description": "创建日志",
       "display": "钉钉日志（OA 周报应用 / 日志模版填报）",
       "effect": "write",
@@ -39171,10 +39395,12 @@
       "parameters": {
         "contents": {
           "description": "日志内容 JSON 数组 (必填，或用 --contents-file)，每项含 key/sort/content/contentType/type；传 - 表示从 stdin 读取",
+          "example": "[{\"content\":\"schema smoke\",\"sort\":\"0\",\"key\":\"work\",\"contentType\":\"markdown\",\"type\":\"1\"}]",
+          "format": "json",
           "interface_description": "日志内容列表",
           "interface_type": "array",
           "property": "contents",
-          "required": true,
+          "required": false,
           "type": "string"
         },
         "contents-file": {
@@ -39676,6 +39902,10 @@
       "parameters": {
         "dimension": {
           "description": "维度类型: ROWS 或 COLUMNS (必填)",
+          "enum": [
+            "ROWS",
+            "COLUMNS"
+          ],
           "interface_description": "追加维度（必填）。ROWS 表示追加行，COLUMNS 表示追加列。",
           "property": "dimension",
           "required": true,
@@ -39978,6 +40208,8 @@
       "parameters": {
         "cell-style": {
           "description": "单元格样式 JSON 对象 (可选)，如 '{\"backgroundColor\":\"#FF0000\",\"bold\":true}'",
+          "example": "{\"backgroundColor\":\"#FFCDD2\",\"bold\":true}",
+          "format": "json",
           "interface_description": "条件命中时应用的单元格样式。对 numberCondition、textCondition、emptyCondition、errorCondition、duplicateCondition、formulaCondition、rankCondition、averageCondition、stdevCondition 类型有效。",
           "interface_type": "object",
           "property": "cellStyle",
@@ -39986,12 +40218,15 @@
         },
         "condition": {
           "description": "条件类型及参数 JSON 对象 (必填)，如 '{\"numberCondition\":{\"operator\":\"greater\",\"value1\":\"80\"}}'",
+          "example": "{\"numberCondition\":{\"operator\":\"greater\",\"value1\":\"80\"}}",
+          "format": "json",
           "property": "condition",
           "required": true,
           "type": "string"
         },
         "data-bar-style": {
           "description": "数据条样式 JSON 对象 (可选，仅数据条类型)，如 '{\"fill\":[\"#4CAF50\",\"#F44336\"],\"isGradient\":true}'",
+          "format": "json",
           "interface_description": "数据条的显示样式配置。仅 dataBarCondition 类型时有效。",
           "interface_type": "object",
           "property": "dataBarStyle",
@@ -40006,7 +40241,8 @@
         },
         "ranges": {
           "description": "应用范围 JSON 数组 (必填)，如 '[\"A1:E10\"]'",
-          "format": "a1-range",
+          "example": "[\"A1:B2\"]",
+          "format": "json",
           "interface_description": "条件格式规则的应用范围（必填），A1 表示法的数组。示例：[\"A1:E10\"]",
           "interface_type": "array",
           "property": "ranges",
@@ -40540,6 +40776,10 @@
       "parameters": {
         "dimension": {
           "description": "删除维度: ROWS 或 COLUMNS (必填)",
+          "enum": [
+            "ROWS",
+            "COLUMNS"
+          ],
           "interface_description": "删除维度：ROWS 表示删除行，COLUMNS 表示删除列。必填。",
           "property": "dimension",
           "required": true,
@@ -40547,6 +40787,7 @@
         },
         "length": {
           "description": "删除数量，正整数 (必填)，最大 5000",
+          "format": "positive-integer",
           "interface_description": "要删除的行/列数量，必须为正整数（\u003e= 1）。必填。",
           "interface_type": "number",
           "property": "length",
@@ -40561,6 +40802,7 @@
         },
         "position": {
           "description": "删除起始位置，A1 表示法 (必填)。ROWS 时为行号如 \"3\"；COLUMNS 时为列字母如 \"A\"",
+          "example": "1",
           "format": "a1-range",
           "interface_description": "删除起始位置的 A1 表示法。dimension=ROWS 时为 1-based 行号字符串，如 \"3\" 表示从第 3 行开始删除；dimension=COLUMNS 时为列字母，如 \"A\" 表示从 A 列开始删除、\"AB\" 表示从 AB 列开始删除。从该位置开始连续删除 length 个行/列。允许携带工作表前缀，如 \"Sheet1!3\" / \"Sheet1!A\"，此时将忽略 sheetId 参数。必填。",
           "property": "position",
@@ -42064,6 +42306,10 @@
       "parameters": {
         "dimension": {
           "description": "插入维度: ROWS 或 COLUMNS (必填)",
+          "enum": [
+            "ROWS",
+            "COLUMNS"
+          ],
           "interface_description": "插入维度：ROWS 表示插入行，COLUMNS 表示插入列。必填。",
           "property": "dimension",
           "required": true,
@@ -42071,6 +42317,7 @@
         },
         "length": {
           "description": "插入数量，正整数 (必填)，最大 5000",
+          "format": "positive-integer",
           "interface_description": "要插入的行/列数量，必须为正整数（\u003e= 1）。必填。",
           "interface_type": "number",
           "property": "length",
@@ -42085,6 +42332,7 @@
         },
         "position": {
           "description": "插入位置，A1 表示法 (必填)。ROWS 时为行号如 \"3\"；COLUMNS 时为列字母如 \"A\"",
+          "example": "1",
           "format": "a1-range",
           "interface_description": "插入位置的 A1 表示法。dimension=ROWS 时为 1-based 行号字符串，如 \"3\" 表示在第 3 行之前插入；dimension=COLUMNS 时为列字母，如 \"A\" 表示在 A 列之前插入、\"AB\" 表示在 AB 列之前插入。允许携带工作表前缀，如 \"Sheet1!3\" / \"Sheet1!A\"，此时将忽略 sheetId 参数。必填。",
           "property": "position",
@@ -42367,6 +42615,10 @@
         },
         "dimension": {
           "description": "维度类型: ROWS 或 COLUMNS (必填)",
+          "enum": [
+            "ROWS",
+            "COLUMNS"
+          ],
           "interface_description": "移动维度（必填）。ROWS 表示移动行，COLUMNS 表示移动列。",
           "property": "dimension",
           "required": true,
@@ -42823,6 +43075,8 @@
         },
         "bg-colors-json": {
           "description": "背景色二维 JSON 数组，维度需与 --range 一致",
+          "example": "[[\"#ffffff\",\"#ffffff\"],[\"#ffffff\",\"#ffffff\"]]",
+          "format": "json",
           "property": "bgColorsJson",
           "required": false,
           "type": "string"
@@ -42835,6 +43089,8 @@
         },
         "font-colors-json": {
           "description": "字体颜色二维 JSON 数组",
+          "example": "[[\"#000000\",\"#000000\"],[\"#000000\",\"#000000\"]]",
+          "format": "json",
           "property": "fontColorsJson",
           "required": false,
           "type": "string"
@@ -42847,30 +43103,46 @@
         },
         "font-sizes-json": {
           "description": "字号二维 JSON 数组，维度需与 --range 一致",
+          "example": "[[12,12],[12,12]]",
+          "format": "json",
           "property": "fontSizesJson",
           "required": false,
           "type": "string"
         },
         "font-weight": {
           "description": "字体粗细（bold/normal），一键刷整个 range",
+          "enum": [
+            "bold",
+            "normal"
+          ],
           "property": "fontWeight",
           "required": false,
           "type": "string"
         },
         "font-weights-json": {
           "description": "字体粗细二维 JSON 数组",
+          "example": "[[\"normal\",\"normal\"],[\"normal\",\"normal\"]]",
+          "format": "json",
           "property": "fontWeightsJson",
           "required": false,
           "type": "string"
         },
         "h-align": {
           "description": "水平对齐（left/center/right/general），一键刷整个 range",
+          "enum": [
+            "left",
+            "center",
+            "right",
+            "general"
+          ],
           "property": "hAlign",
           "required": false,
           "type": "string"
         },
         "h-aligns-json": {
           "description": "水平对齐二维 JSON 数组",
+          "example": "[[\"left\",\"left\"],[\"left\",\"left\"]]",
+          "format": "json",
           "property": "hAlignsJson",
           "required": false,
           "type": "string"
@@ -42904,18 +43176,30 @@
         },
         "v-align": {
           "description": "垂直对齐（top/middle/bottom），一键刷整个 range",
+          "enum": [
+            "top",
+            "middle",
+            "bottom"
+          ],
           "property": "vAlign",
           "required": false,
           "type": "string"
         },
         "v-aligns-json": {
           "description": "垂直对齐二维 JSON 数组",
+          "example": "[[\"top\",\"top\"],[\"top\",\"top\"]]",
+          "format": "json",
           "property": "vAlignsJson",
           "required": false,
           "type": "string"
         },
         "word-wrap": {
           "description": "换行方式（overflow/clip/autoWrap），整个 range 共用",
+          "enum": [
+            "overflow",
+            "clip",
+            "autoWrap"
+          ],
           "interface_description": "单元格换行方式，单值字符串，整个 range 共用（非二维数组）。取值枚举：overflow / clip / autoWrap（驼峰，非下划线）。",
           "property": "wordWrap",
           "required": false,
@@ -43194,6 +43478,8 @@
         },
         "options": {
           "description": "下拉选项 JSON 数组 (必填)，如 '[{\"value\":\"选项1\",\"color\":\"#ff0000\"}]'",
+          "example": "[{\"value\":\"option1\"},{\"value\":\"option2\"}]",
+          "format": "json",
           "interface_description": "下拉选项数组（必填），至少包含 1 个选项。每个选项包含 value（必填）和 color（可选）。选项值不能包含英文逗号。",
           "interface_type": "array",
           "property": "options",
@@ -43636,6 +43922,8 @@
       "parameters": {
         "cell-style": {
           "description": "单元格样式 JSON 对象 (可选)",
+          "example": "{\"backgroundColor\":\"#FFCDD2\",\"bold\":true}",
+          "format": "json",
           "interface_description": "条件命中时应用的单元格样式。",
           "interface_type": "object",
           "property": "cellStyle",
@@ -43644,12 +43932,15 @@
         },
         "condition": {
           "description": "条件类型及参数 JSON 对象 (可选)，传入后替换原有条件类型",
+          "example": "{\"numberCondition\":{\"operator\":\"greater\",\"value1\":\"80\"}}",
+          "format": "json",
           "property": "condition",
           "required": false,
           "type": "string"
         },
         "data-bar-style": {
           "description": "数据条样式 JSON 对象 (可选，仅数据条类型)",
+          "format": "json",
           "interface_description": "数据条的显示样式配置。仅 dataBarCondition 类型时有效。",
           "interface_type": "object",
           "property": "dataBarStyle",
@@ -43664,7 +43955,8 @@
         },
         "ranges": {
           "description": "应用范围 JSON 数组 (可选)，如 '[\"A1:E10\"]'",
-          "format": "a1-range",
+          "example": "[\"A1:B2\"]",
+          "format": "json",
           "interface_description": "条件格式规则的应用范围（可选）。",
           "interface_type": "array",
           "property": "ranges",
@@ -43742,6 +44034,10 @@
       "parameters": {
         "dimension": {
           "description": "更新维度: ROWS 或 COLUMNS (必填)",
+          "enum": [
+            "ROWS",
+            "COLUMNS"
+          ],
           "interface_description": "更新维度：ROWS 表示行（对应行高/行显隐），COLUMNS 表示列（对应列宽/列显隐）。必填。",
           "property": "dimension",
           "required": true,
@@ -43756,6 +44052,7 @@
         },
         "length": {
           "description": "更新数量，正整数 (必填)，最大 5000",
+          "format": "positive-integer",
           "interface_description": "要更新的连续行/列数量，必须为正整数（\u003e= 1），行列均最多 5000。必填。",
           "interface_type": "number",
           "property": "length",
@@ -43785,6 +44082,7 @@
         },
         "start-index": {
           "description": "起始位置，A1 表示法 (必填)。ROWS 时为行号如 \"3\"；COLUMNS 时为列字母如 \"A\"",
+          "example": "1",
           "format": "a1-range",
           "interface_description": "起始位置的 A1 表示法。dimension=ROWS 时为 1-based 行号字符串，如 \"3\" 表示从第 3 行开始；dimension=COLUMNS 时为列字母，如 \"A\" 表示从 A 列开始、\"AB\" 表示从 AB 列开始。从该位置起的连续 length 行/列将被更新。允许携带工作表前缀，如 \"Sheet1!3\" / \"Sheet1!A\"，此时将忽略 sheetId 参数。必填。",
           "property": "startIndex",
@@ -46345,6 +46643,9 @@
         },
         "type": {
           "description": "知识库类型: myWikiSpace 时直接返回「我的文档」，省略则搜索组织知识库",
+          "enum": [
+            "myWikiSpace"
+          ],
           "property": "type",
           "required": false,
           "type": "string"

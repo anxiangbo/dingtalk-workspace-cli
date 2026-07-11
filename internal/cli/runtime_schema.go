@@ -39,10 +39,11 @@ const (
 	runtimeSchemaRulesAnnotation   = "dws.schema.constraints"
 	runtimeSchemaArgsAnnotation    = "dws.schema.positionals"
 
-	runtimeSchemaFlagPropertyAnnotation = "dws.schema.property"
-	runtimeSchemaFlagTypeAnnotation     = "dws.schema.type"
-	runtimeSchemaFlagRequiredAnnotation = "dws.schema.required"
-	runtimeSchemaFlagExampleAnnotation  = "dws.schema.example"
+	runtimeSchemaFlagPropertyAnnotation     = "dws.schema.property"
+	runtimeSchemaFlagTypeAnnotation         = "dws.schema.type"
+	runtimeSchemaFlagRequiredAnnotation     = "dws.schema.required"
+	runtimeSchemaFlagRequiredWhenAnnotation = "dws.schema.required_when"
+	runtimeSchemaFlagExampleAnnotation      = "dws.schema.example"
 )
 
 // RuntimeSchemaConstraints describes cross-parameter rules that cannot be
@@ -204,7 +205,7 @@ func AnnotateRuntimeFlag(cmd *cobra.Command, flagName, propertyName, paramType s
 	if flagName == "" {
 		return
 	}
-	flag := cmd.Flags().Lookup(flagName)
+	flag := runtimeCommandFlag(cmd, flagName)
 	if flag == nil {
 		return
 	}
@@ -220,7 +221,7 @@ func AnnotateRuntimeFlagProperty(cmd *cobra.Command, flagName, propertyName stri
 	if cmd == nil {
 		return
 	}
-	if flag := cmd.Flags().Lookup(strings.TrimSpace(flagName)); flag != nil {
+	if flag := runtimeCommandFlag(cmd, flagName); flag != nil {
 		setFlagAnnotation(flag, runtimeSchemaFlagPropertyAnnotation, strings.TrimSpace(propertyName))
 	}
 }
@@ -233,10 +234,21 @@ func AnnotateRuntimeRequiredFlags(cmd *cobra.Command, flagNames ...string) {
 		return
 	}
 	for _, name := range flagNames {
-		flag := cmd.Flags().Lookup(strings.TrimSpace(name))
+		flag := runtimeCommandFlag(cmd, name)
 		if flag != nil {
 			setFlagAnnotation(flag, runtimeSchemaFlagRequiredAnnotation, "true")
 		}
+	}
+}
+
+// AnnotateRuntimeFlagRequiredWhen records a conditional CLI requirement. The
+// expression is descriptive metadata and does not alter Cobra validation.
+func AnnotateRuntimeFlagRequiredWhen(cmd *cobra.Command, flagName, expression string) {
+	if cmd == nil {
+		return
+	}
+	if flag := runtimeCommandFlag(cmd, flagName); flag != nil {
+		setFlagAnnotation(flag, runtimeSchemaFlagRequiredWhenAnnotation, strings.TrimSpace(expression))
 	}
 }
 
@@ -246,7 +258,7 @@ func AnnotateRuntimeFlagFormat(cmd *cobra.Command, flagName, format string) {
 	if cmd == nil {
 		return
 	}
-	if flag := cmd.Flags().Lookup(strings.TrimSpace(flagName)); flag != nil {
+	if flag := runtimeCommandFlag(cmd, flagName); flag != nil {
 		setFlagAnnotation(flag, "x-cli-format", strings.TrimSpace(format))
 	}
 }
@@ -256,7 +268,7 @@ func AnnotateRuntimeFlagEnum(cmd *cobra.Command, flagName string, values ...stri
 	if cmd == nil {
 		return
 	}
-	flag := cmd.Flags().Lookup(strings.TrimSpace(flagName))
+	flag := runtimeCommandFlag(cmd, flagName)
 	if flag == nil {
 		return
 	}
@@ -280,7 +292,7 @@ func AnnotateRuntimeFlagExample(cmd *cobra.Command, flagName, example string) {
 	if cmd == nil {
 		return
 	}
-	if flag := cmd.Flags().Lookup(strings.TrimSpace(flagName)); flag != nil {
+	if flag := runtimeCommandFlag(cmd, flagName); flag != nil {
 		setFlagAnnotation(flag, runtimeSchemaFlagExampleAnnotation, strings.TrimSpace(example))
 	}
 }
@@ -405,8 +417,10 @@ func collectRuntimeSchemaEntries(root *cobra.Command) []runtimeSchemaEntry {
 		if productID == "" || toolName == "" {
 			return
 		}
-		applyRuntimeSchemaParameterBindings(leaf, productID+"."+toolName)
-		AnnotateRuntimeConstraints(leaf, runtimeSchemaConstraintsByCanonical[productID+"."+toolName])
+		canonicalPath := productID + "." + toolName
+		applyRuntimeSchemaParameterBindings(leaf, canonicalPath)
+		applyRuntimeSchemaParameterMetadata(leaf, canonicalPath)
+		AnnotateRuntimeConstraints(leaf, runtimeSchemaConstraintsByCanonical[canonicalPath])
 		parts := commandPathParts(leaf)
 		if len(parts) == 0 {
 			return
@@ -470,8 +484,10 @@ func collectRuntimeSchemaEntries(root *cobra.Command) []runtimeSchemaEntry {
 			if toolName == "" {
 				toolName = derivedRuntimeToolName(parts)
 			}
-			applyRuntimeSchemaParameterBindings(leaf, productID+"."+toolName)
-			AnnotateRuntimeConstraints(leaf, runtimeSchemaConstraintsByCanonical[productID+"."+toolName])
+			canonicalPath := productID + "." + toolName
+			applyRuntimeSchemaParameterBindings(leaf, canonicalPath)
+			applyRuntimeSchemaParameterMetadata(leaf, canonicalPath)
+			AnnotateRuntimeConstraints(leaf, runtimeSchemaConstraintsByCanonical[canonicalPath])
 			group := ""
 			if len(parts) > 2 {
 				group = strings.Join(parts[1:len(parts)-1], ".")
@@ -980,7 +996,7 @@ func runtimeToolPayload(entry runtimeSchemaEntry) map[string]any {
 	embeddedMeta, hasEmbeddedMeta := embeddedMCPMetadataForEntry(entry)
 	title, description, metadataSource := runtimeToolTextMetadata(entry)
 	constraints := runtimeCommandConstraints(entry.Command)
-	parameters := runtimeCommandParameters(entry.Command, hint.Parameters, embeddedMeta.Parameters, constraints)
+	parameters := runtimeCommandParameters(entry.Command, canonicalPath, hint.Parameters, embeddedMeta.Parameters, constraints)
 	if parameters == nil {
 		parameters = map[string]any{}
 	}
@@ -1046,12 +1062,13 @@ func applyRuntimeInterfaceRef(target map[string]any, entry runtimeSchemaEntry, m
 	}
 }
 
-func runtimeCommandParameters(cmd *cobra.Command, hints map[string]ParameterSchemaHint, embeddedParams map[string]embeddedMCPParamMeta, constraints RuntimeSchemaConstraints) map[string]any {
+func runtimeCommandParameters(cmd *cobra.Command, canonicalPath string, hints map[string]ParameterSchemaHint, embeddedParams map[string]embeddedMCPParamMeta, constraints RuntimeSchemaConstraints) map[string]any {
 	if cmd == nil {
 		return nil
 	}
 	params := map[string]any{}
-	cmd.Flags().VisitAll(func(flag *pflag.Flag) {
+	inherited := runtimeSchemaParameterMetadataByCanonical[canonicalPath].Inherited
+	visitRuntimeCommandFlags(cmd, inherited, func(flag *pflag.Flag) {
 		if flag == nil || flag.Hidden || flag.Name == "help" || isGenericPayloadFlag(flag) {
 			return
 		}
@@ -1104,8 +1121,8 @@ func runtimeCommandParameters(cmd *cobra.Command, hints map[string]ParameterSche
 		if interfaceType != "" && interfaceType != paramType {
 			entry["interface_type"] = interfaceType
 		}
-		requiredWhen := ""
-		if hasEmbeddedParam {
+		requiredWhen := firstFlagAnnotation(flag, runtimeSchemaFlagRequiredWhenAnnotation)
+		if requiredWhen == "" && hasEmbeddedParam {
 			requiredWhen = strings.TrimSpace(embeddedParam.RequiredWhen)
 		}
 		if hasHint && strings.TrimSpace(hint.RequiredWhen) != "" {
@@ -1154,6 +1171,77 @@ func runtimeCommandParameters(cmd *cobra.Command, hints map[string]ParameterSche
 		return nil
 	}
 	return params
+}
+
+// runtimeCommandFlag resolves local flags plus product/group persistent flags.
+// Root persistent flags are intentionally available only when explicitly
+// requested; they are global execution controls, not tool parameters.
+func runtimeCommandFlag(cmd *cobra.Command, name string) *pflag.Flag {
+	if cmd == nil {
+		return nil
+	}
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return nil
+	}
+	if flag := cmd.Flags().Lookup(name); flag != nil {
+		return flag
+	}
+	for current := cmd; current != nil; current = current.Parent() {
+		if flag := current.PersistentFlags().Lookup(name); flag != nil {
+			return flag
+		}
+	}
+	return nil
+}
+
+func visitRuntimeCommandFlags(cmd *cobra.Command, inheritedNames []string, visit func(*pflag.Flag)) {
+	if cmd == nil || visit == nil {
+		return
+	}
+	root := cmd.Root()
+	rootPersistent := map[*pflag.Flag]bool{}
+	ancestorPersistent := map[*pflag.Flag]bool{}
+	if root != nil {
+		root.PersistentFlags().VisitAll(func(flag *pflag.Flag) {
+			rootPersistent[flag] = true
+		})
+	}
+	for parent := cmd.Parent(); parent != nil && parent != root; parent = parent.Parent() {
+		parent.PersistentFlags().VisitAll(func(flag *pflag.Flag) {
+			ancestorPersistent[flag] = true
+		})
+	}
+	allowedInherited := map[string]bool{}
+	for _, name := range inheritedNames {
+		if name = strings.TrimSpace(name); name != "" {
+			allowedInherited[name] = true
+		}
+	}
+	seen := map[string]bool{}
+	visitSet := func(flags *pflag.FlagSet) {
+		if flags == nil {
+			return
+		}
+		flags.VisitAll(func(flag *pflag.Flag) {
+			if flag == nil || rootPersistent[flag] || seen[flag.Name] ||
+				(ancestorPersistent[flag] && !allowedInherited[flag.Name]) {
+				return
+			}
+			seen[flag.Name] = true
+			visit(flag)
+		})
+	}
+	visitSet(cmd.Flags())
+	visitSet(cmd.PersistentFlags())
+	for parent := cmd.Parent(); parent != nil && parent != root; parent = parent.Parent() {
+		parent.PersistentFlags().VisitAll(func(flag *pflag.Flag) {
+			if flag != nil && allowedInherited[flag.Name] && !seen[flag.Name] {
+				seen[flag.Name] = true
+				visit(flag)
+			}
+		})
+	}
 }
 
 func runtimeCommandConstraints(cmd *cobra.Command) RuntimeSchemaConstraints {

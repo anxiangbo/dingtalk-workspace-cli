@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "source_catalog_hash": "sha256:6dc63141d35119ff6095d189ef9d8994cd35162ecf9fff9ad23b2ab68e4e2b7f",
   "historical_binding_count": 311,
   "migrations": {
@@ -14,6 +14,16 @@
     "calendar.query_available_meeting_room --available": "hidden compatibility flag explicitly marked as a non-MCP parameter",
     "minutes.query_user_tag_list --limit": "current helper and MCP interface have no pagination input"
   },
+  "added": {
+    "calendar.add_calendar_participant --attendees": "attendeesToAdd (current inherited flag and MCP interface)",
+    "calendar.add_calendar_participant --calendar-id": "calendarId (current inherited flag and MCP interface)",
+    "calendar.add_calendar_participant --event": "eventId (current inherited flag and MCP interface)",
+    "calendar.get_calendar_participants --calendar-id": "calendarId (current inherited flag and MCP interface)",
+    "calendar.get_calendar_participants --event": "eventId (current inherited flag and MCP interface)",
+    "calendar.remove_calendar_participant --attendees": "attendeesToRemove (current inherited flag and MCP interface)",
+    "calendar.remove_calendar_participant --calendar-id": "calendarId (current inherited flag and MCP interface)",
+    "calendar.remove_calendar_participant --event": "eventId (current inherited flag and MCP interface)"
+  },
   "bindings": {
     "aisearch.search_enterprise": {
       "types": "searchTypes"
@@ -24,6 +34,11 @@
     "calendar.add_attachments": {
       "event": "eventId",
       "files": "attachments"
+    },
+    "calendar.add_calendar_participant": {
+      "attendees": "attendeesToAdd",
+      "calendar-id": "calendarId",
+      "event": "eventId"
     },
     "calendar.add_meeting_room": {
       "event": "eventId",
@@ -61,6 +76,10 @@
     "calendar.get_calendar_detail": {
       "id": "eventId"
     },
+    "calendar.get_calendar_participants": {
+      "calendar-id": "calendarId",
+      "event": "eventId"
+    },
     "calendar.list_calendar_events": {
       "end": "endTime",
       "start": "startTime"
@@ -79,6 +98,11 @@
       "rooms": "roomIds",
       "start": "startTime",
       "users": "userIds"
+    },
+    "calendar.remove_calendar_participant": {
+      "attendees": "attendeesToRemove",
+      "calendar-id": "calendarId",
+      "event": "eventId"
     },
     "calendar.respond": {
       "id": "eventId",

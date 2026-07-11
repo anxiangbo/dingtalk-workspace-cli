@@ -1,6 +1,9 @@
 package scripts_test
 
 import (
+	"archive/tar"
+	"archive/zip"
+	"compress/gzip"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -28,9 +31,8 @@ var expectedPackagedSkillTargets = []string{
 	".hermes/skills/dws",
 }
 
-// seedDistArtifacts creates fake goreleaser output archives (empty tar.gz/zip
-// files) and a checksums.txt stub so that post-goreleaser.sh can run without
-// an actual goreleaser build.
+// seedDistArtifacts creates minimal valid goreleaser archives and a checksum
+// stub so post-goreleaser can exercise unpacking and Darwin ad-hoc signing.
 func seedDistArtifacts(t *testing.T, distDir string, targets []string) {
 	t.Helper()
 	if err := os.MkdirAll(distDir, 0o755); err != nil {
@@ -39,9 +41,7 @@ func seedDistArtifacts(t *testing.T, distDir string, targets []string) {
 
 	for _, target := range targets {
 		p := filepath.Join(distDir, target)
-		if err := os.WriteFile(p, []byte("fake-archive"), 0o644); err != nil {
-			t.Fatalf("WriteFile(%s) error = %v", p, err)
-		}
+		seedDistArchive(t, p)
 	}
 
 	// Create empty checksums.txt (goreleaser creates this)
@@ -52,6 +52,50 @@ func seedDistArtifacts(t *testing.T, distDir string, targets []string) {
 	}
 	if err := os.WriteFile(checksums, []byte(strings.Join(lines, "\n")+"\n"), 0o644); err != nil {
 		t.Fatalf("WriteFile(%s) error = %v", checksums, err)
+	}
+}
+
+func seedDistArchive(t *testing.T, path string) {
+	t.Helper()
+	file, err := os.Create(path)
+	if err != nil {
+		t.Fatalf("Create(%s) error = %v", path, err)
+	}
+	defer file.Close()
+
+	content := []byte("#!/bin/sh\nexit 0\n")
+	switch {
+	case strings.HasSuffix(path, ".tar.gz"):
+		gzipWriter := gzip.NewWriter(file)
+		tarWriter := tar.NewWriter(gzipWriter)
+		if err := tarWriter.WriteHeader(&tar.Header{Name: "dws", Mode: 0o755, Size: int64(len(content))}); err != nil {
+			t.Fatalf("WriteHeader(%s) error = %v", path, err)
+		}
+		if _, err := tarWriter.Write(content); err != nil {
+			t.Fatalf("Write(%s) error = %v", path, err)
+		}
+		if err := tarWriter.Close(); err != nil {
+			t.Fatalf("Close tar(%s) error = %v", path, err)
+		}
+		if err := gzipWriter.Close(); err != nil {
+			t.Fatalf("Close gzip(%s) error = %v", path, err)
+		}
+	case strings.HasSuffix(path, ".zip"):
+		zipWriter := zip.NewWriter(file)
+		header := &zip.FileHeader{Name: "dws.exe", Method: zip.Store}
+		header.SetMode(0o755)
+		entry, err := zipWriter.CreateHeader(header)
+		if err != nil {
+			t.Fatalf("CreateHeader(%s) error = %v", path, err)
+		}
+		if _, err := entry.Write(content); err != nil {
+			t.Fatalf("Write(%s) error = %v", path, err)
+		}
+		if err := zipWriter.Close(); err != nil {
+			t.Fatalf("Close zip(%s) error = %v", path, err)
+		}
+	default:
+		t.Fatalf("unsupported archive path %s", path)
 	}
 }
 
@@ -79,6 +123,7 @@ func TestPostGoreleaserBuildsExpectedArtifacts(t *testing.T) {
 	cmd := exec.Command("sh", scriptPath)
 	cmd.Env = append(os.Environ(),
 		"DWS_PACKAGE_DIST_DIR="+distDir,
+		"DWS_PACKAGE_VERSION=1.2.3",
 		"DWS_RELEASE_BASE_URL=https://downloads.example.com/dws/releases/v1.2.3",
 	)
 	output, err := cmd.CombinedOutput()
@@ -201,6 +246,7 @@ func TestPostGoreleaserAllPlatformNpmAssets(t *testing.T) {
 	cmd := exec.Command("sh", scriptPath)
 	cmd.Env = append(os.Environ(),
 		"DWS_PACKAGE_DIST_DIR="+distDir,
+		"DWS_PACKAGE_VERSION=9.9.9",
 		"DWS_RELEASE_BASE_URL=https://downloads.example.com/dws/releases/v9.9.9",
 	)
 	output, err := cmd.CombinedOutput()
@@ -281,6 +327,7 @@ func TestPostGoreleaserSkillsZipLayout(t *testing.T) {
 	cmd := exec.Command("sh", scriptPath)
 	cmd.Env = append(os.Environ(),
 		"DWS_PACKAGE_DIST_DIR="+distDir,
+		"DWS_PACKAGE_VERSION=0.0.0",
 		"DWS_RELEASE_BASE_URL=https://downloads.example.com/dws/releases/v0.0.0",
 	)
 	output, err := cmd.CombinedOutput()

@@ -5,6 +5,7 @@
 package app
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 
@@ -44,7 +45,7 @@ func TestEmbeddedSchemaContractMapsToExecutableTree(t *testing.T) {
 			continue
 		}
 		for _, parameter := range definition.Parameters {
-			flag := command.Flags().Lookup(parameter.Name)
+			flag := schemaContractCommandFlag(command, parameter.Name)
 			if flag == nil {
 				t.Errorf("%s maps parameter %q to missing flag on %q", definition.CanonicalPath, parameter.Name, command.CommandPath())
 				continue
@@ -54,7 +55,7 @@ func TestEmbeddedSchemaContractMapsToExecutableTree(t *testing.T) {
 			}
 		}
 		for flagName, propertyName := range bindings[definition.CanonicalPath] {
-			flag := command.Flags().Lookup(flagName)
+			flag := schemaContractCommandFlag(command, flagName)
 			if flag == nil || flag.Hidden {
 				t.Errorf("%s binding --%s references a missing or hidden public flag", definition.CanonicalPath, flagName)
 				continue
@@ -68,6 +69,74 @@ func TestEmbeddedSchemaContractMapsToExecutableTree(t *testing.T) {
 			}
 			if !found {
 				t.Errorf("%s binding --%s -> %s is absent from generated Catalog", definition.CanonicalPath, flagName, propertyName)
+			}
+		}
+	}
+}
+
+func TestRuntimeSchemaParameterMetadataMapsToGeneratedCatalog(t *testing.T) {
+	root := NewRootCommand()
+	cli.AnnotateEmbeddedSchemaCommands(root)
+	allowed := map[string]bool{}
+	for _, definition := range cli.EmbeddedSchemaCommandDefinitions() {
+		allowed[definition.CanonicalPath] = true
+	}
+	snapshot, err := cli.BuildSchemaCatalogSnapshot(root, cli.SchemaCatalogBuildOptions{AllowedCanonicalPaths: allowed})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for canonicalPath, metadata := range cli.RuntimeSchemaParameterMetadataDefinitions() {
+		tool := snapshot.Tools[canonicalPath]
+		if tool == nil {
+			t.Errorf("parameter metadata references unknown tool %q", canonicalPath)
+			continue
+		}
+		parameters, _ := tool["parameters"].(map[string]any)
+		parameter := func(flagName string) map[string]any {
+			value, _ := parameters[flagName].(map[string]any)
+			if value == nil {
+				t.Errorf("%s parameter metadata references unknown flag --%s", canonicalPath, flagName)
+			}
+			return value
+		}
+		for _, flagName := range metadata.Inherited {
+			parameter(flagName)
+		}
+		for _, flagName := range metadata.Required {
+			if value := parameter(flagName); value != nil && value["required"] != true {
+				t.Errorf("%s --%s required = %#v", canonicalPath, flagName, value["required"])
+			}
+		}
+		for flagName, want := range metadata.RequiredWhen {
+			if value := parameter(flagName); value != nil && value["required_when"] != want {
+				t.Errorf("%s --%s required_when = %#v, want %q", canonicalPath, flagName, value["required_when"], want)
+			}
+		}
+		for flagName, want := range metadata.Formats {
+			if value := parameter(flagName); value != nil && value["format"] != want {
+				t.Errorf("%s --%s format = %#v, want %q", canonicalPath, flagName, value["format"], want)
+			}
+		}
+		for flagName, want := range metadata.Examples {
+			if value := parameter(flagName); value != nil && value["example"] != want {
+				t.Errorf("%s --%s example = %#v, want %q", canonicalPath, flagName, value["example"], want)
+			}
+		}
+		for flagName, want := range metadata.Enums {
+			if value := parameter(flagName); value != nil {
+				var gotStrings []string
+				switch got := value["enum"].(type) {
+				case []string:
+					gotStrings = append([]string(nil), got...)
+				case []any:
+					for _, item := range got {
+						gotStrings = append(gotStrings, item.(string))
+					}
+				}
+				if !reflect.DeepEqual(gotStrings, want) {
+					t.Errorf("%s --%s enum = %#v, want %#v", canonicalPath, flagName, gotStrings, want)
+				}
 			}
 		}
 	}
@@ -93,6 +162,21 @@ func schemaContractFlagDefault(flag *pflag.Flag) string {
 		}
 	}
 	return value
+}
+
+func schemaContractCommandFlag(command *cobra.Command, name string) *pflag.Flag {
+	if command == nil {
+		return nil
+	}
+	if flag := command.Flags().Lookup(name); flag != nil {
+		return flag
+	}
+	for current := command; current != nil; current = current.Parent() {
+		if flag := current.PersistentFlags().Lookup(name); flag != nil {
+			return flag
+		}
+	}
+	return nil
 }
 
 func TestChatSchemaSeparatesSendAndReply(t *testing.T) {

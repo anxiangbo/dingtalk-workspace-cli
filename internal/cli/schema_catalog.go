@@ -352,6 +352,7 @@ func AnnotateEmbeddedSchemaCommands(root *cobra.Command) EmbeddedSchemaAnnotatio
 		for _, parameter := range definition.Parameters {
 			parameterType := firstNonEmptySchemaString(parameter.InterfaceType, parameter.Type, "string")
 			AnnotateRuntimeFlag(cmd, parameter.Name, parameter.Property, parameterType, parameter.Required, parameter.Default)
+			AnnotateRuntimeFlagRequiredWhen(cmd, parameter.Name, parameter.RequiredWhen)
 			AnnotateRuntimeFlagFormat(cmd, parameter.Name, parameter.Format)
 			AnnotateRuntimeFlagEnum(cmd, parameter.Name, parameter.Enum...)
 		}

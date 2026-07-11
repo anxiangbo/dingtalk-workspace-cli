@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const schemaParameterBindingsVersion = 1
+const schemaParameterBindingsVersion = 2
 
 //go:embed schema_parameter_bindings.json
 var embeddedSchemaParameterBindingsJSON []byte
@@ -32,6 +32,7 @@ type schemaParameterBindingSnapshot struct {
 	HistoricalBindingCount int                          `json:"historical_binding_count"`
 	Migrations             map[string]string            `json:"migrations"`
 	Excluded               map[string]string            `json:"excluded"`
+	Added                  map[string]string            `json:"added"`
 	Bindings               map[string]map[string]string `json:"bindings"`
 }
 
