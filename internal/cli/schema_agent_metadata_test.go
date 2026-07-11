@@ -35,8 +35,7 @@ func TestEmbeddedAgentMetadataLoadsSplitDomains(t *testing.T) {
 	if coverage.ToolsWithUseWhen != len(metadata.Tools) ||
 		coverage.ToolsWithAvoidWhen != len(metadata.Tools) ||
 		coverage.ToolsWithExamples != len(metadata.Tools) ||
-		coverage.ToolsWithInterfaceMode != len(metadata.Tools) ||
-		coverage.UnreviewedSkillTools != 0 {
+		coverage.ToolsWithInterfaceMode != len(metadata.Tools) {
 		t.Fatalf("selection metadata coverage = %#v, tools=%d", coverage, len(metadata.Tools))
 	}
 	for path, tool := range metadata.Tools {

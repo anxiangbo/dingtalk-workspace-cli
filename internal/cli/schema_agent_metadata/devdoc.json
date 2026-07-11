@@ -1,90 +1,6 @@
 {
   "product_id": "devdoc",
   "tools": {
-    "devdoc article legacy-search": {
-      "agent_summary": "根据关键词搜索钉钉开放平台的开发文档，返回匹配的文档条目列表，包含标题、摘要、文档链接和相关标签。",
-      "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
-      "use_when": [
-        "根据关键词搜索钉钉开放平台的开发文档，返回匹配的文档条目列表，包含标题、摘要、文档链接和相关标签。"
-      ],
-      "avoid_when": [
-        "要“按关键词搜索 open.dingtalk.com 开放平台文档”请改用 dws devdoc article search",
-        "要“按关键词检索钉钉开放平台文档，只返回参考资料、参考资料链接和RA”请改用 dws devdoc article rag-pretest",
-        "要“根据关键词搜索钉钉开放平台的开发文档，返回匹配的文档条目列表，包”请改用 dws devdoc article legacy-search-open-platform"
-      ],
-      "effect": "read",
-      "effect_source": "command-verb",
-      "risk": "low",
-      "confirmation": "not_required",
-      "idempotency": "idempotent",
-      "examples": [
-        "dws devdoc article legacy-search \u003ckeyword\u003e --keyword \u003ckeyword\u003e"
-      ],
-      "reviewed": false,
-      "source_refs": [
-        "internal/cli/schema_mcp_metadata.json#tools.devdoc.search_dingtalk_open_docs",
-        "skills/mono/schema-hints/selection-review.json",
-        "skills/mono/schema-hints/sibling-disambiguation.json"
-      ],
-      "interface_mode": "mcp",
-      "availability": "available"
-    },
-    "devdoc article legacy-search-open-platform": {
-      "agent_summary": "根据关键词搜索钉钉开放平台的开发文档，返回匹配的文档条目列表，包含标题、摘要、文档链接和相关标签。",
-      "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
-      "use_when": [
-        "根据关键词搜索钉钉开放平台的开发文档，返回匹配的文档条目列表，包含标题、摘要、文档链接和相关标签。"
-      ],
-      "avoid_when": [
-        "要“按关键词搜索 open.dingtalk.com 开放平台文档”请改用 dws devdoc article search",
-        "要“按关键词检索钉钉开放平台文档，只返回参考资料、参考资料链接和RA”请改用 dws devdoc article rag-pretest",
-        "要“根据关键词搜索钉钉开放平台的开发文档，返回匹配的文档条目列表，包”请改用 dws devdoc article legacy-search"
-      ],
-      "effect": "read",
-      "effect_source": "command-verb",
-      "risk": "low",
-      "confirmation": "not_required",
-      "idempotency": "idempotent",
-      "examples": [
-        "dws devdoc article legacy-search-open-platform \u003ckeyword\u003e --keyword \u003ckeyword\u003e"
-      ],
-      "reviewed": false,
-      "source_refs": [
-        "internal/cli/schema_mcp_metadata.json#tools.devdoc.search_open_platform_docs",
-        "skills/mono/schema-hints/selection-review.json",
-        "skills/mono/schema-hints/sibling-disambiguation.json"
-      ],
-      "interface_mode": "mcp",
-      "availability": "available"
-    },
-    "devdoc article rag-pretest": {
-      "agent_summary": "按关键词检索钉钉开放平台文档，只返回参考资料、参考资料链接和RAG上下文，不生成AI分析答案。",
-      "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
-      "use_when": [
-        "按关键词检索钉钉开放平台文档，只返回参考资料、参考资料链接和RAG上下文，不生成AI分析答案。"
-      ],
-      "avoid_when": [
-        "要“按关键词搜索 open.dingtalk.com 开放平台文档”请改用 dws devdoc article search",
-        "要“根据关键词搜索钉钉开放平台的开发文档，返回匹配的文档条目列表，包”请改用 dws devdoc article legacy-search",
-        "要“根据关键词搜索钉钉开放平台的开发文档，返回匹配的文档条目列表，包”请改用 dws devdoc article legacy-search-open-platform"
-      ],
-      "effect": "read",
-      "effect_source": "command-verb",
-      "risk": "low",
-      "confirmation": "not_required",
-      "idempotency": "idempotent",
-      "examples": [
-        "dws devdoc article rag-pretest \u003ckeyword\u003e --keyword \u003ckeyword\u003e"
-      ],
-      "reviewed": false,
-      "source_refs": [
-        "internal/cli/schema_mcp_metadata.json#tools.devdoc.devdoc_rag_pretest",
-        "skills/mono/schema-hints/selection-review.json",
-        "skills/mono/schema-hints/sibling-disambiguation.json"
-      ],
-      "interface_mode": "mcp",
-      "availability": "available"
-    },
     "devdoc article search": {
       "agent_summary": "按关键词搜索 open.dingtalk.com 开放平台文档",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
@@ -120,31 +36,6 @@
         "product_id": "devdoc",
         "rpc_name": "search_open_platform_docs"
       },
-      "interface_mode": "mcp",
-      "availability": "available"
-    },
-    "devdoc error diagnose": {
-      "agent_summary": "按原始问题、requestId/traceId、错误码或错误描述排查钉钉开放平台调用错误；",
-      "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
-      "use_when": [
-        "按原始问题、requestId/traceId、错误码或错误描述排查钉钉开放平台调用错误；"
-      ],
-      "avoid_when": [
-        "需要创建、修改或删除数据时不要使用；本命令只用于“按原始问题、requestId/traceId、错误码或错误描述排查钉钉开放平台调用错误；”"
-      ],
-      "effect": "read",
-      "effect_source": "command-verb",
-      "risk": "low",
-      "confirmation": "not_required",
-      "idempotency": "idempotent",
-      "examples": [
-        "dws devdoc error diagnose --query \u003cquery\u003e"
-      ],
-      "reviewed": false,
-      "source_refs": [
-        "internal/cli/schema_mcp_metadata.json#tools.devdoc.search_open_error_code_rag",
-        "skills/mono/schema-hints/selection-review.json"
-      ],
       "interface_mode": "mcp",
       "availability": "available"
     }

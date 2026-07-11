@@ -14,7 +14,6 @@
 package main
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -26,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/app"
+	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/cli"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/generator/agentmetadata"
 )
 
@@ -294,19 +294,81 @@ func loadCommandSurface() (commandSurface, error) {
 
 func currentCommandSurfaceSnapshot() (commandSurfaceSnapshot, error) {
 	root := app.NewRootCommand()
-	var stdout, stderr bytes.Buffer
-	root.SetOut(&stdout)
-	root.SetErr(&stderr)
-	root.SetArgs([]string{"schema", "--all", "--format", "json"})
-	if err := root.Execute(); err != nil {
-		return commandSurfaceSnapshot{}, fmt.Errorf("execute dws schema --all: %w: %s", err, strings.TrimSpace(stderr.String()))
+	snapshot, err := cli.BuildSchemaCatalogSnapshot(root, cli.SchemaCatalogBuildOptions{})
+	if err != nil {
+		return commandSurfaceSnapshot{}, fmt.Errorf("build command surface from Cobra tree: %w", err)
 	}
-	var snapshot commandSurfaceSnapshot
-	if err := json.Unmarshal(stdout.Bytes(), &snapshot); err != nil {
-		return commandSurfaceSnapshot{}, fmt.Errorf("decode schema catalog: %w", err)
+	products := make([]commandSurfaceProduct, 0)
+	for _, rawProduct := range schemaMapSlice(snapshot.Catalog["products"]) {
+		productID := strings.TrimSpace(schemaString(rawProduct["id"]))
+		if productID == "" {
+			continue
+		}
+		product := commandSurfaceProduct{ID: productID}
+		for _, rawTool := range schemaMapSlice(rawProduct["tools"]) {
+			cliPath := strings.TrimSpace(schemaString(rawTool["cli_path"]))
+			if cliPath == "" {
+				continue
+			}
+			aliases := schemaStringSlice(rawTool["aliases"])
+			product.Tools = append(product.Tools, commandSurfaceTool{
+				CanonicalPath:   strings.TrimSpace(schemaString(rawTool["canonical_path"])),
+				SourceProductID: strings.TrimSpace(schemaString(rawTool["source_product_id"])),
+				CLIPath:         cliPath,
+				Aliases:         aliases,
+			})
+		}
+		products = append(products, product)
 	}
-	snapshot.Version = commandSurfaceSnapshotVersion
-	return normalizeCommandSurfaceSnapshot(snapshot), nil
+	return normalizeCommandSurfaceSnapshot(commandSurfaceSnapshot{Version: commandSurfaceSnapshotVersion, Products: products}), nil
+}
+
+func schemaMapSlice(value any) []map[string]any {
+	items, ok := value.([]map[string]any)
+	if ok {
+		return items
+	}
+	anyItems, ok := value.([]any)
+	if !ok {
+		return nil
+	}
+	out := make([]map[string]any, 0, len(anyItems))
+	for _, item := range anyItems {
+		if mapped, ok := item.(map[string]any); ok {
+			out = append(out, mapped)
+		}
+	}
+	return out
+}
+
+func schemaString(value any) string {
+	if value == nil {
+		return ""
+	}
+	if s, ok := value.(string); ok {
+		return s
+	}
+	return fmt.Sprint(value)
+}
+
+func schemaStringSlice(value any) []string {
+	if value == nil {
+		return nil
+	}
+	if items, ok := value.([]string); ok {
+		return append([]string(nil), items...)
+	}
+	anyItems, ok := value.([]any)
+	if !ok {
+		return nil
+	}
+	out := make([]string, 0, len(anyItems))
+	for _, item := range anyItems {
+		if s := strings.TrimSpace(schemaString(item)); s != "" {
+			out = append(out, s)
+		}
+	}
+	return out
 }
 
 func loadCommandSurfaceSnapshot(path string) (commandSurface, error) {

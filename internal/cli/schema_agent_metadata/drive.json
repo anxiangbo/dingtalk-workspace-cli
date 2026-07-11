@@ -436,6 +436,170 @@
       "interface_mode": "mcp",
       "availability": "available"
     },
+    "drive publish get": {
+      "agent_summary": "查询文件当前是否处于互联网公开发布状态，以及公开发布的权限设置",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "查看公开状态/是否公开/发布状态"
+      ],
+      "avoid_when": [
+        "不需要查询文件当前是否处于互联网公开发布状态，以及公开发布的权限设置时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws drive publish get --node \u003cfileId\u003e",
+        "dws drive publish get --node \u003cdentryUuid\u003e"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/drive.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "drive publish set": {
+      "agent_summary": "[危险] 将文件设置为互联网公开发布",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "公开文件/互联网公开/设置公开/让互联网所有人可访问"
+      ],
+      "avoid_when": [
+        "不需要[危险] 将文件设置为互联网公开发布时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws drive publish set --node \u003cfileId\u003e [--permission READER|DOWNLOADER|EDITOR]",
+        "dws drive publish set --node \u003cdentryUuid\u003e"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/drive.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "drive publish unset": {
+      "agent_summary": "[危险] 关闭文件的互联网公开发布",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "关闭公开/取消公开/取消互联网访问"
+      ],
+      "avoid_when": [
+        "不需要[危险] 关闭文件的互联网公开发布时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws drive publish unset --node \u003cfileId\u003e",
+        "dws drive publish unset --node \u003cdentryUuid\u003e"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/drive.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "drive recent": {
+      "agent_summary": "获取当前用户最近访问或编辑过的文档列表",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "最近访问/最近打开/最近编辑/最近文档"
+      ],
+      "avoid_when": [
+        "不需要获取当前用户最近访问或编辑过的文档列表时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws drive recent",
+        "dws drive recent --operate-type 1"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/drive.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "drive recycle list": {
+      "agent_summary": "查看回收站文件列表",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "8. 查看回收站并还原文件",
+        "回收站/查看回收站/回收站列表/回收站里有什么"
+      ],
+      "avoid_when": [
+        "不需要查看回收站文件列表时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws drive recycle list",
+        "dws drive recycle list --space-id 12345 --limit 10"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/drive.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "drive recycle restore": {
+      "agent_summary": "还原回收站中的文件",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "8. 查看回收站并还原文件",
+        "恢复文件/还原删除的文件/从回收站恢复/还原回收站文件"
+      ],
+      "avoid_when": [
+        "不需要还原回收站中的文件时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws drive recycle restore --id \u003crecycleItemId\u003e",
+        "dws drive recycle restore --id \u003crecycleItemId\u003e --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/drive.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
     "drive rename": {
       "agent_summary": "对指定节点进行重命名。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",

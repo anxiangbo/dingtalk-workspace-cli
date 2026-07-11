@@ -61,6 +61,145 @@
       "interface_mode": "mcp",
       "availability": "available"
     },
+    "sheet batch-update": {
+      "agent_summary": "将多个写操作打包为一次原子请求执行",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "批量操作/一次执行多个写操作/原子批量/先清除再写入；多个写操作打包"
+      ],
+      "avoid_when": [
+        "不需要将多个写操作打包为一次原子请求执行时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws sheet batch-update --node \u003cNODE_ID\u003e --operations '[",
+        "dws sheet batch-update --node \u003cNODE_ID\u003e --continue-on-error --operations '[...]'"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/sheet/sheet-batch-operations.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "sheet chart create": {
+      "agent_summary": "在钉钉电子表格的指定工作表中创建一个浮动图表",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "3. 创建柱形图",
+        "创建折线图",
+        "创建柱形图"
+      ],
+      "avoid_when": [
+        "不需要在钉钉电子表格的指定工作表中创建一个浮动图表时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws sheet chart create --node NODE_ID --sheet-id SHEET_ID --properties '{",
+        "dws sheet chart create --node \u003cNODE_ID\u003e --sheet-id \u003cSHEET_ID\u003e --properties '{"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/sheet/sheet-chart.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "sheet chart delete": {
+      "agent_summary": "删除钉钉电子表格中指定的浮动图表",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "删除钉钉电子表格中指定的浮动图表"
+      ],
+      "avoid_when": [
+        "不需要删除钉钉电子表格中指定的浮动图表时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws sheet chart delete --node NODE_ID --sheet-id SHEET_ID --chart-id CHART_ID"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/sheet/sheet-chart.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "sheet chart list": {
+      "agent_summary": "获取钉钉电子表格指定工作表中的浮动图表",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "1. 获取现有配置",
+        "4. 验证创建结果",
+        "列出所有浮动图表",
+        "获取单个图表详情"
+      ],
+      "avoid_when": [
+        "不需要获取钉钉电子表格指定工作表中的浮动图表时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws sheet chart list --node NODE_ID --sheet-id SHEET_ID",
+        "dws sheet chart list --node NODE_ID --sheet-id SHEET_ID --chart-id CHART_ID"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/sheet/sheet-chart.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "sheet chart update": {
+      "agent_summary": "更新钉钉电子表格中指定浮动图表的配置",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "3. 整体回写"
+      ],
+      "avoid_when": [
+        "不需要更新钉钉电子表格中指定浮动图表的配置时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws sheet chart update --node NODE_ID --sheet-id SHEET_ID --chart-id CHART_ID --properties '{",
+        "dws sheet chart update --node \u003cNODE_ID\u003e --sheet-id \u003cSHEET_ID\u003e --chart-id \u003cCHART_ID\u003e --properties '\u003c完整修改后的 JSON\u003e'"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/sheet/sheet-chart.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
     "sheet cond-format create": {
       "agent_summary": "在指定工作表中创建一条条件格式规则。",
       "agent_summary_source": "mcp-tools-list+cli-registry@4574f7022c32",
@@ -1142,6 +1281,36 @@
       "interface_mode": "mcp",
       "availability": "available"
     },
+    "sheet group-dimension": {
+      "agent_summary": "对钉钉表格指定工作表中的连续整行或整列创建分组",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "创建行分组/创建列分组/折叠几行/折叠几列/取消行列分组；创建分组",
+        "创建行分组/创建列分组/折叠几行/折叠几列/展开行列分组/取消行列分组；创建分组",
+        "创建行分组/创建列分组/折叠几行/折叠几列/展开行列分组/取消行列分组；创建并折叠"
+      ],
+      "avoid_when": [
+        "不需要对钉钉表格指定工作表中的连续整行或整列创建分组时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws sheet group-dimension --node \u003cNODE_ID\u003e --sheet-id \u003cSHEET_ID\u003e --range \"3:7\"",
+        "dws sheet group-dimension --node \u003cNODE_ID\u003e --sheet-id \u003cSHEET_ID\u003e --range \"C:F\" --group-state fold"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/sheet.md",
+        "skills/mono/references/products/sheet/sheet-dimension-operations.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
     "sheet info": {
       "agent_summary": "获取指定工作表详情",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
@@ -1427,6 +1596,33 @@
       },
       "interface_mode": "mcp",
       "availability": "available"
+    },
+    "sheet range batch-clear": {
+      "agent_summary": "批量清除多个区域，一次原子请求",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "批量清除/一次清除多个区域/清空多个 sheet 的数据；批量清除多个区域"
+      ],
+      "avoid_when": [
+        "不需要批量清除多个区域，一次原子请求时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws sheet range batch-clear --node \u003cNODE_ID\u003e --ranges '[\"Sheet1!A1:B3\",\"Sheet2!C1:D5\"]'",
+        "dws sheet range batch-clear --node \u003cNODE_ID\u003e --ranges '[\"Sheet1!A1:Z1000\"]' --type all"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/sheet/sheet-batch-operations.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
     },
     "sheet range batch-set-style": {
       "agent_summary": "对于一个钉钉在线表格，更新指定区域内单元格信息，包括单元格中的值、超链接、数字格式等内容。",
@@ -1842,6 +2038,110 @@
       ],
       "interface_mode": "mcp",
       "availability": "available"
+    },
+    "sheet template apply": {
+      "agent_summary": "使用指定模板创建新表格文档",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "使用指定模板创建新表格文档"
+      ],
+      "avoid_when": [
+        "不需要使用指定模板创建新表格文档时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws sheet template apply --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "sheet template list": {
+      "agent_summary": "获取当前用户可用的表格模板列表，支持按来源筛选",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "获取当前用户可用的表格模板列表，支持按来源筛选"
+      ],
+      "avoid_when": [
+        "不需要获取当前用户可用的表格模板列表，支持按来源筛选时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws sheet template list --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "sheet template search": {
+      "agent_summary": "根据关键词搜索表格模板",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "根据关键词搜索表格模板"
+      ],
+      "avoid_when": [
+        "不需要根据关键词搜索表格模板时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws sheet template search --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "sheet ungroup-dimension": {
+      "agent_summary": "取消钉钉表格指定工作表中的连续整行或整列分组",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "创建行分组/创建列分组/折叠几行/折叠几列/取消行列分组；取消分组",
+        "创建行分组/创建列分组/折叠几行/折叠几列/展开行列分组/取消行列分组；取消分组"
+      ],
+      "avoid_when": [
+        "不需要取消钉钉表格指定工作表中的连续整行或整列分组时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws sheet ungroup-dimension --node \u003cNODE_ID\u003e --sheet-id \u003cSHEET_ID\u003e --range \"3:7\"",
+        "dws sheet ungroup-dimension --node \u003cNODE_ID\u003e --sheet-id \u003cSHEET_ID\u003e --range \"C:F\""
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/sheet.md",
+        "skills/mono/references/products/sheet/sheet-dimension-operations.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
     },
     "sheet unmerge-cells": {
       "agent_summary": "取消钉钉表格指定工作表中指定范围内的合并单元格。",

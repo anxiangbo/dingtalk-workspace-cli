@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "source_catalog_hash": "sha256:6dc63141d35119ff6095d189ef9d8994cd35162ecf9fff9ad23b2ab68e4e2b7f",
+  "source_catalog_hash": "sha256:b207f3f9977e948b2d1fcf30e81b24d06571344e17de3ca2ac8cfdc7465ef772",
   "historical_binding_count": 311,
   "migrations": {
     "contact.get_dept_info_by_dept_id --id": "contact.get_dept_info_by_dept_id --dept",
@@ -175,9 +175,6 @@
     "chat.get_group_invite_url": {
       "group": "openConversationId"
     },
-    "chat.get_group_members": {
-      "id": "openconversation_id"
-    },
     "chat.list_conversation_message_v2": {
       "group": "openconversation_id"
     },
@@ -327,9 +324,6 @@
     },
     "chat.update_streaming_card": {
       "content": "msgContent"
-    },
-    "conference.ai_share_desktop": {
-      "capture-speaker": "capture_speaker"
     },
     "contact.get_authorized_emp_rosterInfo": {
       "fields": "fieldCodeList"

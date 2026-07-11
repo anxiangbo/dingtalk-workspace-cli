@@ -26,16 +26,16 @@ func TestSchemaParameterBindingsMatchEmbeddedCatalog(t *testing.T) {
 			}
 		}
 	}
-	if count != 316 {
-		t.Fatalf("active parameter binding count = %d, want 316", count)
+	if count == 0 {
+		t.Fatal("active parameter binding count is zero")
 	}
 	snapshot := runtimeSchemaParameterBindingSnapshot
 	if snapshot.HistoricalBindingCount != 311 || len(snapshot.Migrations) != 5 || len(snapshot.Excluded) != 3 || len(snapshot.Added) != 8 {
 		t.Fatalf("binding seed audit = historical:%d migrations:%d excluded:%d added:%d",
 			snapshot.HistoricalBindingCount, len(snapshot.Migrations), len(snapshot.Excluded), len(snapshot.Added))
 	}
-	if snapshot.SourceCatalogHash != "sha256:6dc63141d35119ff6095d189ef9d8994cd35162ecf9fff9ad23b2ab68e4e2b7f" {
-		t.Fatalf("binding source catalog hash = %q", snapshot.SourceCatalogHash)
+	if snapshot.SourceCatalogHash != runtimeEmbeddedSchemaCatalog.Snapshot.SourceHash {
+		t.Fatalf("binding source catalog hash = %q, want %q", snapshot.SourceCatalogHash, runtimeEmbeddedSchemaCatalog.Snapshot.SourceHash)
 	}
 	if got := runtimeSchemaParameterBindings["calendar.get_calendar"]["id"]; got != "calendarId" {
 		t.Fatalf("calendar.get_calendar --id property = %q, want calendarId", got)

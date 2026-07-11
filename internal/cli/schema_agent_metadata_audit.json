@@ -1,35 +1,43 @@
 {
   "version": 1,
-  "source_hash": "sha256:baf516536a280732546575173592b5ff1576fe4c81a843e26ee6e182c448100c",
-  "surface_hash": "sha256:c0a9b75b4e38934db73f4ce1d337b4c64aa5e541257dd9e84c4947da9c9ab664",
-  "source_files": 97,
-  "hint_files": 9,
+  "source_hash": "sha256:2b64df8c64d71e74b91a0e43b7b48d490a33e8831d620fc400ae8b0ed8253bf7",
+  "surface_hash": "sha256:7fb8d999c27622a1a0ea39074d7b375f7686964d77eebeb4be30e616311ab86d",
+  "source_files": 99,
+  "hint_files": 11,
   "hint_products": 21,
-  "hint_tools": 1320,
+  "hint_tools": 1395,
   "interface_metadata": {
     "source": "mcp-tools-list+cli-registry",
     "revision": "4574f7022c32cf4c033e9b7b4156e2fec815fed8",
     "source_hash": "sha256:17251f74a4f76142457cc0e87251ecb86c1e3bda0cdf2edc02f351589716ecbc",
     "source_tools": 419,
-    "surface_tools": 419,
-    "eligible_summaries": 418,
-    "applied_summaries": 253,
-    "preserved_summaries": 165,
+    "surface_tools": 414,
+    "eligible_summaries": 413,
+    "applied_summaries": 249,
+    "preserved_summaries": 164,
     "rejected_tools": [
       "chat.unread_message_conversation_list"
+    ],
+    "outside_surface": [
+      "chat.get_group_members",
+      "devdoc.devdoc_rag_pretest",
+      "devdoc.search_dingtalk_open_docs",
+      "devdoc.search_open_error_code_rag",
+      "devdoc.search_open_platform_docs"
     ]
   },
   "coverage": {
-    "surface_products": 21,
-    "products_with_metadata": 21,
-    "surface_tools": 504,
-    "tools_with_metadata": 504,
-    "tools_with_agent_summary": 504,
-    "tools_with_use_when": 504,
-    "tools_with_avoid_when": 504,
-    "tools_with_examples": 504,
-    "tools_with_interface_mode": 504,
-    "unmatched_skill_tools": 182
+    "surface_products": 20,
+    "products_with_metadata": 20,
+    "surface_tools": 537,
+    "tools_with_metadata": 537,
+    "tools_with_agent_summary": 537,
+    "tools_with_use_when": 537,
+    "tools_with_avoid_when": 537,
+    "tools_with_examples": 537,
+    "tools_with_interface_mode": 537,
+    "unmatched_skill_tools": 163,
+    "unreviewed_skill_tools": 40
   },
   "source_products": [
     "agoal",
@@ -65,6 +73,7 @@
   "skill_products_outside_surface": [
     "agoal",
     "aiapp",
+    "conference",
     "event",
     "extension",
     "generate-topic-report",
@@ -73,6 +82,120 @@
     "write-doc"
   ],
   "unmatched_references": [
+    {
+      "tool_path": "chat.get_group_members"
+    },
+    {
+      "tool_path": "conference.ai_close_camera"
+    },
+    {
+      "tool_path": "conference.ai_close_simultaneous_interpretation"
+    },
+    {
+      "tool_path": "conference.ai_close_subtitle"
+    },
+    {
+      "tool_path": "conference.ai_close_transcript"
+    },
+    {
+      "tool_path": "conference.ai_end_meeting_for_all"
+    },
+    {
+      "tool_path": "conference.ai_leave_myself"
+    },
+    {
+      "tool_path": "conference.ai_mute_all"
+    },
+    {
+      "tool_path": "conference.ai_mute_mic"
+    },
+    {
+      "tool_path": "conference.ai_one_click_call"
+    },
+    {
+      "tool_path": "conference.ai_open_annotation"
+    },
+    {
+      "tool_path": "conference.ai_open_beauty_setting_page"
+    },
+    {
+      "tool_path": "conference.ai_open_camera"
+    },
+    {
+      "tool_path": "conference.ai_open_interactive_panel"
+    },
+    {
+      "tool_path": "conference.ai_open_invite_member_panel"
+    },
+    {
+      "tool_path": "conference.ai_open_security_menu"
+    },
+    {
+      "tool_path": "conference.ai_open_share_panel"
+    },
+    {
+      "tool_path": "conference.ai_open_simultaneous_interpretation"
+    },
+    {
+      "tool_path": "conference.ai_open_subtitle"
+    },
+    {
+      "tool_path": "conference.ai_open_transcript"
+    },
+    {
+      "tool_path": "conference.ai_open_virtual_background_setting_page"
+    },
+    {
+      "tool_path": "conference.ai_request_record"
+    },
+    {
+      "tool_path": "conference.ai_share_desktop"
+    },
+    {
+      "tool_path": "conference.ai_start_cloud_record"
+    },
+    {
+      "tool_path": "conference.ai_stop_cloud_record"
+    },
+    {
+      "tool_path": "conference.ai_stop_share"
+    },
+    {
+      "tool_path": "conference.ai_switch_gallery_view"
+    },
+    {
+      "tool_path": "conference.ai_switch_speaker_view"
+    },
+    {
+      "tool_path": "conference.ai_switch_standard_view"
+    },
+    {
+      "tool_path": "conference.ai_take_group_photo"
+    },
+    {
+      "tool_path": "conference.ai_unmute_mic"
+    },
+    {
+      "tool_path": "conference.create_conference"
+    },
+    {
+      "tool_path": "conference.get_conference_id"
+    },
+    {
+      "tool_path": "conference.get_conference_status"
+    },
+    {
+      "tool_path": "devdoc.devdoc_rag_pretest"
+    },
+    {
+      "tool_path": "devdoc.search_dingtalk_open_docs"
+    },
+    {
+      "tool_path": "devdoc.search_open_error_code_rag"
+    },
+    {
+      "tool_path": "devdoc.search_open_platform_docs"
+    },
     {
       "tool_path": "doc",
       "candidates": [
@@ -114,7 +237,7 @@
       "candidates": [
         "sheet add-dimension",
         "sheet append",
-        "sheet cond-format create"
+        "sheet batch-update"
       ],
       "review": {
         "status": "group",
@@ -132,6 +255,16 @@
         "status": "group",
         "reason": "Skill 中的命令分组引用，不是可执行 leaf，禁止模糊绑定到任一子命令"
       }
+    },
+    {
+      "tool_path": "calendar participant delete",
+      "source": "skills/mono/SKILL.md",
+      "line": 97,
+      "candidates": [
+        "calendar attendee delete",
+        "calendar event delete",
+        "calendar room delete"
+      ]
     },
     {
       "tool_path": "doc copy + doc rename + doc block update",
@@ -336,7 +469,7 @@
       "candidates": [
         "chat group members add",
         "chat group members add-bot",
-        "chat group members list"
+        "chat group members remove"
       ],
       "review": {
         "status": "group",
@@ -350,7 +483,7 @@
       "candidates": [
         "chat group members add",
         "chat group members add-bot",
-        "chat group members list"
+        "chat group members remove"
       ],
       "review": {
         "status": "group",
@@ -613,23 +746,9 @@
       "source": "skills/mono/references/intent-guide.md",
       "line": 117,
       "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance approve list",
-      "source": "skills/mono/references/intent-guide.md",
-      "line": 117,
-      "candidates": [
-        "attendance shift list",
-        "attendance record get",
-        "attendance rules"
+        "attendance approve list",
+        "attendance approve templates",
+        "attendance adjustment get"
       ],
       "review": {
         "status": "stale",
@@ -643,7 +762,7 @@
       "candidates": [
         "aitable base list",
         "aitable field list",
-        "aitable list"
+        "aitable form field list"
       ],
       "review": {
         "status": "out_of_surface",
@@ -683,7 +802,7 @@
       "candidates": [
         "aitable base list",
         "aitable field list",
-        "aitable list"
+        "aitable form field list"
       ],
       "review": {
         "status": "out_of_surface",
@@ -791,7 +910,7 @@
       "candidates": [
         "aitable base list",
         "aitable field list",
-        "aitable list"
+        "aitable form field list"
       ],
       "review": {
         "status": "out_of_surface",
@@ -841,7 +960,7 @@
       "candidates": [
         "aitable base list",
         "aitable field list",
-        "aitable list"
+        "aitable form field list"
       ],
       "review": {
         "status": "out_of_surface",
@@ -881,7 +1000,7 @@
       "candidates": [
         "aitable base list",
         "aitable field list",
-        "aitable list"
+        "aitable form field list"
       ],
       "review": {
         "status": "out_of_surface",
@@ -1025,7 +1144,7 @@
       "candidates": [
         "aitable base list",
         "aitable field list",
-        "aitable list"
+        "aitable form field list"
       ],
       "review": {
         "status": "out_of_surface",
@@ -1039,7 +1158,7 @@
       "candidates": [
         "aitable base list",
         "aitable field list",
-        "aitable list"
+        "aitable form field list"
       ],
       "review": {
         "status": "out_of_surface",
@@ -1062,146 +1181,6 @@
       "review": {
         "status": "out_of_surface",
         "reason": "该产品不在当前 21 产品公开命令面中"
-      }
-    },
-    {
-      "tool_path": "aitable form list",
-      "source": "skills/mono/references/products/aitable/aitable-form.md",
-      "line": 24,
-      "candidates": [
-        "aitable base list",
-        "aitable field list",
-        "aitable list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "aitable form get",
-      "source": "skills/mono/references/products/aitable/aitable-form.md",
-      "line": 27,
-      "candidates": [
-        "aitable base get",
-        "aitable chart get",
-        "aitable chart share get"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "aitable form field list",
-      "source": "skills/mono/references/products/aitable/aitable-form.md",
-      "line": 30,
-      "candidates": [
-        "aitable field list",
-        "aitable base list",
-        "aitable list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "aitable form share get",
-      "source": "skills/mono/references/products/aitable/aitable-form.md",
-      "line": 33,
-      "candidates": [
-        "aitable chart share get",
-        "aitable dashboard share get",
-        "aitable base get"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "aitable form create",
-      "source": "skills/mono/references/products/aitable/aitable-form.md",
-      "line": 93,
-      "candidates": [
-        "aitable base create",
-        "aitable chart create",
-        "aitable create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "aitable form questions create",
-      "source": "skills/mono/references/products/aitable/aitable-form.md",
-      "line": 96,
-      "candidates": [
-        "aitable base create",
-        "aitable chart create",
-        "aitable create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "aitable form update",
-      "source": "skills/mono/references/products/aitable/aitable-form.md",
-      "line": 100,
-      "candidates": [
-        "aitable base update",
-        "aitable chart share update",
-        "aitable chart update"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "aitable form field update",
-      "source": "skills/mono/references/products/aitable/aitable-form.md",
-      "line": 104,
-      "candidates": [
-        "aitable field update",
-        "aitable base update",
-        "aitable chart share update"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "aitable form field hide",
-      "source": "skills/mono/references/products/aitable/aitable-form.md",
-      "line": 108,
-      "candidates": [
-        "aitable field create",
-        "aitable field delete",
-        "aitable field get"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "aitable form share update",
-      "source": "skills/mono/references/products/aitable/aitable-form.md",
-      "line": 112,
-      "candidates": [
-        "aitable chart share update",
-        "aitable dashboard share update",
-        "aitable base update"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
       }
     },
     {
@@ -1219,1091 +1198,13 @@
       }
     },
     {
-      "tool_path": "attendance group get",
-      "source": "skills/mono/references/products/attendance-schedule.md",
-      "line": 125,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group get",
-      "source": "skills/mono/references/products/attendance-schedule.md",
-      "line": 209,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group search",
-      "source": "skills/mono/references/products/attendance-schedule.md",
-      "line": 214,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group filtered-get",
-      "source": "skills/mono/references/products/attendance-schedule.md",
-      "line": 238,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group search",
-      "source": "skills/mono/references/products/attendance-schedule.md",
-      "line": 445,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group get",
-      "source": "skills/mono/references/products/attendance-schedule.md",
-      "line": 447,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group get",
-      "source": "skills/mono/references/products/attendance-schedule.md",
-      "line": 472,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group get",
-      "source": "skills/mono/references/products/attendance-schedule.md",
-      "line": 492,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group search",
-      "source": "skills/mono/references/products/attendance-schedule.md",
-      "line": 568,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group filtered-get",
-      "source": "skills/mono/references/products/attendance-schedule.md",
-      "line": 569,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance check result",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 67,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance check record",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 83,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance approve list",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 110,
-      "candidates": [
-        "attendance shift list",
-        "attendance record get",
-        "attendance rules"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance approve list",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 111,
-      "candidates": [
-        "attendance shift list",
-        "attendance record get",
-        "attendance rules"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance approve list",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 112,
-      "candidates": [
-        "attendance shift list",
-        "attendance record get",
-        "attendance rules"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance approve templates",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 135,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance approve templates",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 136,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance approve templates",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 137,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance approve templates",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 138,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance approve templates",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 139,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance schedule import",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 158,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance class search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 213,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance class search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 214,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance class search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 215,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance class get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 228,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance class create",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 246,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance class update",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 275,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance class update",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 276,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance adjustment search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 302,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance adjustment search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 303,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance adjustment get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 315,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance overtime search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 327,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance overtime search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 328,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance overtime get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 340,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 352,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 353,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 354,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 369,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group filtered-get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 382,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group filtered-get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 383,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group update-members",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 407,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group update-members",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 408,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group update-members",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 409,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group update",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 433,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group update",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 434,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group update",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 435,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group update",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 436,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group create",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 473,
-      "candidates": [
-        "chat group create",
-        "attendance record get",
-        "attendance rules"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group create",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 474,
-      "candidates": [
-        "chat group create",
-        "attendance record get",
-        "attendance rules"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance selfsetting get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 624,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance selfsetting get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 625,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance selfsetting save",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 664,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance selfsetting save",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 666,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance selfsetting save",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 668,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance globalsetting get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 742,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance globalsetting get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 743,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance globalsetting save",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 772,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance globalsetting save",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 773,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance globalsetting save",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 774,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance report columns",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 808,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance report columns",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 810,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance report query-data",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 820,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance report query-leave",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 836,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation types",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 850,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation types",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 852,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation balance",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 864,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation records",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 879,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation update-type",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 903,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation update-type",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 906,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation update-type",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 909,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation save-balance",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 996,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation save-balance",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1000,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance checkin records",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1021,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance check record",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1035,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance check result",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1036,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance check record",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1037,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance approve list",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1038,
-      "candidates": [
-        "attendance shift list",
-        "attendance record get",
-        "attendance rules"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
       "tool_path": "attendance read_file",
       "source": "skills/mono/references/products/attendance.md",
       "line": 1039,
       "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
+        "attendance adjustment get",
+        "attendance adjustment search",
+        "attendance approve list"
       ],
       "review": {
         "status": "stale",
@@ -2315,289 +1216,9 @@
       "source": "skills/mono/references/products/attendance.md",
       "line": 1043,
       "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance class search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1048,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance class search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1049,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance class update",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1050,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance adjustment search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1051,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance adjustment search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1052,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance overtime search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1053,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance overtime search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1054,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1055,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1056,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group filtered-get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1057,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group update-members",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1058,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group update",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1059,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group create",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1060,
-      "candidates": [
-        "chat group create",
-        "attendance record get",
-        "attendance rules"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance selfsetting get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1063,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance selfsetting save",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1064,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance report columns",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1065,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance report query-data",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1066,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance report query-leave",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1073,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation types",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1074,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation balance",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1075,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
+        "attendance adjustment get",
+        "attendance adjustment search",
+        "attendance approve list"
       ],
       "review": {
         "status": "stale",
@@ -2609,723 +1230,9 @@
       "source": "skills/mono/references/products/attendance.md",
       "line": 1076,
       "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation records",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1077,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation update-type",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1078,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation balance",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1079,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation balance",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1080,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance checkin records",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1081,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance schedule import",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1087,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance class search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1095,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance class search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1096,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance class get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1099,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance class update",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1102,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance class update",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1103,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance adjustment search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1106,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance adjustment search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1107,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance adjustment get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1110,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance overtime search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1113,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance overtime get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1116,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1119,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group search",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1120,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1123,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group filtered-get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1126,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group filtered-get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1127,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group update-members",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1130,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group update-members",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1131,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group update-members",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1132,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group update",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1135,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group update",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1136,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group update",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1137,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group create",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1140,
-      "candidates": [
-        "chat group create",
-        "attendance record get",
-        "attendance rules"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance group create",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1141,
-      "candidates": [
-        "chat group create",
-        "attendance record get",
-        "attendance rules"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance selfsetting get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1150,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance selfsetting get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1153,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance selfsetting save",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1156,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance selfsetting save",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1159,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance report columns",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1163,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance report query-data",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1166,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance report query-leave",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1170,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation types",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1174,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation balance",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1177,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation balance",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1180,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation records",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1183,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation update-type",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1186,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation update-type",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1190,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation update-type",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1194,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation balance",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1199,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation save-balance",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1205,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation balance",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1211,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance vacation save-balance",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1217,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance checkin records",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1222,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance schedule get",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1328,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance boss-check",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1332,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "attendance boss-check",
-      "source": "skills/mono/references/products/attendance.md",
-      "line": 1335,
-      "candidates": [
-        "attendance record get",
-        "attendance rules",
-        "attendance shift list"
+        "attendance adjustment get",
+        "attendance adjustment search",
+        "attendance approve list"
       ],
       "review": {
         "status": "stale",
@@ -3451,7 +1358,7 @@
       "candidates": [
         "chat group members add",
         "chat group members add-bot",
-        "chat group members list"
+        "chat group members remove"
       ],
       "review": {
         "status": "group",
@@ -3617,9 +1524,9 @@
       "source": "skills/mono/references/products/chat.md",
       "line": 344,
       "candidates": [
-        "chat group members list",
         "chat category list",
-        "chat group-role list"
+        "chat group-role list",
+        "chat message list"
       ],
       "review": {
         "status": "stale",
@@ -3631,9 +1538,9 @@
       "source": "skills/mono/references/products/chat.md",
       "line": 345,
       "candidates": [
-        "chat group members list",
         "chat category list",
-        "chat group-role list"
+        "chat group-role list",
+        "chat message list"
       ],
       "review": {
         "status": "stale",
@@ -3645,9 +1552,9 @@
       "source": "skills/mono/references/products/chat.md",
       "line": 346,
       "candidates": [
-        "chat group members list",
         "chat category list",
-        "chat group-role list"
+        "chat group-role list",
+        "chat message list"
       ],
       "review": {
         "status": "stale",
@@ -4263,7 +2170,7 @@
       "candidates": [
         "chat group members add",
         "chat group members add-bot",
-        "chat group members list"
+        "chat group members remove"
       ],
       "review": {
         "status": "group",
@@ -4761,6 +2668,16 @@
       }
     },
     {
+      "tool_path": "dev app version check-approval",
+      "source": "skills/mono/references/products/dev.md",
+      "line": 30,
+      "candidates": [
+        "dev app version create",
+        "dev app version get",
+        "dev app version list"
+      ]
+    },
+    {
       "tool_path": "dev connect",
       "source": "skills/mono/references/products/dev.md",
       "line": 36,
@@ -4843,6 +2760,16 @@
         "status": "group",
         "reason": "Skill 中的命令分组引用，不是可执行 leaf，禁止模糊绑定到任一子命令"
       }
+    },
+    {
+      "tool_path": "dev app version check-approval",
+      "source": "skills/mono/references/products/dev.md",
+      "line": 199,
+      "candidates": [
+        "dev app version create",
+        "dev app version get",
+        "dev app version list"
+      ]
     },
     {
       "tool_path": "ding message list",
@@ -4959,9 +2886,9 @@
       "source": "skills/mono/references/products/doc.md",
       "line": 143,
       "candidates": [
+        "doc import get",
         "doc block delete",
-        "doc block insert",
-        "doc block list"
+        "doc block insert"
       ],
       "review": {
         "status": "stale",
@@ -4973,9 +2900,9 @@
       "source": "skills/mono/references/products/doc.md",
       "line": 144,
       "candidates": [
+        "doc import get",
         "doc block delete",
-        "doc block insert",
-        "doc block list"
+        "doc block insert"
       ],
       "review": {
         "status": "stale",
@@ -4987,21 +2914,7 @@
       "source": "skills/mono/references/products/doc.md",
       "line": 145,
       "candidates": [
-        "doc block delete",
-        "doc block insert",
-        "doc block list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "doc import get",
-      "source": "skills/mono/references/products/doc.md",
-      "line": 146,
-      "candidates": [
-        "doc export get",
+        "doc import get",
         "doc block delete",
         "doc block insert"
       ],
@@ -5015,9 +2928,9 @@
       "source": "skills/mono/references/products/doc.md",
       "line": 643,
       "candidates": [
+        "doc import get",
         "doc block delete",
-        "doc block insert",
-        "doc block list"
+        "doc block insert"
       ],
       "review": {
         "status": "stale",
@@ -5029,9 +2942,9 @@
       "source": "skills/mono/references/products/doc.md",
       "line": 801,
       "candidates": [
+        "doc import get",
         "doc block delete",
-        "doc block insert",
-        "doc block list"
+        "doc block insert"
       ],
       "review": {
         "status": "stale",
@@ -5043,9 +2956,9 @@
       "source": "skills/mono/references/products/doc.md",
       "line": 804,
       "candidates": [
+        "doc import get",
         "doc block delete",
-        "doc block insert",
-        "doc block list"
+        "doc block insert"
       ],
       "review": {
         "status": "stale",
@@ -5057,9 +2970,9 @@
       "source": "skills/mono/references/products/doc.md",
       "line": 807,
       "candidates": [
+        "doc import get",
         "doc block delete",
-        "doc block insert",
-        "doc block list"
+        "doc block insert"
       ],
       "review": {
         "status": "stale",
@@ -5071,9 +2984,9 @@
       "source": "skills/mono/references/products/doc/doc-import.md",
       "line": 12,
       "candidates": [
+        "doc import get",
         "doc block delete",
-        "doc block insert",
-        "doc block list"
+        "doc block insert"
       ],
       "review": {
         "status": "stale",
@@ -5085,9 +2998,9 @@
       "source": "skills/mono/references/products/doc/doc-import.md",
       "line": 13,
       "candidates": [
+        "doc import get",
         "doc block delete",
-        "doc block insert",
-        "doc block list"
+        "doc block insert"
       ],
       "review": {
         "status": "stale",
@@ -5099,9 +3012,9 @@
       "source": "skills/mono/references/products/doc/doc-import.md",
       "line": 14,
       "candidates": [
+        "doc import get",
         "doc block delete",
-        "doc block insert",
-        "doc block list"
+        "doc block insert"
       ],
       "review": {
         "status": "stale",
@@ -5113,331 +3026,9 @@
       "source": "skills/mono/references/products/doc/doc-import.md",
       "line": 15,
       "candidates": [
-        "doc block delete",
-        "doc block insert",
-        "doc block list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "doc import get",
-      "source": "skills/mono/references/products/doc/doc-import.md",
-      "line": 19,
-      "candidates": [
-        "doc export get",
+        "doc import get",
         "doc block delete",
         "doc block insert"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive recent",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 121,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive recent",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 122,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive recent",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 123,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive recent",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 124,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive recycle list",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 287,
-      "candidates": [
-        "drive list",
-        "drive permission list",
-        "drive commit"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive recycle list",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 288,
-      "candidates": [
-        "drive list",
-        "drive permission list",
-        "drive commit"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive recycle restore",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 301,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive recent",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 311,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive recycle list",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 321,
-      "candidates": [
-        "drive list",
-        "drive permission list",
-        "drive commit"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive recycle restore",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 322,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive publish set",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 324,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive publish unset",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 325,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive publish get",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 326,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive recycle list",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 369,
-      "candidates": [
-        "drive list",
-        "drive permission list",
-        "drive commit"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive recycle restore",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 370,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive publish set",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 435,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive publish unset",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 436,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive publish get",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 437,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive publish set",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 439,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive publish set",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 440,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive publish get",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 441,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "drive publish unset",
-      "source": "skills/mono/references/products/drive.md",
-      "line": 442,
-      "candidates": [
-        "drive commit",
-        "drive copy",
-        "drive delete"
       ],
       "review": {
         "status": "stale",
@@ -5503,9 +3094,9 @@
       "source": "skills/mono/references/products/event.md",
       "line": 73,
       "candidates": [
-        "conference status",
         "dev app version status",
-        "dev connect status"
+        "dev connect status",
+        "minutes mind-graph status"
       ],
       "review": {
         "status": "out_of_surface",
@@ -5517,9 +3108,9 @@
       "source": "skills/mono/references/products/event.md",
       "line": 74,
       "candidates": [
-        "conference status",
         "dev app version status",
-        "dev connect status"
+        "dev connect status",
+        "minutes mind-graph status"
       ],
       "review": {
         "status": "out_of_surface",
@@ -5531,9 +3122,9 @@
       "source": "skills/mono/references/products/event.md",
       "line": 75,
       "candidates": [
-        "conference status",
         "dev app version status",
-        "dev connect status"
+        "dev connect status",
+        "minutes mind-graph status"
       ],
       "review": {
         "status": "out_of_surface",
@@ -5545,9 +3136,8 @@
       "source": "skills/mono/references/products/event.md",
       "line": 76,
       "candidates": [
-        "conference record stop",
-        "conference share stop",
-        "dev connect stop"
+        "dev connect stop",
+        "minutes record stop"
       ],
       "review": {
         "status": "out_of_surface",
@@ -6511,9 +4101,9 @@
       "source": "skills/mono/references/products/sheet.md",
       "line": 65,
       "candidates": [
+        "sheet range batch-clear",
         "sheet range batch-set-style",
-        "sheet range clear",
-        "sheet range copy-to"
+        "sheet range clear"
       ],
       "review": {
         "status": "group",
@@ -6535,517 +4125,13 @@
       }
     },
     {
-      "tool_path": "sheet group-dimension",
-      "source": "skills/mono/references/products/sheet.md",
-      "line": 260,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet ungroup-dimension",
-      "source": "skills/mono/references/products/sheet.md",
-      "line": 261,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet group-dimension",
-      "source": "skills/mono/references/products/sheet.md",
-      "line": 1114,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet group-dimension",
-      "source": "skills/mono/references/products/sheet.md",
-      "line": 1115,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet group-dimension",
-      "source": "skills/mono/references/products/sheet.md",
-      "line": 1116,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet ungroup-dimension",
-      "source": "skills/mono/references/products/sheet.md",
-      "line": 1131,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet ungroup-dimension",
-      "source": "skills/mono/references/products/sheet.md",
-      "line": 1132,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet range batch-clear",
-      "source": "skills/mono/references/products/sheet/sheet-batch-operations.md",
-      "line": 14,
-      "candidates": [
-        "sheet range batch-set-style",
-        "sheet range clear",
-        "sheet range copy-to"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet batch-update",
-      "source": "skills/mono/references/products/sheet/sheet-batch-operations.md",
-      "line": 20,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet range batch-clear",
-      "source": "skills/mono/references/products/sheet/sheet-batch-operations.md",
-      "line": 52,
-      "candidates": [
-        "sheet range batch-set-style",
-        "sheet range clear",
-        "sheet range copy-to"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet range batch-clear",
-      "source": "skills/mono/references/products/sheet/sheet-batch-operations.md",
-      "line": 53,
-      "candidates": [
-        "sheet range batch-set-style",
-        "sheet range clear",
-        "sheet range copy-to"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet range batch-clear",
-      "source": "skills/mono/references/products/sheet/sheet-batch-operations.md",
-      "line": 54,
-      "candidates": [
-        "sheet range batch-set-style",
-        "sheet range clear",
-        "sheet range copy-to"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet batch-update",
-      "source": "skills/mono/references/products/sheet/sheet-batch-operations.md",
-      "line": 70,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet batch-update",
-      "source": "skills/mono/references/products/sheet/sheet-batch-operations.md",
-      "line": 76,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet batch-update",
-      "source": "skills/mono/references/products/sheet/sheet-batch-operations.md",
-      "line": 129,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet chart list",
-      "source": "skills/mono/references/products/sheet/sheet-chart.md",
-      "line": 48,
-      "candidates": [
-        "sheet cond-format list",
-        "sheet filter-view list",
-        "sheet list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet chart list",
-      "source": "skills/mono/references/products/sheet/sheet-chart.md",
-      "line": 51,
-      "candidates": [
-        "sheet cond-format list",
-        "sheet filter-view list",
-        "sheet list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet chart create",
-      "source": "skills/mono/references/products/sheet/sheet-chart.md",
-      "line": 65,
-      "candidates": [
-        "sheet cond-format create",
-        "sheet create",
-        "sheet filter create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet chart update",
-      "source": "skills/mono/references/products/sheet/sheet-chart.md",
-      "line": 86,
-      "candidates": [
-        "sheet cond-format update",
-        "sheet filter update",
-        "sheet filter-view update"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet chart delete",
-      "source": "skills/mono/references/products/sheet/sheet-chart.md",
-      "line": 108,
-      "candidates": [
-        "sheet cond-format delete",
-        "sheet filter delete",
-        "sheet filter-view delete"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet chart create",
-      "source": "skills/mono/references/products/sheet/sheet-chart.md",
-      "line": 232,
-      "candidates": [
-        "sheet cond-format create",
-        "sheet create",
-        "sheet filter create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet chart list",
-      "source": "skills/mono/references/products/sheet/sheet-chart.md",
-      "line": 248,
-      "candidates": [
-        "sheet cond-format list",
-        "sheet filter-view list",
-        "sheet list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet chart create",
-      "source": "skills/mono/references/products/sheet/sheet-chart.md",
-      "line": 252,
-      "candidates": [
-        "sheet cond-format create",
-        "sheet create",
-        "sheet filter create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet chart create",
-      "source": "skills/mono/references/products/sheet/sheet-chart.md",
-      "line": 269,
-      "candidates": [
-        "sheet cond-format create",
-        "sheet create",
-        "sheet filter create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet chart create",
-      "source": "skills/mono/references/products/sheet/sheet-chart.md",
-      "line": 284,
-      "candidates": [
-        "sheet cond-format create",
-        "sheet create",
-        "sheet filter create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet chart create",
-      "source": "skills/mono/references/products/sheet/sheet-chart.md",
-      "line": 297,
-      "candidates": [
-        "sheet cond-format create",
-        "sheet create",
-        "sheet filter create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet chart list",
-      "source": "skills/mono/references/products/sheet/sheet-chart.md",
-      "line": 322,
-      "candidates": [
-        "sheet cond-format list",
-        "sheet filter-view list",
-        "sheet list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet chart update",
-      "source": "skills/mono/references/products/sheet/sheet-chart.md",
-      "line": 328,
-      "candidates": [
-        "sheet cond-format update",
-        "sheet filter update",
-        "sheet filter-view update"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
       "tool_path": "sheet formulaCondition",
       "source": "skills/mono/references/products/sheet/sheet-conditional-format.md",
       "line": 59,
       "candidates": [
         "sheet add-dimension",
         "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet group-dimension",
-      "source": "skills/mono/references/products/sheet/sheet-dimension-operations.md",
-      "line": 30,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet group-dimension",
-      "source": "skills/mono/references/products/sheet/sheet-dimension-operations.md",
-      "line": 31,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet ungroup-dimension",
-      "source": "skills/mono/references/products/sheet/sheet-dimension-operations.md",
-      "line": 32,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet group-dimension",
-      "source": "skills/mono/references/products/sheet/sheet-dimension-operations.md",
-      "line": 186,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet group-dimension",
-      "source": "skills/mono/references/products/sheet/sheet-dimension-operations.md",
-      "line": 187,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet group-dimension",
-      "source": "skills/mono/references/products/sheet/sheet-dimension-operations.md",
-      "line": 188,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet ungroup-dimension",
-      "source": "skills/mono/references/products/sheet/sheet-dimension-operations.md",
-      "line": 203,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "sheet ungroup-dimension",
-      "source": "skills/mono/references/products/sheet/sheet-dimension-operations.md",
-      "line": 204,
-      "candidates": [
-        "sheet add-dimension",
-        "sheet append",
-        "sheet cond-format create"
+        "sheet batch-update"
       ],
       "review": {
         "status": "stale",

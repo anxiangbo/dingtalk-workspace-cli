@@ -18,10 +18,10 @@ func TestEmbeddedSchemaCatalogIntegrity(t *testing.T) {
 	if !embeddedSchemaCatalogAvailable() {
 		t.Fatal("embedded schema catalog is unavailable or failed integrity validation")
 	}
-	if got, want := len(loaded.Snapshot.Tools), 504; got != want {
+	if got, want := len(loaded.Snapshot.Tools), 537; got != want {
 		t.Fatalf("embedded tools = %d, want %d", got, want)
 	}
-	if got, want := len(loaded.Products), 21; got != want {
+	if got, want := len(loaded.Products), 20; got != want {
 		t.Fatalf("embedded products = %d, want %d", got, want)
 	}
 	if got := schemaString(loaded.Snapshot.Catalog["source"]); got != "embedded-command-catalog" {
@@ -35,7 +35,7 @@ func TestEmbeddedSchemaCatalogProgressiveQueries(t *testing.T) {
 		t.Fatal(err)
 	}
 	compact := compactSchemaOverviewPayload(overview)
-	if got, want := schemaProductToolCount(map[string]any{"tools": compact["products"]}), 21; got != want {
+	if got, want := schemaProductToolCount(map[string]any{"tools": compact["products"]}), 20; got != want {
 		t.Fatalf("compact product count = %d, want %d", got, want)
 	}
 

@@ -19,8 +19,8 @@ func TestEmbeddedSchemaContractMapsToExecutableTree(t *testing.T) {
 	report := cli.AnnotateEmbeddedSchemaCommands(root)
 	definitions := cli.EmbeddedSchemaCommandDefinitions()
 	bindings := cli.EmbeddedSchemaParameterBindings()
-	if len(definitions) != 504 {
-		t.Fatalf("embedded definitions = %d, want 504", len(definitions))
+	if len(definitions) != 537 {
+		t.Fatalf("embedded definitions = %d, want 537", len(definitions))
 	}
 	if report.Matched != len(definitions) || len(report.Missing) != 0 {
 		t.Fatalf("schema annotation report = matched:%d missing:%v", report.Matched, report.Missing)

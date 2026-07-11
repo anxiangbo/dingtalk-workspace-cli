@@ -1,18 +1,19 @@
 {
   "version": 1,
-  "source_hash": "sha256:baf516536a280732546575173592b5ff1576fe4c81a843e26ee6e182c448100c",
-  "surface_hash": "sha256:c0a9b75b4e38934db73f4ce1d337b4c64aa5e541257dd9e84c4947da9c9ab664",
+  "source_hash": "sha256:2b64df8c64d71e74b91a0e43b7b48d490a33e8831d620fc400ae8b0ed8253bf7",
+  "surface_hash": "sha256:7fb8d999c27622a1a0ea39074d7b375f7686964d77eebeb4be30e616311ab86d",
   "coverage": {
-    "surface_products": 21,
-    "products_with_metadata": 21,
-    "surface_tools": 504,
-    "tools_with_metadata": 504,
-    "tools_with_agent_summary": 504,
-    "tools_with_use_when": 504,
-    "tools_with_avoid_when": 504,
-    "tools_with_examples": 504,
-    "tools_with_interface_mode": 504,
-    "unmatched_skill_tools": 182
+    "surface_products": 20,
+    "products_with_metadata": 20,
+    "surface_tools": 537,
+    "tools_with_metadata": 537,
+    "tools_with_agent_summary": 537,
+    "tools_with_use_when": 537,
+    "tools_with_avoid_when": 537,
+    "tools_with_examples": 537,
+    "tools_with_interface_mode": 537,
+    "unmatched_skill_tools": 163,
+    "unreviewed_skill_tools": 40
   },
   "products": {
     "aisearch": {
@@ -88,14 +89,6 @@
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.chat.prod.json",
         "skills/mono/SKILL.md",
         "skills/mono/references/intent-guide.md",
-        "skills/mono/schema-hints/imported/wukong.json"
-      ]
-    },
-    "conference": {
-      "agent_summary": "视频会议 / 预约",
-      "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
-      "source_refs": [
-        "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.conference.prod.json",
         "skills/mono/schema-hints/imported/wukong.json"
       ]
     },
@@ -326,7 +319,6 @@
     "attendance",
     "calendar",
     "chat",
-    "conference",
     "contact",
     "dev",
     "devdoc",

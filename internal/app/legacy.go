@@ -28,7 +28,6 @@ func newLegacyPublicCommands(runner executor.Runner, caller edition.ToolCaller) 
 	injectStaticServers()
 	helpers.InitDeps(caller)
 	commands := helpers.NewPublicCommands(runner)
-	commands = append(commands, helpers.NewCatalogFallbackCommands(runner)...)
 	return mergeTopLevelCommands(commands)
 }
 

@@ -1313,6 +1313,316 @@
       "interface_mode": "mcp",
       "availability": "available"
     },
+    "aitable form create": {
+      "agent_summary": "在指定数据表下创建一个新的表单视图（FormDesigner 类型）",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "1) 创建表单 → 取返回的 data.viewId 作为 VIEW_ID"
+      ],
+      "avoid_when": [
+        "不需要在指定数据表下创建一个新的表单视图（FormDesigner 类型）时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws aitable form create --base-id BASE_ID --table-id TABLE_ID --name \"员工信息收集\" --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/aitable/aitable-form.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "aitable form delete": {
+      "agent_summary": "删除指定数据表下的表单视图（不可逆）",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "删除指定数据表下的表单视图（不可逆）"
+      ],
+      "avoid_when": [
+        "不需要删除指定数据表下的表单视图（不可逆）时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "destructive",
+      "effect_source": "agent-hint",
+      "risk": "high",
+      "confirmation": "user_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws aitable form delete --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "aitable form field hide": {
+      "agent_summary": "切换表单视图中某个字段的隐藏/显示状态",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "5) 隐藏不需要的题目"
+      ],
+      "avoid_when": [
+        "不需要切换表单视图中某个字段的隐藏/显示状态时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws aitable form field hide --base-id BASE_ID --table-id TABLE_ID --view-id VIEW_ID --field-id FIELD_ID --hidden true --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/aitable/aitable-form.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "aitable form field list": {
+      "agent_summary": "列出指定表单视图当前可见的字段及其配置",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "3) 查看表单字段配置"
+      ],
+      "avoid_when": [
+        "不需要列出指定表单视图当前可见的字段及其配置时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws aitable form field list --base-id BASE_ID --table-id TABLE_ID --view-id VIEW_ID --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/aitable/aitable-form.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "aitable form field update": {
+      "agent_summary": "更新表单视图中某个字段的必填状态或描述",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "4) 设置题目必填（FIELD_ID 来自步骤 2）"
+      ],
+      "avoid_when": [
+        "不需要更新表单视图中某个字段的必填状态或描述时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws aitable form field update --base-id BASE_ID --table-id TABLE_ID --view-id VIEW_ID --field-id FIELD_ID --required true --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/aitable/aitable-form.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "aitable form get": {
+      "agent_summary": "按 viewId 获取单个表单视图的元信息（name/title/createdAt/shareFormUuid）",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "2) 查看单个表单详情"
+      ],
+      "avoid_when": [
+        "不需要按 viewId 获取单个表单视图的元信息（name/title/createdAt/shareFormUuid）时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws aitable form get --base-id BASE_ID --table-id TABLE_ID --view-id VIEW_ID --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/aitable/aitable-form.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "aitable form list": {
+      "agent_summary": "列出指定数据表下的所有表单视图",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "1) 列出数据表下的表单视图"
+      ],
+      "avoid_when": [
+        "不需要列出指定数据表下的所有表单视图时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws aitable form list --base-id BASE_ID --table-id TABLE_ID --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/aitable/aitable-form.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "aitable form questions create": {
+      "agent_summary": "在数据表中创建字段，即向表单添加题目",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "2) 添加题目 → 取返回的 data.results[].fieldId 作为 FIELD_ID"
+      ],
+      "avoid_when": [
+        "不需要在数据表中创建字段，即向表单添加题目时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws aitable form questions create --base-id BASE_ID --table-id TABLE_ID --fields '[{\"fieldName\":\"姓名\",\"type\":\"text\"},{\"fieldName\":\"邮箱\",\"type\":\"text\"}]' --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/aitable/aitable-form.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "aitable form questions delete": {
+      "agent_summary": "删除指定字段（即表单题目）",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "删除指定字段（即表单题目）"
+      ],
+      "avoid_when": [
+        "不需要删除指定字段（即表单题目）时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "destructive",
+      "effect_source": "agent-hint",
+      "risk": "high",
+      "confirmation": "user_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws aitable form questions delete --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "aitable form share get": {
+      "agent_summary": "读取指定视图当前的分享表单配置",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "4) 查看分享配置"
+      ],
+      "avoid_when": [
+        "不需要读取指定视图当前的分享表单配置时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws aitable form share get --base-id BASE_ID --table-id TABLE_ID --view-id VIEW_ID --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/aitable/aitable-form.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "aitable form share update": {
+      "agent_summary": "开启或关闭指定视图的分享表单",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "6) 开启分享（注意：开启后需 UI 刷新页面才会看到分享面板）"
+      ],
+      "avoid_when": [
+        "不需要开启或关闭指定视图的分享表单时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws aitable form share update --base-id BASE_ID --table-id TABLE_ID --view-id VIEW_ID --enabled true --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/aitable/aitable-form.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "aitable form update": {
+      "agent_summary": "更新表单整体配置（标题、描述）",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "3) 配置表单标题与描述"
+      ],
+      "avoid_when": [
+        "不需要更新表单整体配置（标题、描述）时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws aitable form update --base-id BASE_ID --table-id TABLE_ID --view-id VIEW_ID --title \"员工信息收集\" --description \"请填写您的基本信息\" --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/aitable/aitable-form.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
     "aitable import data": {
       "agent_summary": "触发导入并等待结果；每个 Sheet 新建为独立表",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
@@ -1438,6 +1748,31 @@
       },
       "interface_mode": "mcp",
       "availability": "available"
+    },
+    "aitable record batch-update": {
+      "agent_summary": "将同一份 cells JSON 批量应用到多条记录上",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "将同一份 cells JSON 批量应用到多条记录上"
+      ],
+      "avoid_when": [
+        "不需要将同一份 cells JSON 批量应用到多条记录上时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws aitable record batch-update --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
     },
     "aitable record create": {
       "agent_summary": "批量新增记录（单次最多 100 条）",

@@ -35,8 +35,8 @@ func TestSchemaUsesEmbeddedCatalogWithoutRuntimeLoad(t *testing.T) {
 	if err := json.Unmarshal(stdout.Bytes(), &payload); err != nil {
 		t.Fatalf("decode schema: %v\n%s", err, stdout.String())
 	}
-	if payload.Count != 21 || payload.ToolCount != 504 {
-		t.Fatalf("schema counts = %d/%d, want 21/504", payload.Count, payload.ToolCount)
+	if payload.Count != 20 || payload.ToolCount != 537 {
+		t.Fatalf("schema counts = %d/%d, want 20/537", payload.Count, payload.ToolCount)
 	}
 }
 

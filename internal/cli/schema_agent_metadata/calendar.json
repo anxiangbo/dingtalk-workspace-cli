@@ -99,17 +99,16 @@
         "要“查看参与者”请改用 dws calendar attendee list",
         "要“添加参与者”请改用 dws calendar attendee add"
       ],
-      "effect": "destructive",
-      "effect_source": "skill-explicit",
-      "risk": "high",
-      "confirmation": "user_required",
+      "effect": "write",
+      "effect_source": "command-verb",
+      "risk": "medium",
+      "confirmation": "not_required",
       "idempotency": "unknown",
       "examples": [
         "dws calendar attendee delete --attendees \u003cattendees\u003e --event \u003cevent\u003e"
       ],
       "source_refs": [
         "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.calendar.prod.json#calendar.remove_calendar_participant",
-        "skills/mono/SKILL.md",
         "skills/mono/references/products/calendar.md",
         "skills/mono/schema-hints/imported/wukong.json",
         "skills/mono/schema-hints/selection-review.json",

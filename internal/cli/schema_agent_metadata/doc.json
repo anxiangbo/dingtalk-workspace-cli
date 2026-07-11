@@ -579,6 +579,34 @@
       "interface_mode": "mcp",
       "availability": "available"
     },
+    "doc import get": {
+      "agent_summary": "根据 taskId 查询文档导入任务的执行结果",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "根据 taskId 查询文档导入任务的执行结果"
+      ],
+      "avoid_when": [
+        "不需要根据 taskId 查询文档导入任务的执行结果时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws doc import get --task-id \u003cTASK_ID\u003e",
+        "dws doc import get --task-id \u003cTASK_ID\u003e --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/doc.md",
+        "skills/mono/references/products/doc/doc-import.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
     "doc info": {
       "agent_summary": "获取文档元信息（标题/类型/创建者/权限等）",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
@@ -996,6 +1024,81 @@
       "interface_mode": "mcp",
       "availability": "available"
     },
+    "doc template apply": {
+      "agent_summary": "使用指定模板创建新文档",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "使用指定模板创建新文档"
+      ],
+      "avoid_when": [
+        "不需要使用指定模板创建新文档时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws doc template apply --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "doc template list": {
+      "agent_summary": "获取当前用户可用的文档模板列表，支持按来源筛选",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "获取当前用户可用的文档模板列表，支持按来源筛选"
+      ],
+      "avoid_when": [
+        "不需要获取当前用户可用的文档模板列表，支持按来源筛选时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws doc template list --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "doc template search": {
+      "agent_summary": "根据关键词搜索文档模板",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "根据关键词搜索文档模板"
+      ],
+      "avoid_when": [
+        "不需要根据关键词搜索文档模板时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws doc template search --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
     "doc update": {
       "agent_summary": "更新文档内容（追加 / 覆盖）",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
@@ -1082,6 +1185,81 @@
       "interface_mode": "composite",
       "availability": "available",
       "interface_reason": "命令包含多个 RPC、条件分派或本地 HTTP/文件步骤，不能绑定为单一 interface_ref"
+    },
+    "doc version list": {
+      "agent_summary": "查看文档历史版本列表",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "查看文档历史版本列表"
+      ],
+      "avoid_when": [
+        "不需要查看文档历史版本列表时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws doc version list --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "doc version revert": {
+      "agent_summary": "回滚文档到指定版本",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "回滚文档到指定版本"
+      ],
+      "avoid_when": [
+        "不需要回滚文档到指定版本时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws doc version revert --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "doc version save": {
+      "agent_summary": "手动保存文档版本快照",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "手动保存文档版本快照"
+      ],
+      "avoid_when": [
+        "不需要手动保存文档版本快照时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws doc version save --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
     }
   }
 }

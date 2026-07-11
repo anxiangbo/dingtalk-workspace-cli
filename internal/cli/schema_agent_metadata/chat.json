@@ -430,38 +430,6 @@
       "interface_mode": "mcp",
       "availability": "available"
     },
-    "chat group members list": {
-      "agent_summary": "查看群成员列表",
-      "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
-      "use_when": [
-        "查看群成员列表"
-      ],
-      "avoid_when": [
-        "要“从群中移除成员”请改用 dws chat group members remove",
-        "要“向群中添加成员”请改用 dws chat group members add",
-        "要“将机器人添加到群中”请改用 dws chat group members add-bot"
-      ],
-      "effect": "read",
-      "effect_source": "command-verb",
-      "risk": "low",
-      "confirmation": "not_required",
-      "idempotency": "idempotent",
-      "examples": [
-        "dws chat group members list --id \u003cid\u003e"
-      ],
-      "source_refs": [
-        "dws-wukong-envelope@4574f7022c32:dws-wukong-discovery.chat.prod.json#chat.get_group_members",
-        "skills/mono/schema-hints/imported/wukong.json",
-        "skills/mono/schema-hints/selection-review.json",
-        "skills/mono/schema-hints/sibling-disambiguation.json"
-      ],
-      "interface_ref": {
-        "product_id": "chat",
-        "rpc_name": "get_group_members"
-      },
-      "interface_mode": "mcp",
-      "availability": "available"
-    },
     "chat group members remove": {
       "agent_summary": "从群中移除成员",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",

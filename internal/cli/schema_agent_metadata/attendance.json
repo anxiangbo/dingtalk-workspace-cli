@@ -1,6 +1,620 @@
 {
   "product_id": "attendance",
   "tools": {
+    "attendance adjustment get": {
+      "agent_summary": "调用 MCP 工具 get_adjustment_rule_detail，根据补卡规则主键 ID 查询对应的补卡规则详情",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "查询补卡规则详情"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 get_adjustment_rule_detail，根据补卡规则主键 ID 查询对应的补卡规则详情时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance adjustment get --adjustment-id 12345",
+        "dws attendance adjustment get --adjustment-id 12345 --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance adjustment search": {
+      "agent_summary": "根据用户权限查询补卡规则列表，入参封装在 ATRuleQueryParam 对象中",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "查询补卡规则",
+        "补卡规则/补卡设置",
+        "补卡规则详情/某条补卡规则的具体信息"
+      ],
+      "avoid_when": [
+        "不需要根据用户权限查询补卡规则列表，入参封装在 ATRuleQueryParam 对象中时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance adjustment search --page 1 --limit 20",
+        "dws attendance adjustment search --query \"标准\" --page 1 --limit 50"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance approve list": {
+      "agent_summary": "查询指定用户的考勤业务审批单记录（补卡 / 加班 / 请假 / 出差外出）",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "审批单/请假记录/加班记录/出差记录/补卡记录",
+        "查/提交 请假/加班/补卡 审批单；考勤业务审批单"
+      ],
+      "avoid_when": [
+        "不需要查询指定用户的考勤业务审批单记录（补卡 / 加班 / 请假 / 出差外出）时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws attendance approve list --users userId1 --types overtime,leave --start 2026-04-01 --end 2026-04-30",
+        "dws attendance approve list --users userId1 --types trip --start 2026-04-01 --end 2026-04-30      # 同时返回出差与外出"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/intent-guide.md",
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance approve templates": {
+      "agent_summary": "当用户需要提交补卡、请假、加班、外出、出差时，查询对应考勤审批表单模板，返回审批提交跳转链接",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "当用户需要提交补卡、请假、加班、外出、出差时，查询对应考勤审批表单模板，返回审批提交跳转链接"
+      ],
+      "avoid_when": [
+        "不需要当用户需要提交补卡、请假、加班、外出、出差时，查询对应考勤审批表单模板，返回审批提交跳转链接时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws attendance approve templates --type leave",
+        "dws attendance approve templates --type REPAIR_CHECK"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance boss-check": {
+      "agent_summary": "调用 MCP 工具 boss_check 修改员工打卡记录",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "假设返回 id: 948964045503 (OffDuty 下班打卡)",
+        "同时修改打卡时间"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 boss_check 修改员工打卡记录时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance boss-check --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/attendance-example-normalization.json",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance check record": {
+      "agent_summary": "查询指定用户的打卡流水记录",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "打卡记录/出勤/考勤",
+        "指定用户打卡流水/打卡详情/打卡时间地点/打卡记录详情"
+      ],
+      "avoid_when": [
+        "不需要查询指定用户的打卡流水记录时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance check record --users userId1 --start 2026-04-01 --end 2026-04-30"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance check result": {
+      "agent_summary": "查询指定用户的打卡结果记录",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "指定用户打卡结果/考勤结果/迟到早退/缺卡异常"
+      ],
+      "avoid_when": [
+        "不需要查询指定用户的打卡结果记录时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance check result --users userId1,userId2 --start 2026-04-01 --end 2026-04-30 --limit 50"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance checkin records": {
+      "agent_summary": "查询指定员工在一段时间内的签到记录",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "查询签到记录",
+        "签到/签到记录"
+      ],
+      "avoid_when": [
+        "不需要查询指定员工在一段时间内的签到记录时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance checkin records --operator-corp-id corp001 --operator-staff-id op001 --staff-ids user001,user002 --start \"2026-04-01 00:00:00\" --end \"2026-04-07 00:00:00\"",
+        "dws attendance checkin records --operator-corp-id corp001 --operator-staff-id op001 --staff-ids user001,user002 --start \"2026-04-01 00:00:00\" --end \"2026-04-07 00:00:00\" --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance class create": {
+      "agent_summary": "调用 MCP 工具 create_class_setting，创建一个新的班次",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "调用 MCP 工具 create_class_setting，创建一个新的班次"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 create_class_setting，创建一个新的班次时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws attendance class create --name \"早班\" --class-vo '{\"sections\":[{\"times\":[{\"checkType\":\"OnDuty\",\"checkTime\":\"08:00\",\"across\":0},{\"checkType\":\"OffDuty\",\"checkTime\":\"17:00\",\"across\":0}]}]}' --timeout 10"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance class get": {
+      "agent_summary": "调用 MCP 工具 get_class_detail，根据班次 ID 查询该班次的详细信息",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "查询班次详情"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 get_class_detail，根据班次 ID 查询该班次的详细信息时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance class get --class-id 1170996821",
+        "dws attendance class get --class-id 1170996821 --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance class search": {
+      "agent_summary": "查询当前用户有权管理的班次列表（班次定义），支持按名称搜索和类型过滤",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "查询可管理的班次列表",
+        "班次定义/班次列表/有哪些班次/我负责的班次",
+        "班次详情/某个班次的具体信息"
+      ],
+      "avoid_when": [
+        "不需要查询当前用户有权管理的班次列表（班次定义），支持按名称搜索和类型过滤时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance class search",
+        "dws attendance class search --query \"早班\" --filter-type MINE_OWN"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance class update": {
+      "agent_summary": "调用 MCP 工具 update_class_setting，更新一个已有的班次",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "更新班次",
+        "更新班次/修改班次/班次改名/修改上下班时间"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 update_class_setting，更新一个已有的班次时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws attendance class update --class-id 1170996821 --name \"新早班\" --timeout 10",
+        "dws attendance class update --class-id 1170996821 --class-vo '{\"sections\":[{\"times\":[{\"checkType\":\"OnDuty\",\"checkTime\":\"08:30\",\"across\":0},{\"checkType\":\"OffDuty\",\"checkTime\":\"17:30\",\"across\":0}]}]}' --timeout 10"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance globalsetting get": {
+      "agent_summary": "查询全局规则设置，仅管理员可以调用",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "查询全局规则设置，仅管理员可以调用"
+      ],
+      "avoid_when": [
+        "不需要查询全局规则设置，仅管理员可以调用时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance globalsetting get --scope 企业 --setting-scene checkRemind --format json",
+        "dws attendance globalsetting get --scope 全公司 --setting-scene bossAttendStatNotify --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance globalsetting save": {
+      "agent_summary": "更新保存全局规则设置，仅管理员可以调用",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "更新保存全局规则设置，仅管理员可以调用"
+      ],
+      "avoid_when": [
+        "不需要更新保存全局规则设置，仅管理员可以调用时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws attendance globalsetting save --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/attendance-example-normalization.json",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance group create": {
+      "agent_summary": "调用 MCP 工具 create_group_setting，创建一个新的考勤组",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "创建考勤组",
+        "创建考勤组/新建考勤组/添加考勤组"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 create_group_setting，创建一个新的考勤组时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws attendance group create --name \"研发考勤组\" --type FIXED --group-vo '{\"defaultClassId\":1170996821,\"workDayClassList\":[0,1170996821,0,0,0,0,0]}' --timeout 10",
+        "dws attendance group create --name \"自由工时分组\" --type NONE --timeout 10"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance group filtered-get": {
+      "agent_summary": "调用 MCP 工具 get_group_filtered_detail，根据考勤组 ID 仅返回关心的字段子集， 强烈建议在仅需查询成员信息、打卡地址、蓝牙、W",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "1. 获取考勤组成员",
+        "按需查询考勤组成员/地址/蓝牙/Wifi",
+        "考勤组成员/打卡地址/打卡wifi/打卡蓝牙"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 get_group_filtered_detail，根据考勤组 ID 仅返回关心的字段子集， 强烈建议在仅需查询成员信息、打卡地址、蓝牙、W时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance group filtered-get --group-id \u003cgroupId\u003e --member --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance-schedule.md",
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance group get": {
+      "agent_summary": "调用 MCP 工具 get_group_detail，根据考勤组 ID 查询该考勤组的全量信息",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "查询考勤组全量信息",
+        "考勤组详情/全量考勤组信息",
+        "获取考勤组详情（含绑定的班次列表）"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 get_group_detail，根据考勤组 ID 查询该考勤组的全量信息时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance group get --group-id \u003cgroupId\u003e --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance-schedule.md",
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance group search": {
+      "agent_summary": "根据当前用户的权限和筛选条件获取考勤组简要信息",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "1. 确认考勤组并获取关联班次（先查后排）",
+        "1. 获取考勤组成员",
+        "查询考勤组列表",
+        "考勤组列表/有哪些考勤组"
+      ],
+      "avoid_when": [
+        "不需要根据当前用户的权限和筛选条件获取考勤组简要信息时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance group search --query \"\u003c考勤组名称\u003e\" --type TURN --format json",
+        "dws attendance group search --query \"研发组\" --type TURN --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance-schedule.md",
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance group update": {
+      "agent_summary": "调用 MCP 工具 update_group_setting，更新考勤组配置信息",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "修改考勤组/更新考勤组配置/考勤组改名/改变考勤组绑定的班次/修改打卡范围/设置考勤组负责人",
+        "更新考勤组配置"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 update_group_setting，更新考勤组配置信息时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws attendance group update --group-id 123456 --name \"研发考勤组\" --timeout 10",
+        "dws attendance group update --group-id 123456 --owner userId1 --timeout 10"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance group update-members": {
+      "agent_summary": "调用 MCP 工具 update_group_member，对指定考勤组的成员进行增删操作",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "更新考勤组成员",
+        "更新考勤组成员/添加考勤人员/删除考勤人员/添加考勤部门/删除考勤部门/加入考勤组/移出考勤组/设置无需考勤/取消无需考勤"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 update_group_member，对指定考勤组的成员进行增删操作时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws attendance group update-members --group-id 123456 --add-users userId1,userId2",
+        "dws attendance group update-members --group-id 123456 --remove-users userId1"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance overtime get": {
+      "agent_summary": "调用 MCP 工具 get_overtime_rule_detail，根据加班规则主键 ID 查询对应的加班规则详情",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "查询加班规则详情"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 get_overtime_rule_detail，根据加班规则主键 ID 查询对应的加班规则详情时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance overtime get --overtime-id 12345",
+        "dws attendance overtime get --overtime-id 12345 --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance overtime search": {
+      "agent_summary": "根据用户权限查询加班规则列表，入参封装在 ATRuleQueryParam 对象中",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "加班规则/加班设置/加班计算",
+        "加班规则详情/某条加班规则的具体信息",
+        "查询加班规则"
+      ],
+      "avoid_when": [
+        "不需要根据用户权限查询加班规则列表，入参封装在 ATRuleQueryParam 对象中时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance overtime search --page 1 --limit 20",
+        "dws attendance overtime search --query \"节假日\" --page 1 --limit 50"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
     "attendance record get": {
       "agent_summary": "查询个人考勤详情",
       "agent_summary_source": "dws-wukong-envelope@4574f7022c32",
@@ -31,6 +645,89 @@
       },
       "interface_mode": "mcp",
       "availability": "available"
+    },
+    "attendance report columns": {
+      "agent_summary": "根据操作者的列权限，过滤并返回其有权查看的考勤字段列表",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "考勤字段/考勤列",
+        "获取考勤字段列表（管理员）"
+      ],
+      "avoid_when": [
+        "不需要根据操作者的列权限，过滤并返回其有权查看的考勤字段列表时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance report columns"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance report query-data": {
+      "agent_summary": "根据字段查询考勤数据，含列权限过滤和用户查看权限校验",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "根据字段查询考勤数据（管理员）",
+        "考勤数据/查询考勤报表数据"
+      ],
+      "avoid_when": [
+        "不需要根据字段查询考勤数据，含列权限过滤和用户查看权限校验时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance report query-data --users userId1,userId2 --columns 1001,1002 --start \"2026-03-01 00:00:00\" --end \"2026-03-31 23:59:59\"",
+        "dws attendance report query-data --users userId1,userId2 --columns 1001,1002 --start \"2026-03-01 00:00:00\" --end \"2026-03-31 23:59:59\" --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance report query-leave": {
+      "agent_summary": "查询用户假期数据，含用户查看权限校验",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "假期数据/年假/病假/请假记录",
+        "查询用户假期数据（管理员）"
+      ],
+      "avoid_when": [
+        "不需要查询用户假期数据，含用户查看权限校验时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance report query-leave --users userId1,userId2 --leave-names 年假,病假 --start \"2026-03-01 00:00:00\" --end \"2026-03-31 23:59:59\"",
+        "dws attendance report query-leave --users userId1,userId2 --leave-names 年假,病假 --start \"2026-03-01 00:00:00\" --end \"2026-03-31 23:59:59\" --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
     },
     "attendance rules": {
       "agent_summary": "查询考勤组与考勤规则",
@@ -68,6 +765,120 @@
       },
       "interface_mode": "mcp",
       "availability": "available"
+    },
+    "attendance schedule get": {
+      "agent_summary": "获取指定用户在一段时间内的排班记录",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "步骤1：获取排班记录的 planId"
+      ],
+      "avoid_when": [
+        "不需要获取指定用户在一段时间内的排班记录时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance schedule get --userIdList 03642229451220076 --workDateBegin 2026-05-13 --workDateEnd 2026-05-13 -f json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance schedule import": {
+      "agent_summary": "为排班制考勤组导入排班记录",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "导入排班记录"
+      ],
+      "avoid_when": [
+        "不需要为排班制考勤组导入排班记录时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws attendance schedule import --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/attendance-example-normalization.json",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance selfsetting get": {
+      "agent_summary": "查询个人规则设置，包括打卡提醒、极速打卡、打卡结果通知、缺卡提醒、个人考勤统计通知、团队考勤统计通知等设置项",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "查看指定用户的打卡提醒设置",
+        "查看指定用户的极速打卡设置",
+        "查询个人规则设置/查看打卡提醒/查看极速打卡/查看缺卡提醒/查看打卡结果通知/查看个人考勤统计通知/查看团队考勤统计通知"
+      ],
+      "avoid_when": [
+        "不需要查询个人规则设置，包括打卡提醒、极速打卡、打卡结果通知、缺卡提醒、个人考勤统计通知、团队考勤统计通知等设置项时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance selfsetting get --setting-scene checkRemind --user \u003cUSER_ID\u003e --format json",
+        "dws attendance selfsetting get --setting-scene fastCheck --user \u003cUSER_ID\u003e --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance selfsetting save": {
+      "agent_summary": "更新保存个人规则设置，包括打卡提醒、极速打卡、打卡结果通知、缺卡提醒、个人考勤统计通知、团队考勤统计通知等设置项",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "开启打卡结果通知（Agent 调用时，必须先完成 ask_human 二次确认，确认后再追加 --yes 执行）",
+        "开启指定用户的打卡结果通知",
+        "更新个人规则设置/保存打卡提醒/修改极速打卡/关闭缺卡提醒/开启打卡结果通知/设置个人考勤统计通知/设置团队考勤统计通知",
+        "更新打卡提醒设置（Agent 调用时，必须先完成 ask_human 二次确认，确认后再追加 --yes 执行）",
+        "更新指定用户的极速打卡设置",
+        "更新极速打卡设置（Agent 调用时，必须先完成 ask_human 二次确认，确认后再追加 --yes 执行）"
+      ],
+      "avoid_when": [
+        "不需要更新保存个人规则设置，包括打卡提醒、极速打卡、打卡结果通知、缺卡提醒、个人考勤统计通知、团队考勤统计通知等设置项时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "high",
+      "confirmation": "user_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws attendance selfsetting save --help"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/attendance-example-normalization.json",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
     },
     "attendance shift list": {
       "agent_summary": "批量查询员工班次信息（间隔 ≤ 7 天，最多 50 人）",
@@ -129,6 +940,154 @@
       },
       "interface_mode": "mcp",
       "availability": "available"
+    },
+    "attendance vacation balance": {
+      "agent_summary": "调用 MCP 工具 get_leave_balance_quota 查询指定员工的假期余额",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "1. 查询当前余额",
+        "1. 查询当前余额（假设返回5天）",
+        "增加假期余额/发放年假/给员工加年假",
+        "查看指定员工假期余额",
+        "查看指定员工某类假期余额",
+        "病假余额/年假余额/事假剩余假期",
+        "设置假期余额/调整假期额度/更新假期余额"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 get_leave_balance_quota 查询指定员工的假期余额时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance vacation balance --users userId1,userId2 --leave-code a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "dws attendance vacation balance --users userId1,userId2 --leave-code \u003c假期类型code\u003e --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance vacation records": {
+      "agent_summary": "调用 MCP 工具 get_leave_balance_records 查询指定员工的假期余额变更记录",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "假期变更/假期记录/请假扣减",
+        "查看指定员工假期余额变更记录"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 get_leave_balance_records 查询指定员工的假期余额变更记录时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance vacation records --user USER_ID --leave-code a1b2c3d4-e5f6-7890-abcd-ef1234567890 --start 2026-04-01 --end 2026-04-22",
+        "dws attendance vacation records --user USER_ID --leave-code \u003c假期类型code\u003e --start 2026-04-01 --end 2026-04-22 --format json"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance vacation save-balance": {
+      "agent_summary": "调用 MCP 工具 update_leave_balance 设置指定员工的假期余额数量",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "3. 执行设置（SET操作，会替换当前余额）",
+        "3. 设置新总额度",
+        "设置员工年假余额为8天",
+        "设置带有效期的假期余额"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 update_leave_balance 设置指定员工的假期余额数量时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws attendance vacation save-balance --target user001 --leave-code a1b2c3d4-e5f6-7890-abcd-ef1234567890 --num 8 --reason \"年度发放\"",
+        "dws attendance vacation save-balance --target user001 --leave-code a1b2c3d4-e5f6-7890-abcd-ef1234567890 --num 8 --reason \"年度发放\" --start 2024-01-01 --end 2024-12-31"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance vacation types": {
+      "agent_summary": "调用 MCP 工具 get_leave_types 查询当前用户可用的假期规则列表",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "假期/我的假期/假期规则",
+        "查看假期规则列表"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 get_leave_types 查询当前用户可用的假期规则列表时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "read",
+      "effect_source": "agent-hint",
+      "risk": "low",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "examples": [
+        "dws attendance vacation types"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
+    },
+    "attendance vacation update-type": {
+      "agent_summary": "调用 MCP 工具 save_leave_type 更新已有假期规则",
+      "agent_summary_source": "runtime-surface-completeness-v1",
+      "use_when": [
+        "更新假期单位",
+        "更新假期规则/修改假期类型/编辑假期规则",
+        "更新假期规则名称",
+        "更新适用范围"
+      ],
+      "avoid_when": [
+        "不需要调用 MCP 工具 save_leave_type 更新已有假期规则时不要使用；如仅查询状态请优先选择对应 list/get/search 命令"
+      ],
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "unknown",
+      "examples": [
+        "dws attendance vacation update-type --leave-code a1b2c3d4-e5f6-7890-abcd-ef1234567890 --name \"事假（修改版）\"",
+        "dws attendance vacation update-type --leave-code a1b2c3d4-e5f6-7890-abcd-ef1234567890 --unit hour --per-hours 8"
+      ],
+      "reviewed": false,
+      "source_refs": [
+        "skills/mono/references/products/attendance.md",
+        "skills/mono/schema-hints/runtime-surface-completeness.json"
+      ],
+      "interface_mode": "local",
+      "availability": "available",
+      "interface_reason": "当前命令来自本地 Cobra 命令树或复合 helper，无固定 MCP interface_ref"
     }
   }
 }

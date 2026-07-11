@@ -925,11 +925,11 @@
         "要“查询指定版本详情”请改用 dws dev app version get",
         "要“查询版本发布/审批状态”请改用 dws dev app version status"
       ],
-      "effect": "read",
+      "effect": "write",
       "effect_source": "command-verb",
-      "risk": "low",
+      "risk": "medium",
       "confirmation": "not_required",
-      "idempotency": "idempotent",
+      "idempotency": "unknown",
       "examples": [
         "dws dev app version publish --unified-app-id \u003cunifiedAppId\u003e --version-id \u003cversionId\u003e --dry-run --format json"
       ],

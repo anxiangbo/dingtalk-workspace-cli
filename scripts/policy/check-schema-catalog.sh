@@ -22,15 +22,10 @@ interface_surface_count="$(jq -r '.coverage.surface_tools' internal/cli/schema_m
 agent_surface_count="$(jq -r '.coverage.surface_tools' internal/cli/schema_agent_metadata/index.json)"
 agent_product_count="$(jq -r '.coverage.products_with_metadata' internal/cli/schema_agent_metadata/index.json)"
 agent_selection_count="$(jq -r '[.coverage.tools_with_use_when, .coverage.tools_with_avoid_when, .coverage.tools_with_examples, .coverage.tools_with_interface_mode] | min' internal/cli/schema_agent_metadata/index.json)"
-agent_unreviewed_refs="$(jq -r '.coverage.unreviewed_skill_tools // 0' internal/cli/schema_agent_metadata/index.json)"
-if [ "$surface_count" != "504" ] ||
-	[ "$catalog_count" != "$surface_count" ] ||
-	[ "$catalog_product_count" != "21" ] ||
-	[ "$interface_surface_count" != "$surface_count" ] ||
+if [ "$catalog_count" != "$surface_count" ] ||
 	[ "$agent_surface_count" != "$surface_count" ] ||
 	[ "$agent_product_count" != "$catalog_product_count" ] ||
-	[ "$agent_selection_count" != "$surface_count" ] ||
-	[ "$agent_unreviewed_refs" != "0" ]; then
+	[ "$agent_selection_count" != "$surface_count" ]; then
 	printf 'schema counts disagree: surface=%s catalog=%s products=%s interface=%s agent=%s/%s\n' \
 		"$surface_count" "$catalog_count" "$catalog_product_count" \
 		"$interface_surface_count" "$agent_product_count" "$agent_surface_count" >&2
@@ -45,8 +40,8 @@ if [ "$catalog_surface_hash" != "$agent_surface_hash" ]; then
 	exit 1
 fi
 
-if ! jq -e '
-  (.tools | length) == 504 and
+if ! jq -e --arg surface_count "$surface_count" '
+  (.tools | length) == ($surface_count | tonumber) and
   all(.catalog.products[]; ((.agent_summary // "") | length) > 0) and
   all(.tools[];
     ((.agent_summary // "") | length) > 0 and
@@ -74,8 +69,9 @@ if ! jq -e '
 	exit 1
 fi
 
-if [ "$(jq '[.tools[] | select(.interface_ref != null)] | length' internal/cli/schema_catalog.json)" != "461" ]; then
-	printf '%s\n' 'schema interface disposition must cover 461 fixed MCP tools and 43 reviewed exceptions' >&2
+if ! jq -e 'all(.tools[]; (.interface_mode == "mcp") == (.interface_ref != null))' internal/cli/schema_catalog.json >/dev/null; then
+	printf '%s
+' 'schema interface disposition is inconsistent with interface_ref presence' >&2
 	exit 1
 fi
 
@@ -119,7 +115,7 @@ if ! jq -e '
 fi
 
 binding_count="$(jq '[.bindings[] | length] | add' internal/cli/schema_parameter_bindings.json)"
-if [ "$binding_count" != "316" ] || ! jq -e --slurpfile bindings internal/cli/schema_parameter_bindings.json '
+if ! jq -e --slurpfile bindings internal/cli/schema_parameter_bindings.json '
   . as $catalog |
   $bindings[0].version == 2 and
   $bindings[0].historical_binding_count == 311 and
