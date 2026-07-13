@@ -360,20 +360,24 @@ func TestCalendarAttendeeDeleteSchemaRequiresUserConfirmation(t *testing.T) {
 
 func TestPromptingWritesRequireUserConfirmation(t *testing.T) {
 	wantEffects := map[string]string{
-		"attendance.class_create": "write",
-		"attendance.class_update": "write",
-		"doc.version_revert":      "destructive",
-		"drive.publish_set":       "write",
-		"drive.publish_unset":     "write",
-		"sheet.chart_delete":      "write",
+		"attendance.class_create":  "write",
+		"attendance.class_update":  "write",
+		"doc.delete_comment":       "destructive",
+		"doc.version_revert":       "destructive",
+		"drive.publish_set":        "write",
+		"drive.publish_unset":      "write",
+		"sheet.chart_delete":       "write",
+		"sheet.delete_pivot_table": "destructive",
 	}
 	wantSources := map[string]string{
-		"attendance.class_create": "skills/mono/schema-hints/zz-attendance-review.json",
-		"attendance.class_update": "skills/mono/schema-hints/zz-attendance-review.json",
-		"doc.version_revert":      "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
-		"drive.publish_set":       "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
-		"drive.publish_unset":     "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
-		"sheet.chart_delete":      "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+		"attendance.class_create":  "skills/mono/schema-hints/zz-attendance-review.json",
+		"attendance.class_update":  "skills/mono/schema-hints/zz-attendance-review.json",
+		"doc.delete_comment":       "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+		"doc.version_revert":       "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+		"drive.publish_set":        "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+		"drive.publish_unset":      "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+		"sheet.chart_delete":       "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+		"sheet.delete_pivot_table": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
 	}
 	canonicals := make([]string, 0, len(wantEffects))
 	for canonical := range wantEffects {
@@ -399,6 +403,41 @@ func TestPromptingWritesRequireUserConfirmation(t *testing.T) {
 				t.Errorf("%s %s provenance source = %#v, want %s", canonical, field, got, wantSources[canonical])
 			}
 		}
+	}
+}
+
+func TestNewMainCommandInterfaceConversionsReachFinalSchema(t *testing.T) {
+	type conversion struct {
+		canonical     string
+		flag          string
+		cliType       string
+		interfaceType string
+	}
+	wants := []conversion{
+		{canonical: "chat.list_message_favorites", flag: "size", cliType: "integer", interfaceType: "string"},
+		{canonical: "doc.update_comment", flag: "mention", cliType: "string", interfaceType: "array"},
+		{canonical: "sheet.create_pivot_table", flag: "properties", cliType: "string", interfaceType: "object"},
+		{canonical: "sheet.table_put", flag: "sheets", cliType: "string", interfaceType: "array"},
+		{canonical: "sheet.update_pivot_table", flag: "properties", cliType: "string", interfaceType: "object"},
+	}
+	canonicals := make([]string, 0, len(wants))
+	for _, want := range wants {
+		canonicals = append(canonicals, want.canonical)
+	}
+	snapshot := schemaContractPayloadForBoundCanonicals(t, NewRootCommand(), canonicals...)
+	for _, want := range wants {
+		tool := snapshot.Tools[want.canonical]
+		parameters, _ := tool["parameters"].(map[string]any)
+		parameter, _ := parameters[want.flag].(map[string]any)
+		if got := schemaContractString(parameter["type"]); got != want.cliType {
+			t.Errorf("%s --%s CLI type = %q, want %q", want.canonical, want.flag, got, want.cliType)
+		}
+		if got := schemaContractString(parameter["interface_type"]); got != want.interfaceType {
+			t.Errorf("%s --%s interface_type = %q, want %q", want.canonical, want.flag, got, want.interfaceType)
+		}
+	}
+	if got := snapshot.Tools["sheet.create_pivot_table"]["idempotency"]; got != "non_idempotent" {
+		t.Errorf("sheet.create_pivot_table idempotency = %#v, want non_idempotent", got)
 	}
 }
 

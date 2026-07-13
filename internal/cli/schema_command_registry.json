@@ -865,6 +865,10 @@
           "cli_path": "chat message add-emoji"
         },
         {
+          "canonical_path": "chat.add_message_favorite",
+          "cli_path": "chat message add-favorite"
+        },
+        {
           "canonical_path": "chat.add_text_emotion",
           "cli_path": "chat message add-text-emotion"
         },
@@ -909,6 +913,10 @@
           "cli_path": "chat message list-direct"
         },
         {
+          "canonical_path": "chat.list_message_favorites",
+          "cli_path": "chat message list-favorites"
+        },
+        {
           "canonical_path": "chat.list_special_focus_messages",
           "cli_path": "chat message list-focused"
         },
@@ -947,6 +955,10 @@
         {
           "canonical_path": "chat.remove_emoji_reaction",
           "cli_path": "chat message remove-emoji"
+        },
+        {
+          "canonical_path": "chat.remove_message_favorite",
+          "cli_path": "chat message remove-favorite"
         },
         {
           "canonical_path": "chat.remove_text_emotion",
@@ -1254,12 +1266,20 @@
           "cli_path": "doc comment create-inline"
         },
         {
+          "canonical_path": "doc.delete_comment",
+          "cli_path": "doc comment delete"
+        },
+        {
           "canonical_path": "doc.list_comments",
           "cli_path": "doc comment list"
         },
         {
           "canonical_path": "doc.reply_comment",
           "cli_path": "doc comment reply"
+        },
+        {
+          "canonical_path": "doc.update_comment",
+          "cli_path": "doc comment update"
         },
         {
           "canonical_path": "doc.copy_document",
@@ -1461,6 +1481,14 @@
         {
           "canonical_path": "drive.search_files",
           "cli_path": "drive search"
+        },
+        {
+          "canonical_path": "drive.create_shortcut",
+          "cli_path": "drive shortcut"
+        },
+        {
+          "canonical_path": "drive.get_node_stats",
+          "cli_path": "drive stats"
         },
         {
           "canonical_path": "drive.upload",
@@ -2029,6 +2057,10 @@
           "cli_path": "sheet group-dimension"
         },
         {
+          "canonical_path": "sheet.hide_gridline",
+          "cli_path": "sheet hide-gridline"
+        },
+        {
           "canonical_path": "sheet.info",
           "cli_path": "sheet info"
         },
@@ -2059,6 +2091,22 @@
         {
           "canonical_path": "sheet.create_sheet",
           "cli_path": "sheet new"
+        },
+        {
+          "canonical_path": "sheet.create_pivot_table",
+          "cli_path": "sheet pivot-table create"
+        },
+        {
+          "canonical_path": "sheet.delete_pivot_table",
+          "cli_path": "sheet pivot-table delete"
+        },
+        {
+          "canonical_path": "sheet.list_pivot_tables",
+          "cli_path": "sheet pivot-table list"
+        },
+        {
+          "canonical_path": "sheet.update_pivot_table",
+          "cli_path": "sheet pivot-table update"
         },
         {
           "canonical_path": "sheet.range_batch_clear",
@@ -2107,6 +2155,24 @@
         {
           "canonical_path": "sheet.set_dropdown_lists",
           "cli_path": "sheet set-dropdown"
+        },
+        {
+          "canonical_path": "sheet.show_gridline",
+          "cli_path": "sheet show-gridline"
+        },
+        {
+          "canonical_path": "sheet.table_get",
+          "cli_path": "sheet table-get",
+          "aliases": [
+            "sheet table-read"
+          ]
+        },
+        {
+          "canonical_path": "sheet.table_put",
+          "cli_path": "sheet table-put",
+          "aliases": [
+            "sheet table-write"
+          ]
         },
         {
           "canonical_path": "sheet.template_apply",

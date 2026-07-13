@@ -32,7 +32,7 @@ func TestSchemaParameterBindingsMatchEmbeddedCatalog(t *testing.T) {
 	if count == 0 {
 		t.Fatal("active parameter binding count is zero")
 	}
-	if snapshot.HistoricalBindingCount != 311 || len(snapshot.Migrations) != 5 || len(snapshot.Excluded) != 3 || len(snapshot.Added) != 8 {
+	if snapshot.HistoricalBindingCount != 311 || len(snapshot.Migrations) != 5 || len(snapshot.Excluded) != 3 || len(snapshot.Added) != 23 {
 		t.Fatalf("binding seed audit = historical:%d migrations:%d excluded:%d added:%d",
 			snapshot.HistoricalBindingCount, len(snapshot.Migrations), len(snapshot.Excluded), len(snapshot.Added))
 	}

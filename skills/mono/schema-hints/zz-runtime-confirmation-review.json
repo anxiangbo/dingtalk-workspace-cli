@@ -7,10 +7,24 @@
     "channel": "open-source"
   },
   "coverage": {
-    "source_tools": 4,
-    "matched_tools": 4
+    "source_tools": 10,
+    "matched_tools": 10
   },
   "tools": {
+    "doc.delete_comment": {
+      "agent_summary": "永久删除指定文档中的一条评论。",
+      "use_when": [
+        "用户明确要求并确认永久删除已知文档中的指定评论时。"
+      ],
+      "avoid_when": [
+        "只需修改或回复评论、目标评论不明确，或用户尚未确认永久删除时不要使用。"
+      ],
+      "effect": "destructive",
+      "risk": "high",
+      "confirmation": "user_required",
+      "idempotency": "unknown",
+      "reviewed": true
+    },
     "doc.version_revert": {
       "agent_summary": "将文档回滚到指定版本",
       "use_when": [
@@ -53,6 +67,13 @@
       "idempotency": "unknown",
       "reviewed": true
     },
+    "drive.create_shortcut": {
+      "effect": "write",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "non_idempotent",
+      "reviewed": true
+    },
     "sheet.chart_delete": {
       "agent_summary": "删除钉钉电子表格中指定的浮动图表。",
       "use_when": [
@@ -65,6 +86,41 @@
       "risk": "high",
       "confirmation": "user_required",
       "idempotency": "unknown",
+      "reviewed": true
+    },
+    "sheet.create_pivot_table": {
+      "effect": "write",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "non_idempotent",
+      "reviewed": true
+    },
+    "sheet.delete_pivot_table": {
+      "agent_summary": "永久删除指定在线表格中的一张透视表。",
+      "use_when": [
+        "用户明确要求并确认永久删除已知工作表中的指定透视表时。"
+      ],
+      "avoid_when": [
+        "只需更新或读取透视表、目标 ID 不明确，或用户尚未确认永久删除时不要使用。"
+      ],
+      "effect": "destructive",
+      "risk": "high",
+      "confirmation": "user_required",
+      "idempotency": "unknown",
+      "reviewed": true
+    },
+    "sheet.hide_gridline": {
+      "effect": "write",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
+      "reviewed": true
+    },
+    "sheet.show_gridline": {
+      "effect": "write",
+      "risk": "medium",
+      "confirmation": "not_required",
+      "idempotency": "idempotent",
       "reviewed": true
     }
   }

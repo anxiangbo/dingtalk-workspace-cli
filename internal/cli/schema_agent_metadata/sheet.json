@@ -11059,6 +11059,272 @@
         "当用户明确要求对钉钉表格指定工作表中的连续整行或整列创建分组，且已确认目标对象和所需参数时使用。"
       ]
     },
+    "sheet hide-gridline": {
+      "agent_summary": "隐藏指定在线表格工作表的网格线。",
+      "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+      "availability": "available",
+      "avoid_when": [
+        "需要显示网格线、修改单元格数据或隐藏整个工作表时不要使用。"
+      ],
+      "confirmation": "not_required",
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "examples": [
+        "dws sheet hide-gridline --node NODE_ID --sheet-id SHEET_ID"
+      ],
+      "field_provenance": {
+        "agent_summary": {
+          "value": "隐藏指定在线表格工作表的网格线。",
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=hidden 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。",
+          "candidates": [
+            {
+              "value": "隐藏指定在线表格工作表的网格线。",
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=hidden 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。"
+            }
+          ]
+        },
+        "availability": {
+          "value": "available",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "available",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "avoid_when": {
+          "value": [
+            "需要显示网格线、修改单元格数据或隐藏整个工作表时不要使用。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=hidden 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。",
+          "candidates": [
+            {
+              "value": [
+                "需要显示网格线、修改单元格数据或隐藏整个工作表时不要使用。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=hidden 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。"
+            }
+          ]
+        },
+        "confirmation": {
+          "value": "not_required",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "not_required",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "effect": {
+          "value": "write",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "write",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "examples": {
+          "value": [
+            "dws sheet hide-gridline --node NODE_ID --sheet-id SHEET_ID"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=hidden 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。",
+          "candidates": [
+            {
+              "value": [
+                "dws sheet hide-gridline --node NODE_ID --sheet-id SHEET_ID"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=hidden 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。"
+            }
+          ]
+        },
+        "idempotency": {
+          "value": "idempotent",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "idempotent",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_mode": {
+          "value": "local",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "local",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_reason": {
+          "value": "The reviewed CLI wrapper fixes visibility=hidden, but sheet/set_gridline_visibility is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "The reviewed CLI wrapper fixes visibility=hidden, but sheet/set_gridline_visibility is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_ref": {
+          "value": null,
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "interface_disposition_matrix",
+          "review_reason": "final interface mode local forbids a direct MCP interface_ref",
+          "candidates": [
+            {
+              "value": null,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "final interface mode local forbids a direct MCP interface_ref"
+            }
+          ]
+        },
+        "reviewed": {
+          "value": true,
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=hidden 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。",
+          "candidates": [
+            {
+              "value": true,
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=hidden 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "risk": {
+          "value": "medium",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "medium",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "use_when": {
+          "value": [
+            "用户明确要隐藏某个工作表的网格线以调整显示效果时。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=hidden 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。",
+          "candidates": [
+            {
+              "value": [
+                "用户明确要隐藏某个工作表的网格线以调整显示效果时。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=hidden 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。"
+            }
+          ]
+        }
+      },
+      "idempotency": "idempotent",
+      "interface_mode": "local",
+      "interface_reason": "The reviewed CLI wrapper fixes visibility=hidden, but sheet/set_gridline_visibility is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+      "reviewed": true,
+      "risk": "medium",
+      "source_refs": [
+        "cobra-help:dws sheet hide-gridline --help",
+        "internal/cli/schema_command_registry.json#sheet.hide_gridline",
+        "internal/cli/schema_manual_hints.json",
+        "skills/mono/references/products/sheet/sheet-workbook.md",
+        "skills/mono/schema-hints/zz-interface-disposition-review.json",
+        "skills/mono/schema-hints/zz-runtime-confirmation-review.json"
+      ],
+      "use_when": [
+        "用户明确要隐藏某个工作表的网格线以调整显示效果时。"
+      ]
+    },
     "sheet info": {
       "agent_summary": "获取指定工作表的详细信息，包括 ID、名称、可见性、行列数、最后非空行列位置、合并单元格范围（mergedRanges）等。",
       "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v1",
@@ -13037,6 +13303,1086 @@
       ],
       "use_when": [
         "当用户明确要求在指定钉钉表格中新建一个工作表，且已确认目标对象和所需参数时使用。"
+      ]
+    },
+    "sheet pivot-table create": {
+      "agent_summary": "基于带工作表前缀的 A1 数据源区域创建原生透视表。",
+      "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+      "availability": "available",
+      "avoid_when": [
+        "只需读取已有透视表、更新现有配置或普通汇总单元格时不要使用；创建前应确认数据源与聚合字段。"
+      ],
+      "confirmation": "not_required",
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "examples": [
+        "dws sheet pivot-table create --node NODE_ID --source \"'Sheet1'!A1:D100\" --properties '{\"rows\":[{\"field\":\"部门\"}],\"values\":[{\"field\":\"销售额\",\"summarize_by\":\"sum\"}]}'"
+      ],
+      "field_provenance": {
+        "agent_summary": {
+          "value": "基于带工作表前缀的 A1 数据源区域创建原生透视表。",
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、透视表属性校验和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与有效示例。",
+          "candidates": [
+            {
+              "value": "基于带工作表前缀的 A1 数据源区域创建原生透视表。",
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、透视表属性校验和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与有效示例。"
+            }
+          ]
+        },
+        "availability": {
+          "value": "available",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "available",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "avoid_when": {
+          "value": [
+            "只需读取已有透视表、更新现有配置或普通汇总单元格时不要使用；创建前应确认数据源与聚合字段。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、透视表属性校验和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与有效示例。",
+          "candidates": [
+            {
+              "value": [
+                "只需读取已有透视表、更新现有配置或普通汇总单元格时不要使用；创建前应确认数据源与聚合字段。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、透视表属性校验和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与有效示例。"
+            }
+          ]
+        },
+        "confirmation": {
+          "value": "not_required",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "not_required",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            },
+            {
+              "value": "not_required",
+              "source": "risk-default",
+              "precedence": "inference_or_default",
+              "selected": false
+            }
+          ]
+        },
+        "effect": {
+          "value": "write",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "write",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            },
+            {
+              "value": "write",
+              "source": "command-verb",
+              "precedence": "inference_or_default",
+              "selected": false
+            }
+          ]
+        },
+        "examples": {
+          "value": [
+            "dws sheet pivot-table create --node NODE_ID --source \"'Sheet1'!A1:D100\" --properties '{\"rows\":[{\"field\":\"部门\"}],\"values\":[{\"field\":\"销售额\",\"summarize_by\":\"sum\"}]}'"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、透视表属性校验和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与有效示例。",
+          "candidates": [
+            {
+              "value": [
+                "dws sheet pivot-table create --node NODE_ID --source \"'Sheet1'!A1:D100\" --properties '{\"rows\":[{\"field\":\"部门\"}],\"values\":[{\"field\":\"销售额\",\"summarize_by\":\"sum\"}]}'"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、透视表属性校验和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与有效示例。"
+            }
+          ]
+        },
+        "idempotency": {
+          "value": "non_idempotent",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "non_idempotent",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            },
+            {
+              "value": "unknown",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": false
+            }
+          ]
+        },
+        "interface_mode": {
+          "value": "local",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "local",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_reason": {
+          "value": "The reviewed CLI wrapper is executable, but sheet/create_pivot_table is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "The reviewed CLI wrapper is executable, but sheet/create_pivot_table is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_ref": {
+          "value": null,
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "interface_disposition_matrix",
+          "review_reason": "final interface mode local forbids a direct MCP interface_ref",
+          "candidates": [
+            {
+              "value": null,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "final interface mode local forbids a direct MCP interface_ref"
+            }
+          ]
+        },
+        "reviewed": {
+          "value": true,
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、透视表属性校验和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与有效示例。",
+          "candidates": [
+            {
+              "value": true,
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、透视表属性校验和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与有效示例。"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "risk": {
+          "value": "medium",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "medium",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            },
+            {
+              "value": "medium",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": false
+            }
+          ]
+        },
+        "use_when": {
+          "value": [
+            "用户需要从已知数据区域创建新的原生透视表，并已明确行列与聚合配置时。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、透视表属性校验和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与有效示例。",
+          "candidates": [
+            {
+              "value": [
+                "用户需要从已知数据区域创建新的原生透视表，并已明确行列与聚合配置时。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、透视表属性校验和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与有效示例。"
+            }
+          ]
+        }
+      },
+      "idempotency": "non_idempotent",
+      "interface_mode": "local",
+      "interface_reason": "The reviewed CLI wrapper is executable, but sheet/create_pivot_table is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+      "reviewed": true,
+      "risk": "medium",
+      "source_refs": [
+        "cobra-help:dws sheet pivot-table create --help",
+        "internal/cli/schema_command_registry.json#sheet.create_pivot_table",
+        "internal/cli/schema_manual_hints.json",
+        "skills/mono/references/products/sheet/sheet-pivot-table.md",
+        "skills/mono/schema-hints/zz-interface-disposition-review.json",
+        "skills/mono/schema-hints/zz-runtime-confirmation-review.json"
+      ],
+      "use_when": [
+        "用户需要从已知数据区域创建新的原生透视表，并已明确行列与聚合配置时。"
+      ]
+    },
+    "sheet pivot-table delete": {
+      "agent_summary": "永久删除指定在线表格中的一张透视表。",
+      "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+      "availability": "available",
+      "avoid_when": [
+        "只需更新或读取透视表、目标 ID 不明确，或用户尚未确认永久删除时不要使用。"
+      ],
+      "confirmation": "user_required",
+      "effect": "destructive",
+      "effect_source": "agent-hint",
+      "examples": [
+        "dws sheet pivot-table delete --node NODE_ID --sheet-id SHEET_ID --pivot-table-id PIVOT_TABLE_ID"
+      ],
+      "field_provenance": {
+        "agent_summary": {
+          "value": "永久删除指定在线表格中的一张透视表。",
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、不可恢复的运行时确认语义和 sheet pivot-table 参考补齐 reviewed Agent 选择语义；示例不绕过用户确认。",
+          "candidates": [
+            {
+              "value": "永久删除指定在线表格中的一张透视表。",
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、不可恢复的运行时确认语义和 sheet pivot-table 参考补齐 reviewed Agent 选择语义；示例不绕过用户确认。"
+            }
+          ]
+        },
+        "availability": {
+          "value": "available",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "available",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "avoid_when": {
+          "value": [
+            "只需更新或读取透视表、目标 ID 不明确，或用户尚未确认永久删除时不要使用。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、不可恢复的运行时确认语义和 sheet pivot-table 参考补齐 reviewed Agent 选择语义；示例不绕过用户确认。",
+          "candidates": [
+            {
+              "value": [
+                "只需更新或读取透视表、目标 ID 不明确，或用户尚未确认永久删除时不要使用。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、不可恢复的运行时确认语义和 sheet pivot-table 参考补齐 reviewed Agent 选择语义；示例不绕过用户确认。"
+            }
+          ]
+        },
+        "confirmation": {
+          "value": "user_required",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "user_required",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            },
+            {
+              "value": "not_required",
+              "source": "risk-default",
+              "precedence": "inference_or_default",
+              "selected": false
+            }
+          ]
+        },
+        "effect": {
+          "value": "destructive",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "destructive",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            },
+            {
+              "value": "write",
+              "source": "command-verb",
+              "precedence": "inference_or_default",
+              "selected": false
+            }
+          ]
+        },
+        "examples": {
+          "value": [
+            "dws sheet pivot-table delete --node NODE_ID --sheet-id SHEET_ID --pivot-table-id PIVOT_TABLE_ID"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、不可恢复的运行时确认语义和 sheet pivot-table 参考补齐 reviewed Agent 选择语义；示例不绕过用户确认。",
+          "candidates": [
+            {
+              "value": [
+                "dws sheet pivot-table delete --node NODE_ID --sheet-id SHEET_ID --pivot-table-id PIVOT_TABLE_ID"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、不可恢复的运行时确认语义和 sheet pivot-table 参考补齐 reviewed Agent 选择语义；示例不绕过用户确认。"
+            }
+          ]
+        },
+        "idempotency": {
+          "value": "unknown",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "unknown",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            },
+            {
+              "value": "unknown",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": false
+            }
+          ]
+        },
+        "interface_mode": {
+          "value": "local",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "local",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_reason": {
+          "value": "The reviewed CLI wrapper is executable, but sheet/delete_pivot_table is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "The reviewed CLI wrapper is executable, but sheet/delete_pivot_table is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_ref": {
+          "value": null,
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "interface_disposition_matrix",
+          "review_reason": "final interface mode local forbids a direct MCP interface_ref",
+          "candidates": [
+            {
+              "value": null,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "final interface mode local forbids a direct MCP interface_ref"
+            }
+          ]
+        },
+        "reviewed": {
+          "value": true,
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、不可恢复的运行时确认语义和 sheet pivot-table 参考补齐 reviewed Agent 选择语义；示例不绕过用户确认。",
+          "candidates": [
+            {
+              "value": true,
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、不可恢复的运行时确认语义和 sheet pivot-table 参考补齐 reviewed Agent 选择语义；示例不绕过用户确认。"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "risk": {
+          "value": "high",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "high",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            },
+            {
+              "value": "medium",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": false
+            }
+          ]
+        },
+        "use_when": {
+          "value": [
+            "用户明确要求永久删除已知工作表中的指定透视表时。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、不可恢复的运行时确认语义和 sheet pivot-table 参考补齐 reviewed Agent 选择语义；示例不绕过用户确认。",
+          "candidates": [
+            {
+              "value": [
+                "用户明确要求永久删除已知工作表中的指定透视表时。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、不可恢复的运行时确认语义和 sheet pivot-table 参考补齐 reviewed Agent 选择语义；示例不绕过用户确认。"
+            }
+          ]
+        }
+      },
+      "idempotency": "unknown",
+      "interface_mode": "local",
+      "interface_reason": "The reviewed CLI wrapper is executable, but sheet/delete_pivot_table is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+      "reviewed": true,
+      "risk": "high",
+      "source_refs": [
+        "cobra-help:dws sheet pivot-table delete --help",
+        "internal/cli/schema_command_registry.json#sheet.delete_pivot_table",
+        "internal/cli/schema_manual_hints.json",
+        "skills/mono/references/products/sheet/sheet-pivot-table.md",
+        "skills/mono/schema-hints/zz-interface-disposition-review.json",
+        "skills/mono/schema-hints/zz-runtime-confirmation-review.json"
+      ],
+      "use_when": [
+        "用户明确要求永久删除已知工作表中的指定透视表时。"
+      ]
+    },
+    "sheet pivot-table list": {
+      "agent_summary": "列出指定工作表中的透视表，或按透视表 ID 读取详情。",
+      "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+      "availability": "available",
+      "avoid_when": [
+        "需要创建、更新或删除透视表时不要使用；本命令只读取现有配置。"
+      ],
+      "confirmation": "not_required",
+      "effect": "read",
+      "effect_source": "command-verb",
+      "examples": [
+        "dws sheet pivot-table list --node NODE_ID --sheet-id SHEET_ID"
+      ],
+      "field_provenance": {
+        "agent_summary": {
+          "value": "列出指定工作表中的透视表，或按透视表 ID 读取详情。",
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、列表/详情双用途参数和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": "列出指定工作表中的透视表，或按透视表 ID 读取详情。",
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、列表/详情双用途参数和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "availability": {
+          "value": "available",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "available",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "avoid_when": {
+          "value": [
+            "需要创建、更新或删除透视表时不要使用；本命令只读取现有配置。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、列表/详情双用途参数和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "需要创建、更新或删除透视表时不要使用；本命令只读取现有配置。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、列表/详情双用途参数和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "confirmation": {
+          "value": "not_required",
+          "source": "risk-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "not_required",
+              "source": "risk-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "effect": {
+          "value": "read",
+          "source": "command-verb",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "read",
+              "source": "command-verb",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "examples": {
+          "value": [
+            "dws sheet pivot-table list --node NODE_ID --sheet-id SHEET_ID"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、列表/详情双用途参数和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "dws sheet pivot-table list --node NODE_ID --sheet-id SHEET_ID"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、列表/详情双用途参数和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "idempotency": {
+          "value": "idempotent",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "idempotent",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "interface_mode": {
+          "value": "local",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "local",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_reason": {
+          "value": "The reviewed CLI wrapper is executable, but sheet/list_pivot_tables is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "The reviewed CLI wrapper is executable, but sheet/list_pivot_tables is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_ref": {
+          "value": null,
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "interface_disposition_matrix",
+          "review_reason": "final interface mode local forbids a direct MCP interface_ref",
+          "candidates": [
+            {
+              "value": null,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "final interface mode local forbids a direct MCP interface_ref"
+            }
+          ]
+        },
+        "reviewed": {
+          "value": true,
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、列表/详情双用途参数和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": true,
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、列表/详情双用途参数和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "risk": {
+          "value": "low",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "low",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "use_when": {
+          "value": [
+            "需要盘点某个工作表的透视表，或检查一张已知透视表的当前配置时。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、列表/详情双用途参数和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "需要盘点某个工作表的透视表，或检查一张已知透视表的当前配置时。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、列表/详情双用途参数和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        }
+      },
+      "idempotency": "idempotent",
+      "interface_mode": "local",
+      "interface_reason": "The reviewed CLI wrapper is executable, but sheet/list_pivot_tables is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+      "reviewed": true,
+      "risk": "low",
+      "source_refs": [
+        "cobra-help:dws sheet pivot-table list --help",
+        "internal/cli/schema_command_registry.json#sheet.list_pivot_tables",
+        "internal/cli/schema_manual_hints.json",
+        "skills/mono/references/products/sheet/sheet-pivot-table.md",
+        "skills/mono/schema-hints/zz-interface-disposition-review.json"
+      ],
+      "use_when": [
+        "需要盘点某个工作表的透视表，或检查一张已知透视表的当前配置时。"
+      ]
+    },
+    "sheet pivot-table update": {
+      "agent_summary": "更新指定在线表格透视表的属性配置。",
+      "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+      "availability": "available",
+      "avoid_when": [
+        "需要创建新透视表、删除透视表或尚未读取现有配置时不要使用。"
+      ],
+      "confirmation": "not_required",
+      "effect": "write",
+      "effect_source": "command-verb",
+      "examples": [
+        "dws sheet pivot-table update --node NODE_ID --sheet-id SHEET_ID --pivot-table-id PIVOT_TABLE_ID --properties '{\"show_subtotals\":false}'"
+      ],
+      "field_provenance": {
+        "agent_summary": {
+          "value": "更新指定在线表格透视表的属性配置。",
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、增量属性配置和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": "更新指定在线表格透视表的属性配置。",
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、增量属性配置和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "availability": {
+          "value": "available",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "available",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "avoid_when": {
+          "value": [
+            "需要创建新透视表、删除透视表或尚未读取现有配置时不要使用。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、增量属性配置和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "需要创建新透视表、删除透视表或尚未读取现有配置时不要使用。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、增量属性配置和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "confirmation": {
+          "value": "not_required",
+          "source": "risk-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "not_required",
+              "source": "risk-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "effect": {
+          "value": "write",
+          "source": "command-verb",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "write",
+              "source": "command-verb",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "examples": {
+          "value": [
+            "dws sheet pivot-table update --node NODE_ID --sheet-id SHEET_ID --pivot-table-id PIVOT_TABLE_ID --properties '{\"show_subtotals\":false}'"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、增量属性配置和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "dws sheet pivot-table update --node NODE_ID --sheet-id SHEET_ID --pivot-table-id PIVOT_TABLE_ID --properties '{\"show_subtotals\":false}'"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、增量属性配置和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "idempotency": {
+          "value": "unknown",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "unknown",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "interface_mode": {
+          "value": "local",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "local",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_reason": {
+          "value": "The reviewed CLI wrapper is executable, but sheet/update_pivot_table is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "The reviewed CLI wrapper is executable, but sheet/update_pivot_table is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_ref": {
+          "value": null,
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "interface_disposition_matrix",
+          "review_reason": "final interface mode local forbids a direct MCP interface_ref",
+          "candidates": [
+            {
+              "value": null,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "final interface mode local forbids a direct MCP interface_ref"
+            }
+          ]
+        },
+        "reviewed": {
+          "value": true,
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、增量属性配置和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": true,
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、增量属性配置和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "risk": {
+          "value": "medium",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "medium",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "use_when": {
+          "value": [
+            "已知透视表 ID，需要调整其行列、聚合、筛选或小计/总计显示配置时。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、增量属性配置和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "已知透视表 ID，需要调整其行列、聚合、筛选或小计/总计显示配置时。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、增量属性配置和 sheet pivot-table 参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        }
+      },
+      "idempotency": "unknown",
+      "interface_mode": "local",
+      "interface_reason": "The reviewed CLI wrapper is executable, but sheet/update_pivot_table is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+      "reviewed": true,
+      "risk": "medium",
+      "source_refs": [
+        "cobra-help:dws sheet pivot-table update --help",
+        "internal/cli/schema_command_registry.json#sheet.update_pivot_table",
+        "internal/cli/schema_manual_hints.json",
+        "skills/mono/references/products/sheet/sheet-pivot-table.md",
+        "skills/mono/schema-hints/zz-interface-disposition-review.json"
+      ],
+      "use_when": [
+        "已知透视表 ID，需要调整其行列、聚合、筛选或小计/总计显示配置时。"
       ]
     },
     "sheet range batch-clear": {
@@ -16356,6 +17702,772 @@
       ],
       "use_when": [
         "当用户明确要求在钉钉表格的指定单元格范围内设置下拉列表，且已确认目标对象和所需参数时使用。"
+      ]
+    },
+    "sheet show-gridline": {
+      "agent_summary": "显示指定在线表格工作表的网格线。",
+      "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+      "availability": "available",
+      "avoid_when": [
+        "需要隐藏网格线、修改单元格数据或显示被隐藏的工作表时不要使用。"
+      ],
+      "confirmation": "not_required",
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "examples": [
+        "dws sheet show-gridline --node NODE_ID --sheet-id SHEET_ID"
+      ],
+      "field_provenance": {
+        "agent_summary": {
+          "value": "显示指定在线表格工作表的网格线。",
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=visible 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。",
+          "candidates": [
+            {
+              "value": "显示指定在线表格工作表的网格线。",
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=visible 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。"
+            }
+          ]
+        },
+        "availability": {
+          "value": "available",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "available",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "avoid_when": {
+          "value": [
+            "需要隐藏网格线、修改单元格数据或显示被隐藏的工作表时不要使用。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=visible 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。",
+          "candidates": [
+            {
+              "value": [
+                "需要隐藏网格线、修改单元格数据或显示被隐藏的工作表时不要使用。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=visible 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。"
+            }
+          ]
+        },
+        "confirmation": {
+          "value": "not_required",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "not_required",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "effect": {
+          "value": "write",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "write",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "examples": {
+          "value": [
+            "dws sheet show-gridline --node NODE_ID --sheet-id SHEET_ID"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=visible 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。",
+          "candidates": [
+            {
+              "value": [
+                "dws sheet show-gridline --node NODE_ID --sheet-id SHEET_ID"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=visible 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。"
+            }
+          ]
+        },
+        "idempotency": {
+          "value": "idempotent",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "idempotent",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_mode": {
+          "value": "local",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "local",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_reason": {
+          "value": "The reviewed CLI wrapper fixes visibility=visible, but sheet/set_gridline_visibility is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "The reviewed CLI wrapper fixes visibility=visible, but sheet/set_gridline_visibility is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_ref": {
+          "value": null,
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "interface_disposition_matrix",
+          "review_reason": "final interface mode local forbids a direct MCP interface_ref",
+          "candidates": [
+            {
+              "value": null,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "final interface mode local forbids a direct MCP interface_ref"
+            }
+          ]
+        },
+        "reviewed": {
+          "value": true,
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=visible 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。",
+          "candidates": [
+            {
+              "value": true,
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=visible 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "risk": {
+          "value": "medium",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "medium",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "use_when": {
+          "value": [
+            "用户明确要恢复显示某个工作表的网格线时。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=visible 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。",
+          "candidates": [
+            {
+              "value": [
+                "用户明确要恢复显示某个工作表的网格线时。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、固定 visibility=visible 的实现和 sheet workbook 参考补齐 reviewed Agent 选择语义。"
+            }
+          ]
+        }
+      },
+      "idempotency": "idempotent",
+      "interface_mode": "local",
+      "interface_reason": "The reviewed CLI wrapper fixes visibility=visible, but sheet/set_gridline_visibility is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+      "reviewed": true,
+      "risk": "medium",
+      "source_refs": [
+        "cobra-help:dws sheet show-gridline --help",
+        "internal/cli/schema_command_registry.json#sheet.show_gridline",
+        "internal/cli/schema_manual_hints.json",
+        "skills/mono/references/products/sheet/sheet-workbook.md",
+        "skills/mono/schema-hints/zz-interface-disposition-review.json",
+        "skills/mono/schema-hints/zz-runtime-confirmation-review.json"
+      ],
+      "use_when": [
+        "用户明确要恢复显示某个工作表的网格线时。"
+      ]
+    },
+    "sheet table-get": {
+      "agent_summary": "将在线表格区域读取为带列名、行数据、数据类型和数字格式的结构化 table。",
+      "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+      "availability": "available",
+      "avoid_when": [
+        "需要 per-cell 原始结构、写入数据或读取非表格文档时不要使用；per-cell 读取应使用 sheet range read。"
+      ],
+      "confirmation": "not_required",
+      "effect": "read",
+      "effect_source": "command-verb",
+      "examples": [
+        "dws sheet table-get --node NODE_ID --sheet-id SHEET_ID --range A1:D20"
+      ],
+      "field_provenance": {
+        "agent_summary": {
+          "value": "将在线表格区域读取为带列名、行数据、数据类型和数字格式的结构化 table。",
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、table-read 兼容 alias、结构化返回契约和 sheet read 参考补齐 reviewed Agent 选择语义。",
+          "candidates": [
+            {
+              "value": "将在线表格区域读取为带列名、行数据、数据类型和数字格式的结构化 table。",
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、table-read 兼容 alias、结构化返回契约和 sheet read 参考补齐 reviewed Agent 选择语义。"
+            }
+          ]
+        },
+        "availability": {
+          "value": "available",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "available",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "avoid_when": {
+          "value": [
+            "需要 per-cell 原始结构、写入数据或读取非表格文档时不要使用；per-cell 读取应使用 sheet range read。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、table-read 兼容 alias、结构化返回契约和 sheet read 参考补齐 reviewed Agent 选择语义。",
+          "candidates": [
+            {
+              "value": [
+                "需要 per-cell 原始结构、写入数据或读取非表格文档时不要使用；per-cell 读取应使用 sheet range read。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、table-read 兼容 alias、结构化返回契约和 sheet read 参考补齐 reviewed Agent 选择语义。"
+            }
+          ]
+        },
+        "confirmation": {
+          "value": "not_required",
+          "source": "risk-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "not_required",
+              "source": "risk-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "effect": {
+          "value": "read",
+          "source": "command-verb",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "read",
+              "source": "command-verb",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "examples": {
+          "value": [
+            "dws sheet table-get --node NODE_ID --sheet-id SHEET_ID --range A1:D20"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、table-read 兼容 alias、结构化返回契约和 sheet read 参考补齐 reviewed Agent 选择语义。",
+          "candidates": [
+            {
+              "value": [
+                "dws sheet table-get --node NODE_ID --sheet-id SHEET_ID --range A1:D20"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、table-read 兼容 alias、结构化返回契约和 sheet read 参考补齐 reviewed Agent 选择语义。"
+            }
+          ]
+        },
+        "idempotency": {
+          "value": "idempotent",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "idempotent",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "interface_mode": {
+          "value": "local",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "local",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_reason": {
+          "value": "The reviewed CLI wrapper is executable, but sheet/table_get is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "The reviewed CLI wrapper is executable, but sheet/table_get is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_ref": {
+          "value": null,
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "interface_disposition_matrix",
+          "review_reason": "final interface mode local forbids a direct MCP interface_ref",
+          "candidates": [
+            {
+              "value": null,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "final interface mode local forbids a direct MCP interface_ref"
+            }
+          ]
+        },
+        "reviewed": {
+          "value": true,
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、table-read 兼容 alias、结构化返回契约和 sheet read 参考补齐 reviewed Agent 选择语义。",
+          "candidates": [
+            {
+              "value": true,
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、table-read 兼容 alias、结构化返回契约和 sheet read 参考补齐 reviewed Agent 选择语义。"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "risk": {
+          "value": "low",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "low",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "use_when": {
+          "value": [
+            "需要把工作表数据直接交给 Agent 或数据分析流程，并保留列名与 dtype 信息时。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、table-read 兼容 alias、结构化返回契约和 sheet read 参考补齐 reviewed Agent 选择语义。",
+          "candidates": [
+            {
+              "value": [
+                "需要把工作表数据直接交给 Agent 或数据分析流程，并保留列名与 dtype 信息时。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、table-read 兼容 alias、结构化返回契约和 sheet read 参考补齐 reviewed Agent 选择语义。"
+            }
+          ]
+        }
+      },
+      "idempotency": "idempotent",
+      "interface_mode": "local",
+      "interface_reason": "The reviewed CLI wrapper is executable, but sheet/table_get is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+      "reviewed": true,
+      "risk": "low",
+      "source_refs": [
+        "cobra-help:dws sheet table-get --help",
+        "internal/cli/schema_command_registry.json#sheet.table_get",
+        "internal/cli/schema_manual_hints.json",
+        "skills/mono/references/products/sheet/sheet-read-data.md",
+        "skills/mono/schema-hints/zz-interface-disposition-review.json"
+      ],
+      "use_when": [
+        "需要把工作表数据直接交给 Agent 或数据分析流程，并保留列名与 dtype 信息时。"
+      ]
+    },
+    "sheet table-put": {
+      "agent_summary": "把一个或多个结构化 table 写入在线表格，必要时按 name 创建目标工作表。",
+      "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+      "availability": "available",
+      "avoid_when": [
+        "只需更新单个范围、输入还未形成合法 table JSON，或目标文档不明确时不要使用。"
+      ],
+      "confirmation": "not_required",
+      "effect": "write",
+      "effect_source": "command-verb",
+      "examples": [
+        "dws sheet table-put --node NODE_ID --sheets '[{\"name\":\"Sheet1\",\"columns\":[\"name\"],\"data\":[[\"Alice\"]]}]'"
+      ],
+      "field_provenance": {
+        "agent_summary": {
+          "value": "把一个或多个结构化 table 写入在线表格，必要时按 name 创建目标工作表。",
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、table-write 兼容 alias、JSON 输入解析和 sheet write 参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": "把一个或多个结构化 table 写入在线表格，必要时按 name 创建目标工作表。",
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、table-write 兼容 alias、JSON 输入解析和 sheet write 参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "availability": {
+          "value": "available",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "available",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "avoid_when": {
+          "value": [
+            "只需更新单个范围、输入还未形成合法 table JSON，或目标文档不明确时不要使用。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、table-write 兼容 alias、JSON 输入解析和 sheet write 参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "只需更新单个范围、输入还未形成合法 table JSON，或目标文档不明确时不要使用。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、table-write 兼容 alias、JSON 输入解析和 sheet write 参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "confirmation": {
+          "value": "not_required",
+          "source": "risk-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "not_required",
+              "source": "risk-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "effect": {
+          "value": "write",
+          "source": "command-verb",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "write",
+              "source": "command-verb",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "examples": {
+          "value": [
+            "dws sheet table-put --node NODE_ID --sheets '[{\"name\":\"Sheet1\",\"columns\":[\"name\"],\"data\":[[\"Alice\"]]}]'"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、table-write 兼容 alias、JSON 输入解析和 sheet write 参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "dws sheet table-put --node NODE_ID --sheets '[{\"name\":\"Sheet1\",\"columns\":[\"name\"],\"data\":[[\"Alice\"]]}]'"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、table-write 兼容 alias、JSON 输入解析和 sheet write 参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "idempotency": {
+          "value": "unknown",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "unknown",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "interface_mode": {
+          "value": "local",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "local",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_reason": {
+          "value": "The reviewed CLI wrapper is executable, but sheet/table_put is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "The reviewed CLI wrapper is executable, but sheet/table_put is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_ref": {
+          "value": null,
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "interface_disposition_matrix",
+          "review_reason": "final interface mode local forbids a direct MCP interface_ref",
+          "candidates": [
+            {
+              "value": null,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "final interface mode local forbids a direct MCP interface_ref"
+            }
+          ]
+        },
+        "reviewed": {
+          "value": true,
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、table-write 兼容 alias、JSON 输入解析和 sheet write 参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": true,
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、table-write 兼容 alias、JSON 输入解析和 sheet write 参考补齐 reviewed Agent 选择语义与示例。"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "risk": {
+          "value": "medium",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "medium",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "use_when": {
+          "value": [
+            "已有结构化列定义和行数据，需要一次写入一个或多个工作表时。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、table-write 兼容 alias、JSON 输入解析和 sheet write 参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "已有结构化列定义和行数据，需要一次写入一个或多个工作表时。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、table-write 兼容 alias、JSON 输入解析和 sheet write 参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        }
+      },
+      "idempotency": "unknown",
+      "interface_mode": "local",
+      "interface_reason": "The reviewed CLI wrapper is executable, but sheet/table_put is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+      "reviewed": true,
+      "risk": "medium",
+      "source_refs": [
+        "cobra-help:dws sheet table-put --help",
+        "internal/cli/schema_command_registry.json#sheet.table_put",
+        "internal/cli/schema_manual_hints.json",
+        "skills/mono/references/products/sheet/sheet-write-data.md",
+        "skills/mono/schema-hints/zz-interface-disposition-review.json"
+      ],
+      "use_when": [
+        "已有结构化列定义和行数据，需要一次写入一个或多个工作表时。"
       ]
     },
     "sheet template apply": {

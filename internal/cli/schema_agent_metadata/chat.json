@@ -8482,6 +8482,256 @@
         "需要对已有消息添加一个 emoji reaction 时"
       ]
     },
+    "chat message add-favorite": {
+      "agent_summary": "将指定会话中的一条消息加入当前用户的收藏。",
+      "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+      "availability": "available",
+      "avoid_when": [
+        "需要给消息添加表情、置顶消息或发送新消息时不要使用；本命令只修改当前用户的收藏状态。"
+      ],
+      "confirmation": "not_required",
+      "effect": "write",
+      "effect_source": "command-verb",
+      "examples": [
+        "dws chat message add-favorite --open-message-id MSG_ID --open-conversation-id CONVERSATION_ID"
+      ],
+      "field_provenance": {
+        "agent_summary": {
+          "value": "将指定会话中的一条消息加入当前用户的收藏。",
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、消息收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；不改变执行、安全或接口事实。",
+          "candidates": [
+            {
+              "value": "将指定会话中的一条消息加入当前用户的收藏。",
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、消息收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；不改变执行、安全或接口事实。"
+            }
+          ]
+        },
+        "availability": {
+          "value": "available",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "available",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "avoid_when": {
+          "value": [
+            "需要给消息添加表情、置顶消息或发送新消息时不要使用；本命令只修改当前用户的收藏状态。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、消息收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；不改变执行、安全或接口事实。",
+          "candidates": [
+            {
+              "value": [
+                "需要给消息添加表情、置顶消息或发送新消息时不要使用；本命令只修改当前用户的收藏状态。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、消息收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；不改变执行、安全或接口事实。"
+            }
+          ]
+        },
+        "confirmation": {
+          "value": "not_required",
+          "source": "risk-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "not_required",
+              "source": "risk-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "effect": {
+          "value": "write",
+          "source": "command-verb",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "write",
+              "source": "command-verb",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "examples": {
+          "value": [
+            "dws chat message add-favorite --open-message-id MSG_ID --open-conversation-id CONVERSATION_ID"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、消息收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；不改变执行、安全或接口事实。",
+          "candidates": [
+            {
+              "value": [
+                "dws chat message add-favorite --open-message-id MSG_ID --open-conversation-id CONVERSATION_ID"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、消息收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；不改变执行、安全或接口事实。"
+            }
+          ]
+        },
+        "idempotency": {
+          "value": "unknown",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "unknown",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "interface_mode": {
+          "value": "local",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "local",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_reason": {
+          "value": "The reviewed CLI wrapper is executable, but im/add_message_favorite is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "The reviewed CLI wrapper is executable, but im/add_message_favorite is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_ref": {
+          "value": null,
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "interface_disposition_matrix",
+          "review_reason": "final interface mode local forbids a direct MCP interface_ref",
+          "candidates": [
+            {
+              "value": null,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "final interface mode local forbids a direct MCP interface_ref"
+            }
+          ]
+        },
+        "reviewed": {
+          "value": true,
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、消息收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；不改变执行、安全或接口事实。",
+          "candidates": [
+            {
+              "value": true,
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、消息收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；不改变执行、安全或接口事实。"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "risk": {
+          "value": "medium",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "medium",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "use_when": {
+          "value": [
+            "用户明确要收藏一条已知消息，且已取得消息 ID 与所属会话 ID 时。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、消息收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；不改变执行、安全或接口事实。",
+          "candidates": [
+            {
+              "value": [
+                "用户明确要收藏一条已知消息，且已取得消息 ID 与所属会话 ID 时。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、消息收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；不改变执行、安全或接口事实。"
+            }
+          ]
+        }
+      },
+      "idempotency": "unknown",
+      "interface_mode": "local",
+      "interface_reason": "The reviewed CLI wrapper is executable, but im/add_message_favorite is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+      "reviewed": true,
+      "risk": "medium",
+      "source_refs": [
+        "cobra-help:dws chat message add-favorite --help",
+        "internal/cli/schema_command_registry.json#chat.add_message_favorite",
+        "internal/cli/schema_manual_hints.json",
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/zz-interface-disposition-review.json"
+      ],
+      "use_when": [
+        "用户明确要收藏一条已知消息，且已取得消息 ID 与所属会话 ID 时。"
+      ]
+    },
     "chat message add-text-emotion": {
       "agent_summary": "给指定消息添加已定义的文字表情",
       "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v1",
@@ -11187,6 +11437,256 @@
         "用户明确要求查看和某人的一对一聊天时"
       ]
     },
+    "chat message list-favorites": {
+      "agent_summary": "分页查询当前用户收藏的消息列表。",
+      "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+      "availability": "available",
+      "avoid_when": [
+        "需要搜索普通聊天记录、置顶消息或修改收藏状态时不要使用。"
+      ],
+      "confirmation": "not_required",
+      "effect": "read",
+      "effect_source": "command-verb",
+      "examples": [
+        "dws chat message list-favorites --cursor 0 --size 20"
+      ],
+      "field_provenance": {
+        "agent_summary": {
+          "value": "分页查询当前用户收藏的消息列表。",
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、数字游标分页契约和 chat 产品参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": "分页查询当前用户收藏的消息列表。",
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、数字游标分页契约和 chat 产品参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "availability": {
+          "value": "available",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "available",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "avoid_when": {
+          "value": [
+            "需要搜索普通聊天记录、置顶消息或修改收藏状态时不要使用。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、数字游标分页契约和 chat 产品参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "需要搜索普通聊天记录、置顶消息或修改收藏状态时不要使用。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、数字游标分页契约和 chat 产品参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "confirmation": {
+          "value": "not_required",
+          "source": "risk-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "not_required",
+              "source": "risk-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "effect": {
+          "value": "read",
+          "source": "command-verb",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "read",
+              "source": "command-verb",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "examples": {
+          "value": [
+            "dws chat message list-favorites --cursor 0 --size 20"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、数字游标分页契约和 chat 产品参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "dws chat message list-favorites --cursor 0 --size 20"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、数字游标分页契约和 chat 产品参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "idempotency": {
+          "value": "idempotent",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "idempotent",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "interface_mode": {
+          "value": "local",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "local",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_reason": {
+          "value": "The reviewed CLI wrapper is executable, but im/list_message_favorites is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "The reviewed CLI wrapper is executable, but im/list_message_favorites is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_ref": {
+          "value": null,
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "interface_disposition_matrix",
+          "review_reason": "final interface mode local forbids a direct MCP interface_ref",
+          "candidates": [
+            {
+              "value": null,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "final interface mode local forbids a direct MCP interface_ref"
+            }
+          ]
+        },
+        "reviewed": {
+          "value": true,
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、数字游标分页契约和 chat 产品参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": true,
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、数字游标分页契约和 chat 产品参考补齐 reviewed Agent 选择语义与示例。"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "risk": {
+          "value": "low",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "low",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "use_when": {
+          "value": [
+            "需要查看当前用户已经收藏的消息，或使用 nextCursor 继续翻页时。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、数字游标分页契约和 chat 产品参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "需要查看当前用户已经收藏的消息，或使用 nextCursor 继续翻页时。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、数字游标分页契约和 chat 产品参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        }
+      },
+      "idempotency": "idempotent",
+      "interface_mode": "local",
+      "interface_reason": "The reviewed CLI wrapper is executable, but im/list_message_favorites is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+      "reviewed": true,
+      "risk": "low",
+      "source_refs": [
+        "cobra-help:dws chat message list-favorites --help",
+        "internal/cli/schema_command_registry.json#chat.list_message_favorites",
+        "internal/cli/schema_manual_hints.json",
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/zz-interface-disposition-review.json"
+      ],
+      "use_when": [
+        "需要查看当前用户已经收藏的消息，或使用 nextCursor 继续翻页时。"
+      ]
+    },
     "chat message list-focused": {
       "agent_summary": "列出当前用户特别关注的消息",
       "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v1",
@@ -13702,6 +14202,256 @@
       ],
       "use_when": [
         "需要取消此前添加的 emoji reaction 时"
+      ]
+    },
+    "chat message remove-favorite": {
+      "agent_summary": "取消当前用户对指定消息的收藏标记，不删除原消息。",
+      "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+      "availability": "available",
+      "avoid_when": [
+        "需要撤回或删除原消息、移除表情回应或取消消息置顶时不要使用。"
+      ],
+      "confirmation": "not_required",
+      "effect": "write",
+      "effect_source": "command-verb",
+      "examples": [
+        "dws chat message remove-favorite --open-message-id MSG_ID --open-conversation-id CONVERSATION_ID"
+      ],
+      "field_provenance": {
+        "agent_summary": {
+          "value": "取消当前用户对指定消息的收藏标记，不删除原消息。",
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、取消收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；明确其不会删除原消息。",
+          "candidates": [
+            {
+              "value": "取消当前用户对指定消息的收藏标记，不删除原消息。",
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、取消收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；明确其不会删除原消息。"
+            }
+          ]
+        },
+        "availability": {
+          "value": "available",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "available",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "avoid_when": {
+          "value": [
+            "需要撤回或删除原消息、移除表情回应或取消消息置顶时不要使用。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、取消收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；明确其不会删除原消息。",
+          "candidates": [
+            {
+              "value": [
+                "需要撤回或删除原消息、移除表情回应或取消消息置顶时不要使用。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、取消收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；明确其不会删除原消息。"
+            }
+          ]
+        },
+        "confirmation": {
+          "value": "not_required",
+          "source": "risk-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "not_required",
+              "source": "risk-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "effect": {
+          "value": "write",
+          "source": "command-verb",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "write",
+              "source": "command-verb",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "examples": {
+          "value": [
+            "dws chat message remove-favorite --open-message-id MSG_ID --open-conversation-id CONVERSATION_ID"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、取消收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；明确其不会删除原消息。",
+          "candidates": [
+            {
+              "value": [
+                "dws chat message remove-favorite --open-message-id MSG_ID --open-conversation-id CONVERSATION_ID"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、取消收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；明确其不会删除原消息。"
+            }
+          ]
+        },
+        "idempotency": {
+          "value": "unknown",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "unknown",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "interface_mode": {
+          "value": "local",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "local",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_reason": {
+          "value": "The reviewed CLI wrapper is executable, but im/remove_message_favorite is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "The reviewed CLI wrapper is executable, but im/remove_message_favorite is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_ref": {
+          "value": null,
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "interface_disposition_matrix",
+          "review_reason": "final interface mode local forbids a direct MCP interface_ref",
+          "candidates": [
+            {
+              "value": null,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "final interface mode local forbids a direct MCP interface_ref"
+            }
+          ]
+        },
+        "reviewed": {
+          "value": true,
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、取消收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；明确其不会删除原消息。",
+          "candidates": [
+            {
+              "value": true,
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、取消收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；明确其不会删除原消息。"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "risk": {
+          "value": "medium",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "medium",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "use_when": {
+          "value": [
+            "用户明确要从个人收藏中移除一条已知消息时。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、取消收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；明确其不会删除原消息。",
+          "candidates": [
+            {
+              "value": [
+                "用户明确要从个人收藏中移除一条已知消息时。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、取消收藏实现和 chat 产品参考补齐 reviewed Agent 选择语义；明确其不会删除原消息。"
+            }
+          ]
+        }
+      },
+      "idempotency": "unknown",
+      "interface_mode": "local",
+      "interface_reason": "The reviewed CLI wrapper is executable, but im/remove_message_favorite is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+      "reviewed": true,
+      "risk": "medium",
+      "source_refs": [
+        "cobra-help:dws chat message remove-favorite --help",
+        "internal/cli/schema_command_registry.json#chat.remove_message_favorite",
+        "internal/cli/schema_manual_hints.json",
+        "skills/mono/references/products/chat.md",
+        "skills/mono/schema-hints/zz-interface-disposition-review.json"
+      ],
+      "use_when": [
+        "用户明确要从个人收藏中移除一条已知消息时。"
       ]
     },
     "chat message remove-text-emotion": {

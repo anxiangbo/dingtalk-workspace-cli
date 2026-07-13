@@ -5502,6 +5502,522 @@
         "不知道文件位置，需要按名称或条件全局搜索时"
       ]
     },
+    "drive shortcut": {
+      "agent_summary": "为钉盘或文档空间中的现有节点创建快捷方式。",
+      "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+      "availability": "available",
+      "avoid_when": [
+        "需要复制节点内容、移动原节点或创建新文件时不要使用；快捷方式不会复制源内容。"
+      ],
+      "confirmation": "not_required",
+      "effect": "write",
+      "effect_source": "agent-hint",
+      "examples": [
+        "dws drive shortcut --node NODE_ID --folder FOLDER_NODE_ID"
+      ],
+      "field_provenance": {
+        "agent_summary": {
+          "value": "为钉盘或文档空间中的现有节点创建快捷方式。",
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、目标文件夹/知识库参数和 drive 产品参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": "为钉盘或文档空间中的现有节点创建快捷方式。",
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、目标文件夹/知识库参数和 drive 产品参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "availability": {
+          "value": "available",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "available",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "avoid_when": {
+          "value": [
+            "需要复制节点内容、移动原节点或创建新文件时不要使用；快捷方式不会复制源内容。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、目标文件夹/知识库参数和 drive 产品参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "需要复制节点内容、移动原节点或创建新文件时不要使用；快捷方式不会复制源内容。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、目标文件夹/知识库参数和 drive 产品参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "confirmation": {
+          "value": "not_required",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "not_required",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "effect": {
+          "value": "write",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "write",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "examples": {
+          "value": [
+            "dws drive shortcut --node NODE_ID --folder FOLDER_NODE_ID"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、目标文件夹/知识库参数和 drive 产品参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "dws drive shortcut --node NODE_ID --folder FOLDER_NODE_ID"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、目标文件夹/知识库参数和 drive 产品参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "idempotency": {
+          "value": "non_idempotent",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "non_idempotent",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_mode": {
+          "value": "local",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "local",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_reason": {
+          "value": "The reviewed CLI wrapper is executable, but drive/create_shortcut is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "The reviewed CLI wrapper is executable, but drive/create_shortcut is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_ref": {
+          "value": null,
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "interface_disposition_matrix",
+          "review_reason": "final interface mode local forbids a direct MCP interface_ref",
+          "candidates": [
+            {
+              "value": null,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "final interface mode local forbids a direct MCP interface_ref"
+            }
+          ]
+        },
+        "reviewed": {
+          "value": true,
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、目标文件夹/知识库参数和 drive 产品参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": true,
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、目标文件夹/知识库参数和 drive 产品参考补齐 reviewed Agent 选择语义与示例。"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "risk": {
+          "value": "medium",
+          "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "medium",
+              "source": "skills/mono/schema-hints/zz-runtime-confirmation-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "runtime-confirmation-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "use_when": {
+          "value": [
+            "用户要在另一个位置放置现有节点的快捷入口，而不是复制或移动原节点时。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、目标文件夹/知识库参数和 drive 产品参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "用户要在另一个位置放置现有节点的快捷入口，而不是复制或移动原节点时。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、目标文件夹/知识库参数和 drive 产品参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        }
+      },
+      "idempotency": "non_idempotent",
+      "interface_mode": "local",
+      "interface_reason": "The reviewed CLI wrapper is executable, but drive/create_shortcut is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+      "reviewed": true,
+      "risk": "medium",
+      "source_refs": [
+        "cobra-help:dws drive shortcut --help",
+        "internal/cli/schema_command_registry.json#drive.create_shortcut",
+        "internal/cli/schema_manual_hints.json",
+        "skills/mono/references/products/drive.md",
+        "skills/mono/schema-hints/zz-interface-disposition-review.json",
+        "skills/mono/schema-hints/zz-runtime-confirmation-review.json"
+      ],
+      "use_when": [
+        "用户要在另一个位置放置现有节点的快捷入口，而不是复制或移动原节点时。"
+      ]
+    },
+    "drive stats": {
+      "agent_summary": "读取指定钉盘或文档空间节点的阅读、编辑、评论、点赞、预览与下载等统计。",
+      "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+      "availability": "available",
+      "avoid_when": [
+        "需要读取文件正文、查看文件元数据或修改节点时不要使用；不同文件类型的统计维度可能不同。"
+      ],
+      "confirmation": "not_required",
+      "effect": "read",
+      "effect_source": "command-verb",
+      "examples": [
+        "dws drive stats --node NODE_ID"
+      ],
+      "field_provenance": {
+        "agent_summary": {
+          "value": "读取指定钉盘或文档空间节点的阅读、编辑、评论、点赞、预览与下载等统计。",
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、节点统计返回语义和 drive 产品参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": "读取指定钉盘或文档空间节点的阅读、编辑、评论、点赞、预览与下载等统计。",
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、节点统计返回语义和 drive 产品参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "availability": {
+          "value": "available",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "available",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "avoid_when": {
+          "value": [
+            "需要读取文件正文、查看文件元数据或修改节点时不要使用；不同文件类型的统计维度可能不同。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、节点统计返回语义和 drive 产品参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "需要读取文件正文、查看文件元数据或修改节点时不要使用；不同文件类型的统计维度可能不同。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、节点统计返回语义和 drive 产品参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "confirmation": {
+          "value": "not_required",
+          "source": "risk-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "not_required",
+              "source": "risk-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "effect": {
+          "value": "read",
+          "source": "command-verb",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "read",
+              "source": "command-verb",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "examples": {
+          "value": [
+            "dws drive stats --node NODE_ID"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、节点统计返回语义和 drive 产品参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "dws drive stats --node NODE_ID"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、节点统计返回语义和 drive 产品参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        },
+        "idempotency": {
+          "value": "idempotent",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "idempotent",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "interface_mode": {
+          "value": "local",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "local",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_reason": {
+          "value": "The reviewed CLI wrapper is executable, but drive/get_node_stats is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed",
+          "candidates": [
+            {
+              "value": "The reviewed CLI wrapper is executable, but drive/get_node_stats is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "interface_ref": {
+          "value": null,
+          "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "interface_disposition_matrix",
+          "review_reason": "final interface mode local forbids a direct MCP interface_ref",
+          "candidates": [
+            {
+              "value": null,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": true,
+              "review_reason": "final interface mode local forbids a direct MCP interface_ref"
+            }
+          ]
+        },
+        "reviewed": {
+          "value": true,
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、节点统计返回语义和 drive 产品参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": true,
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、节点统计返回语义和 drive 产品参考补齐 reviewed Agent 选择语义与示例。"
+            },
+            {
+              "value": true,
+              "source": "skills/mono/schema-hints/zz-interface-disposition-review.json",
+              "precedence": "reviewed_explicit",
+              "selected": false,
+              "review_reason": "unverified-direct-interface-review-v1 marks this tool as reviewed"
+            }
+          ]
+        },
+        "risk": {
+          "value": "low",
+          "source": "effect-default",
+          "precedence": "inference_or_default",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "low",
+              "source": "effect-default",
+              "precedence": "inference_or_default",
+              "selected": true
+            }
+          ]
+        },
+        "use_when": {
+          "value": [
+            "已知节点 ID 或 URL，需要分析该节点的访问和协作统计时。"
+          ],
+          "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+          "precedence": "reviewed_manual",
+          "resolution": "highest_precedence",
+          "review_reason": "依据新增的真实 Cobra leaf、节点统计返回语义和 drive 产品参考补齐 reviewed Agent 选择语义与示例。",
+          "candidates": [
+            {
+              "value": [
+                "已知节点 ID 或 URL，需要分析该节点的访问和协作统计时。"
+              ],
+              "source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v2",
+              "precedence": "reviewed_manual",
+              "selected": true,
+              "review_reason": "依据新增的真实 Cobra leaf、节点统计返回语义和 drive 产品参考补齐 reviewed Agent 选择语义与示例。"
+            }
+          ]
+        }
+      },
+      "idempotency": "idempotent",
+      "interface_mode": "local",
+      "interface_reason": "The reviewed CLI wrapper is executable, but drive/get_node_stats is absent from the pinned MCP metadata snapshot; do not advertise a direct MCP interface.",
+      "reviewed": true,
+      "risk": "low",
+      "source_refs": [
+        "cobra-help:dws drive stats --help",
+        "internal/cli/schema_command_registry.json#drive.get_node_stats",
+        "internal/cli/schema_manual_hints.json",
+        "skills/mono/references/products/drive.md",
+        "skills/mono/schema-hints/zz-interface-disposition-review.json"
+      ],
+      "use_when": [
+        "已知节点 ID 或 URL，需要分析该节点的访问和协作统计时。"
+      ]
+    },
     "drive upload": {
       "agent_summary": "上传本地文件到钉盘或文档空间",
       "agent_summary_source": "internal/cli/schema_manual_hints.json#agent_hints@ai-agent-contract-2026-07-13-v1",

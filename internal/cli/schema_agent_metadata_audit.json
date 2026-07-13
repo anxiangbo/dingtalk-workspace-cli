@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "source_hash": "sha256:be1ea2ead798ced7298f457b7b6fca9b4d13816dcb24c47dc6cf1e9c30710ce2",
-  "surface_hash": "sha256:49f79c3ddb1b4513faded7f513952ec49904a28a1f1fea99f4a439ff848df7c7",
-  "source_files": 104,
+  "source_hash": "sha256:d5e50061b16dcfc6dcd29605fab69484ff045ef75f54220bfd5a0fa5a75b0a29",
+  "surface_hash": "sha256:be28fa5be59b27f5cd141a64487710f29e2e7361b1555a3a64818942e4327d37",
+  "source_files": 105,
   "hint_files": 16,
   "hint_products": 43,
-  "hint_tools": 2047,
+  "hint_tools": 2083,
   "interface_metadata": {
     "source": "mcp-tools-list+cli-registry",
     "revision": "4574f7022c32cf4c033e9b7b4156e2fec815fed8",
@@ -29,13 +29,13 @@
   "coverage": {
     "surface_products": 20,
     "products_with_metadata": 20,
-    "surface_tools": 539,
-    "tools_with_metadata": 539,
-    "tools_with_agent_summary": 539,
-    "tools_with_use_when": 539,
-    "tools_with_avoid_when": 539,
-    "tools_with_examples": 539,
-    "tools_with_interface_mode": 539,
+    "surface_tools": 554,
+    "tools_with_metadata": 554,
+    "tools_with_agent_summary": 554,
+    "tools_with_use_when": 554,
+    "tools_with_avoid_when": 554,
+    "tools_with_examples": 554,
+    "tools_with_interface_mode": 554,
     "unmatched_skill_tools": 162,
     "unreviewed_skill_tools": 40
   },
@@ -272,8 +272,8 @@
       "line": 12,
       "candidates": [
         "doc block update",
-        "doc permission update",
-        "doc update"
+        "doc comment update",
+        "doc permission update"
       ],
       "review": {
         "status": "stale",
@@ -1637,8 +1637,8 @@
       "line": 1084,
       "candidates": [
         "chat message add-emoji",
-        "chat message add-text-emotion",
-        "chat message combine-forward"
+        "chat message add-favorite",
+        "chat message add-text-emotion"
       ],
       "review": {
         "status": "stale",
@@ -1648,7 +1648,7 @@
     {
       "tool_path": "chat category create",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1400,
+      "line": 1439,
       "candidates": [
         "chat group create",
         "chat category create-smart",
@@ -1662,7 +1662,7 @@
     {
       "tool_path": "chat category delete",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1425,
+      "line": 1464,
       "candidates": [
         "chat category create-smart",
         "chat category list",
@@ -1676,7 +1676,7 @@
     {
       "tool_path": "chat category rename",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1436,
+      "line": 1475,
       "candidates": [
         "chat group rename",
         "chat category create-smart",
@@ -1690,7 +1690,7 @@
     {
       "tool_path": "chat category add-conv",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1448,
+      "line": 1487,
       "candidates": [
         "chat category create-smart",
         "chat category list",
@@ -1704,7 +1704,7 @@
     {
       "tool_path": "chat category remove-conv",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1461,
+      "line": 1500,
       "candidates": [
         "chat category create-smart",
         "chat category list",
@@ -1717,48 +1717,6 @@
     },
     {
       "tool_path": "chat text translate",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1476,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat text translate",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1477,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat text translate",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1478,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat hide",
       "source": "skills/mono/references/products/chat.md",
       "line": 1515,
       "candidates": [
@@ -1772,7 +1730,7 @@
       }
     },
     {
-      "tool_path": "chat hide",
+      "tool_path": "chat text translate",
       "source": "skills/mono/references/products/chat.md",
       "line": 1516,
       "candidates": [
@@ -1786,9 +1744,37 @@
       }
     },
     {
-      "tool_path": "chat mute-at-all",
+      "tool_path": "chat text translate",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1538,
+      "line": 1517,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat hide",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1554,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat hide",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1555,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1802,7 +1788,21 @@
     {
       "tool_path": "chat mute-at-all",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1539,
+      "line": 1577,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat mute-at-all",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1578,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1816,7 +1816,7 @@
     {
       "tool_path": "chat mute-red-envelope",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1561,
+      "line": 1600,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1829,48 +1829,6 @@
     },
     {
       "tool_path": "chat mute-red-envelope",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1562,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat mark-unread",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1582,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat mark-unread",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1583,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat clear-red-point",
       "source": "skills/mono/references/products/chat.md",
       "line": 1601,
       "candidates": [
@@ -1884,457 +1842,9 @@
       }
     },
     {
-      "tool_path": "chat clear-red-point",
+      "tool_path": "chat mark-unread",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1602,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat clear-all-red-point",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1618,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat clear-all-red-point",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1620,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat list-all-conversations",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1634,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat list-all-conversations",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1635,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat list-all-conversations",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1636,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat list-all-conversations",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1637,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat clear-messages",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1657,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat clear-messages",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1658,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat mark-read",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1676,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat mark-read",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1677,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat group list-join-validations",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1720,
-      "candidates": [
-        "chat group bots",
-        "chat group create",
-        "chat group dismiss"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat group list-join-validations",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1721,
-      "candidates": [
-        "chat group bots",
-        "chat group create",
-        "chat group dismiss"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat group list-join-validations",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1722,
-      "candidates": [
-        "chat group bots",
-        "chat group create",
-        "chat group dismiss"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat group audit-join-validation",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1742,
-      "candidates": [
-        "chat group bots",
-        "chat group create",
-        "chat group dismiss"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat group audit-join-validation",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1743,
-      "candidates": [
-        "chat group bots",
-        "chat group create",
-        "chat group dismiss"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat group members",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1775,
-      "candidates": [
-        "chat group members add",
-        "chat group members add-bot",
-        "chat group members remove"
-      ],
-      "review": {
-        "status": "group",
-        "reason": "Skill 中的命令分组引用，不是可执行 leaf，禁止模糊绑定到任一子命令"
-      }
-    },
-    {
-      "tool_path": "chat group update-alias",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1780,
-      "candidates": [
-        "chat group bots",
-        "chat group create",
-        "chat group dismiss"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat group update-nick",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1781,
-      "candidates": [
-        "chat group bots",
-        "chat group create",
-        "chat group dismiss"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat group members list-by-ids",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1782,
-      "candidates": [
-        "chat message list-by-ids",
-        "chat group members add",
-        "chat group members add-bot"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat category create",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1806,
-      "candidates": [
-        "chat group create",
-        "chat category create-smart",
-        "chat category list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat category delete",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1808,
-      "candidates": [
-        "chat category create-smart",
-        "chat category list",
-        "chat category list-conversations"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat category rename",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1809,
-      "candidates": [
-        "chat group rename",
-        "chat category create-smart",
-        "chat category list"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat category add-conv",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1810,
-      "candidates": [
-        "chat category create-smart",
-        "chat category list",
-        "chat category list-conversations"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat category remove-conv",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1811,
-      "candidates": [
-        "chat category create-smart",
-        "chat category list",
-        "chat category list-conversations"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat group share-invite",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1822,
-      "candidates": [
-        "chat group bots",
-        "chat group create",
-        "chat group dismiss"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat group notice create/edit/get/list",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1823,
-      "candidates": [
-        "chat group bots",
-        "chat group create",
-        "chat group dismiss"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat message list-emotion-replies",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1825,
-      "candidates": [
-        "chat message add-emoji",
-        "chat message add-text-emotion",
-        "chat message combine-forward"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat hide",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1832,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat mute-at-all",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1833,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat mute-at-all",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1834,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat mute-red-envelope",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1835,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat mute-red-envelope",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1836,
+      "line": 1621,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2348,21 +1858,7 @@
     {
       "tool_path": "chat mark-unread",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1837,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat mark-read",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1838,
+      "line": 1622,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2376,7 +1872,21 @@
     {
       "tool_path": "chat clear-red-point",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1839,
+      "line": 1640,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat clear-red-point",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1641,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2390,7 +1900,21 @@
     {
       "tool_path": "chat clear-all-red-point",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1840,
+      "line": 1657,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat clear-all-red-point",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1659,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2404,7 +1928,49 @@
     {
       "tool_path": "chat list-all-conversations",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1841,
+      "line": 1673,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat list-all-conversations",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1674,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat list-all-conversations",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1675,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat list-all-conversations",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1676,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2418,7 +1984,49 @@
     {
       "tool_path": "chat clear-messages",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1842,
+      "line": 1696,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat clear-messages",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1697,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat mark-read",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1715,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat mark-read",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1716,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2432,7 +2040,35 @@
     {
       "tool_path": "chat group list-join-validations",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1844,
+      "line": 1759,
+      "candidates": [
+        "chat group bots",
+        "chat group create",
+        "chat group dismiss"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat group list-join-validations",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1760,
+      "candidates": [
+        "chat group bots",
+        "chat group create",
+        "chat group dismiss"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat group list-join-validations",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1761,
       "candidates": [
         "chat group bots",
         "chat group create",
@@ -2446,7 +2082,371 @@
     {
       "tool_path": "chat group audit-join-validation",
       "source": "skills/mono/references/products/chat.md",
+      "line": 1781,
+      "candidates": [
+        "chat group bots",
+        "chat group create",
+        "chat group dismiss"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat group audit-join-validation",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1782,
+      "candidates": [
+        "chat group bots",
+        "chat group create",
+        "chat group dismiss"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat group members",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1814,
+      "candidates": [
+        "chat group members add",
+        "chat group members add-bot",
+        "chat group members remove"
+      ],
+      "review": {
+        "status": "group",
+        "reason": "Skill 中的命令分组引用，不是可执行 leaf，禁止模糊绑定到任一子命令"
+      }
+    },
+    {
+      "tool_path": "chat group update-alias",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1819,
+      "candidates": [
+        "chat group bots",
+        "chat group create",
+        "chat group dismiss"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat group update-nick",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1820,
+      "candidates": [
+        "chat group bots",
+        "chat group create",
+        "chat group dismiss"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat group members list-by-ids",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1821,
+      "candidates": [
+        "chat message list-by-ids",
+        "chat group members add",
+        "chat group members add-bot"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat category create",
+      "source": "skills/mono/references/products/chat.md",
       "line": 1845,
+      "candidates": [
+        "chat group create",
+        "chat category create-smart",
+        "chat category list"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat category delete",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1847,
+      "candidates": [
+        "chat category create-smart",
+        "chat category list",
+        "chat category list-conversations"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat category rename",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1848,
+      "candidates": [
+        "chat group rename",
+        "chat category create-smart",
+        "chat category list"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat category add-conv",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1849,
+      "candidates": [
+        "chat category create-smart",
+        "chat category list",
+        "chat category list-conversations"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat category remove-conv",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1850,
+      "candidates": [
+        "chat category create-smart",
+        "chat category list",
+        "chat category list-conversations"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat group share-invite",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1861,
+      "candidates": [
+        "chat group bots",
+        "chat group create",
+        "chat group dismiss"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat group notice create/edit/get/list",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1862,
+      "candidates": [
+        "chat group bots",
+        "chat group create",
+        "chat group dismiss"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat message list-emotion-replies",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1864,
+      "candidates": [
+        "chat message add-emoji",
+        "chat message add-favorite",
+        "chat message add-text-emotion"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat hide",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1871,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat mute-at-all",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1872,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat mute-at-all",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1873,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat mute-red-envelope",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1874,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat mute-red-envelope",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1875,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat mark-unread",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1876,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat mark-read",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1877,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat clear-red-point",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1878,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat clear-all-red-point",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1879,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat list-all-conversations",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1880,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat clear-messages",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1881,
+      "candidates": [
+        "chat bot find",
+        "chat bot search",
+        "chat category create-smart"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat group list-join-validations",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1883,
+      "candidates": [
+        "chat group bots",
+        "chat group create",
+        "chat group dismiss"
+      ],
+      "review": {
+        "status": "stale",
+        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
+      }
+    },
+    {
+      "tool_path": "chat group audit-join-validation",
+      "source": "skills/mono/references/products/chat.md",
+      "line": 1884,
       "candidates": [
         "chat group bots",
         "chat group create",
@@ -2460,7 +2460,7 @@
     {
       "tool_path": "chat media upload",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1852,
+      "line": 1891,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2474,7 +2474,7 @@
     {
       "tool_path": "chat text translate",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1864,
+      "line": 1903,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2856,7 +2856,7 @@
     {
       "tool_path": "doc import",
       "source": "skills/mono/references/products/doc.md",
-      "line": 643,
+      "line": 659,
       "candidates": [
         "doc import get",
         "doc block delete",
@@ -2870,7 +2870,7 @@
     {
       "tool_path": "doc import",
       "source": "skills/mono/references/products/doc.md",
-      "line": 801,
+      "line": 817,
       "candidates": [
         "doc import get",
         "doc block delete",
@@ -2884,7 +2884,7 @@
     {
       "tool_path": "doc import",
       "source": "skills/mono/references/products/doc.md",
-      "line": 804,
+      "line": 820,
       "candidates": [
         "doc import get",
         "doc block delete",
@@ -2898,7 +2898,7 @@
     {
       "tool_path": "doc import",
       "source": "skills/mono/references/products/doc.md",
-      "line": 807,
+      "line": 823,
       "candidates": [
         "doc import get",
         "doc block delete",

@@ -21,7 +21,22 @@
     "calendar.get_calendar_participants --event": "eventId (current inherited flag and MCP interface)",
     "calendar.remove_calendar_participant --attendees": "attendeesToRemove (current inherited flag and MCP interface)",
     "calendar.remove_calendar_participant --calendar-id": "calendarId (current inherited flag and MCP interface)",
-    "calendar.remove_calendar_participant --event": "eventId (current inherited flag and MCP interface)"
+    "calendar.remove_calendar_participant --event": "eventId (current inherited flag and MCP interface)",
+    "doc.delete_comment --node": "nodeId (new reviewed doc-comment helper payload)",
+    "doc.update_comment --mention": "mentionedUserIds (new reviewed doc-comment helper payload)",
+    "doc.update_comment --node": "nodeId (new reviewed doc-comment helper payload)",
+    "drive.create_shortcut --folder": "targetFolderId (new reviewed drive shortcut helper payload)",
+    "drive.create_shortcut --node": "nodeId (new reviewed drive shortcut helper payload)",
+    "drive.create_shortcut --workspace": "workspaceId (new reviewed drive shortcut helper payload)",
+    "drive.get_node_stats --node": "nodeId (new reviewed drive stats helper payload)",
+    "sheet.create_pivot_table --node": "nodeId (new reviewed sheet pivot-table helper payload)",
+    "sheet.delete_pivot_table --node": "nodeId (new reviewed sheet pivot-table helper payload)",
+    "sheet.hide_gridline --node": "nodeId (new reviewed sheet gridline helper payload)",
+    "sheet.list_pivot_tables --node": "nodeId (new reviewed sheet pivot-table helper payload)",
+    "sheet.show_gridline --node": "nodeId (new reviewed sheet gridline helper payload)",
+    "sheet.table_get --node": "nodeId (new reviewed sheet table helper payload)",
+    "sheet.table_put --node": "nodeId (new reviewed sheet table helper payload)",
+    "sheet.update_pivot_table --node": "nodeId (new reviewed sheet pivot-table helper payload)"
   },
   "bindings": {
     "aisearch.search_enterprise": {
@@ -323,6 +338,45 @@
     },
     "chat.update_streaming_card": {
       "content": "msgContent"
+    },
+    "doc.delete_comment": {
+      "node": "nodeId"
+    },
+    "doc.update_comment": {
+      "mention": "mentionedUserIds",
+      "node": "nodeId"
+    },
+    "drive.create_shortcut": {
+      "folder": "targetFolderId",
+      "node": "nodeId",
+      "workspace": "workspaceId"
+    },
+    "drive.get_node_stats": {
+      "node": "nodeId"
+    },
+    "sheet.create_pivot_table": {
+      "node": "nodeId"
+    },
+    "sheet.delete_pivot_table": {
+      "node": "nodeId"
+    },
+    "sheet.hide_gridline": {
+      "node": "nodeId"
+    },
+    "sheet.list_pivot_tables": {
+      "node": "nodeId"
+    },
+    "sheet.show_gridline": {
+      "node": "nodeId"
+    },
+    "sheet.table_get": {
+      "node": "nodeId"
+    },
+    "sheet.table_put": {
+      "node": "nodeId"
+    },
+    "sheet.update_pivot_table": {
+      "node": "nodeId"
     },
     "contact.get_authorized_emp_rosterInfo": {
       "fields": "fieldCodeList"

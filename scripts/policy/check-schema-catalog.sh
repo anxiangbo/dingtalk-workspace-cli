@@ -104,8 +104,7 @@ if ! jq -e --arg registry_count "$registry_count" '
 	 elif .interface_mode == "composite" then
 	  .interface_ref == null and ((.interface_reason // "") | length) > 0
 	 else false end) and
-	((((.agent_source_refs // []) | index("skills/mono/schema-hints/selection-review.json")) != null) or
-	 (((.agent_source_refs // []) | index("skills/mono/schema-hints/runtime-surface-completeness.json")) != null))
+	(((.agent_source_refs // []) | index("internal/cli/schema_manual_hints.json")) != null)
   )
 ' internal/cli/schema_catalog.json >/dev/null; then
 	printf '%s\n' 'schema tools must have complete Agent summary/effect/safety metadata' >&2
@@ -169,7 +168,7 @@ if ! jq -e --slurpfile bindings internal/cli/schema_parameter_bindings.json '
   $bindings[0].historical_binding_count == 311 and
   ($bindings[0].migrations | length) == 5 and
   ($bindings[0].excluded | length) == 3 and
-  ($bindings[0].added | length) == 8 and
+  ($bindings[0].added | length) == 23 and
   ([$bindings[0].bindings | to_entries[] |
     .key as $tool | .value | to_entries[] |
     {tool: $tool, flag: .key, property: .value}
