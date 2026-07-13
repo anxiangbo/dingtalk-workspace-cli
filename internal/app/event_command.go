@@ -280,7 +280,7 @@ func newEventConsumeCommand() *cobra.Command {
 	f.StringVar(&personalOpts.GroupID, "group", "",
 		"group 规则：openConversationId")
 	f.StringVar(&personalOpts.ControlBaseURL, "personal-event-base-url", "",
-		"个人事件控制面 base URL；默认由 MCP base URL 派生为 /dws")
+		"个人事件控制面 base URL；当前默认预发 https://pre-mcp.dingtalk.com/dws")
 	f.BoolVar(&personalOpts.DebugRawEvents, "debug-raw-events", false,
 		"个人事件联调：绕过本地 event type/subscribe_id 过滤，输出当前 personal stream bus 收到的所有事件")
 	f.StringVar(&streamOpts.Mode, "stream-ticket-mode", strings.TrimSpace(os.Getenv("DWS_STREAM_TICKET_MODE")),
@@ -288,7 +288,7 @@ func newEventConsumeCommand() *cobra.Command {
 	f.StringVar(&streamOpts.SourceID, "stream-source-id", strings.TrimSpace(os.Getenv("DWS_STREAM_SOURCE_ID")),
 		"个人 Stream sourceId；开源版默认 open，可由 edition 覆盖")
 	f.StringVar(&streamOpts.TicketURL, "stream-ticket-url", strings.TrimSpace(os.Getenv("DWS_STREAM_TICKET_URL")),
-		"个人 Stream 取票 URL；默认由 MCP base URL 派生")
+		"个人 Stream 取票 URL；当前默认预发 https://pre-mcp.dingtalk.com/stream/connections/ticket")
 	hideEventInternalFlags(cmd, "as")
 	return cmd
 }
@@ -718,7 +718,7 @@ func newEventStatusCommand() *cobra.Command {
 	cmd.Flags().StringVar(&personalOpts.EventKey, "event", "", "个人事件 event_key 过滤")
 	cmd.Flags().StringVar(&personalOpts.Status, "status", "active", "个人订阅状态过滤: active|paused|error|deleted|all")
 	cmd.Flags().StringVar(&personalOpts.SubscribeID, "subscribe-id", "", "个人订阅 ID 过滤")
-	cmd.Flags().StringVar(&personalOpts.ControlBaseURL, "personal-event-base-url", "", "个人事件控制面 base URL；默认由 MCP base URL 派生为 /dws")
+	cmd.Flags().StringVar(&personalOpts.ControlBaseURL, "personal-event-base-url", "", "个人事件控制面 base URL；当前默认预发 https://pre-mcp.dingtalk.com/dws")
 	cmd.Flags().StringVar(&personalOpts.StreamSourceID, "stream-source-id", strings.TrimSpace(os.Getenv("DWS_STREAM_SOURCE_ID")),
 		"个人事件 sourceId；开源版默认 open，可由 edition 覆盖")
 	hideEventInternalFlags(cmd, "as", "all", "all-editions", "client-id", "fail-on-orphan")
@@ -997,7 +997,7 @@ func newEventStopCommand() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&asIdentity, "as", "user", "事件身份: user")
-	cmd.Flags().StringVar(&opts.ControlBaseURL, "personal-event-base-url", "", "个人事件控制面 base URL；默认由 MCP base URL 派生为 /dws")
+	cmd.Flags().StringVar(&opts.ControlBaseURL, "personal-event-base-url", "", "个人事件控制面 base URL；当前默认预发 https://pre-mcp.dingtalk.com/dws")
 	cmd.Flags().StringVar(&opts.StreamSourceID, "stream-source-id", strings.TrimSpace(os.Getenv("DWS_STREAM_SOURCE_ID")),
 		"个人事件 sourceId；开源版默认 open，可由 edition 覆盖")
 	cmd.Flags().BoolVar(&opts.All, "all", false, "取消当前身份下本地记录的所有个人订阅")
