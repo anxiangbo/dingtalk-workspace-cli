@@ -42,7 +42,10 @@ import (
 // silent (they dump every ping/pong).
 type streamSDKLogger struct{}
 
-func (streamSDKLogger) Debugf(format string, args ...interface{}) {}
+func (streamSDKLogger) Debugf(format string, args ...interface{}) {
+	_ = format
+	_ = args
+}
 func (streamSDKLogger) Infof(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, "[stream] "+format+"\n", args...)
 }
@@ -67,6 +70,38 @@ type forwarder interface {
 	forward(ctx context.Context, convID, text string) (string, error)
 	label() string
 }
+
+type connectStreamClient interface {
+	RegisterChatBotCallbackRouter(chatbot.IChatBotMessageHandler)
+	RegisterCardCallbackRouter(card.ICardCallbackHandler)
+	Start(context.Context) error
+	Close()
+}
+
+type connectChatReplier interface {
+	SimpleReplyMarkdown(context.Context, string, []byte, []byte) error
+	SimpleReplyText(context.Context, string, []byte) error
+}
+
+type connectMediaClient interface {
+	downloadMessageFile(context.Context, string, string) (string, error)
+	getUserUnionID(context.Context, string) (string, error)
+	downloadDentryFile(context.Context, int64, int64, string, string) (string, error)
+}
+
+var (
+	newConnectStreamClient = func(clientID, clientSecret string, keepAlive time.Duration) connectStreamClient {
+		return client.NewStreamClient(
+			client.WithAppCredential(client.NewAppCredentialConfig(clientID, clientSecret)),
+			client.WithAutoReconnect(true),
+			client.WithKeepAlive(keepAlive),
+		)
+	}
+	newConnectChatReplier = func() connectChatReplier { return chatbot.NewChatbotReplier() }
+	newConnectMediaClient = func(clientID, clientSecret string) connectMediaClient {
+		return newAICardClient(clientID, clientSecret, "")
+	}
+)
 
 type streamingForwarder interface {
 	forwarder
@@ -1145,6 +1180,15 @@ func connectTurnSummary(turn connectQueuedTurn) string {
 	return "[空消息]"
 }
 
+func connectApprovalGroupReply(replier connectChatReplier, webhook, channel string) approvalReplier {
+	return func(ctx context.Context, _ string, text string) error {
+		if len([]rune(text)) > 200 {
+			return replier.SimpleReplyMarkdown(ctx, webhook, []byte(channel), []byte(text))
+		}
+		return replier.SimpleReplyText(ctx, webhook, []byte(text))
+	}
+}
+
 func runStreamConnector(ctx context.Context, channel, clientID, clientSecret string, fwd forwarder, cardCli *aiCardClient, extras *connectExtras) error {
 	if extras == nil {
 		extras = &connectExtras{}
@@ -1173,23 +1217,21 @@ func runStreamConnector(ctx context.Context, channel, clientID, clientSecret str
 	health.start(ctx)
 
 	streamLoggerOnce.Do(func() { sdklogger.SetLogger(streamSDKLogger{}) })
-	replier := chatbot.NewChatbotReplier()
+	replier := newConnectChatReplier()
 	dedup := newMsgDedup(10000)
 	queue := newConvQueue()
 	// Media downloads need an authenticated API client even when cards are
 	// off (aiCardClient with an empty template is creds+HTTP only).
-	mediaCli := cardCli
-	if mediaCli == nil {
-		mediaCli = newAICardClient(clientID, clientSecret, "")
+	var mediaCli connectMediaClient
+	if cardCli != nil {
+		mediaCli = cardCli
+	} else {
+		mediaCli = newConnectMediaClient(clientID, clientSecret)
 	}
 
 	keepAlive := envDurationMS("DWS_CONNECT_KEEPALIVE_MS", 30*time.Second)
 	fmt.Fprintf(os.Stderr, "[connect] keepAlive=%s autoReconnect=true\n", keepAlive)
-	cli := client.NewStreamClient(
-		client.WithAppCredential(client.NewAppCredentialConfig(clientID, clientSecret)),
-		client.WithAutoReconnect(true),
-		client.WithKeepAlive(keepAlive),
-	)
+	cli := newConnectStreamClient(clientID, clientSecret, keepAlive)
 	cli.RegisterChatBotCallbackRouter(func(_ context.Context, data *chatbot.BotCallbackDataModel) ([]byte, error) {
 		text := strings.TrimSpace(data.Text.Content)
 		msgtype := strings.TrimSpace(data.Msgtype)
@@ -1598,12 +1640,7 @@ func runStreamConnector(ctx context.Context, channel, clientID, clientSecret str
 			// posts the outcome into the group itself. handled==true means the
 			// gate owns the reply and the normal delivery below is skipped.
 			if err == nil && gateOn {
-				groupReply := func(ctx context.Context, _, text string) error {
-					if len([]rune(text)) > 200 {
-						return replier.SimpleReplyMarkdown(ctx, webhook, []byte(channel), []byte(text))
-					}
-					return replier.SimpleReplyText(ctx, webhook, []byte(text))
-				}
+				groupReply := connectApprovalGroupReply(replier, webhook, channel)
 				out, handled := extras.approval.handleReply(context.Background(), strings.TrimSpace(callbackData.SenderStaffId), convID, reply, groupReply)
 				if handled {
 					if thinking {
@@ -1659,7 +1696,7 @@ func runStreamConnector(ctx context.Context, channel, clientID, clientSecret str
 					if attempt < len(backoffs) {
 						fmt.Fprintf(os.Stderr, "[connect] 普通消息发送失败 (%s, attempt %d/%d, msgId=%s): %v，%v 后重试\n",
 							channel, attempt+1, len(backoffs)+1, msgID, sendErr, backoffs[attempt])
-						time.Sleep(backoffs[attempt])
+						helperSleep(backoffs[attempt])
 					}
 				}
 				if sendErr != nil {

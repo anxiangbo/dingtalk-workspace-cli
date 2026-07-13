@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -30,6 +31,8 @@ var (
 	validateRequiredFlagWithAliases = cmdutil.ValidateRequiredFlagWithAliases
 	parseISOTimeToMillis            = cmdutil.ParseISOTimeToMillis
 	validateTimeRange               = cmdutil.ValidateTimeRange
+	helperSleep                     = time.Sleep
+	helperAfter                     = time.After
 )
 
 // Deps holds shared dependencies injected from the host application.

@@ -137,7 +137,7 @@ func (s *sheetAuditSink) record(ctx context.Context, req *ApprovalRequest) {
 			return
 		}
 		if attempt < 3 && isTransientSheetErr(err) {
-			time.Sleep(time.Duration(attempt) * 600 * time.Millisecond)
+			helperSleep(time.Duration(attempt) * 600 * time.Millisecond)
 			continue
 		}
 		break

@@ -19,7 +19,6 @@ import (
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -36,11 +35,12 @@ import (
 )
 
 const (
-	keychainTimeout = 5 * time.Second
-	dekBytes        = 32 // DEK = Data Encryption Key (AES-256)
-	ivBytes         = 12
-	tagBytes        = 16
+	dekBytes = 32 // DEK = Data Encryption Key (AES-256)
+	ivBytes  = 12
+	tagBytes = 16
 )
+
+var keychainTimeout = 5 * time.Second
 
 // StorageDir returns the storage directory for a given service name on macOS.
 // Uses ~/Library/Application Support/<service> following Apple conventions.
@@ -50,7 +50,7 @@ func StorageDir(service string) string {
 	if override := os.Getenv(StorageDirEnv); override != "" {
 		return filepath.Join(override, service)
 	}
-	home, err := os.UserHomeDir()
+	home, err := keychainUserHomeDir()
 	if err != nil || home == "" {
 		return filepath.Join(".dws", "keychain", service)
 	}
@@ -92,7 +92,7 @@ func checkDefaultKeychainAvailable() error {
 	if path == "" {
 		return nil
 	}
-	if _, err := os.Stat(path); err != nil && os.IsNotExist(err) {
+	if _, err := keychainStat(path); err != nil && os.IsNotExist(err) {
 		return NewUnavailableError("read macOS default Keychain", fmt.Errorf("default keychain %q does not exist", path))
 	}
 	return nil
@@ -139,7 +139,7 @@ func platformDiagnose() Diagnostic {
 			Detail:  detail,
 		}
 	}
-	if _, err := os.Stat(path); err != nil && os.IsNotExist(err) {
+	if _, err := keychainStat(path); err != nil && os.IsNotExist(err) {
 		return Diagnostic{
 			OK:      false,
 			Reason:  "keychain_unavailable",
@@ -242,7 +242,7 @@ func getOrCreateDEK(service string) ([]byte, error) {
 
 		// Generate new DEK if not found or invalid
 		key := make([]byte, dekBytes)
-		if _, randErr := rand.Read(key); randErr != nil {
+		if _, randErr := keychainRandRead(key); randErr != nil {
 			resCh <- result{key: nil, err: randErr}
 			return
 		}
@@ -269,13 +269,10 @@ func encryptData(plaintext string, key []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	aesGCM, err := cipher.NewGCM(block)
-	if err != nil {
-		return nil, err
-	}
+	aesGCM, _ := cipher.NewGCM(block) // AES always supports the standard GCM nonce size.
 
 	iv := make([]byte, ivBytes)
-	if _, err := rand.Read(iv); err != nil {
+	if _, err := keychainRandRead(iv); err != nil {
 		return nil, err
 	}
 
@@ -294,10 +291,7 @@ func decryptData(data []byte, key []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	aesGCM, err := cipher.NewGCM(block)
-	if err != nil {
-		return "", err
-	}
+	aesGCM, _ := cipher.NewGCM(block) // AES always supports the standard GCM nonce size.
 
 	iv := data[:ivBytes]
 	ciphertext := data[ivBytes:]
@@ -374,7 +368,7 @@ func keyForNewEntry(service, account string) ([]byte, error) {
 }
 
 func platformGet(service, account string) (string, error) {
-	data, err := os.ReadFile(filepath.Join(StorageDir(service), safeFileName(account)))
+	data, err := keychainReadFile(filepath.Join(StorageDir(service), safeFileName(account)))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return "", nil // Not found is not an error
@@ -408,8 +402,7 @@ func platformSet(service, account, data string) error {
 	if err != nil {
 		return err
 	}
-
-	if err := os.MkdirAll(dir, 0700); err != nil {
+	if err := keychainMkdirAll(dir, 0700); err != nil {
 		return err
 	}
 	encrypted, err := encryptData(data, key)
@@ -418,14 +411,14 @@ func platformSet(service, account, data string) error {
 	}
 
 	tmpPath := filepath.Join(dir, safeFileName(account)+"."+uuid.New().String()+".tmp")
-	defer os.Remove(tmpPath)
+	defer keychainRemove(tmpPath)
 
-	if err := os.WriteFile(tmpPath, encrypted, 0600); err != nil {
+	if err := keychainWriteFile(tmpPath, encrypted, 0600); err != nil {
 		return err
 	}
 
 	// Atomic rename to prevent file corruption during multi-process writes
-	if err := os.Rename(tmpPath, targetPath); err != nil {
+	if err := keychainRename(tmpPath, targetPath); err != nil {
 		return err
 	}
 	return nil
@@ -449,7 +442,7 @@ func platformValidateAuthTokenEntries(service string) error {
 }
 
 func platformRemove(service, account string) error {
-	err := os.Remove(filepath.Join(StorageDir(service), safeFileName(account)))
+	err := keychainRemove(filepath.Join(StorageDir(service), safeFileName(account)))
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}

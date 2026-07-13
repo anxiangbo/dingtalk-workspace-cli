@@ -38,6 +38,8 @@ const (
 	Iterations = 600_000
 )
 
+var cryptoRandReader io.Reader = rand.Reader
+
 // DeriveKey derives a KeySize-byte key from password and salt using PBKDF2-SHA256.
 func DeriveKey(password, salt []byte) []byte {
 	return pbkdf2.Key(password, salt, Iterations, KeySize, sha256.New)
@@ -47,20 +49,14 @@ func DeriveKey(password, salt []byte) []byte {
 // Output format: salt(32) || nonce(12) || ciphertext+tag.
 func Encrypt(plaintext, password []byte) ([]byte, error) {
 	salt := make([]byte, SaltSize)
-	if _, err := io.ReadFull(rand.Reader, salt); err != nil {
+	if _, err := io.ReadFull(cryptoRandReader, salt); err != nil {
 		return nil, fmt.Errorf("generating salt: %w", err)
 	}
 	key := DeriveKey(password, salt)
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return nil, fmt.Errorf("creating cipher: %w", err)
-	}
-	gcm, err := cipher.NewGCMWithNonceSize(block, NonceSize)
-	if err != nil {
-		return nil, fmt.Errorf("creating GCM: %w", err)
-	}
+	block, _ := aes.NewCipher(key) // KeySize is fixed to an AES-supported size.
+	gcm, _ := cipher.NewGCMWithNonceSize(block, NonceSize)
 	nonce := make([]byte, NonceSize)
-	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+	if _, err := io.ReadFull(cryptoRandReader, nonce); err != nil {
 		return nil, fmt.Errorf("generating nonce: %w", err)
 	}
 	ciphertext := gcm.Seal(nil, nonce, plaintext, nil)
@@ -82,14 +78,8 @@ func Decrypt(data, password []byte) ([]byte, error) {
 	nonce := data[SaltSize : SaltSize+NonceSize]
 	sealed := data[SaltSize+NonceSize:]
 	key := DeriveKey(password, salt)
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return nil, fmt.Errorf("creating cipher: %w", err)
-	}
-	gcm, err := cipher.NewGCMWithNonceSize(block, NonceSize)
-	if err != nil {
-		return nil, fmt.Errorf("creating GCM: %w", err)
-	}
+	block, _ := aes.NewCipher(key) // KeySize is fixed to an AES-supported size.
+	gcm, _ := cipher.NewGCMWithNonceSize(block, NonceSize)
 	plain, err := gcm.Open(nil, nonce, sealed, nil)
 	if err != nil {
 		return nil, fmt.Errorf("decryption or integrity check failed: %w", err)

@@ -16,9 +16,27 @@ package lock
 import (
 	"errors"
 	"io"
+	"os"
 	"path/filepath"
 	"testing"
 )
+
+func TestTryAcquireErrorBranchesAndEmptyPath(t *testing.T) {
+	if lock, err := TryAcquire(filepath.Join(t.TempDir(), "missing", "lock")); err == nil || lock != nil {
+		t.Fatalf("TryAcquire missing parent = %#v, %v", lock, err)
+	}
+	var empty *File
+	if empty.Path() != "" || (&File{}).Path() != "" {
+		t.Fatal("empty lock path should be empty")
+	}
+
+	previous := acquireFileLock
+	t.Cleanup(func() { acquireFileLock = previous })
+	acquireFileLock = func(*os.File) error { return errors.New("unexpected lock failure") }
+	if lock, err := TryAcquire(filepath.Join(t.TempDir(), "lock")); err == nil || lock != nil || errors.Is(err, ErrBusy) {
+		t.Fatalf("TryAcquire injected failure = %#v, %v", lock, err)
+	}
+}
 
 func TestTryAcquire_FirstCallerWins(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "bus.lock")

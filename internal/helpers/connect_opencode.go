@@ -387,7 +387,7 @@ func (s *opencodeServer) waitHealthy(ctx context.Context, client *opencodeHTTPCl
 		} else {
 			lastErr = err
 		}
-		time.Sleep(opencodeServerPollInterval)
+		helperSleep(opencodeServerPollInterval)
 	}
 	if lastErr != nil {
 		return fmt.Errorf("等待 opencode serve 就绪超时：%w", lastErr)

@@ -61,7 +61,7 @@ type atMentionMessage struct {
 func (p *atMentionPoller) start(ctx context.Context) {
 	go func() {
 		select {
-		case <-time.After(3 * time.Second):
+		case <-helperAfter(3 * time.Second):
 		case <-ctx.Done():
 			return
 		}

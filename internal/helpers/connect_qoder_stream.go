@@ -415,7 +415,7 @@ func (f *qoderStreamForwarder) closeLocked() error {
 	if f.done != nil {
 		select {
 		case <-f.done:
-		case <-time.After(2 * time.Second):
+		case <-helperAfter(2 * time.Second):
 		}
 	}
 	f.clearProcessLocked()

@@ -14,11 +14,22 @@
 package event
 
 import (
+	"math"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
 )
+
+func TestItoaCoversSignedBoundaries(t *testing.T) {
+	for value, want := range map[int64]string{
+		0: "0", 1: "1", -1: "-1", math.MaxInt64: "9223372036854775807", math.MinInt64: "-9223372036854775808",
+	} {
+		if got := itoa(value); got != want {
+			t.Errorf("itoa(%d) = %q, want %q", value, got, want)
+		}
+	}
+}
 
 func TestRawEvent_DedupKey_UsesEventID(t *testing.T) {
 	e := &RawEvent{EventID: "ev_abc"}

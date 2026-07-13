@@ -48,11 +48,13 @@ func init() {
 const (
 	// legacySkillAPIHost is the legacy skill market host used by the old cli.
 	legacySkillAPIHost = "https://mcp.dingtalk.com"
-	// skillDownloadEndpoint is the API endpoint for downloading skills.
-	skillDownloadEndpoint = "https://aihub.dingtalk.com/cli/download"
 	// skillDownloadTimeout is the timeout for skill download operations.
 	skillDownloadTimeout = 5 * time.Minute
 )
+
+// skillDownloadEndpoint is variable so tests and private distributions can
+// exercise the download flow without contacting the public service.
+var skillDownloadEndpoint = "https://aihub.dingtalk.com/cli/download"
 
 // downloadSkillResponse represents the API response for skill download.
 type downloadSkillResponse struct {

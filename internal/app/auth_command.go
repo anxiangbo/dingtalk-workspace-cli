@@ -279,12 +279,13 @@ func newAuthLoginCommand(patCaller edition.ToolCaller) *cobra.Command {
 }
 
 var (
-	authLoginGuideActionSelector    = selectAuthLoginGuideAction
-	authLoginGuideActionApplier     = applyAuthLoginGuideAction
-	loginRecommendScopeModeSelector = selectLoginRecommendScopeMode
-	loginRecommendProductSelector   = selectLoginRecommendProducts
-	authLoginInteractiveTerminal    = isInteractiveTerminal
-	migrateKeychainToFileDEK        = authpkg.MigrateKeychainToFileDEK
+	authLoginGuideActionSelector     = selectAuthLoginGuideAction
+	authLoginGuideActionApplier      = applyAuthLoginGuideAction
+	authLoginManualCredentialsPrompt = promptAuthLoginManualCredentials
+	loginRecommendScopeModeSelector  = selectLoginRecommendScopeMode
+	loginRecommendProductSelector    = selectLoginRecommendProducts
+	authLoginInteractiveTerminal     = isInteractiveTerminal
+	migrateKeychainToFileDEK         = authpkg.MigrateKeychainToFileDEK
 )
 
 func selectAuthLoginGuideAction() (authLoginGuideAction, error) {
@@ -315,7 +316,7 @@ func applyAuthLoginGuideAction(cmd *cobra.Command, configDir string, action auth
 		fmt.Fprintln(cmd.ErrOrStderr(), "一键配置智能体应用暂未开放，已继续使用 CLI 登录")
 		return nil
 	case authLoginGuideManualCredentials:
-		clientID, clientSecret, err := promptAuthLoginManualCredentials()
+		clientID, clientSecret, err := authLoginManualCredentialsPrompt()
 		if err != nil {
 			return err
 		}
