@@ -100,12 +100,13 @@ reviewed interface source. This makes newly added CLI tools explicit without
 rewriting historical MCP evidence or promoting an unreviewed selection hint.
 
 Interface metadata contributes lower-priority typed candidates, including
-`required`; source precedence is value-neutral, so a candidate may raise or
-lower the Agent-facing value when no higher-priority source wins. It cannot
-override reviewed manual hints, versioned bindings, typed/native metadata, or
-current Cobra/constraint facts. Cobra's executable required marker remains a
-separate `cli_required` fact with provenance even when the resolved Agent
-projection differs.
+`required`; source precedence is value-neutral for most fields, so a candidate
+may raise or lower the Agent-facing value when no higher-priority source wins.
+It cannot override reviewed manual hints, versioned bindings, typed/native
+metadata, or current Cobra/constraint facts for those fields. `required` is
+special: Cobra `MarkFlagRequired` is a hard floor that cannot be projected away
+as optional. `cli_required` remains the executable Cobra marker with its own
+provenance.
 
 ```json
 {

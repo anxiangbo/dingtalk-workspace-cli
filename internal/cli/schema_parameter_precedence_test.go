@@ -19,9 +19,9 @@ func TestRuntimeSchemaScalarResolverUsesSourceRankNotInputOrder(t *testing.T) {
 		want any
 	}{
 		{
-			name: "higher source can lower boolean",
-			high: runtimeSchemaManualCandidate(false, true, "reviewed lowering"),
-			low:  runtimeSchemaCandidate(true, true, "cobra_hard_required"),
+			name: "higher source can lower non-cobra boolean",
+			high: runtimeSchemaCandidate(false, true, "tool_schema_hint"),
+			low:  runtimeSchemaCandidate(true, true, "mcp_metadata"),
 			want: false,
 		},
 		{
@@ -52,6 +52,47 @@ func TestRuntimeSchemaScalarResolverUsesSourceRankNotInputOrder(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestResolveRequiredProjectionCannotLowerCobraHardRequired(t *testing.T) {
+	winner, err := resolveRequiredProjection(true,
+		runtimeSchemaManualCandidate(false, true, "reviewed lowering"),
+		runtimeSchemaCandidate(true, true, "cobra_hard_required"),
+	)
+	if err != nil {
+		t.Fatalf("resolveRequiredProjection() error = %v", err)
+	}
+	if winner.Value != true {
+		t.Fatalf("winner value = %#v, want true", winner.Value)
+	}
+	if winner.Source != "cobra_hard_required" {
+		t.Fatalf("winner source = %q, want cobra_hard_required", winner.Source)
+	}
+	if winner.Resolution != "cobra_hard_required_floor" {
+		t.Fatalf("winner resolution = %q, want cobra_hard_required_floor", winner.Resolution)
+	}
+	foundManual := false
+	for _, candidate := range winner.Compared {
+		if candidate.Source == "reviewed_manual_hint" && candidate.Value == false {
+			foundManual = true
+		}
+	}
+	if !foundManual {
+		t.Fatalf("compared candidates omitted suppressed manual false: %#v", winner.Compared)
+	}
+}
+
+func TestResolveRequiredProjectionAllowsRaiseWithoutHardRequired(t *testing.T) {
+	winner, err := resolveRequiredProjection(false,
+		runtimeSchemaManualCandidate(true, true, "reviewed raise"),
+		runtimeSchemaCandidate(false, true, "default"),
+	)
+	if err != nil {
+		t.Fatalf("resolveRequiredProjection() error = %v", err)
+	}
+	if winner.Value != true || winner.Source != "reviewed_manual_hint" {
+		t.Fatalf("winner = %#v source=%q", winner.Value, winner.Source)
 	}
 }
 
@@ -181,15 +222,18 @@ func TestRuntimeCommandParameterSpecsBuildTypedContractDirectly(t *testing.T) {
 	if got := rawSchemaString(t, limit.InterfaceDefault); got != "50" {
 		t.Fatalf("typed interface default = %q", got)
 	}
-	if query.Required || !query.CLIRequired {
+	if !query.Required || !query.CLIRequired {
 		t.Fatalf("typed required projection = %v, CLIRequired = %v", query.Required, query.CLIRequired)
 	}
 	if got := rawSchemaString(t, query.Example); got != "hello" {
 		t.Fatalf("typed example = %q", got)
 	}
 	provenance := query.FieldProvenance["required"]
-	if provenance.Source != "reviewed_manual_hint" || provenance.ReviewReason != "Review optional Agent projection" {
+	if provenance.Source != "cobra_hard_required" || provenance.Resolution != "cobra_hard_required_floor" {
 		t.Fatalf("typed required provenance = %#v", provenance)
+	}
+	if !typedProvenanceHasCandidate(t, provenance, "reviewed_manual_hint", false) {
+		t.Fatalf("typed provenance omitted suppressed manual false: %#v", provenance)
 	}
 	if !typedProvenanceHasCandidate(t, provenance, "cobra_hard_required", true) {
 		t.Fatalf("typed provenance omitted Cobra observation: %#v", provenance)
@@ -214,7 +258,7 @@ func TestRuntimeCommandParameterSpecsBuildTypedContractDirectly(t *testing.T) {
 	if limitPayload["default"] != "20" || limitPayload["interface_default"] != "50" {
 		t.Fatalf("wire defaults = %#v", limitPayload)
 	}
-	if queryPayload["example"] != "hello" || queryPayload["required"] != false || queryPayload["cli_required"] != true {
+	if queryPayload["example"] != "hello" || queryPayload["required"] != true || queryPayload["cli_required"] != true {
 		t.Fatalf("wire query = %#v", queryPayload)
 	}
 }
@@ -325,7 +369,7 @@ func TestRuntimeSchemaParameterPrecedenceManualWinsAllProjectedSources(t *testin
 	}
 }
 
-func TestRuntimeSchemaParameterPrecedenceManualCanLowerCobraRequired(t *testing.T) {
+func TestRuntimeSchemaParameterPrecedenceManualCannotLowerCobraHardRequired(t *testing.T) {
 	root, leaf := manualSchemaHintTestTree()
 	if err := leaf.MarkFlagRequired("query"); err != nil {
 		t.Fatalf("MarkFlagRequired() error = %v", err)
@@ -352,14 +396,20 @@ func TestRuntimeSchemaParameterPrecedenceManualCanLowerCobraRequired(t *testing.
 		t.Fatalf("runtimeCommandParameters() error = %v", err)
 	}
 	query := schemaParameterEntry(t, parameters, "query")
-	if query["required"] != false {
-		t.Fatalf("required = %#v, want false", query["required"])
+	if query["required"] != true {
+		t.Fatalf("required = %#v, want true", query["required"])
 	}
-	if source := schemaParameterFieldSource(t, query, "required"); source != "reviewed_manual_hint" {
+	if source := schemaParameterFieldSource(t, query, "required"); source != "cobra_hard_required" {
 		t.Fatalf("required source = %q", source)
+	}
+	if resolution := schemaParameterFieldResolution(t, query, "required"); resolution != "cobra_hard_required_floor" {
+		t.Fatalf("required resolution = %q", resolution)
 	}
 	if query["cli_required"] != true {
 		t.Fatalf("cli_required = %#v, want true", query["cli_required"])
+	}
+	if !schemaParameterFieldHasCandidate(t, query, "required", "reviewed_manual_hint", false) {
+		t.Fatalf("required provenance does not retain suppressed manual false: %#v", schemaParameterFieldProvenance(t, query, "required"))
 	}
 	if !schemaParameterFieldHasCandidate(t, query, "required", "cobra_hard_required", true) {
 		t.Fatalf("required provenance does not retain Cobra observation: %#v", schemaParameterFieldProvenance(t, query, "required"))
@@ -369,7 +419,67 @@ func TestRuntimeSchemaParameterPrecedenceManualCanLowerCobraRequired(t *testing.
 	}
 }
 
-func TestRuntimeSchemaParameterPrecedenceConstraintCanLowerCobraRequired(t *testing.T) {
+func TestRuntimeSchemaHardRequiredFloorReachesFinalParameterPayload(t *testing.T) {
+	root, leaf := manualSchemaHintTestTree()
+	if err := leaf.MarkFlagRequired("query"); err != nil {
+		t.Fatalf("MarkFlagRequired() error = %v", err)
+	}
+	required := false
+	_, err := applyManualSchemaHints(root, ManualSchemaHintSnapshot{
+		Schema:  manualSchemaHintSchemaRef,
+		Version: manualSchemaHintVersion,
+		Commands: []ManualSchemaCommandHint{{
+			CLIPath:       "sample item search",
+			CanonicalPath: "sample.search_items",
+			Reason:        "Attempted optional projection must not weaken Cobra hard-required",
+			Reviewed:      true,
+			Parameters: map[string]ManualSchemaParameterHint{
+				"query": {Required: &required},
+			},
+		}},
+	})
+	if err != nil {
+		t.Fatalf("applyManualSchemaHints() error = %v", err)
+	}
+
+	specs, err := runtimeCommandParameterSpecs(leaf, "sample.search_items", nil, nil, RuntimeSchemaConstraints{})
+	if err != nil {
+		t.Fatalf("runtimeCommandParameterSpecs() error = %v", err)
+	}
+	var query ParameterSpec
+	for _, spec := range specs {
+		if spec.Name == "query" {
+			query = spec
+			break
+		}
+	}
+	if query.Name == "" {
+		t.Fatal("missing query parameter spec")
+	}
+	payload, err := query.ToPayload()
+	if err != nil {
+		t.Fatalf("ToPayload() error = %v", err)
+	}
+	if payload["required"] != true {
+		t.Fatalf("final payload required = %#v, want true", payload["required"])
+	}
+	if payload["cli_required"] != true {
+		t.Fatalf("final payload cli_required = %#v, want true", payload["cli_required"])
+	}
+	provenance, _ := payload["field_provenance"].(map[string]any)
+	requiredProvenance, _ := provenance["required"].(map[string]any)
+	if schemaString(requiredProvenance["source"]) != "cobra_hard_required" {
+		t.Fatalf("final required provenance source = %#v", requiredProvenance["source"])
+	}
+	if schemaString(requiredProvenance["resolution"]) != "cobra_hard_required_floor" {
+		t.Fatalf("final required provenance resolution = %#v", requiredProvenance["resolution"])
+	}
+	if requiredProvenance["value"] != true {
+		t.Fatalf("final required provenance value = %#v, want true", requiredProvenance["value"])
+	}
+}
+
+func TestRuntimeSchemaParameterPrecedenceConstraintCannotLowerCobraHardRequired(t *testing.T) {
 	_, leaf := manualSchemaHintTestTree()
 	leaf.Flags().String("scope", "", "Optional scope")
 	if err := leaf.MarkFlagRequired("query"); err != nil {
@@ -382,11 +492,14 @@ func TestRuntimeSchemaParameterPrecedenceConstraintCanLowerCobraRequired(t *test
 		t.Fatalf("runtimeCommandParameters() error = %v", err)
 	}
 	query := schemaParameterEntry(t, parameters, "query")
-	if query["required"] != false || query["cli_required"] != true {
+	if query["required"] != true || query["cli_required"] != true {
 		t.Fatalf("resolved query = %#v", query)
 	}
-	if source := schemaParameterFieldSource(t, query, "required"); source != "require_one_of_constraint" {
+	if source := schemaParameterFieldSource(t, query, "required"); source != "cobra_hard_required" {
 		t.Fatalf("required source = %q", source)
+	}
+	if !schemaParameterFieldHasCandidate(t, query, "required", "require_one_of_constraint", false) {
+		t.Fatalf("required provenance omitted constraint candidate: %#v", schemaParameterFieldProvenance(t, query, "required"))
 	}
 }
 
@@ -752,6 +865,11 @@ func schemaParameterEntry(t *testing.T, parameters map[string]any, name string) 
 func schemaParameterFieldSource(t *testing.T, parameter map[string]any, field string) string {
 	t.Helper()
 	return schemaString(schemaParameterFieldProvenance(t, parameter, field)["source"])
+}
+
+func schemaParameterFieldResolution(t *testing.T, parameter map[string]any, field string) string {
+	t.Helper()
+	return schemaString(schemaParameterFieldProvenance(t, parameter, field)["resolution"])
 }
 
 func schemaParameterFieldReviewReason(t *testing.T, parameter map[string]any, field string) string {

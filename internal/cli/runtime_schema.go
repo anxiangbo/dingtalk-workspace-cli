@@ -808,6 +808,37 @@ func resolveRuntimeSchemaCandidate(field string, candidates ...runtimeSchemaFiel
 	return winner, nil
 }
 
+// resolveRequiredProjection merges required candidates with a Cobra hard-required
+// floor. Other Schema fields still use value-neutral resolveRuntimeSchemaCandidate;
+// required alone cannot project optional when the executable flag is MarkFlagRequired.
+func resolveRequiredProjection(cobraHard bool, candidates ...runtimeSchemaFieldCandidate) (runtimeSchemaFieldCandidate, error) {
+	winner, err := resolveRuntimeSchemaCandidate("required", candidates...)
+	if err != nil {
+		return runtimeSchemaFieldCandidate{}, err
+	}
+	if !cobraHard {
+		return winner, nil
+	}
+	if required, _ := winner.Value.(bool); required {
+		return winner, nil
+	}
+
+	floor := runtimeSchemaCandidate(true, true, "cobra_hard_required")
+	floor.Resolution = "cobra_hard_required_floor"
+	compared := make([]runtimeSchemaFieldCandidate, 0, len(winner.Compared)+1)
+	compared = append(compared, floor)
+	for _, candidate := range winner.Compared {
+		if candidate.Source == "cobra_hard_required" {
+			continue
+		}
+		copyCandidate := candidate
+		copyCandidate.Compared = nil
+		compared = append(compared, copyCandidate)
+	}
+	floor.Compared = compared
+	return floor, nil
+}
+
 func runtimeSchemaFieldProvenance(candidate runtimeSchemaFieldCandidate) FieldProvenance {
 	if !candidate.Present {
 		return FieldProvenance{}
@@ -936,10 +967,10 @@ func runtimeSchemaParameterMappingCandidates(snapshot schemaParameterBindingSnap
 }
 
 // runtimeCommandParameterSpecs resolves every source into the typed contract
-// model. Source precedence is value-neutral: a higher-priority source may
-// intentionally raise or lower required/type/mapping semantics. Cobra's hard
-// required marker is retained independently as CLIRequired and never silently
-// rewrites the resolved Agent projection.
+// model. Most fields use value-neutral source precedence: a higher-priority
+// source may intentionally raise or lower type/mapping/description semantics.
+// required is different: Cobra MarkFlagRequired is a hard floor that cannot be
+// lowered by manual/hint overlays (see resolveRequiredProjection).
 func runtimeCommandParameterSpecs(cmd *cobra.Command, canonicalPath string, hints map[string]ParameterSchemaHint, embeddedParams map[string]embeddedMCPParamMeta, constraints RuntimeSchemaConstraints) ([]ParameterSpec, error) {
 	if cmd == nil {
 		return nil, nil
@@ -1038,11 +1069,8 @@ func runtimeCommandParameterSpecs(cmd *cobra.Command, canonicalPath string, hint
 			interfaceDescription = strings.TrimSpace(embeddedParam.Description)
 		}
 
-		// Required is resolved by source precedence, not by value strictness. A
-		// reviewed manual override may therefore promote or lower the projected
-		// Schema value. Cobra's executable marker remains visible as a separate
-		// candidate (and as cli_required when it differs) instead of silently
-		// forcing the projected value.
+		// Required uses field-level safe merge: overlays may raise required, but
+		// Cobra MarkFlagRequired cannot be projected away as optional.
 		manualRequired := runtimeSchemaFieldCandidate{}
 		if manual.Required != nil {
 			manualRequired = runtimeSchemaManualCandidate(*manual.Required, true, manualReason)
@@ -1068,13 +1096,14 @@ func runtimeCommandParameterSpecs(cmd *cobra.Command, canonicalPath string, hint
 				break
 			}
 		}
-		requiredWinner, err := resolveRuntimeSchemaCandidate("required",
+		cobraHardRequired := runtimeFlagCobraHardRequired(flag)
+		requiredWinner, err := resolveRequiredProjection(cobraHardRequired,
 			manualRequired,
 			constraintRequired,
 			runtimeSchemaCandidate(true, typedRequired, "typed_parameter_metadata"),
 			runtimeSchemaAnnotatedBoolCandidate(flag, runtimeSchemaFlagMetadataRequiredAnnotation, "typed_parameter_metadata"),
 			runtimeSchemaAnnotatedBoolCandidate(flag, runtimeSchemaFlagRequiredAnnotation, "native_annotation"),
-			runtimeSchemaCandidate(true, runtimeFlagCobraHardRequired(flag), "cobra_hard_required"),
+			runtimeSchemaCandidate(true, cobraHardRequired, "cobra_hard_required"),
 			runtimeSchemaCandidate(false, cobraDefaultOptional, "cobra_nonzero_default"),
 			runtimeSchemaCandidate(usageRequired, usageRequired, "usage_required_inference"),
 			hintRequired,

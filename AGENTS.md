@@ -296,13 +296,17 @@ text endpoint.
 
 ## Safety metadata
 
-Parameter and safety resolution is source-precedence based and value-neutral.
-Do not choose a winner because one value looks stricter: a higher-priority
-reviewed metadata/explicit source may intentionally raise or lower `required`,
-`effect`, `risk`, `confirmation`, or `idempotency`. Preserve all candidates and
-the selected source in provenance, and fail same-precedence conflicts rather
-than silently merging them. Cobra's hard-required marker remains an executable
-fact even when the Agent projection is deliberately different.
+Parameter and safety resolution is mostly source-precedence based and
+value-neutral: do not choose a winner because one value looks stricter. A
+higher-priority reviewed metadata/explicit source may intentionally raise or
+lower description, mapping, `effect`, `risk`, `confirmation`, or `idempotency`.
+Preserve all candidates and the selected source in provenance, and fail
+same-precedence conflicts rather than silently merging them.
+
+`required` is the exception. Cobra `MarkFlagRequired` is a hard floor: the
+final Agent projection must keep `required=true` and cannot be lowered by
+manual/hint overlays. Overlays may still raise an optional flag to required.
+`cli_required` continues to mirror the executable Cobra marker.
 
 For command text, reviewed `ToolSchemaHint` wins first, then command-specific
 Cobra Help, then MCP metadata. Generic RPC prose may remain an unselected

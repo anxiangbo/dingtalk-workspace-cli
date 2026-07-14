@@ -43,6 +43,27 @@ func TestEmbeddedCatalogMCPParameterMappingsAreComplete(t *testing.T) {
 	}
 }
 
+func TestEmbeddedCatalogDoesNotProjectHardRequiredFlagsAsOptional(t *testing.T) {
+	loaded := embeddedSchemaCatalog()
+	if !embeddedSchemaCatalogAvailable() {
+		t.Fatalf("embedded schema Catalog is unavailable: %v", embeddedSchemaCatalogError())
+	}
+	var problems []string
+	for canonical, tool := range loaded.Snapshot.Tools {
+		parameters, _ := tool["parameters"].(map[string]any)
+		for name, raw := range parameters {
+			parameter, _ := raw.(map[string]any)
+			if parameter["cli_required"] == true && parameter["required"] == false {
+				problems = append(problems, canonical+" --"+name)
+			}
+		}
+	}
+	sort.Strings(problems)
+	if len(problems) > 0 {
+		t.Fatalf("Catalog projects Cobra hard-required flags as optional required=false: %v", problems)
+	}
+}
+
 func TestEmbeddedCatalogLocalInterfacesAreExactAndReviewed(t *testing.T) {
 	wantReasons := map[string]string{
 		"dev.connect_status": "命令仅操作本地进程或策略文件，不调用 MCP 接口",
