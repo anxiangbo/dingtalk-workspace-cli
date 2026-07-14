@@ -10,11 +10,18 @@ import (
 	"time"
 )
 
+const (
+	auditLockFile    = ".audit.lock"
+	auditLockTimeout = 3 * time.Second
+	auditLockRetry   = 20 * time.Millisecond
+)
+
 type DateRotatingWriter struct {
 	mu        sync.Mutex
 	dir       string
 	curDate   string
 	file      *os.File
+	lock      *os.File
 	retention int
 }
 
@@ -22,42 +29,85 @@ func NewDateRotatingWriter(dir string, retentionDays int) (*DateRotatingWriter, 
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return nil, fmt.Errorf("audit: create dir: %w", err)
 	}
+	lock, err := os.OpenFile(filepath.Join(dir, auditLockFile), os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		return nil, fmt.Errorf("audit: open lock file: %w", err)
+	}
 	w := &DateRotatingWriter{
 		dir:       dir,
 		retention: retentionDays,
+		lock:      lock,
 	}
 	go w.pruneOldFiles()
 	return w, nil
 }
 
-func (w *DateRotatingWriter) Write(p []byte) (int, error) {
+// beginAppend serializes writers within this process (mu) and across processes
+// (flock), rotates to today's file, and returns the open handle plus a release
+// func that unlocks in reverse order. The file is opened O_RDWR|O_APPEND so the
+// chain can read the tail while every write still lands atomically at EOF even
+// when another dws process appends concurrently.
+func (w *DateRotatingWriter) beginAppend() (*os.File, func(), error) {
 	w.mu.Lock()
-	defer w.mu.Unlock()
+	if err := w.acquireLock(); err != nil {
+		w.mu.Unlock()
+		return nil, nil, err
+	}
 
 	today := time.Now().Format("20060102")
 	if today != w.curDate || w.file == nil {
 		if w.file != nil {
-			w.file.Close()
+			_ = w.file.Close()
+			w.file = nil
 		}
 		path := filepath.Join(w.dir, fmt.Sprintf("audit-%s.jsonl", today))
-		f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
+		f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0o600)
 		if err != nil {
-			return 0, fmt.Errorf("audit: open file: %w", err)
+			unlockFile(w.lock)
+			w.mu.Unlock()
+			return nil, nil, fmt.Errorf("audit: open file: %w", err)
 		}
 		w.file = f
 		w.curDate = today
 	}
 
-	return w.file.Write(p)
+	release := func() {
+		unlockFile(w.lock)
+		w.mu.Unlock()
+	}
+	return w.file, release, nil
+}
+
+func (w *DateRotatingWriter) acquireLock() error {
+	deadline := time.Now().Add(auditLockTimeout)
+	for {
+		if err := lockFile(w.lock); err == nil {
+			return nil
+		}
+		if time.Now().After(deadline) {
+			return fmt.Errorf("audit: timeout acquiring file lock after %v (another dws process may be writing)", auditLockTimeout)
+		}
+		time.Sleep(auditLockRetry)
+	}
 }
 
 func (w *DateRotatingWriter) Close() error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
+	var firstErr error
 	if w.file != nil {
-		return w.file.Close()
+		if err := w.file.Close(); err != nil {
+			firstErr = err
+		}
+		w.file = nil
 	}
-	return nil
+	if w.lock != nil {
+		if err := w.lock.Close(); err != nil && firstErr == nil {
+			firstErr = err
+		}
+		w.lock = nil
+	}
+	return firstErr
 }
 
 func (w *DateRotatingWriter) pruneOldFiles() {

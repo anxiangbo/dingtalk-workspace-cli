@@ -35,6 +35,9 @@ func newAuditTailCommand() *cobra.Command {
 		Use:   "tail",
 		Short: "查看最近的审计记录",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if n < 1 {
+				return fmt.Errorf("--lines 必须为正整数，收到 %d", n)
+			}
 			dir := auditDir()
 			file, err := audit.LatestAuditFile(dir)
 			if err != nil {
@@ -173,10 +176,11 @@ func exportJSONL(files []string) error {
 
 func exportCSV(files []string) error {
 	w := csv.NewWriter(os.Stdout)
-	defer w.Flush()
 
 	header := []string{"timestamp", "execution_id", "user_id", "corp_id", "product", "command", "result", "duration_ms", "error_category"}
-	w.Write(header)
+	if err := w.Write(header); err != nil {
+		return fmt.Errorf("写入 CSV 表头失败: %w", err)
+	}
 
 	for _, file := range files {
 		f, err := os.Open(file)
@@ -201,9 +205,21 @@ func exportCSV(files []string) error {
 				strconv.FormatInt(evt.DurationMs, 10),
 				evt.ErrCategory,
 			}
-			w.Write(row)
+			if err := w.Write(row); err != nil {
+				f.Close()
+				return fmt.Errorf("写入 CSV 记录失败: %w", err)
+			}
+		}
+		if err := scanner.Err(); err != nil {
+			f.Close()
+			return err
 		}
 		f.Close()
+	}
+
+	w.Flush()
+	if err := w.Error(); err != nil {
+		return fmt.Errorf("刷新 CSV 输出失败: %w", err)
 	}
 	return nil
 }

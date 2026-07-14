@@ -16,6 +16,7 @@ const (
 	EnvForwardURL    = "DWS_AUDIT_FORWARD_URL"
 	EnvForwardToken  = "DWS_AUDIT_FORWARD_TOKEN"
 	EnvForwardRedact = "DWS_AUDIT_FORWARD_REDACT"
+	EnvAuditDebug    = "DWS_AUDIT_DEBUG"
 
 	defaultRetentionDays = 90
 	auditSubdir          = "audit"
@@ -61,6 +62,23 @@ func init() {
 		DefaultValue: "none",
 		Example:      "hashed",
 	})
+	configmeta.Register(configmeta.ConfigItem{
+		Name:        EnvAuditDebug,
+		Category:    configmeta.CategoryAudit,
+		Description: "打印审计子系统初始化/写入/转发失败诊断到 stderr（设 1/true/on 开启）",
+		Example:     "1",
+	})
+}
+
+// DebugEnabled reports whether audit-subsystem diagnostics should be surfaced to
+// stderr. Failures are always eligible for the structured log; this gates the
+// noisier stderr channel.
+func DebugEnabled() bool {
+	switch strings.ToLower(strings.TrimSpace(os.Getenv(EnvAuditDebug))) {
+	case "1", "true", "on", "yes", "y":
+		return true
+	}
+	return false
 }
 
 func IsEnabled() bool {
@@ -75,9 +93,13 @@ func IsEnabled() bool {
 	return true
 }
 
-func BuildSink(configDir string) Sink {
+// BuildSink constructs the audit sink for configDir. It returns an error when
+// the audit subsystem is enabled but cannot initialize (e.g. the log directory
+// is not writable) so the caller can surface the failure instead of silently
+// degrading. report receives non-fatal forwarder diagnostics; it may be nil.
+func BuildSink(configDir string, report func(format string, args ...any)) (Sink, error) {
 	if !IsEnabled() {
-		return NopSink{}
+		return NopSink{}, nil
 	}
 
 	dir := os.Getenv(EnvAuditDir)
@@ -94,7 +116,7 @@ func BuildSink(configDir string) Sink {
 
 	writer, err := NewDateRotatingWriter(dir, retention)
 	if err != nil {
-		return NopSink{}
+		return NopSink{}, err
 	}
 
 	chain := NewChain(dir)
@@ -106,8 +128,8 @@ func BuildSink(configDir string) Sink {
 		if redact != RedactHashed && redact != RedactMinimal {
 			redact = RedactNone
 		}
-		forwarder = NewHTTPForwarder(fwdURL, token, redact)
+		forwarder = NewHTTPForwarder(fwdURL, token, redact, report)
 	}
 
-	return NewFileSink(writer, chain, forwarder)
+	return NewFileSink(writer, chain, forwarder), nil
 }

@@ -2,6 +2,8 @@ package app
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"runtime"
 	"sync"
 	"time"
@@ -15,32 +17,88 @@ import (
 )
 
 var (
-	auditActorOnce sync.Once
+	auditSinkOnce   sync.Once
+	sharedAuditSink audit.Sink
+
+	auditIDMu      sync.Mutex
 	cachedActor    audit.Actor
 	cachedAgentID  string
+	cachedProfile  string
+	identityLoaded bool
 )
 
+// setupAuditSink builds the process-wide audit sink once and caches it so the
+// runner and the shutdown hook share a single writer/forwarder instance.
 func setupAuditSink() audit.Sink {
-	return audit.BuildSink(defaultConfigDir())
+	auditSinkOnce.Do(func() {
+		sink, err := audit.BuildSink(defaultConfigDir(), auditReport)
+		if err != nil {
+			auditReport("initialization failed, audit disabled for this session: %v", err)
+			sharedAuditSink = audit.NopSink{}
+			return
+		}
+		sharedAuditSink = sink
+	})
+	return sharedAuditSink
 }
 
-func loadAuditIdentity() {
-	auditActorOnce.Do(func() {
-		configDir := defaultConfigDir()
-		td, _ := auth.LoadTokenData(configDir)
-		if td != nil {
-			cachedActor = audit.Actor{
-				UserID:   td.UserID,
-				Name:     td.UserName,
-				CorpID:   td.CorpID,
-				CorpName: td.CorpName,
-			}
+// CloseAuditSink flushes in-flight remote forwards and closes the audit writer.
+// Called from PersistentPostRunE so the process does not exit before async
+// forwards are delivered.
+func CloseAuditSink() {
+	if sharedAuditSink == nil {
+		return
+	}
+	if err := sharedAuditSink.Close(); err != nil {
+		auditReport("close failed: %v", err)
+	}
+}
+
+// auditReport routes non-fatal audit-subsystem diagnostics to the structured
+// file log (always, when available) and to stderr when DWS_AUDIT_DEBUG is set,
+// so init/write/forward failures are observable instead of silently swallowed.
+func auditReport(format string, args ...any) {
+	msg := "audit: " + fmt.Sprintf(format, args...)
+	if l := FileLoggerInstance(); l != nil {
+		l.Warn(msg)
+	}
+	if audit.DebugEnabled() {
+		fmt.Fprintln(os.Stderr, "[dws] "+msg)
+	}
+}
+
+// auditIdentity resolves the Actor for the active runtime profile. The result
+// is cached per-profile so a profile switch within a long-running process (e.g.
+// serve mode) re-resolves rather than reusing a stale identity.
+func auditIdentity() (audit.Actor, string) {
+	profile := auth.RuntimeProfile()
+
+	auditIDMu.Lock()
+	defer auditIDMu.Unlock()
+	if identityLoaded && profile == cachedProfile {
+		return cachedActor, cachedAgentID
+	}
+
+	configDir := defaultConfigDir()
+	var actor audit.Actor
+	if td, err := auth.LoadTokenDataForProfile(configDir, profile); err == nil && td != nil {
+		actor = audit.Actor{
+			UserID:   td.UserID,
+			Name:     td.UserName,
+			CorpID:   td.CorpID,
+			CorpName: td.CorpName,
 		}
-		id := auth.Load(configDir)
-		if id != nil {
-			cachedAgentID = id.AgentID
-		}
-	})
+	} else if err != nil {
+		auditReport("resolve actor for profile %q failed: %v", profile, err)
+	}
+
+	agentID := ""
+	if id := auth.Load(configDir); id != nil {
+		agentID = id.AgentID
+	}
+
+	cachedActor, cachedAgentID, cachedProfile, identityLoaded = actor, agentID, profile, true
+	return actor, agentID
 }
 
 func emitAudit(sink audit.Sink, execID string, invokeStart time.Time, invocation executor.Invocation, endpoint string, retErr error, cliVersion string) {
@@ -51,7 +109,7 @@ func emitAudit(sink audit.Sink, execID string, invokeStart time.Time, invocation
 		return
 	}
 
-	loadAuditIdentity()
+	actor, agentID := auditIdentity()
 
 	result := "success"
 	var errCat, errReason string
@@ -65,8 +123,8 @@ func emitAudit(sink audit.Sink, execID string, invokeStart time.Time, invocation
 	evt := &audit.Event{
 		Timestamp:     invokeStart,
 		ExecutionID:   execID,
-		AgentID:       cachedAgentID,
-		Actor:         cachedActor,
+		AgentID:       agentID,
+		Actor:         actor,
 		Product:       invocation.CanonicalProduct,
 		Command:       invocation.Tool,
 		Endpoint:      transport.RedactURL(endpoint),
@@ -80,7 +138,9 @@ func emitAudit(sink audit.Sink, execID string, invokeStart time.Time, invocation
 		Arch:          runtime.GOARCH,
 	}
 
-	_ = sink.Emit(evt)
+	if err := sink.Emit(evt); err != nil {
+		auditReport("emit event failed (exec %s): %v", execID, err)
+	}
 }
 
 func classifyAuditError(err error) (category, reason string) {

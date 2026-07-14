@@ -335,6 +335,7 @@ func NewRootCommandWithEngine(rootCtx context.Context, engine *pipeline.Engine) 
 		},
 		PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
 			StopAllStdioClients()
+			CloseAuditSink()
 			CloseFileLogger()
 			return closeOutputSink(cmd)
 		},
