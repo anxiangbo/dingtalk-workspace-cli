@@ -52,15 +52,17 @@ description: 钉钉个人 IM 事件长连接监听、订阅与消费，覆盖消
 ## Call flow
 
 1. 从用户意图选择事件码；人名或群名先解析成必填 ID。
-2. 需要了解字段时运行 `dws event schema <event_key>`，读取 `jq_root_path` 和 `schema.properties`。
-3. 启动 `dws event consume <event_key> ... -f ndjson`，等待 stderr 出现 `connected bus pid=...` 后开始读 stdout。
-4. stdout 每行是一个事件 JSON；业务字段在 `data` JSON 字符串内，按 `jq_root_path` 解析。
+2. 需要了解字段时运行 `dws event schema <event_key>`，读取 `schema.properties`；`jq_root_path` 当前固定为 `.`。
+3. 启动 `dws event consume <event_key> ... -f ndjson`，等待 stderr 出现 `[event] ready event_key=<event_key> subscribe_id=<subscribe_id>` 后开始处理 stdout。
+4. stdout 每行是一个扁平事件 JSON；直接按该事件的 `schema.properties` 读取顶层字段。
 5. 需要确认监听状态时运行 `dws event status --event <event_key>`，查看 `Subscriptions` 和 `Consumers`。
 6. 任务完成后用 `dws event stop <subscribe_id>` 取消订阅；如果是临时测试，可以在 consume 上加 `--max-events` 或 `--duration` 自动退出。
 
 ## Subprocess contract
 
 - `event consume` 是阻塞式长连接命令。stdout 只处理事件；stderr 只处理状态、debug 和错误。
+- 固定 ready marker 是 Agent 的建联协议；不要用 `sleep` 猜测，不要只依赖人工诊断行 `connected bus pid=...`。
+- 正常事件处理直接持续读取 stdout 管道，不要因为未验证的缓冲猜测改写为 `--output-dir` 文件 watcher。
 - 不要使用 `--quiet`，否则 Agent 会看不到建联状态和排障信息。
 - 无界监听需要外部进程管理；有界自测优先用 `--max-events N` 或 `--duration 10m`。
 - 不要 `kill -9` 消费进程。Ctrl+C、duration、max-events 只结束本地前台进程；取消订阅必须使用 `dws event stop <subscribe_id>`。
@@ -118,10 +120,13 @@ dws event consume user_im_message_receive_o2o \
 ## 输出处理
 
 - `dws event schema <event_key>` 是写解析逻辑的依据。
-- 顶层 `jq_root_path` 说明业务字段起点；当前值是 `.data | fromjson`。
+- 顶层 `jq_root_path` 说明业务字段起点；当前值是 `.`。
 - `schema.properties` 是业务字段列表，例如 `content`、`sender`、`conversation_id`、`message_id`、`event_time`。
-- 不要假设 `data` 已经展开。读取消息正文时先解析 `data`，再读 `payload.body.content` 或 schema 中对应字段。
-- 已读、撤回、表情回应事件尚无稳定业务样本；其 schema 只保证 `type/event_id/timestamp/subscribe_id/payload`，处理时保留未知 `payload` 字段，不要猜测已读人、撤回人或表情类型。
+- 所有公开事件都是扁平业务对象，直接读取顶层字段；不要生成 `fromjson` 或内部 payload 路径。
+- 群自动回复使用事件顶层 `conversation_id`；单聊自动回复使用顶层 `sender_open_dingtalk_id`。
+- 已读事件读取顶层 `reader`、`reader_open_dingtalk_id`、`read_time`；撤回事件读取 `recaller`、`recaller_open_dingtalk_id`、`recall_time`。
+- 表情回应事件读取顶层 `operator`、`operator_open_dingtalk_id`、`reaction_name`、`reaction_text`、`operation_type`、`operation_time`。
+- 图片、文件等媒体消息的 `content` 可能是可读描述；需要实际媒体文件时调用 `dws chat message download-media`。
 
 ## Topic index
 

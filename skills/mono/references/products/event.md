@@ -55,9 +55,9 @@
 ## Call flow
 
 1. 从用户意图选择事件码；人名或群名先解析成必填 ID。
-2. 需要了解字段时运行 `dws event schema <event_key>`，读取 `jq_root_path` 和 `schema.properties`。
-3. 启动 `dws event consume <event_key> ... -f ndjson`，等待 stderr 出现 `connected bus pid=...` 后开始读 stdout。
-4. stdout 每行是一个事件 JSON；业务字段在 `data` JSON 字符串内，按 `jq_root_path` 解析。
+2. 需要了解字段时运行 `dws event schema <event_key>`，读取 `schema.properties`；`jq_root_path` 当前固定为 `.`。
+3. 启动 `dws event consume <event_key> ... -f ndjson`，等待 stderr 出现 `[event] ready event_key=<event_key> subscribe_id=<subscribe_id>` 后开始处理 stdout。
+4. stdout 每行是一个扁平事件 JSON；直接按该事件的 `schema.properties` 读取顶层字段。
 5. 需要确认监听状态时运行 `dws event status --event <event_key>`，查看 `Subscriptions` 和 `Consumers`。
 6. 任务完成后用 `dws event stop <subscribe_id>` 取消订阅；临时测试可以在 consume 上加 `--max-events` 或 `--duration`。
 
@@ -123,9 +123,13 @@ dws event stop <subscribe_id>
 
 - 推荐 `-f ndjson`：一行一个事件 JSON，适合 Agent 管道读取。
 - 人工取样可用 `-f json --max-events 1`。
-- `data` 是服务端业务 payload 的 JSON 字符串；读取消息内容前按 schema 的 `jq_root_path` 再解析一次。
-- 当前消息正文在 `payload.body.content`，发送人展示名在 `payload.body.sender`，会话 ID 在 `payload.body.openConversationId`。
-- 上述消息字段只适用于 `user_im_message_receive_*`；动作事件当前只保证 `type/event_id/timestamp/subscribe_id/payload`，不要猜测未知 payload 字段。
+- `jq_root_path` 当前为 `.`；消息正文、发送人和会话 ID 分别直接读取顶层 `content`、`sender`、`conversation_id`。
+- 不要生成 `fromjson` 或内部 payload 路径。正常处理直接持续读取 stdout，不要改写为 `--output-dir` watcher。
+- 群自动回复使用顶层 `conversation_id`；单聊自动回复使用顶层 `sender_open_dingtalk_id`。
+- 已读事件直接读取 `reader/reader_open_dingtalk_id/read_time`；撤回事件读取 `recaller/recaller_open_dingtalk_id/recall_time`。
+- 表情回应事件直接读取 `operator/operator_open_dingtalk_id/reaction_name/reaction_text/operation_type/operation_time`。
+- 图片、文件等媒体消息的 `content` 可能是可读描述；需要实际媒体文件时调用 `dws chat message download-media`。
+- 正常动作事件输出不含内部 `payload/uid/corpid/clientId/filterSubId/bizid`；原始排查才使用 `-f raw` 或 `--debug-raw-events`。
 - `--debug-raw-events` 仅用于服务端联调，正常消费不要使用。
 
 ## Full reference

@@ -90,6 +90,15 @@ type Config struct {
 	OutputDir string
 	// Routes are pre-parsed --route specs. Empty = no routing.
 	Routes []Route
+	// Projector, when set, maps transport envelopes to the public value used
+	// by all structured formats. Raw format always bypasses it.
+	Projector Projector
+
+	// ReadyEventKey and ReadySubscribeID identify the personal subscription
+	// in the stable ready marker emitted after HelloAck. Empty event key means
+	// this consume mode does not publish a ready marker.
+	ReadyEventKey    string
+	ReadySubscribeID string
 
 	// Stdout sink; nil → os.Stdout. Injected for tests.
 	Stdout io.Writer
@@ -141,7 +150,14 @@ func Run(ctx context.Context, cfg Config) error {
 		defer cancel()
 	}
 
-	pipeline, err := BuildPipeline(cfg.Format, cfg.OutputDir, cfg.Routes, cfg.Stdout)
+	pipeline, err := BuildPipeline(
+		cfg.Format,
+		cfg.OutputDir,
+		cfg.Routes,
+		cfg.Stdout,
+		WithProjector(cfg.Projector),
+		WithProjectionWarnings(cfg.Stderr),
+	)
 	if err != nil {
 		return fmt.Errorf("consume: build pipeline: %w", err)
 	}
@@ -187,6 +203,10 @@ func Run(ctx context.Context, cfg Config) error {
 		fmt.Fprintf(cfg.Stderr,
 			"connected bus pid=%d source=%s state=%s idle_timeout=%ds\n",
 			ack.BusPID, ack.StateSource, ack.SourceState, ack.IdleTimeoutSecs)
+		if cfg.ReadyEventKey != "" {
+			fmt.Fprintf(cfg.Stderr, "[event] ready event_key=%s subscribe_id=%s\n",
+				cfg.ReadyEventKey, cfg.ReadySubscribeID)
+		}
 	}
 
 	received := 0

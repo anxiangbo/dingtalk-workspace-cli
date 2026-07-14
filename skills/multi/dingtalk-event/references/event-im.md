@@ -27,7 +27,7 @@ dws event schema user_im_message_reaction_o2o
 dws event schema user_im_message_reaction_group
 ```
 
-schema 默认 JSON。业务字段说明在 `schema.properties`，当前业务 payload 解析起点看 `jq_root_path`。
+schema 默认 JSON。业务字段说明在 `schema.properties`，`jq_root_path` 当前固定为 `.`。
 
 ## Event catalog
 
@@ -123,7 +123,7 @@ dws event consume user_im_message_reaction_group \
 | `user_im_message_reaction_o2o` | `--user <userId> --duration 10m -f ndjson` | 在指定单聊中给消息添加表情回应 |
 | `user_im_message_reaction_group` | `--group <openConversationId> --duration 10m -f ndjson` | 在指定群聊中给消息添加表情回应 |
 
-stderr 出现 `connected bus pid=...` 表示本地 consume 已连接到事件 bus。stdout 每行是一个事件 JSON。
+stderr 出现 `[event] ready event_key=<event_key> subscribe_id=<subscribe_id>` 表示该订阅已连接并可以处理 stdout。`connected bus pid=...` 是额外的人工诊断信息，不作为 Agent 的就绪协议。
 
 ## Runtime flags
 
@@ -144,32 +144,39 @@ stderr 出现 `connected bus pid=...` 表示本地 consume 已连接到事件 bu
 
 ## Output parsing
 
-`-f ndjson` 的 stdout 每行是一个外层事件对象，常见顶层字段：
+`-f ndjson` 的 stdout 每行就是一个扁平业务事件对象。消息接收事件常见顶层字段：
 
 | 字段 | 说明 |
 |---|---|
-| `event_type` | 个人事件码 |
-| `event_id` | 本地输出事件 ID |
+| `type` | 个人事件码 |
+| `event_id` | 事件 ID，可用于去重 |
+| `timestamp` | 事件发生时间戳 |
 | `subscribe_id` | 个人订阅 ID，也是本地输出隔离键 |
-| `source_id` | 当前 sourceId |
-| `data` | 服务端业务 payload 的 JSON 字符串 |
-| `received_at_unix_ms` | 本地接收时间 |
+| `content` | 消息正文 |
+| `sender` | 发送人展示名 |
+| `conversation_id` | 开放会话 ID |
+| `message_id` | 开放消息 ID |
+| `sender_open_dingtalk_id` | 发送人的开放钉钉 ID |
+| `create_time` | 消息创建时间 |
+| `event_time` | 消息事件时间戳 |
 
-读取业务字段前先运行 `dws event schema <event_key>`。当前 schema 顶层的 `jq_root_path` 是 `.data | fromjson`，表示先把 `data` 再解析一次，然后读取业务字段。
+直接按顶层字段解析，不要使用 `fromjson`，也不要依赖内部 transport payload 路径。图片、文件等媒体消息的 `content` 可能是可读描述；需要实际媒体文件时调用 `dws chat message download-media`。
 
-解析后的常用业务字段：
+所有动作事件都包含顶层 `type`、`event_id`、`timestamp`、`subscribe_id`、`message_id`、`conversation_id`、`sender`、`sender_open_dingtalk_id` 和 `event_time`。各类动作的专有字段如下：
 
-| schema 字段 | 当前真实路径 | 说明 |
-|---|---|---|
-| `content` | `payload.body.content` | 消息正文 |
-| `sender` | `payload.body.sender` | 发送人展示名 |
-| `conversation_id` | `payload.body.openConversationId` | 开放会话 ID |
-| `message_id` | `payload.body.openMessageId` | 开放消息 ID |
-| `sender_open_dingtalk_id` | `payload.body.senderOpenDingTalkId` | 发送人的开放钉钉 ID |
-| `create_time` | `payload.body.createTime` | 消息创建时间 |
-| `event_time` | `payload.event_time` | 消息事件时间戳 |
+| 事件类型 | 顶层业务字段 |
+|---|---|
+| 已读 | `reader`、`reader_open_dingtalk_id`、`read_time` |
+| 撤回 | `recaller`、`recaller_open_dingtalk_id`、`recall_time` |
+| 表情回应 | `operator`、`operator_open_dingtalk_id`、`reaction_name`、`reaction_text`、`operation_type`、`operation_time` |
 
-上表业务字段只适用于 `user_im_message_receive_*`。已读、撤回、表情回应事件当前只保证解析后的 `type`、`event_id`、`timestamp`、`subscribe_id` 和开放对象 `payload`；不要提前假设 `payload` 中存在已读人、撤回人、表情类型或消息 ID。
+正常输出不会暴露 `payload`、`uid`、`corpid`、`clientId`、`filterSubId`、`bizid` 等内部字段。需要检查原始协议时才使用 `-f raw` 或 `--debug-raw-events`。
+
+## Event-driven replies
+
+- 群消息自动回复：读取顶层 `conversation_id`，再调用 `dws chat message send --group "<conversation_id>" --text "<reply>" --format json`。
+- 单聊自动回复：读取顶层 `sender_open_dingtalk_id`，再调用 `dws chat message send --open-dingtalk-id "<sender_open_dingtalk_id>" --text "<reply>" --format json`。
+- 正常处理持续读取 consume 的 stdout 管道。不要用 `sleep` 猜测建联，不要改写成 `--output-dir` watcher。
 
 ## Filtering
 
@@ -187,9 +194,9 @@ dws event consume user_im_message_receive_group \
   -f ndjson
 ```
 
-`--filter-json` 可以使用业务别名，也可以使用真实路径。优先使用 schema 字段名表达意图；需要和服务端联调时再使用真实路径。
+`--filter-json` 使用 `content`、`sender`、`conversation_id`、`sender_open_dingtalk_id` 等业务别名表达意图。
 
-已读、撤回、表情回应事件暂无稳定 payload schema，不推荐使用 `--query` 或 `--filter-json`。
+动作事件只使用 `--user` 或 `--group` 限定订阅范围。`--query` 和消息内容 `--filter-json` 面向接收消息事件，不用于已读、撤回或表情回应事件。
 
 ## Status and stop
 
@@ -221,7 +228,7 @@ dws event stop --all
 
 ## Troubleshooting
 
-- 没有输出：先确认 stderr 已出现 `connected bus pid=...`。
+- 没有输出：先确认 stderr 已出现 `[event] ready event_key=... subscribe_id=...`。
 - 参数缺失：所有 o2o 事件必须有对端 ID，所有 group 事件必须有 openConversationId。
 - 收到非预期消息：检查 stdout 的 `subscribe_id` 是否等于当前命令创建/复用的订阅 ID。
 - 需要判断服务端是否推到当前连接：临时加 `--debug --debug-raw-events`，排查后去掉。

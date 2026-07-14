@@ -19,10 +19,11 @@ import (
 
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/event/consume"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/event/personal"
+	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/event/transport"
 )
 
 func TestApplyPersonalConsumeFiltersDebugRawEvents(t *testing.T) {
-	cfg := consume.Config{}
+	cfg := consume.Config{ReadyEventKey: personal.EventSingleChat, ReadySubscribeID: "sub-1"}
 	opts := personalConsumeOptions{
 		DebugRawEvents: true,
 		Common: commonConsumeOptions{
@@ -33,6 +34,9 @@ func TestApplyPersonalConsumeFiltersDebugRawEvents(t *testing.T) {
 	applyPersonalConsumeFilters(&cfg, opts, "sub-1", "user_im_message_receive_o2o")
 	if cfg.EventTypes != nil || cfg.Filter != "" || cfg.SubscribeID != "" {
 		t.Fatalf("raw debug filters = eventTypes=%#v filter=%q subscribeID=%q, want catch-all", cfg.EventTypes, cfg.Filter, cfg.SubscribeID)
+	}
+	if cfg.ReadyEventKey != personal.EventSingleChat || cfg.ReadySubscribeID != "sub-1" {
+		t.Fatalf("raw debug cleared ready identity: eventKey=%q subscribeID=%q", cfg.ReadyEventKey, cfg.ReadySubscribeID)
 	}
 }
 
@@ -45,6 +49,28 @@ func TestApplyPersonalConsumeFiltersDefault(t *testing.T) {
 	}
 	if cfg.Filter != "^user_im_" || cfg.SubscribeID != "sub-1" {
 		t.Fatalf("filter=%q subscribeID=%q", cfg.Filter, cfg.SubscribeID)
+	}
+}
+
+func TestPersonalEventProjectorUsesRawEnvelopeForDebug(t *testing.T) {
+	if personalEventProjector(false) == nil {
+		t.Fatal("normal personal consume projector = nil")
+	}
+	projector := personalEventProjector(true)
+	if projector == nil {
+		t.Fatal("debug raw personal consume projector = nil")
+	}
+	ev := transport.Event{
+		EventID: "raw-event",
+		Data:    `{"payload":{"uid":147867,"bizid":"internal-bizid"}}`,
+		Headers: map[string]string{"TOPIC": "raw"},
+	}
+	projected, err := projector(ev)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, ok := projected.(transport.Event); !ok || got.EventID != ev.EventID || got.Data != ev.Data || got.Headers["TOPIC"] != "raw" {
+		t.Fatalf("debug raw projection = %#v", projected)
 	}
 }
 

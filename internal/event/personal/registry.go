@@ -237,10 +237,6 @@ func Catalog(category string, enabledOnly, includePending bool) []Definition {
 func BuildSchemaDocument(def Definition) SchemaDocument {
 	requiredParams := make([]string, 0, len(def.RequiredParams))
 	requiredParams = append(requiredParams, def.RequiredParams...)
-	schema := personalActionSchema(def.EventKey)
-	if isMessageReceiveEvent(def.EventKey) {
-		schema = personalMessageSchema(def.EventKey)
-	}
 	return SchemaDocument{
 		EventKey:       def.EventKey,
 		DisplayName:    def.DisplayName,
@@ -248,8 +244,8 @@ func BuildSchemaDocument(def Definition) SchemaDocument {
 		Category:       def.Category,
 		RuleType:       def.RuleType,
 		RequiredParams: requiredParams,
-		JQRootPath:     ".data | fromjson",
-		Schema:         schema,
+		JQRootPath:     ".",
+		Schema:         outputSchema(def.EventKey),
 	}
 }
 
@@ -410,95 +406,6 @@ func normalizeFilterAliases(v any) any {
 		return out
 	default:
 		return v
-	}
-}
-
-func personalMessageSchema(eventKey string) map[string]any {
-	return map[string]any{
-		"type": "object",
-		"properties": map[string]any{
-			"type": map[string]any{
-				"type":        "string",
-				"description": "事件类型，固定为当前 event_key",
-				"enum":        []string{eventKey},
-			},
-			"event_id": map[string]any{
-				"type":        "string",
-				"description": "事件 ID，可用于去重",
-			},
-			"timestamp": map[string]any{
-				"type":        "integer",
-				"description": "事件发生时间戳，对应 occurredAtMs",
-				"format":      "timestamp_ms",
-			},
-			"subscribe_id": map[string]any{
-				"type":        "string",
-				"description": "订阅 ID，对应 subId",
-			},
-			"message_id": map[string]any{
-				"type":        "string",
-				"description": "开放消息 ID，对应 payload.body.openMessageId",
-				"format":      "open_message_id",
-			},
-			"conversation_id": map[string]any{
-				"type":        "string",
-				"description": "会话 ID，对应 payload.body.openConversationId",
-				"format":      "open_conversation_id",
-			},
-			"sender": map[string]any{
-				"type":        "string",
-				"description": "发送人展示名，对应 payload.body.sender",
-			},
-			"sender_open_dingtalk_id": map[string]any{
-				"type":        "string",
-				"description": "发送人开放 ID，对应 payload.body.senderOpenDingTalkId",
-				"format":      "open_dingtalk_id",
-			},
-			"content": map[string]any{
-				"type":        "string",
-				"description": "消息正文，对应 payload.body.content",
-			},
-			"create_time": map[string]any{
-				"type":        "string",
-				"description": "消息创建时间，对应 payload.body.createTime",
-			},
-			"event_time": map[string]any{
-				"type":        "integer",
-				"description": "消息事件时间戳，对应 payload.event_time",
-				"format":      "timestamp_ms",
-			},
-		},
-	}
-}
-
-func personalActionSchema(eventKey string) map[string]any {
-	return map[string]any{
-		"type": "object",
-		"properties": map[string]any{
-			"type": map[string]any{
-				"type":        "string",
-				"description": "事件类型，对应 eventKey，固定为当前 event_key",
-				"enum":        []string{eventKey},
-			},
-			"event_id": map[string]any{
-				"type":        "string",
-				"description": "事件 ID，对应 eventId，可用于去重",
-			},
-			"timestamp": map[string]any{
-				"type":        "integer",
-				"description": "事件发生时间戳，对应 occurredAtMs",
-				"format":      "timestamp_ms",
-			},
-			"subscribe_id": map[string]any{
-				"type":        "string",
-				"description": "订阅 ID，对应 subId",
-			},
-			"payload": map[string]any{
-				"type":                 "object",
-				"description":          "事件业务负载；具体字段等待真实推送样本确认",
-				"additionalProperties": true,
-			},
-		},
 	}
 }
 

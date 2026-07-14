@@ -36,6 +36,7 @@ import (
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/event/consume"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/event/personal"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/event/source"
+	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/event/transport"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/edition"
 	"github.com/spf13/cobra"
 )
@@ -195,6 +196,7 @@ func runPersonalEventConsume(c *cobra.Command, opts personalConsumeOptions) erro
 	if fellback && !opts.Common.Quiet {
 		fmt.Fprintf(c.ErrOrStderr(), "WARN: --format %q has no meaning for event stream; using ndjson\n", rawFormat)
 	}
+	projector := personalEventProjector(opts.DebugRawEvents)
 
 	if opts.Common.DryRun {
 		cfg := consume.Config{
@@ -208,6 +210,7 @@ func runPersonalEventConsume(c *cobra.Command, opts personalConsumeOptions) erro
 			Format:         normalised,
 			OutputDir:      opts.Common.OutputDir,
 			Routes:         routes,
+			Projector:      projector,
 			Stderr:         c.ErrOrStderr(),
 			Quiet:          opts.Common.Quiet,
 			Foreground:     opts.Common.Foreground,
@@ -245,21 +248,24 @@ func runPersonalEventConsume(c *cobra.Command, opts personalConsumeOptions) erro
 	}
 
 	cfg := consume.Config{
-		WorkDir:        workDir,
-		IPCEndpoint:    ipcEndpoint,
-		ClientID:       identity.ClientID,
-		SpawnExtraArgs: personalBusSpawnArgs(identity, opts.StreamTicketMode, opts.StreamTicketURL),
-		Compact:        opts.Common.Compact,
-		MaxEvents:      opts.Common.MaxEvents,
-		Duration:       opts.Common.Duration,
-		Format:         normalised,
-		OutputDir:      opts.Common.OutputDir,
-		Routes:         routes,
-		Stdout:         c.OutOrStdout(),
-		Stderr:         c.ErrOrStderr(),
-		Quiet:          opts.Common.Quiet,
-		Foreground:     opts.Common.Foreground,
-		Force:          opts.Common.Force,
+		WorkDir:          workDir,
+		IPCEndpoint:      ipcEndpoint,
+		ClientID:         identity.ClientID,
+		SpawnExtraArgs:   personalBusSpawnArgs(identity, opts.StreamTicketMode, opts.StreamTicketURL),
+		Compact:          opts.Common.Compact,
+		MaxEvents:        opts.Common.MaxEvents,
+		Duration:         opts.Common.Duration,
+		Format:           normalised,
+		OutputDir:        opts.Common.OutputDir,
+		Routes:           routes,
+		Projector:        projector,
+		ReadyEventKey:    eventKey,
+		ReadySubscribeID: sub.SubscribeID,
+		Stdout:           c.OutOrStdout(),
+		Stderr:           c.ErrOrStderr(),
+		Quiet:            opts.Common.Quiet,
+		Foreground:       opts.Common.Foreground,
+		Force:            opts.Common.Force,
 	}
 	applyPersonalConsumeFilters(&cfg, opts, sub.SubscribeID, eventKey)
 	if opts.DebugRawEvents && !opts.Common.Quiet {
@@ -309,6 +315,13 @@ func runPersonalEventConsume(c *cobra.Command, opts personalConsumeOptions) erro
 		cleanup()
 	}
 	return err
+}
+
+func personalEventProjector(debugRawEvents bool) consume.Projector {
+	if debugRawEvents {
+		return func(ev transport.Event) (any, error) { return ev, nil }
+	}
+	return personal.ProjectOutput
 }
 
 func applyPersonalConsumeFilters(cfg *consume.Config, opts personalConsumeOptions, subscribeID, eventKey string) {

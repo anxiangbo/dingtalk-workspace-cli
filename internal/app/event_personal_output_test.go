@@ -258,8 +258,8 @@ func TestPersonalEventSchemaUsesSingleJSONSchema(t *testing.T) {
 					t.Fatalf("schema output for %s leaked %q: %s", eventKey, leaked, got)
 				}
 			}
-			if doc["jq_root_path"] != ".data | fromjson" {
-				t.Fatalf("jq_root_path = %#v, want .data | fromjson", doc["jq_root_path"])
+			if doc["jq_root_path"] != "." {
+				t.Fatalf("jq_root_path = %#v, want .", doc["jq_root_path"])
 			}
 			schema, ok := doc["schema"].(map[string]any)
 			if !ok {
@@ -276,46 +276,77 @@ func TestPersonalEventSchemaUsesSingleJSONSchema(t *testing.T) {
 	}
 }
 
-func TestPersonalActionEventSchemaUsesConservativeJSONSchema(t *testing.T) {
-	for _, eventKey := range []string{
-		personal.EventReadO2O,
-		personal.EventReadGroup,
-		personal.EventRecallO2O,
-		personal.EventRecallGroup,
-		personal.EventReactionO2O,
-		personal.EventReactionGroup,
-	} {
-		t.Run(eventKey, func(t *testing.T) {
-			cmd := newEventSchemaCommand()
-			cmd.SilenceUsage = true
-			cmd.SilenceErrors = true
-			var out bytes.Buffer
-			cmd.SetOut(&out)
-			cmd.SetArgs([]string{eventKey})
-			if err := cmd.Execute(); err != nil {
-				t.Fatal(err)
-			}
-			var doc map[string]any
-			if err := json.Unmarshal(out.Bytes(), &doc); err != nil {
-				t.Fatalf("schema output is not JSON: %v\n%s", err, out.String())
-			}
-			if doc["event_key"] != eventKey || doc["jq_root_path"] != ".data | fromjson" {
-				t.Fatalf("schema metadata = %#v", doc)
-			}
-			schema, ok := doc["schema"].(map[string]any)
-			if !ok {
-				t.Fatalf("schema = %#v", doc["schema"])
-			}
-			properties, ok := schema["properties"].(map[string]any)
-			if !ok || len(properties) != 5 {
-				t.Fatalf("schema.properties = %#v, want five conservative fields", schema["properties"])
-			}
-			for _, field := range []string{"type", "event_id", "timestamp", "subscribe_id", "payload"} {
-				if _, ok := properties[field]; !ok {
-					t.Fatalf("schema missing %q: %#v", field, properties)
+func TestPersonalActionEventSchemaMatchesFlatOutput(t *testing.T) {
+	tests := []struct {
+		eventKeys  []string
+		properties []string
+	}{
+		{
+			eventKeys: []string{personal.EventReadO2O, personal.EventReadGroup},
+			properties: []string{
+				"type", "event_id", "timestamp", "subscribe_id", "message_id",
+				"conversation_id", "reader", "reader_open_dingtalk_id", "sender",
+				"sender_open_dingtalk_id", "read_time", "event_time",
+			},
+		},
+		{
+			eventKeys: []string{personal.EventRecallO2O, personal.EventRecallGroup},
+			properties: []string{
+				"type", "event_id", "timestamp", "subscribe_id", "message_id",
+				"conversation_id", "recaller", "recaller_open_dingtalk_id", "sender",
+				"sender_open_dingtalk_id", "recall_time", "event_time",
+			},
+		},
+		{
+			eventKeys: []string{personal.EventReactionO2O, personal.EventReactionGroup},
+			properties: []string{
+				"type", "event_id", "timestamp", "subscribe_id", "message_id",
+				"conversation_id", "operator", "operator_open_dingtalk_id", "reaction_name",
+				"reaction_text", "operation_type", "operation_time", "sender",
+				"sender_open_dingtalk_id", "event_time",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		for _, eventKey := range tt.eventKeys {
+			t.Run(eventKey, func(t *testing.T) {
+				cmd := newEventSchemaCommand()
+				cmd.SilenceUsage = true
+				cmd.SilenceErrors = true
+				var out bytes.Buffer
+				cmd.SetOut(&out)
+				cmd.SetArgs([]string{eventKey})
+				if err := cmd.Execute(); err != nil {
+					t.Fatal(err)
 				}
-			}
-		})
+				var doc map[string]any
+				if err := json.Unmarshal(out.Bytes(), &doc); err != nil {
+					t.Fatalf("schema output is not JSON: %v\n%s", err, out.String())
+				}
+				if doc["event_key"] != eventKey || doc["jq_root_path"] != "." {
+					t.Fatalf("schema metadata = %#v", doc)
+				}
+				schema, ok := doc["schema"].(map[string]any)
+				if !ok {
+					t.Fatalf("schema = %#v", doc["schema"])
+				}
+				properties, ok := schema["properties"].(map[string]any)
+				if !ok || len(properties) != len(tt.properties) {
+					t.Fatalf("schema.properties = %#v, want exactly %d flat fields", schema["properties"], len(tt.properties))
+				}
+				for _, field := range tt.properties {
+					if _, ok := properties[field]; !ok {
+						t.Fatalf("schema missing %q: %#v", field, properties)
+					}
+				}
+				for _, internal := range []string{"payload", "uid", "corpid", "clientId", "filterSubId", "bizid"} {
+					if _, ok := properties[internal]; ok {
+						t.Fatalf("schema exposed internal property %q", internal)
+					}
+				}
+			})
+		}
 	}
 }
 

@@ -157,8 +157,8 @@ func TestSchemaDocumentsUseSingleJSONSchema(t *testing.T) {
 					t.Fatalf("schema for %s leaked %q: %s", eventKey, leaked, out)
 				}
 			}
-			if doc.JQRootPath != ".data | fromjson" {
-				t.Fatalf("jq_root_path = %q, want .data | fromjson", doc.JQRootPath)
+			if doc.JQRootPath != "." {
+				t.Fatalf("jq_root_path = %q, want .", doc.JQRootPath)
 			}
 			if doc.RequiredParams == nil {
 				t.Fatalf("required_params = nil, want empty slice")
@@ -167,56 +167,89 @@ func TestSchemaDocumentsUseSingleJSONSchema(t *testing.T) {
 			if !ok {
 				t.Fatalf("schema.properties = %#v, want object", doc.Schema["properties"])
 			}
-			if _, ok := props["content"].(map[string]any); !ok {
-				t.Fatalf("schema.properties.content = %#v, want object", props["content"])
+			wantProperties := []string{
+				"type", "event_id", "timestamp", "subscribe_id", "message_id",
+				"conversation_id", "sender", "sender_open_dingtalk_id", "content",
+				"create_time", "event_time",
+			}
+			if len(props) != len(wantProperties) {
+				t.Fatalf("schema.properties = %#v, want exactly %d DTO fields", props, len(wantProperties))
+			}
+			for _, name := range wantProperties {
+				if _, ok := props[name].(map[string]any); !ok {
+					t.Fatalf("schema.properties.%s = %#v, want object", name, props[name])
+				}
 			}
 		})
 	}
 }
 
-func TestActionSchemaDocumentsAreConservative(t *testing.T) {
-	wantProperties := map[string]bool{
-		"type":         true,
-		"event_id":     true,
-		"timestamp":    true,
-		"subscribe_id": true,
-		"payload":      true,
+func TestActionSchemaDocumentsMatchOutputDTOs(t *testing.T) {
+	tests := []struct {
+		name       string
+		eventKeys  []string
+		properties []string
+	}{
+		{
+			name:      "read",
+			eventKeys: []string{EventReadO2O, EventReadGroup},
+			properties: []string{
+				"type", "event_id", "timestamp", "subscribe_id", "message_id",
+				"conversation_id", "reader", "reader_open_dingtalk_id", "sender",
+				"sender_open_dingtalk_id", "read_time", "event_time",
+			},
+		},
+		{
+			name:      "recall",
+			eventKeys: []string{EventRecallO2O, EventRecallGroup},
+			properties: []string{
+				"type", "event_id", "timestamp", "subscribe_id", "message_id",
+				"conversation_id", "recaller", "recaller_open_dingtalk_id", "sender",
+				"sender_open_dingtalk_id", "recall_time", "event_time",
+			},
+		},
+		{
+			name:      "reaction",
+			eventKeys: []string{EventReactionO2O, EventReactionGroup},
+			properties: []string{
+				"type", "event_id", "timestamp", "subscribe_id", "message_id",
+				"conversation_id", "operator", "operator_open_dingtalk_id", "reaction_name",
+				"reaction_text", "operation_type", "operation_time", "sender",
+				"sender_open_dingtalk_id", "event_time",
+			},
+		},
 	}
-	for _, eventKey := range actionEventKeysForTest() {
-		t.Run(eventKey, func(t *testing.T) {
-			def, ok := Lookup(eventKey)
-			if !ok {
-				t.Fatalf("Lookup(%q) failed", eventKey)
-			}
-			doc := BuildSchemaDocument(def)
-			if doc.JQRootPath != ".data | fromjson" {
-				t.Fatalf("jq_root_path = %q", doc.JQRootPath)
-			}
-			props, ok := doc.Schema["properties"].(map[string]any)
-			if !ok {
-				t.Fatalf("schema.properties = %#v", doc.Schema["properties"])
-			}
-			if len(props) != len(wantProperties) {
-				t.Fatalf("schema properties = %#v, want only conservative fields", props)
-			}
-			for name := range wantProperties {
-				if _, ok := props[name]; !ok {
-					t.Fatalf("schema missing property %q: %#v", name, props)
+
+	for _, tt := range tests {
+		for _, eventKey := range tt.eventKeys {
+			t.Run(tt.name+"/"+eventKey, func(t *testing.T) {
+				def, ok := Lookup(eventKey)
+				if !ok {
+					t.Fatalf("Lookup(%q) failed", eventKey)
 				}
-			}
-			payloadSchema, ok := props["payload"].(map[string]any)
-			if !ok || payloadSchema["additionalProperties"] != true {
-				t.Fatalf("payload schema = %#v, want open object", props["payload"])
-			}
-			for _, unconfirmed := range []string{
-				"message_id", "conversation_id", "sender", "content",
-				"reader", "recaller", "emotion", "reaction",
-			} {
-				if _, ok := props[unconfirmed]; ok {
-					t.Fatalf("schema exposed unconfirmed property %q", unconfirmed)
+				doc := BuildSchemaDocument(def)
+				if doc.JQRootPath != "." {
+					t.Fatalf("jq_root_path = %q, want .", doc.JQRootPath)
 				}
-			}
-		})
+				props, ok := doc.Schema["properties"].(map[string]any)
+				if !ok {
+					t.Fatalf("schema.properties = %#v", doc.Schema["properties"])
+				}
+				if len(props) != len(tt.properties) {
+					t.Fatalf("schema properties = %#v, want exactly %d DTO fields", props, len(tt.properties))
+				}
+				for _, name := range tt.properties {
+					if _, ok := props[name].(map[string]any); !ok {
+						t.Fatalf("schema.properties.%s = %#v, want object", name, props[name])
+					}
+				}
+				for _, internal := range []string{"payload", "uid", "corpid", "clientId", "filterSubId", "bizid"} {
+					if _, ok := props[internal]; ok {
+						t.Fatalf("schema exposed internal property %q", internal)
+					}
+				}
+			})
+		}
 	}
 }
 
