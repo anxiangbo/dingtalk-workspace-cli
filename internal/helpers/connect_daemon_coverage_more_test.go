@@ -33,6 +33,7 @@ func preserveDaemonHooks(t *testing.T) {
 	oldProcessAlive := daemonProcessAlive
 	oldSignalProcess := daemonSignalProcess
 	oldSignalContext := daemonSignalContext
+	oldReadDir := connectHealthReadDir
 	oldDir := connectDaemonDirOverride
 	oldAfter := helperAfter
 	oldSleep := helperSleep
@@ -51,6 +52,7 @@ func preserveDaemonHooks(t *testing.T) {
 		daemonProcessAlive = oldProcessAlive
 		daemonSignalProcess = oldSignalProcess
 		daemonSignalContext = oldSignalContext
+		connectHealthReadDir = oldReadDir
 		connectDaemonDirOverride = oldDir
 		helperAfter = oldAfter
 		helperSleep = oldSleep
@@ -786,11 +788,9 @@ func TestDaemonListAndNamePaginationEdges(t *testing.T) {
 		t.Fatalf("table list = %q, %v", out.String(), err)
 	}
 
-	blocked := filepath.Join(t.TempDir(), "blocked")
-	if err := os.WriteFile(blocked, []byte("file"), 0o600); err != nil {
-		t.Fatal(err)
+	connectHealthReadDir = func(string) ([]os.DirEntry, error) {
+		return nil, errors.New("read directory")
 	}
-	connectDaemonDirOverride = blocked
 	list = newDevAppRobotConnectListCommand(runner)
 	list.SetOut(&bytes.Buffer{})
 	if err := list.Execute(); err == nil {

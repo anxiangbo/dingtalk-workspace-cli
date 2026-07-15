@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -9,7 +10,11 @@ import (
 
 func TestConnectHealthRemainingIOAndListingBranches(t *testing.T) {
 	origOverride := connectDaemonDirOverride
-	t.Cleanup(func() { connectDaemonDirOverride = origOverride })
+	origReadDir := connectHealthReadDir
+	t.Cleanup(func() {
+		connectDaemonDirOverride = origOverride
+		connectHealthReadDir = origReadDir
+	})
 
 	blockingFile := filepath.Join(t.TempDir(), "file")
 	if err := os.WriteFile(blockingFile, []byte("x"), 0o600); err != nil {
@@ -19,9 +24,13 @@ func TestConnectHealthRemainingIOAndListingBranches(t *testing.T) {
 	if h := newConnectHealth("client", "codex"); h != nil {
 		t.Fatalf("health with invalid base=%+v", h)
 	}
+	connectHealthReadDir = func(string) ([]os.DirEntry, error) {
+		return nil, errors.New("read directory")
+	}
 	if _, err := listConnectors(time.Now()); err == nil {
 		t.Fatal("list against non-directory base returned nil")
 	}
+	connectHealthReadDir = origReadDir
 
 	h := &connectHealth{dir: filepath.Join(t.TempDir(), "missing"), hb: connectHeartbeat{UpdatedUnix: 1}}
 	h.onError(nil)

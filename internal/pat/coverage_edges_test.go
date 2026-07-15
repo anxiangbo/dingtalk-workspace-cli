@@ -111,24 +111,23 @@ func TestBrowserPolicyInjectedEdges(t *testing.T) {
 	}
 	patPolicyAtomicWrite = originalWrite
 
-	badDir := filepath.Join(t.TempDir(), "file")
-	if err := os.WriteFile(badDir, []byte("x"), 0o600); err != nil {
-		t.Fatal(err)
+	policyDir := t.TempDir()
+	patPolicyReadFile = func(string) ([]byte, error) { return nil, failure }
+	if _, err := ResolveBrowserPolicy(policyDir, ""); !errors.Is(err, failure) {
+		t.Fatalf("resolve policy read error = %v", err)
 	}
-	if _, err := ResolveBrowserPolicy(badDir, ""); err == nil {
-		t.Fatal("resolve ignored policy read error")
-	}
-	if EffectiveOpenBrowser(badDir) != true {
+	if EffectiveOpenBrowser(policyDir) != true {
 		t.Fatal("policy error should preserve browser-open fallback")
 	}
+	if _, err := SetBrowserPolicy(policyDir, "", true); !errors.Is(err, failure) {
+		t.Fatalf("set policy read error = %v", err)
+	}
+	patPolicyReadFile = originalRead
 	if _, err := ResolveBrowserPolicy(t.TempDir(), "bad code"); err == nil {
 		t.Fatal("invalid agent code accepted")
 	}
 	if _, err := SetBrowserPolicy(t.TempDir(), "bad code", true); err == nil {
 		t.Fatal("invalid policy agent code accepted")
-	}
-	if _, err := SetBrowserPolicy(badDir, "", true); err == nil {
-		t.Fatal("set ignored load error")
 	}
 	patPolicyAtomicWrite = func(string, []byte) error { return failure }
 	if _, err := SetBrowserPolicy(t.TempDir(), "agent", true); !errors.Is(err, failure) {

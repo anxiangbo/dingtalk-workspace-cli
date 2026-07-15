@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"sync"
 	"testing"
 )
@@ -22,6 +23,13 @@ var (
 	helpersShellStubBaseDir  string
 	helpersShellStubBaseErr  error
 )
+
+func testExecutablePath(dir, name string) string {
+	if runtime.GOOS == "windows" {
+		name += ".exe"
+	}
+	return filepath.Join(dir, name)
+}
 
 // TestMain turns a copied helpers test binary into a native Windows executable
 // fixture. The fixture delegates its saved body to GitHub's bundled sh while

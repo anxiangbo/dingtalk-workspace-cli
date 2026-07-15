@@ -361,7 +361,7 @@ func TestReportContentsSourcesAndSafePaths(t *testing.T) {
 	if _, err := readReportContentsFile("missing.json"); err == nil {
 		t.Fatal("missing report file returned nil error")
 	}
-	if !pathEscapesUpward("..") || !pathEscapesUpward("../x") || pathEscapesUpward("inside") {
+	if !pathEscapesUpward(filepath.Clean("..")) || !pathEscapesUpward(filepath.Clean("../x")) || pathEscapesUpward("inside") {
 		t.Fatal("pathEscapesUpward changed")
 	}
 	if !pathWithinRoot(dir, filepath.Join(dir, "file")) || pathWithinRoot(dir, filepath.Join(filepath.Dir(dir), "outside")) {

@@ -14,7 +14,6 @@ import (
 
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/apiclient"
 	authpkg "github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/auth"
-	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/keychain"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/mcptypes"
 	"github.com/spf13/cobra"
 )
@@ -70,6 +69,12 @@ func TestPluginAuthCoverage(t *testing.T) {
 }
 
 func TestRawAPIAndTokenCoverage(t *testing.T) {
+	oldProvider := newAccessTokenProvider
+	oldManager := newLegacyTokenManager
+	t.Cleanup(func() {
+		newAccessTokenProvider = oldProvider
+		newLegacyTokenManager = oldManager
+	})
 	cmd := &cobra.Command{Use: "api"}
 	var out, errOut bytes.Buffer
 	cmd.SetOut(&out)
@@ -151,15 +156,13 @@ func TestRawAPIAndTokenCoverage(t *testing.T) {
 	if got, err := ResolveAuxiliaryAccessToken(context.Background(), "ignored", " explicit "); err != nil || got != "explicit" {
 		t.Fatalf("explicit auxiliary token = %q, %v", got, err)
 	}
-	t.Setenv(keychain.StorageDirEnv, t.TempDir())
 	dir := t.TempDir()
-	if err := authpkg.SaveTokenData(dir, &authpkg.TokenData{AccessToken: "saved", ExpiresAt: time.Now().Add(time.Hour)}); err != nil {
-		t.Fatal(err)
-	}
+	newAccessTokenProvider = func(string) accessTokenGetter { return fakeAccessTokenGetter{token: "saved"} }
+	newLegacyTokenManager = func(string) legacyTokenGetter { return fakeLegacyTokenGetter{} }
 	if got, err := resolveAccessTokenFromDir(context.Background(), dir); err != nil || got != "saved" {
 		t.Fatalf("saved access token = %q, %v", got, err)
 	}
-	t.Setenv(keychain.StorageDirEnv, t.TempDir())
+	newAccessTokenProvider = func(string) accessTokenGetter { return fakeAccessTokenGetter{} }
 	missing := t.TempDir()
 	if got, err := resolveAccessTokenFromDir(context.Background(), missing); err != nil || got != "" {
 		t.Fatalf("missing access token = %q, %v", got, err)

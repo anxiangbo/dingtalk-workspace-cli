@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -28,6 +29,68 @@ func writePluginManifest(t *testing.T, dir string, m Manifest) {
 	if err := os.WriteFile(filepath.Join(dir, "plugin.json"), data, 0o644); err != nil {
 		t.Fatal(err)
 	}
+}
+
+const fakeGitProgram = `package main
+
+import (
+	"os"
+	"path/filepath"
+)
+
+func main() {
+	mode := os.Getenv("DWS_PLUGIN_TEST_GIT_MODE")
+	if mode == "clone-fail" {
+		os.Exit(1)
+	}
+	if len(os.Args) < 2 {
+		os.Exit(2)
+	}
+	dest := os.Args[len(os.Args)-1]
+	if err := os.MkdirAll(filepath.Join(dest, ".git"), 0o755); err != nil {
+		os.Exit(3)
+	}
+
+	var manifest string
+	switch mode {
+	case "missing":
+		return
+	case "malformed":
+		manifest = "{"
+	case "invalid":
+		manifest = "{\"name\":\"x\",\"version\":\"1.0.0\"}"
+	case "build":
+		manifest = "{\"name\":\"git-build\",\"version\":\"1.0.0\",\"build\":{\"command\":\"true\"}}"
+	case "valid":
+		manifest = "{\"name\":\"git-valid\",\"version\":\"1.0.0\"}"
+	default:
+		manifest = "{\"name\":\"git-plugin\",\"version\":\"1.0.0\",\"type\":\"user\"}"
+	}
+	if err := os.WriteFile(filepath.Join(dest, "plugin.json"), []byte(manifest), 0o644); err != nil {
+		os.Exit(4)
+	}
+	if err := os.WriteFile(filepath.Join(dest, "content.txt"), []byte("cloned"), 0o644); err != nil {
+		os.Exit(5)
+	}
+}
+`
+
+func buildFakeGit(t *testing.T) string {
+	t.Helper()
+	source := filepath.Join(t.TempDir(), "fake_git.go")
+	if err := os.WriteFile(source, []byte(fakeGitProgram), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	binDir := t.TempDir()
+	name := "git"
+	if runtime.GOOS == "windows" {
+		name += ".exe"
+	}
+	cmd := exec.Command("go", "build", "-o", filepath.Join(binDir, name), source)
+	if output, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("build fake git: %v\n%s", err, output)
+	}
+	return binDir
 }
 
 func TestPluginConverterEdges(t *testing.T) {
@@ -518,17 +581,9 @@ func TestLoaderInstallBuildAndGit(t *testing.T) {
 	if got := buildCommandFor("linux", "true"); len(got.Args) < 2 || got.Args[0] != "sh" {
 		t.Fatalf("unix build command = %#v", got.Args)
 	}
-	if runtime.GOOS == "windows" {
-		t.Skip("fake git script requires a POSIX shell")
-	}
-
-	bin := t.TempDir()
-	gitScript := filepath.Join(bin, "git")
-	script := "#!/bin/sh\nlast=\"\"\nfor arg in \"$@\"; do last=\"$arg\"; done\nmkdir -p \"$last/.git\"\nprintf '%s' '{\"name\":\"git-plugin\",\"version\":\"1.0.0\",\"type\":\"user\"}' > \"$last/plugin.json\"\nprintf cloned > \"$last/content.txt\"\n"
-	if err := os.WriteFile(gitScript, []byte(script), 0o755); err != nil {
-		t.Fatal(err)
-	}
+	bin := buildFakeGit(t)
 	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
+	t.Setenv("DWS_PLUGIN_TEST_GIT_MODE", "")
 	gitPlugin, err := l.InstallFromGit("https://example.test/acme/repository.git")
 	if err != nil {
 		t.Fatalf("InstallFromGit: %v", err)
@@ -543,11 +598,7 @@ func TestLoaderInstallBuildAndGit(t *testing.T) {
 		t.Fatal("expected local git URL rejection")
 	}
 
-	failBin := t.TempDir()
-	if err := os.WriteFile(filepath.Join(failBin, "git"), []byte("#!/bin/sh\nexit 1\n"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	t.Setenv("PATH", failBin)
+	t.Setenv("DWS_PLUGIN_TEST_GIT_MODE", "clone-fail")
 	if _, err := l.InstallFromGit("https://example.test/acme/fail.git"); err == nil {
 		t.Fatal("expected git clone failure")
 	}
@@ -649,37 +700,30 @@ func TestLoaderSystemCallEdges(t *testing.T) {
 }
 
 func TestInstallFromGitValidationAndBuildEdges(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		t.Skip("fake git script requires a POSIX shell")
-	}
 	oldCopyDir := pluginCopyDir
 	oldRunBuild := pluginRunBuild
 	t.Cleanup(func() {
 		pluginCopyDir = oldCopyDir
 		pluginRunBuild = oldRunBuild
 	})
-	bin := t.TempDir()
-	script := "#!/bin/sh\nlast=\"\"\nfor arg in \"$@\"; do last=\"$arg\"; done\nmkdir -p \"$last\"\ncase \"$FAKE_MODE\" in\nmissing) ;;\nmalformed) printf '{' > \"$last/plugin.json\" ;;\ninvalid) printf '%s' '{\"name\":\"x\",\"version\":\"1.0.0\"}' > \"$last/plugin.json\" ;;\nbuild) printf '%s' '{\"name\":\"git-build\",\"version\":\"1.0.0\",\"build\":{\"command\":\"true\"}}' > \"$last/plugin.json\" ;;\n*) printf '%s' '{\"name\":\"git-valid\",\"version\":\"1.0.0\"}' > \"$last/plugin.json\" ;;\nesac\n"
-	if err := os.WriteFile(filepath.Join(bin, "git"), []byte(script), 0o755); err != nil {
-		t.Fatal(err)
-	}
+	bin := buildFakeGit(t)
 	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
 	root := t.TempDir()
 	l := &Loader{PluginsDir: root, CLIVersion: "1.0.0"}
 	for _, mode := range []string{"missing", "malformed", "invalid"} {
-		t.Setenv("FAKE_MODE", mode)
+		t.Setenv("DWS_PLUGIN_TEST_GIT_MODE", mode)
 		if _, err := l.InstallFromGit("https://host/acme/repo.git"); err == nil {
 			t.Errorf("mode %q unexpectedly succeeded", mode)
 		}
 	}
-	t.Setenv("FAKE_MODE", "valid")
+	t.Setenv("DWS_PLUGIN_TEST_GIT_MODE", "valid")
 	pluginCopyDir = func(string, string) error { return errors.New("copy") }
 	if _, err := l.InstallFromGit("https://host/acme/repo.git"); err == nil {
 		t.Fatal("expected git install copy error")
 	}
 	pluginCopyDir = oldCopyDir
 
-	t.Setenv("FAKE_MODE", "build")
+	t.Setenv("DWS_PLUGIN_TEST_GIT_MODE", "build")
 	pluginRunBuild = func(string, *BuildConfig) error { return errors.New("build") }
 	if _, err := l.InstallFromGit("https://host/acme/repo.git"); err == nil {
 		t.Fatal("expected git install build error")

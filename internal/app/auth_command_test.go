@@ -1066,6 +1066,8 @@ func setupAuthLogoutProfiles(t *testing.T, tokens ...*authpkg.TokenData) string 
 	ResetRuntimeTokenCache()
 	clearCompatCache()
 	t.Cleanup(func() {
+		_ = authpkg.DeleteAllTokenData(configDir)
+		CloseFileLogger()
 		authpkg.SetRuntimeProfile("")
 		ResetRuntimeTokenCache()
 		clearCompatCache()

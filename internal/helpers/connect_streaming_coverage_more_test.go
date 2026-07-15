@@ -3,7 +3,6 @@ package helpers
 import (
 	"context"
 	"io"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -13,11 +12,7 @@ import (
 
 func writeStreamingAgent(t *testing.T, body string) string {
 	t.Helper()
-	path := filepath.Join(t.TempDir(), "agent")
-	if err := os.WriteFile(path, []byte("#!/bin/sh\n"+body+"\n"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	return path
+	return writeShellExecutable(t, t.TempDir(), "agent", body+"\n")
 }
 
 func streamingExecForwarder(bin string) *execForwarder {

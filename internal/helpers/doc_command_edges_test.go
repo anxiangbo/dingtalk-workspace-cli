@@ -338,6 +338,7 @@ func TestDocDestructiveCancellationEdges(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Cleanup(func() { _ = input.Close() })
 	_, _ = input.WriteString(strings.Repeat("no\n", 4))
 	_, _ = input.Seek(0, 0)
 	os.Stdin = input
@@ -476,6 +477,7 @@ func TestDocVersionRevertCommandEdges(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Cleanup(func() { _ = input.Close() })
 	_, _ = input.WriteString("no\n")
 	_, _ = input.Seek(0, 0)
 	os.Stdin = input

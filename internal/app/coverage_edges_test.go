@@ -1376,6 +1376,8 @@ func TestUpgradeCommandHTTPAndDryRunCoverage(t *testing.T) {
 }
 
 func TestUpgradeRemainingPureCoverage(t *testing.T) {
+	originalCommandOutput := upgradeCommandOutput
+	t.Cleanup(func() { upgradeCommandOutput = originalCommandOutput })
 	for _, beta := range []bool{false, true} {
 		track := upgradeTrack(beta)
 		_ = upgradeTrackSuffix(track)
@@ -1418,6 +1420,16 @@ func TestUpgradeRemainingPureCoverage(t *testing.T) {
 	_ = gz.Close()
 	_ = file.Close()
 	dest := filepath.Join(dir, "dest")
+	if runtime.GOOS == "windows" {
+		upgradeCommandOutput = func(_ string, args ...string) ([]byte, error) {
+			for _, arg := range args {
+				if strings.Contains(arg, "missing") {
+					return nil, os.ErrNotExist
+				}
+			}
+			return nil, nil
+		}
+	}
 	if err := extractTarGz(archive, dest); err != nil {
 		t.Fatalf("extract tar: %v", err)
 	}
@@ -1694,10 +1706,15 @@ func TestDoctorCommandCoverage(t *testing.T) {
 	})
 	t.Setenv("DWS_CONFIG_DIR", configDir)
 	home := t.TempDir()
-	t.Setenv("HOME", home)
 	oldVersion := version
 	oldDiagnose := doctorKeychainDiagnose
-	t.Cleanup(func() { version = oldVersion; doctorKeychainDiagnose = oldDiagnose })
+	oldTimingHome := timingUserHomeDir
+	timingUserHomeDir = func() (string, error) { return home, nil }
+	t.Cleanup(func() {
+		version = oldVersion
+		doctorKeychainDiagnose = oldDiagnose
+		timingUserHomeDir = oldTimingHome
+	})
 	version = "1.0.0"
 	doctorKeychainDiagnose = func() keychain.Diagnostic {
 		return keychain.Diagnostic{OK: true, Message: "available"}
@@ -1774,7 +1791,7 @@ func TestDoctorCommandCoverage(t *testing.T) {
 		t.Fatalf("bad version check = %#v", got)
 	}
 	missingHome := t.TempDir()
-	t.Setenv("HOME", missingHome)
+	timingUserHomeDir = func() (string, error) { return missingHome, nil }
 	if got := doctorCheckPerf(io.Discard, false); got.Status != statusWarn {
 		t.Fatalf("missing perf check = %#v", got)
 	}
@@ -1804,7 +1821,9 @@ func TestSkillCommandHTTPCoverage(t *testing.T) {
 	configDir := setupPersonalIdentityToken(t, &authpkg.TokenData{AccessToken: "access", ExpiresAt: time.Now().Add(time.Hour), ClientID: "client"})
 	t.Setenv("DWS_CONFIG_DIR", configDir)
 	home := t.TempDir()
-	t.Setenv("HOME", home)
+	oldSkillHome := skillUserHomeDir
+	skillUserHomeDir = func() (string, error) { return home, nil }
+	t.Cleanup(func() { skillUserHomeDir = oldSkillHome })
 	zipData := coverageSkillZip(t)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
@@ -2117,7 +2136,9 @@ func TestProfileCommandAndModelCoverage(t *testing.T) {
 
 func TestSkillSetupRuntimeCoverage(t *testing.T) {
 	home := t.TempDir()
-	t.Setenv("HOME", home)
+	oldSetupHome := skillSetupUserHomeDir
+	skillSetupUserHomeDir = func() (string, error) { return home, nil }
+	t.Cleanup(func() { skillSetupUserHomeDir = oldSetupHome })
 	mono := filepath.Join(t.TempDir(), "mono")
 	if err := os.MkdirAll(filepath.Join(mono, "references"), 0o755); err != nil {
 		t.Fatal(err)

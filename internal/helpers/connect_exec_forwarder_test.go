@@ -24,9 +24,8 @@ import (
 
 func TestExecForwarderRetriesMissingSessionOnce(t *testing.T) {
 	dir := t.TempDir()
-	bin := filepath.Join(dir, "agent")
 	logPath := filepath.Join(dir, "calls.log")
-	if err := os.WriteFile(bin, []byte(`#!/bin/sh
+	bin := writeShellExecutable(t, dir, "agent", `
 echo "$@" >> "$DWS_STALE_LOG"
 case " $* " in
   *" --resume "*)
@@ -35,9 +34,7 @@ case " $* " in
     ;;
 esac
 echo fresh-ok
-`), 0o755); err != nil {
-		t.Fatal(err)
-	}
+`)
 
 	sessions := newConvSessions("")
 	if got := sessions.args("conv-1"); len(got) != 2 || got[0] != "--session-id" {
@@ -69,9 +66,8 @@ echo fresh-ok
 
 func TestExecForwarderStreamRetriesMissingSessionOnce(t *testing.T) {
 	dir := t.TempDir()
-	bin := filepath.Join(dir, "agent-stream")
 	logPath := filepath.Join(dir, "calls.log")
-	if err := os.WriteFile(bin, []byte(`#!/bin/sh
+	bin := writeShellExecutable(t, dir, "agent-stream", `
 echo "$@" >> "$DWS_STALE_LOG"
 case " $* " in
   *" --resume "*)
@@ -80,9 +76,7 @@ case " $* " in
     ;;
 esac
 printf '%s\n' '{"type":"result","result":"fresh-stream-ok"}'
-`), 0o755); err != nil {
-		t.Fatal(err)
-	}
+`)
 
 	sessions := newConvSessions("")
 	_ = sessions.args("conv-1")
@@ -114,15 +108,12 @@ printf '%s\n' '{"type":"result","result":"fresh-stream-ok"}'
 
 func TestExecForwarderDoesNotRetryNonSessionErrors(t *testing.T) {
 	dir := t.TempDir()
-	bin := filepath.Join(dir, "agent")
 	logPath := filepath.Join(dir, "calls.log")
-	if err := os.WriteFile(bin, []byte(`#!/bin/sh
+	bin := writeShellExecutable(t, dir, "agent", `
 echo "$@" >> "$DWS_STALE_LOG"
 echo "plain failure" >&2
 exit 1
-`), 0o755); err != nil {
-		t.Fatal(err)
-	}
+`)
 
 	sessions := newConvSessions("")
 	_ = sessions.args("conv-1")

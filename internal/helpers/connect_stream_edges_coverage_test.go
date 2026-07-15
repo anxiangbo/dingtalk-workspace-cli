@@ -69,7 +69,7 @@ func TestResolveExecAgentInstallAndForwarderErrors(t *testing.T) {
 	}
 
 	source := writeShellExecutable(t, t.TempDir(), "source-agent", "exit 0\n")
-	target := filepath.Join(binDir, "installed-agent")
+	target := testExecutablePath(binDir, "installed-agent")
 	restoreSpec("install-success", agentSpec{
 		app:     "Install Success",
 		bins:    []string{"installed-agent"},

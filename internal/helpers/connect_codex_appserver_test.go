@@ -15,6 +15,7 @@ package helpers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -28,7 +29,7 @@ import (
 func writeShellExecutable(t *testing.T, dir, name, body string) string {
 	t.Helper()
 	if runtime.GOOS == "windows" {
-		path := filepath.Join(dir, name+".exe")
+		path := testExecutablePath(dir, name)
 		if err := copyCurrentHelpersTestBinary(path); err != nil {
 			t.Fatalf("write Windows stub %s: %v", name, err)
 		}
@@ -167,7 +168,11 @@ while IFS= read -r line; do
 	if strings.Count(log, `"method":"thread/resume"`) != 1 {
 		t.Fatalf("expected one thread/resume, log:\n%s", log)
 	}
-	if !strings.Contains(log, `"type":"localImage"`) || !strings.Contains(log, imagePath) {
+	encodedImagePath, err := json.Marshal(imagePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(log, `"type":"localImage"`) || !strings.Contains(log, string(encodedImagePath)) {
 		t.Fatalf("turn/start missing native localImage input, log:\n%s", log)
 	}
 }

@@ -121,6 +121,7 @@ func TestRootConstructionHooksAndVersionCoverage(t *testing.T) {
 }
 
 func TestRootFlagsPluginsAndOutputRemainingCoverage(t *testing.T) {
+	t.Chdir(t.TempDir())
 	parent := &cobra.Command{Use: "root"}
 	parent.PersistentFlags().String("format", "json", "")
 	child := &cobra.Command{Use: "child"}
@@ -174,7 +175,7 @@ func TestRootFlagsPluginsAndOutputRemainingCoverage(t *testing.T) {
 		cmd.SetContext(context.Background())
 		return cmd
 	}
-	successPath := filepath.Join(t.TempDir(), "success", "out")
+	successPath := filepath.Join("success", "out")
 	successCmd := newOutputCommand(successPath)
 	if err := configureOutputSink(successCmd); err != nil {
 		t.Fatalf("output sink success = %v", err)
@@ -190,12 +191,12 @@ func TestRootFlagsPluginsAndOutputRemainingCoverage(t *testing.T) {
 		t.Fatal("non-string output flag succeeded")
 	}
 	rootMkdirAll = func(string, os.FileMode) error { return wantErr }
-	if err := configureOutputSink(newOutputCommand(filepath.Join(t.TempDir(), "dir", "out"))); err == nil {
+	if err := configureOutputSink(newOutputCommand(filepath.Join("mkdir-failure", "out"))); err == nil {
 		t.Fatal("mkdir failure succeeded")
 	}
 	rootMkdirAll = func(string, os.FileMode) error { return nil }
 	rootCreateFile = func(string) (*os.File, error) { return nil, wantErr }
-	if err := configureOutputSink(newOutputCommand(filepath.Join(t.TempDir(), "out"))); err == nil {
+	if err := configureOutputSink(newOutputCommand(filepath.Join("create-failure", "out"))); err == nil {
 		t.Fatal("create failure succeeded")
 	}
 	rootCreateFile = oldCreate
