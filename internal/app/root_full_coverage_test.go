@@ -210,6 +210,9 @@ func TestRootFlagsPluginsAndOutputRemainingCoverage(t *testing.T) {
 	if err := closeOutputSink(cmd); err == nil {
 		t.Fatal("close failure succeeded")
 	}
+	if err := file.Close(); err != nil {
+		t.Fatalf("cleanup close-failure file = %v", err)
+	}
 	rootCloseFile = oldClose
 	file, err = os.CreateTemp(t.TempDir(), "close-success")
 	if err != nil {

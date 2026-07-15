@@ -765,6 +765,10 @@ func configureLogLevel(flags *GlobalFlags) {
 
 	// Initialize file logger — writes to ~/.dws/logs/dws.log at DEBUG level
 	// regardless of stderr level. All slog calls are captured for diagnostics.
+	// A previously closed rotating writer may have been reopened by slog calls
+	// made while constructing another root command, so close it before replacing
+	// the package pointer during reentrant executions.
+	CloseFileLogger()
 	fileLogger = logging.Setup(defaultConfigDir())
 	fileHandler := slog.NewJSONHandler(fileLogger.Writer(), &slog.HandlerOptions{Level: slog.LevelDebug})
 

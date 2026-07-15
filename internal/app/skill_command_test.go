@@ -708,6 +708,7 @@ func TestSkillSearchUsesSourceQueryAndKeepsScopesCompat(t *testing.T) {
 
 	run := func(args ...string) {
 		t.Helper()
+		defer CloseFileLogger()
 		cmd := NewRootCommand()
 		cmd.SetArgs(args)
 		var out bytes.Buffer
