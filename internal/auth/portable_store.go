@@ -355,7 +355,7 @@ func safeJoin(root, rel string) (string, error) {
 		return "", fmt.Errorf("empty auth bundle path")
 	}
 	rel = filepath.FromSlash(path.Clean(rel))
-	if filepath.IsAbs(rel) || rel == "." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) || rel == ".." {
+	if rel == "." || !filepath.IsLocal(rel) {
 		return "", fmt.Errorf("unsafe auth bundle path %q", rel)
 	}
 	target := filepath.Join(root, rel)

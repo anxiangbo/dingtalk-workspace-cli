@@ -1087,7 +1087,15 @@ func TestPortableAuthBundleCoverageEdges(t *testing.T) {
 
 	t.Run("platform and populated states", func(t *testing.T) {
 		oldGOOS := portableRuntimeGOOS
-		t.Cleanup(func() { portableRuntimeGOOS = oldGOOS })
+		oldGet := authKeychainGet
+		oldExists := authKeychainExists
+		t.Cleanup(func() {
+			portableRuntimeGOOS = oldGOOS
+			authKeychainGet = oldGet
+			authKeychainExists = oldExists
+		})
+		authKeychainGet = func(string, string) (string, error) { return "", nil }
+		authKeychainExists = func(string, string) bool { return false }
 		portableRuntimeGOOS = func() string { return "linux" }
 		if !PortableExportSupported() {
 			t.Fatal("Linux portable export was disabled")
@@ -1105,7 +1113,6 @@ func TestPortableAuthBundleCoverageEdges(t *testing.T) {
 		keyDir := t.TempDir()
 		t.Setenv(keychain.StorageDirEnv, keyDir)
 		configDir := t.TempDir()
-		_ = DeleteTokenData(configDir)
 		if PortableAuthTargetPopulated(configDir) || PortableAuthSourceReady() {
 			t.Fatal("empty portable auth target reported populated")
 		}
@@ -1127,8 +1134,15 @@ func TestPortableAuthBundleCoverageEdges(t *testing.T) {
 		if err := os.Remove(filepath.Join(configDir, "app.json")); err != nil {
 			t.Fatal(err)
 		}
-		if err := SaveTokenDataKeychain(&TokenData{AccessToken: "portable", CorpID: "corp"}); err != nil {
+		storageDir := keychain.StorageDir(keychain.Service)
+		if err := os.MkdirAll(storageDir, 0o700); err != nil {
 			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(storageDir, keychain.AccountToken+".enc"), []byte("encrypted"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		authKeychainGet = func(string, string) (string, error) {
+			return `{"corp_id":"corp","access_token":"portable"}`, nil
 		}
 		if !PortableAuthTargetPopulated(configDir) || !PortableAuthSourceReady() {
 			t.Fatal("encrypted token source was not detected")
@@ -1137,7 +1151,12 @@ func TestPortableAuthBundleCoverageEdges(t *testing.T) {
 
 	t.Run("export and import", func(t *testing.T) {
 		oldGOOS := portableRuntimeGOOS
-		t.Cleanup(func() { portableRuntimeGOOS = oldGOOS })
+		oldGet := authKeychainGet
+		t.Cleanup(func() {
+			portableRuntimeGOOS = oldGOOS
+			authKeychainGet = oldGet
+		})
+		authKeychainGet = func(string, string) (string, error) { return "", nil }
 		portableRuntimeGOOS = func() string { return "linux" }
 		keyRoot := t.TempDir()
 		t.Setenv(keychain.StorageDirEnv, keyRoot)
@@ -1172,8 +1191,11 @@ func TestPortableAuthBundleCoverageEdges(t *testing.T) {
 		if err := os.MkdirAll(filepath.Join(keyDir, "nested"), 0o700); err != nil {
 			t.Fatal(err)
 		}
-		if err := SaveTokenDataKeychain(&TokenData{AccessToken: "portable", CorpID: "corp"}); err != nil {
+		if err := os.WriteFile(filepath.Join(keyDir, keychain.AccountToken+".enc"), []byte("encrypted"), 0o600); err != nil {
 			t.Fatal(err)
+		}
+		authKeychainGet = func(string, string) (string, error) {
+			return `{"corp_id":"corp","access_token":"portable"}`, nil
 		}
 		if err := os.WriteFile(filepath.Join(keyDir, "nested", "value"), []byte("nested"), 0o600); err != nil {
 			t.Fatal(err)
@@ -1269,12 +1291,13 @@ func TestPortableAuthBundleCoverageEdges(t *testing.T) {
 				t.Errorf("unsafe relative path %q succeeded", rel)
 			}
 		}
-		if got, err := safeJoin("/root", "nested/value"); err != nil || got != "/root/nested/value" {
+		safeRoot := t.TempDir()
+		if got, err := safeJoin(safeRoot, "nested/value"); err != nil || got != filepath.Join(safeRoot, "nested", "value") {
 			t.Fatalf("safe join = %q %v", got, err)
 		}
 		oldInRoot := portablePathInRoot
 		portablePathInRoot = func(string, string) bool { return false }
-		if _, err := safeJoin("/root", "value"); err == nil {
+		if _, err := safeJoin(safeRoot, "value"); err == nil {
 			t.Fatal("out-of-root path succeeded")
 		}
 		portablePathInRoot = oldInRoot
