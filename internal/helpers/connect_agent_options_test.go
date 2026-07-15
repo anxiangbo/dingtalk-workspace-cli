@@ -33,6 +33,13 @@ func writeExecStub(dir, name string) error {
 	return os.WriteFile(filepath.Join(dir, name), []byte("#!/bin/sh\n"), 0o755)
 }
 
+func requirePOSIXShell(t *testing.T) {
+	t.Helper()
+	if runtime.GOOS == "windows" {
+		t.Skip("test fixture requires a POSIX shell executable")
+	}
+}
+
 // TestConvSessions covers the per-conversation session contract: first message
 // creates (--session-id), follow-ups resume (--resume), reset re-mints.
 func TestConvSessions(t *testing.T) {

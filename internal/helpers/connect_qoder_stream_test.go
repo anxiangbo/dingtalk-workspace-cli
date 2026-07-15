@@ -26,6 +26,7 @@ import (
 
 func writeQoderStreamStub(t *testing.T, dir string) (string, string) {
 	t.Helper()
+	requirePOSIXShell(t)
 	logPath := filepath.Join(dir, "qoder-starts.log")
 	script := `import json
 import os

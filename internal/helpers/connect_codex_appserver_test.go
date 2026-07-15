@@ -50,7 +50,9 @@ func TestForwarderForChannelCodexPrefersAppServer(t *testing.T) {
 	clearChannelEnv(t)
 	t.Setenv("DWS_CONNECT_NO_INSTALL", "1")
 	stub := t.TempDir()
-	writeShellExecutable(t, stub, "codex", "exit 0\n")
+	if err := writeExecStub(stub, "codex"); err != nil {
+		t.Fatalf("write codex stub: %v", err)
+	}
 	t.Setenv("PATH", stub)
 
 	fwd, err := forwarderForChannel("codex", "", connectAgentOptions{Memory: true})

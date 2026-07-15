@@ -199,6 +199,16 @@ func TestReadFileBoundedEmptyFile(t *testing.T) {
 	}
 }
 
+func TestReadFileBoundedRejectsDirectory(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+
+	_, _, err := ReadFileArg("@" + dir)
+	if err == nil {
+		t.Fatal("expected error when reading a directory as a file")
+	}
+}
+
 // ---------------------------------------------------------------------------
 // StdinGuard
 // ---------------------------------------------------------------------------

@@ -23,6 +23,7 @@ import (
 )
 
 func TestExecForwarderRetriesMissingSessionOnce(t *testing.T) {
+	requirePOSIXShell(t)
 	dir := t.TempDir()
 	logPath := filepath.Join(dir, "calls.log")
 	bin := writeShellExecutable(t, dir, "agent", `
@@ -65,6 +66,7 @@ echo fresh-ok
 }
 
 func TestExecForwarderStreamRetriesMissingSessionOnce(t *testing.T) {
+	requirePOSIXShell(t)
 	dir := t.TempDir()
 	logPath := filepath.Join(dir, "calls.log")
 	bin := writeShellExecutable(t, dir, "agent-stream", `
@@ -107,6 +109,7 @@ printf '%s\n' '{"type":"result","result":"fresh-stream-ok"}'
 }
 
 func TestExecForwarderDoesNotRetryNonSessionErrors(t *testing.T) {
+	requirePOSIXShell(t)
 	dir := t.TempDir()
 	logPath := filepath.Join(dir, "calls.log")
 	bin := writeShellExecutable(t, dir, "agent", `

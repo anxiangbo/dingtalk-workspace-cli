@@ -102,12 +102,21 @@ func TestDocPollingCoverage(t *testing.T) {
 		{{text: `{"status":"processing"}`}},
 		{{text: `{"status":"unknown"}`}},
 	}
+	importConfig := docImportFlowConfig()
+	importConfig.poll.wait = func(ctx context.Context, _ time.Duration) error {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			return nil
+		}
+	}
 	for _, steps := range importCases {
 		caller := &scriptedToolCaller{steps: steps}
 		installScriptedCaller(t, caller)
-		_, _ = pollDocImportTask(context.Background(), "task")
+		_, _ = pollImportTask(context.Background(), "task", importConfig)
 	}
-	_, _ = pollDocImportTask(cancelled, "task")
+	_, _ = pollImportTask(cancelled, "task", importConfig)
 }
 
 func TestSheetExportPollingCoverage(t *testing.T) {
