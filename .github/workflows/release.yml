@@ -297,6 +297,7 @@ jobs:
           args: release --clean --skip=publish --release-notes=${{ runner.temp }}/release-notes.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_CURRENT_TAG: ${{ github.ref_name }}
 
       - name: Post-release packaging
         run: ./scripts/release/post-goreleaser.sh
