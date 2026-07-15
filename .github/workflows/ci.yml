@@ -234,7 +234,7 @@ jobs:
       - name: Run current and baseline unit tests with coverage
         run: |
           set -eu
-          go test -count=1 -coverprofile=coverage.txt -covermode=atomic ./ ./cmd/... ./internal/... ./skills/...
+          go test -count=1 -p 1 -coverprofile=coverage.txt -covermode=atomic ./ ./cmd/... ./internal/... ./skills/...
           go test -count=1 -coverprofile=coverage-policy.txt -covermode=atomic ./pkg/... ./scripts/policy/...
           go test -count=1 \
             -run '^(TestAllShortcuts|TestCrossPlatformCoverage)' \
@@ -253,6 +253,7 @@ jobs:
           (
             cd "$base_worktree"
             go test -count=1 \
+              -p 1 \
               -coverprofile="$GITHUB_WORKSPACE/coverage-base.txt" \
               -covermode=atomic \
               ./ ./cmd/... ./internal/... ./skills/...
