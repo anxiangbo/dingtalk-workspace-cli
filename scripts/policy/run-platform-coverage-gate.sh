@@ -51,6 +51,7 @@ TMP_ROOT="$(policy_runtime_mktemp_dir dws-platform-coverage)"
 PACKAGES="$TMP_ROOT/packages"
 SORTED_PACKAGES="$TMP_ROOT/packages.sorted"
 TEST_PACKAGES="$TMP_ROOT/test-packages"
+DEPENDENCIES="$TMP_ROOT/dependencies"
 cleanup() {
 	rm -rf "$TMP_ROOT"
 }
@@ -109,6 +110,24 @@ else
 		# the missing coverage when no explicit platform test exists.
 		set -- "$FIRST_PACKAGE"
 	fi
+	go list -deps "$@" >"$DEPENDENCIES"
+	module="$(go list -m -f '{{.Path}}')"
+	while IFS= read -r package; do
+		[ -n "$package" ] || continue
+		case "$package" in
+		.) import_path="$module" ;;
+		./*) import_path="$module/${package#./}" ;;
+		*) import_path="$package" ;;
+		esac
+		if ! grep -Fqx -- "$import_path" "$DEPENDENCIES"; then
+			printf '%s\n' "$package" >>"$TEST_PACKAGES"
+		fi
+	done <"$SORTED_PACKAGES"
+	sort -u "$TEST_PACKAGES" >"$TEST_PACKAGES.sorted"
+	set --
+	while IFS= read -r package; do
+		[ -n "$package" ] && set -- "$@" "$package"
+	done <"$TEST_PACKAGES.sorted"
 	printf 'native coverage test packages:'
 	printf ' %s' "$@"
 	printf '\n'
@@ -116,11 +135,11 @@ else
 	# executes code from every product package. Cross-package instrumentation is
 	# required for those real executions to count toward the owning source file.
 	#
-	# Platform runners intentionally execute only packages that actually declare
-	# an exhaustive shortcut harness or explicit cross-platform tests. All
-	# changed production packages remain instrumented via coverpkg, so unexercised
-	# statements still count as uncovered. Avoiding zero-test driver binaries also
-	# keeps profiles small enough for the fail-closed gate to process reliably.
+	# Platform runners execute packages that declare an exhaustive shortcut
+	# harness or explicit cross-platform tests, plus changed packages outside
+	# those packages' dependency graph. All changed production packages remain
+	# instrumented via coverpkg, so unexercised statements still count as
+	# uncovered while redundant zero-test driver binaries are avoided.
 	go test -count=1 -timeout="$TIMEOUT" -run '^(TestAllShortcuts|TestCrossPlatformCoverage)' \
 		-coverpkg="$COVERPKG" -coverprofile="$PROFILE" -covermode=atomic "$@"
 fi
