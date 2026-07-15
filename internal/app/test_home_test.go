@@ -14,6 +14,7 @@
 package app
 
 import (
+	"os"
 	"runtime"
 	"testing"
 )
@@ -24,5 +25,20 @@ func setTestHome(t *testing.T, home string) {
 	if runtime.GOOS == "windows" {
 		// os.UserHomeDir uses USERPROFILE on Windows rather than HOME.
 		t.Setenv("USERPROFILE", home)
+	}
+}
+
+func TestConfigureLogLevelReleasesPreviousFileLogger(t *testing.T) {
+	firstConfig := t.TempDir()
+	secondConfig := t.TempDir()
+	t.Cleanup(CloseFileLogger)
+
+	t.Setenv("DWS_CONFIG_DIR", firstConfig)
+	configureLogLevel(&GlobalFlags{})
+	t.Setenv("DWS_CONFIG_DIR", secondConfig)
+	configureLogLevel(&GlobalFlags{})
+
+	if err := os.RemoveAll(firstConfig); err != nil {
+		t.Fatalf("remove previous logger directory: %v", err)
 	}
 }

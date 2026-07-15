@@ -24,6 +24,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -722,7 +723,10 @@ func validateOptionalPath(flagName, path string) error {
 
 // fileLogger holds the package-level file logger for diagnostics.
 // It is initialized by configureLogLevel and closed by CloseFileLogger.
-var fileLogger *logging.FileLogger
+var (
+	fileLoggerMu sync.Mutex
+	fileLogger   *logging.FileLogger
+)
 
 // configureLogLevel sets the global slog level based on --debug and --verbose flags
 // and initializes the file logger for diagnostics.
@@ -744,14 +748,26 @@ func configureLogLevel(flags *GlobalFlags) {
 
 	// Initialize file logger — writes to ~/.dws/logs/dws.log at DEBUG level
 	// regardless of stderr level. All slog calls are captured for diagnostics.
-	fileLogger = logging.Setup(defaultConfigDir())
-	fileHandler := slog.NewJSONHandler(fileLogger.Writer(), &slog.HandlerOptions{Level: slog.LevelDebug})
+	logger := replaceFileLogger(defaultConfigDir())
+	fileHandler := slog.NewJSONHandler(logger.Writer(), &slog.HandlerOptions{Level: slog.LevelDebug})
 
 	slog.SetDefault(slog.New(logging.NewMultiHandler(stderrHandler, fileHandler)))
 }
 
+func replaceFileLogger(configDir string) *logging.FileLogger {
+	fileLoggerMu.Lock()
+	defer fileLoggerMu.Unlock()
+	if fileLogger != nil {
+		_ = fileLogger.Close()
+	}
+	fileLogger = logging.Setup(configDir)
+	return fileLogger
+}
+
 // FileLoggerInstance returns the package-level file logger, or nil if not initialized.
 func FileLoggerInstance() *slog.Logger {
+	fileLoggerMu.Lock()
+	defer fileLoggerMu.Unlock()
 	if fileLogger == nil {
 		return nil
 	}
@@ -760,8 +776,11 @@ func FileLoggerInstance() *slog.Logger {
 
 // CloseFileLogger flushes and closes the file logger.
 func CloseFileLogger() {
+	fileLoggerMu.Lock()
+	defer fileLoggerMu.Unlock()
 	if fileLogger != nil {
-		fileLogger.Close()
+		_ = fileLogger.Close()
+		fileLogger = nil
 	}
 }
 
