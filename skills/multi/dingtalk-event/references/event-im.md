@@ -228,16 +228,18 @@ dws event status --event user_im_message_reaction_o2o
 停止指定订阅：
 
 ```bash
-dws event stop <subscribe_id>
+dws event stop <subscribe_id> --dry-run
+dws event stop <subscribe_id> --yes
 ```
 
 清理当前身份下本地记录的全部个人订阅：
 
 ```bash
-dws event stop --all
+dws event stop --all --dry-run
+dws event stop --all --yes
 ```
 
-裸 `dws event stop` 不会取消订阅。本次 consume 新建的订阅会在 SIGTERM、Ctrl+C、stdin EOF、duration 或 max-events 等干净退出时自动取消；通过 `--subscribe-id` 复用的订阅默认保留，需要时使用事件输出或 `status` 里的 `subscribe_id` 执行 `dws event stop <subscribe_id>`。不要使用 `kill -9`，它会跳过清理。
+裸 `dws event stop` 不会取消订阅。本次 consume 新建的订阅会在 SIGTERM、Ctrl+C、stdin EOF、duration 或 max-events 等干净退出时自动取消；通过 `--subscribe-id` 复用的订阅默认保留。需要从外部取消时，使用事件输出或 `status` 里的 `subscribe_id`，先执行 `dws event stop <subscribe_id> --dry-run`，确认预览后再加 `--yes`。不要使用 `kill -9`，它会跳过清理。
 
 ## Troubleshooting
 

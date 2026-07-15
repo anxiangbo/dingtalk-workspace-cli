@@ -441,17 +441,6 @@ func TestBuildRuleParamRejectsWrongScopedFlags(t *testing.T) {
 	}
 }
 
-func actionEventKeysForTest() []string {
-	return []string{
-		EventReadO2O,
-		EventReadGroup,
-		EventRecallO2O,
-		EventRecallGroup,
-		EventReactionO2O,
-		EventReactionGroup,
-	}
-}
-
 func TestBuildFilterQueryAndJSON(t *testing.T) {
 	filter, canonical, err := BuildFilter(`{"field":"conversation_id","op":"eq","value":"cid1"}`, "P0, 故障")
 	if err != nil {
