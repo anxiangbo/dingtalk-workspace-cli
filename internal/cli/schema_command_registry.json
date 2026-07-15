@@ -2111,6 +2111,10 @@
           "cli_path": "sheet info"
         },
         {
+          "canonical_path": "sheet.import_get",
+          "cli_path": "sheet import get"
+        },
+        {
           "canonical_path": "sheet.insert_dimension",
           "cli_path": "sheet insert-dimension"
         },

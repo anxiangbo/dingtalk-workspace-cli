@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "source_hash": "sha256:024b37942df489fb1b6e5a7768a5da50316c402dfe2fa8d0b40dc5a03d0aeddc",
-  "surface_hash": "sha256:e858be68701d256818eccd085a6f7f97655835b9c7cbbce6275ed930c2436dc3",
-  "source_files": 149,
+  "source_hash": "sha256:14e70da8fce3378cb369d65c8eff05ada56b6b359cae2413a0caa2519f8297de",
+  "surface_hash": "sha256:8e064047df90d241222657594d127a25c68fc97a551619d7e5316c8e172b8563",
+  "source_files": 150,
   "hint_files": 46,
   "hint_products": 39,
-  "hint_tools": 1280,
+  "hint_tools": 1282,
   "interface_metadata": {
     "source": "mcp-tools-list+cli-registry",
     "revision": "4574f7022c32cf4c033e9b7b4156e2fec815fed8",
@@ -29,15 +29,15 @@
   "coverage": {
     "surface_products": 22,
     "products_with_metadata": 22,
-    "surface_tools": 564,
-    "tools_with_metadata": 564,
-    "tools_with_agent_summary": 564,
-    "tools_with_use_when": 564,
-    "tools_with_avoid_when": 564,
-    "tools_with_examples": 564,
-    "tools_with_interface_mode": 564,
-    "unmatched_skill_tools": 125,
-    "unreviewed_skill_tools": 7
+    "surface_tools": 565,
+    "tools_with_metadata": 565,
+    "tools_with_agent_summary": 565,
+    "tools_with_use_when": 565,
+    "tools_with_avoid_when": 565,
+    "tools_with_examples": 565,
+    "tools_with_interface_mode": 565,
+    "unmatched_skill_tools": 126,
+    "unreviewed_skill_tools": 8
   },
   "source_products": [
     "agoal",
@@ -3877,7 +3877,7 @@
     {
       "tool_path": "sheet range",
       "source": "skills/mono/references/products/sheet.md",
-      "line": 65,
+      "line": 66,
       "candidates": [
         "sheet range batch-clear",
         "sheet range batch-set-style",
@@ -3891,7 +3891,7 @@
     {
       "tool_path": "sheet filter-view",
       "source": "skills/mono/references/products/sheet.md",
-      "line": 66,
+      "line": 67,
       "candidates": [
         "sheet filter-view create",
         "sheet filter-view delete",
@@ -3915,6 +3915,26 @@
         "status": "stale",
         "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
       }
+    },
+    {
+      "tool_path": "sheet import",
+      "source": "skills/mono/references/products/sheet/sheet-import.md",
+      "line": 16,
+      "candidates": [
+        "sheet import get",
+        "sheet add-dimension",
+        "sheet append"
+      ]
+    },
+    {
+      "tool_path": "sheet import",
+      "source": "skills/mono/references/products/sheet/sheet-import.md",
+      "line": 22,
+      "candidates": [
+        "sheet import get",
+        "sheet add-dimension",
+        "sheet append"
+      ]
     },
     {
       "tool_path": "oa approval",
