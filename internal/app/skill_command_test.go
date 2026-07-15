@@ -369,6 +369,7 @@ func TestSkillInstallCommandValidation(t *testing.T) {
 func TestSkillInstallInvalidTarget(t *testing.T) {
 	// Setup: Create config directory with valid token
 	tempDir := t.TempDir()
+	t.Cleanup(CloseFileLogger)
 	configDir := filepath.Join(tempDir, "config")
 	t.Setenv("DWS_CONFIG_DIR", configDir)
 
@@ -402,6 +403,7 @@ func TestSkillInstallInvalidTarget(t *testing.T) {
 func TestSkillInstallRequiresAuth(t *testing.T) {
 	// Setup: Create config directory without token
 	tempDir := t.TempDir()
+	t.Cleanup(CloseFileLogger)
 	configDir := filepath.Join(tempDir, "config")
 	t.Setenv("DWS_CONFIG_DIR", configDir)
 

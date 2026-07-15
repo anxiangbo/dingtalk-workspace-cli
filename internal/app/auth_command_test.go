@@ -37,6 +37,10 @@ import (
 )
 
 func TestAuthExportImportBase64RoundTrip(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("portable auth export is intentionally unsupported on Windows")
+	}
+
 	t.Setenv(keychain.DisableKeychainEnv, "1")
 	sourceKeychain := filepath.Join(t.TempDir(), "source-keychain")
 	sourceConfig := filepath.Join(t.TempDir(), ".dws")
@@ -123,6 +127,7 @@ func TestAuthExportRejectsWindowsDPAPIBackend(t *testing.T) {
 	if runtime.GOOS != "windows" {
 		t.Skip("Windows DPAPI contract requires a native Windows runner")
 	}
+	t.Cleanup(CloseFileLogger)
 
 	exportCmd := NewRootCommand()
 	exportCmd.SetOut(&bytes.Buffer{})
@@ -147,6 +152,7 @@ func TestAuthExportRejectsWindowsDPAPIBackend(t *testing.T) {
 func TestAuthImportRequiresForceWhenPopulated(t *testing.T) {
 	t.Setenv(keychain.DisableKeychainEnv, "1")
 	root := t.TempDir()
+	t.Cleanup(CloseFileLogger)
 	configDir := filepath.Join(root, ".dws")
 	t.Setenv(keychain.StorageDirEnv, filepath.Join(root, "keychain"))
 	t.Setenv("DWS_CONFIG_DIR", configDir)
@@ -1120,6 +1126,7 @@ func setupAuthLogoutProfiles(t *testing.T, tokens ...*authpkg.TokenData) string 
 	ResetRuntimeTokenCache()
 	clearCompatCache()
 	t.Cleanup(func() {
+		CloseFileLogger()
 		authpkg.SetRuntimeProfile("")
 		ResetRuntimeTokenCache()
 		clearCompatCache()

@@ -15,6 +15,7 @@ package app
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/keychain"
@@ -49,8 +50,19 @@ func TestMain(m *testing.M) {
 		_ = os.RemoveAll(tmpDir)
 		panic("set " + keychain.StorageDirEnv + ": " + err.Error())
 	}
+	if err := os.Setenv("DWS_CONFIG_DIR", filepath.Join(tmpDir, "config")); err != nil {
+		_ = os.RemoveAll(tmpDir)
+		panic("set DWS_CONFIG_DIR: " + err.Error())
+	}
+	// Keep the process-wide audit sink outside per-test TempDir trees. Cobra
+	// skips PersistentPostRunE on expected command errors, and Windows cannot
+	// remove a TempDir while the audit lock is still open.
+	setupAuditSink()
 	openBrowserFunc = func(string) error { return nil }
 	code := m.Run()
+	StopAllStdioClients()
+	CloseAuditSink()
+	CloseFileLogger()
 	_ = os.RemoveAll(tmpDir)
 	os.Exit(code)
 }
