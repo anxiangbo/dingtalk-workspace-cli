@@ -60,6 +60,9 @@ func resolveAccessTokenFromDir(ctx context.Context, configDir string) (string, e
 	if leg, _, err := manager.GetToken(); err == nil && strings.TrimSpace(leg) != "" {
 		return strings.TrimSpace(leg), nil
 	}
+	if tokenErr != nil {
+		return "", tokenErr
+	}
 	return "", nil
 }
 

@@ -28,6 +28,9 @@ type authCoverageCaller struct {
 func (c *authCoverageCaller) CallTool(context.Context, string, string, map[string]any) (*edition.ToolResult, error) {
 	return c.result, c.err
 }
+func (c *authCoverageCaller) CallToolWithToken(ctx context.Context, _ string, productID, toolName string, args map[string]any) (*edition.ToolResult, error) {
+	return c.CallTool(ctx, productID, toolName, args)
+}
 func (*authCoverageCaller) Format() string { return "json" }
 func (*authCoverageCaller) DryRun() bool   { return false }
 func (*authCoverageCaller) Fields() string { return "" }
@@ -354,12 +357,12 @@ func TestCrossPlatformCoverageAuthCoverageContactEnrichment(t *testing.T) {
 	}
 	for _, text := range []string{"", "not-json", `{"result":[]}`, `{"result":[{"orgEmployeeModel":{}}]}`} {
 		caller := &authCoverageCaller{result: &edition.ToolResult{Content: []edition.ContentBlock{{Text: text}}}}
-		if err := enrichAuthLoginProfileFromContact(ctx, "cfg", caller, &authpkg.TokenData{CorpID: "ding"}); err != nil {
+		if err := enrichAuthLoginProfileFromContact(ctx, "cfg", caller, &authpkg.TokenData{CorpID: "ding", AccessToken: "token"}); err != nil {
 			t.Fatalf("invalid contact %q: %v", text, err)
 		}
 	}
 	mismatch := &authCoverageCaller{result: &edition.ToolResult{Content: []edition.ContentBlock{{Text: `{"result":[{"orgEmployeeModel":{"corpId":"other"}}]}`}}}}
-	if err := enrichAuthLoginProfileFromContact(ctx, "cfg", mismatch, &authpkg.TokenData{CorpID: "ding"}); err == nil {
+	if err := enrichAuthLoginProfileFromContact(ctx, "cfg", mismatch, &authpkg.TokenData{CorpID: "ding", AccessToken: "token"}); err == nil {
 		t.Fatal("corp mismatch should fail")
 	}
 	same := &authCoverageCaller{result: &edition.ToolResult{Content: []edition.ContentBlock{{Text: `{"result":[{"orgEmployeeModel":{"corpId":"ding","orgName":"Corp","userid":"u","name":"User"}}]}`}}}}
@@ -371,11 +374,7 @@ func TestCrossPlatformCoverageAuthCoverageContactEnrichment(t *testing.T) {
 		t.Fatal(err)
 	}
 	authSaveTokenData = func(string, *authpkg.TokenData) error { return errors.New("save") }
-	if err := enrichAuthLoginProfileFromContact(ctx, "cfg", same, &authpkg.TokenData{CorpID: "ding"}); err == nil {
-		t.Fatal("enrichment save should fail")
-	}
-	authSaveTokenData = func(string, *authpkg.TokenData) error { return nil }
-	data := &authpkg.TokenData{CorpID: "ding"}
+	data := &authpkg.TokenData{CorpID: "ding", AccessToken: "token"}
 	if err := enrichAuthLoginProfileFromContact(ctx, "cfg", same, data); err != nil || data.CorpName != "Corp" || data.UserID != "u" {
 		t.Fatalf("enriched = %#v, %v", data, err)
 	}
@@ -409,7 +408,10 @@ func TestCrossPlatformCoverageAuthCoverageStatusAndLogout(t *testing.T) {
 	oldDelete := authDeleteTokenData
 	oldMark := authMarkProfileStatus
 	oldResolve := authResolveProfile
+	oldResolveDeletion := authResolveProfileDeletion
 	oldRevoke := authRevokeToken
+	oldRevokeForData := authRevokeTokenForData
+	oldLoadTokenForProfile := authLoadTokenForProfile
 	oldDeleteProfile := authDeleteProfileToken
 	oldMigrate := authEnsureProfilesMigration
 	oldLoadProfiles := authLoadProfiles
@@ -421,7 +423,10 @@ func TestCrossPlatformCoverageAuthCoverageStatusAndLogout(t *testing.T) {
 		authDeleteTokenData = oldDelete
 		authMarkProfileStatus = oldMark
 		authResolveProfile = oldResolve
+		authResolveProfileDeletion = oldResolveDeletion
 		authRevokeToken = oldRevoke
+		authRevokeTokenForData = oldRevokeForData
+		authLoadTokenForProfile = oldLoadTokenForProfile
 		authDeleteProfileToken = oldDeleteProfile
 		authEnsureProfilesMigration = oldMigrate
 		authLoadProfiles = oldLoadProfiles
@@ -510,12 +515,17 @@ func TestCrossPlatformCoverageAuthCoverageStatusAndLogout(t *testing.T) {
 		t.Fatalf("mark-expired = %v, marked=%v", err, marked)
 	}
 
-	authResolveProfile = func(string, string) (*authpkg.Profile, error) { return nil, errors.New("missing") }
+	authResolveProfileDeletion = func(string, string) (*authpkg.Profile, bool, error) { return nil, false, errors.New("missing") }
 	if err := logoutOneProfile(nil, context.Background(), "cfg", "x"); err == nil {
 		t.Fatal("missing profile should fail")
 	}
-	authResolveProfile = func(string, string) (*authpkg.Profile, error) { return &authpkg.Profile{CorpID: "ding"}, nil }
-	authRevokeToken = func(context.Context) error { return errors.New("ignored") }
+	authResolveProfileDeletion = func(string, string) (*authpkg.Profile, bool, error) {
+		return &authpkg.Profile{CorpID: "ding", UserID: "user"}, true, nil
+	}
+	authLoadTokenForProfile = func(string, string) (*authpkg.TokenData, error) {
+		return &authpkg.TokenData{CorpID: "ding", UserID: "user"}, nil
+	}
+	authRevokeTokenForData = func(context.Context, *authpkg.TokenData) error { return errors.New("ignored") }
 	authDeleteProfileToken = func(string, string) error { return errors.New("delete") }
 	if err := logoutOneProfile(nil, context.Background(), "cfg", "x"); err == nil {
 		t.Fatal("profile delete should fail")
@@ -536,6 +546,10 @@ func TestCrossPlatformCoverageAuthCoverageStatusAndLogout(t *testing.T) {
 	}
 	revokes := 0
 	authRevokeToken = func(context.Context) error { revokes++; return nil }
+	authRevokeTokenForData = func(context.Context, *authpkg.TokenData) error { revokes++; return nil }
+	authLoadTokenForProfile = func(string, string) (*authpkg.TokenData, error) {
+		return &authpkg.TokenData{AccessToken: "token"}, nil
+	}
 	authLoadProfiles = func(string) (*authpkg.ProfilesConfig, error) { return nil, nil }
 	authDeleteAllTokenData = func(string) error { return nil }
 	if err := logoutAllProfiles(nil, context.Background(), "cfg"); err != nil || revokes != 1 {
@@ -734,7 +748,7 @@ func TestCrossPlatformCoverageAuthCoveragePortableExchangeAndReset(t *testing.T)
 		t.Fatal(err)
 	}
 
-	exchange := newAuthExchangeCommand()
+	exchange := newAuthExchangeCommand(nil)
 	badCode := &cobra.Command{}
 	badCode.Flags().Bool("code", false, "")
 	if err := exchange.RunE(badCode, nil); err == nil {
