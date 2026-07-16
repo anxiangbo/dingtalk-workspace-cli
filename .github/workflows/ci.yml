@@ -92,7 +92,7 @@ jobs:
         run: |
           case "$TEST_SHARD" in
             app)
-              packages=(./internal/app)
+              packages=(./internal/app/...)
               ;;
             generators)
               packages=(./internal/generator/...)
