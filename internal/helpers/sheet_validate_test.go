@@ -2,7 +2,7 @@ package helpers
 
 import "testing"
 
-func TestValidateComplexValueStyle(t *testing.T) {
+func TestCrossPlatformCoverageValidateComplexValueStyle(t *testing.T) {
 	valid := map[string]any{"bold": true, "italic": false, "underline": true, "strike": false, "color": "#fff", "size": float64(12)}
 	if err := validateComplexValueStyle(valid, "style"); err != nil {
 		t.Fatalf("valid style error = %v", err)
@@ -16,7 +16,7 @@ func TestValidateComplexValueStyle(t *testing.T) {
 	}
 }
 
-func TestValidateRichTextItems(t *testing.T) {
+func TestCrossPlatformCoverageValidateRichTextItems(t *testing.T) {
 	valid := []map[string]any{
 		{"type": "text", "text": "hello", "style": map[string]any{"bold": true}},
 		{"type": "link", "text": "site", "link": "https://example.test", "style": map[string]any{"color": "#fff"}},
@@ -47,7 +47,7 @@ func TestValidateRichTextItems(t *testing.T) {
 	}
 }
 
-func TestValidateComplexValueCells(t *testing.T) {
+func TestCrossPlatformCoverageValidateComplexValueCells(t *testing.T) {
 	valid := []map[string]any{
 		{"dataValidation": map[string]any{"type": "none"}},
 		{"cellStyles": map[string]any{}},
@@ -80,7 +80,7 @@ func TestValidateComplexValueCells(t *testing.T) {
 	}
 }
 
-func TestValidateCellHyperlinks(t *testing.T) {
+func TestCrossPlatformCoverageValidateCellHyperlinks(t *testing.T) {
 	for _, value := range []any{
 		nil,
 		map[string]any{"type": "none"},
@@ -104,7 +104,7 @@ func TestValidateCellHyperlinks(t *testing.T) {
 	}
 }
 
-func TestValidateDataValidations(t *testing.T) {
+func TestCrossPlatformCoverageValidateDataValidations(t *testing.T) {
 	valid := []any{
 		map[string]any{"type": "dropdown", "options": []any{map[string]any{"value": "one"}}},
 		map[string]any{"type": "checkbox"}, map[string]any{"type": "checkbox", "checked": true},

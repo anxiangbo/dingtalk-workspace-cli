@@ -16,7 +16,7 @@ import (
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/config"
 )
 
-func TestLoggerFailureAndRecoveryEdges(t *testing.T) {
+func TestCrossPlatformCoverageLoggerFailureAndRecoveryEdges(t *testing.T) {
 	if (*FileLogger)(nil).Writer() != io.Discard || (&FileLogger{}).Writer() != io.Discard {
 		t.Fatal("uninitialized Writer should discard")
 	}
@@ -110,7 +110,7 @@ func TestLoggerFailureAndRecoveryEdges(t *testing.T) {
 	}
 }
 
-func TestLoggingTransportOptionalAndNilBranches(t *testing.T) {
+func TestCrossPlatformCoverageLoggingTransportOptionalAndNilBranches(t *testing.T) {
 	LogRequest(nil, "", "", "", 0)
 	LogRequestBody(nil, "tools/call", "", "", nil)
 	LogResponse(nil, "", "", "", 0, 0, 0, nil)
@@ -135,7 +135,7 @@ func TestLoggingTransportOptionalAndNilBranches(t *testing.T) {
 	}
 }
 
-func TestRedactionAndMultiHandlerEdges(t *testing.T) {
+func TestCrossPlatformCoverageRedactionAndMultiHandlerEdges(t *testing.T) {
 	if got := TruncateBody([]byte{0xff, 0xfe, 'a'}, 2); !strings.Contains(got, "truncated") {
 		t.Fatalf("invalid UTF-8 truncation = %q", got)
 	}

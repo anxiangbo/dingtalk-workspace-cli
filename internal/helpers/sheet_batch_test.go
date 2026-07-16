@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestSheetBatchOperationTranslationCoversEveryMapping(t *testing.T) {
+func TestCrossPlatformCoverageSheetBatchOperationTranslationCoversEveryMapping(t *testing.T) {
 	input := map[string]any{
 		"sheet-id": "Sheet1", "range": "A1:B2", "type": "all", "values": []any{"value"},
 		"merge-type": "mergeRows", "source-range": "A1", "target-range": "B2",
@@ -43,7 +43,7 @@ func TestSheetBatchOperationTranslationCoversEveryMapping(t *testing.T) {
 	}
 }
 
-func TestSheetBatchValueConversionsAndDefaults(t *testing.T) {
+func TestCrossPlatformCoverageSheetBatchValueConversionsAndDefaults(t *testing.T) {
 	if got := batchStr(map[string]any{"second": 42}, "first", "second"); got != "42" {
 		t.Fatalf("batchStr() = %q", got)
 	}
@@ -92,7 +92,7 @@ func TestSheetBatchValueConversionsAndDefaults(t *testing.T) {
 	}
 }
 
-func TestResolveCSVContent(t *testing.T) {
+func TestCrossPlatformCoverageResolveCSVContent(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "input.csv")
 	if err := os.WriteFile(path, []byte("\xef\xbb\xbfhead\r\nvalue"), 0o600); err != nil {
@@ -175,7 +175,7 @@ func rangeBatchClearCoverageCommand() *cobra.Command {
 	return cmd
 }
 
-func TestSheetBatchUpdateCommandRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSheetBatchUpdateCommandRemainingCoverage(t *testing.T) {
 	for _, args := range [][]string{
 		nil,
 		{"--node", "node", "--operations", "["},
@@ -208,7 +208,7 @@ func TestSheetBatchUpdateCommandRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestSheetRangeBatchClearCommandRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSheetRangeBatchClearCommandRemainingCoverage(t *testing.T) {
 	for _, args := range [][]string{
 		nil,
 		{"--node", "node", "--ranges", "["},

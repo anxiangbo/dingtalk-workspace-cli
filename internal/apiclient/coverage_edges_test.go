@@ -23,7 +23,7 @@ type failingWriter struct{ err error }
 
 func (w failingWriter) Write([]byte) (int, error) { return 0, w.err }
 
-func TestDryRunAndParseCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoverageDryRunAndParseCoverageEdges(t *testing.T) {
 	for _, tc := range []struct {
 		base string
 		path string
@@ -63,7 +63,7 @@ func TestDryRunAndParseCoverageEdges(t *testing.T) {
 	}
 }
 
-func TestResponseHandlingCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoverageResponseHandlingCoverageEdges(t *testing.T) {
 	jsonHeader := http.Header{"Content-Type": []string{"application/json"}}
 	textHeader := http.Header{"Content-Type": []string{"text/plain"}}
 	var out, errOut bytes.Buffer
@@ -141,7 +141,7 @@ func TestResponseHandlingCoverageEdges(t *testing.T) {
 	}
 }
 
-func TestPaginationParsingAndInjectionEdges(t *testing.T) {
+func TestCrossPlatformCoveragePaginationParsingAndInjectionEdges(t *testing.T) {
 	jsonHeader := http.Header{"Content-Type": []string{"application/json"}}
 	for _, resp := range []*RawAPIResponse{
 		{StatusCode: 200, Header: http.Header{"Content-Type": []string{"text/plain"}}, Body: []byte("x")},
@@ -192,7 +192,7 @@ func jsonHTTPResponse(body string) *http.Response {
 	return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"application/json"}}, Body: io.NopCloser(strings.NewReader(body))}
 }
 
-func TestPaginationControlFlowEdges(t *testing.T) {
+func TestCrossPlatformCoveragePaginationControlFlowEdges(t *testing.T) {
 	wantErr := errors.New("transport failed")
 	client := NewClient("token", DefaultBaseURL)
 	client.HTTPClient.Transport = roundTripFunc(func(*http.Request) (*http.Response, error) {
@@ -245,7 +245,7 @@ func TestPaginationControlFlowEdges(t *testing.T) {
 	}
 }
 
-func TestClientAndValidationFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageClientAndValidationFailureEdges(t *testing.T) {
 	client := NewClient("token", DefaultBaseURL)
 	if _, err := client.Do(context.Background(), RawAPIRequest{Method: "GET", Path: "https://api.dingtalk.com/%zz"}); err == nil {
 		t.Fatal("Do with invalid URL should fail")

@@ -2,7 +2,7 @@ package helpers
 
 import "testing"
 
-func TestSheetRangeUpdateAndSortRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSheetRangeUpdateAndSortRemainingCoverage(t *testing.T) {
 	installScriptedCaller(t, &scriptedToolCaller{dry: true})
 	base := []string{"update", "--node", "node", "--sheet-id", "sheet", "--range", "A1", "--values"}
 	for _, raw := range []string{

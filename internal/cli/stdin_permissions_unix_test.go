@@ -21,7 +21,7 @@ import (
 	"testing"
 )
 
-func TestReadFileBoundedPermissionDenied(t *testing.T) {
+func TestCrossPlatformCoverageReadFileBoundedPermissionDenied(t *testing.T) {
 	t.Parallel()
 	path := filepath.Join(t.TempDir(), "noperm.txt")
 	writeTestFile(t, path, []byte("secret"))

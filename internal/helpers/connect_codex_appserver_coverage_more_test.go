@@ -43,7 +43,7 @@ func unitCodexClient(stdin io.WriteCloser, messages ...codexRPCMessage) *codexAp
 	}
 }
 
-func TestCodexForwardAppServerFailureAndResumeEdges(t *testing.T) {
+func TestCrossPlatformCoverageCodexForwardAppServerFailureAndResumeEdges(t *testing.T) {
 	originalFactory := codexNewAppServerClient
 	defer func() { codexNewAppServerClient = originalFactory }()
 	boom := errors.New("factory")
@@ -89,7 +89,7 @@ func TestCodexForwardAppServerFailureAndResumeEdges(t *testing.T) {
 	}
 }
 
-func TestCodexCwdConstructorAndReadLoopEdges(t *testing.T) {
+func TestCrossPlatformCoverageCodexCwdConstructorAndReadLoopEdges(t *testing.T) {
 	originalAbs := codexAbsPath
 	originalExec := codexExecCommandContext
 	defer func() {
@@ -130,7 +130,7 @@ func TestCodexCwdConstructorAndReadLoopEdges(t *testing.T) {
 	}
 }
 
-func TestCodexClientSendInitializeAndRequestEdges(t *testing.T) {
+func TestCrossPlatformCoverageCodexClientSendInitializeAndRequestEdges(t *testing.T) {
 	if err := unitCodexClient(&codexNthFailWriter{failAt: 1}).initialize(context.Background()); err == nil {
 		t.Fatal("initialize first send error returned nil")
 	}
@@ -155,7 +155,7 @@ func TestCodexClientSendInitializeAndRequestEdges(t *testing.T) {
 	}
 }
 
-func TestCodexRunTurnRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageCodexRunTurnRemainingEdges(t *testing.T) {
 	serverID := 99
 	for _, tc := range []struct {
 		name     string
@@ -185,7 +185,7 @@ func TestCodexRunTurnRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestCodexWaitResponseAndNextEdges(t *testing.T) {
+func TestCrossPlatformCoverageCodexWaitResponseAndNextEdges(t *testing.T) {
 	serverID, otherID, wantID := 99, 2, 1
 	c := unitCodexClient(&bufferWriteCloser{},
 		codexRPCMessage{ID: &serverID, Method: "request/input"},
@@ -241,7 +241,7 @@ func TestCodexWaitResponseAndNextEdges(t *testing.T) {
 	}
 }
 
-func TestCodexResultParsingAndDefaultKeyEdges(t *testing.T) {
+func TestCrossPlatformCoverageCodexResultParsingAndDefaultKeyEdges(t *testing.T) {
 	if got := codexConvKey("  "); got != "_default" {
 		t.Fatalf("default key=%q", got)
 	}

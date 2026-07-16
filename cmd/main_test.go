@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestMainExitsWithSuccessfulVersionCommand(t *testing.T) {
+func TestCrossPlatformCoverageMainExitsWithSuccessfulVersionCommand(t *testing.T) {
 	previousExit := exit
 	previousArgs := os.Args
 	t.Cleanup(func() {

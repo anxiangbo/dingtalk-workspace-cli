@@ -41,7 +41,7 @@ func (approvalUnimplementedRunner) Run(_ context.Context, inv executor.Invocatio
 	return executor.Result{Invocation: inv}, nil
 }
 
-func TestSheetAuditSinkRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageSheetAuditSinkRemainingEdges(t *testing.T) {
 	originalSleep := helperSleep
 	helperSleep = func(time.Duration) {}
 	defer func() { helperSleep = originalSleep }()
@@ -56,7 +56,7 @@ func TestSheetAuditSinkRemainingEdges(t *testing.T) {
 	(&sheetAuditSink{runner: &approvalSequenceRunner{errors: []error{errors.New("permanent")}}}).record(context.Background(), req)
 }
 
-func TestApprovalDecisionAndReplyRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageApprovalDecisionAndReplyRemainingEdges(t *testing.T) {
 	o := &approvalOrchestrator{ownerUserID: "owner", confirmPolicy: "remember", remembered: map[string]bool{"todo.create": false}}
 	if got := o.gateDecision("requester", "todo.create"); got != "reject" {
 		t.Fatalf("decision=%q", got)
@@ -93,7 +93,7 @@ func TestApprovalDecisionAndReplyRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestApprovalConcurrentDecisionSeamEdge(t *testing.T) {
+func TestCrossPlatformCoverageApprovalConcurrentDecisionSeamEdge(t *testing.T) {
 	original := approvalOwnerDecide
 	defer func() { approvalOwnerDecide = original }()
 	gate := newApprovalGate("")
@@ -106,7 +106,7 @@ func TestApprovalConcurrentDecisionSeamEdge(t *testing.T) {
 	}
 }
 
-func TestApprovalFlushAndExecuteRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageApprovalFlushAndExecuteRemainingEdges(t *testing.T) {
 	gate := newApprovalGate("")
 	notifier := &fakeNotifier{}
 	o := newTextApprovalOrchestrator(gate, &fakeRunner{}, "owner", notifier)
@@ -132,7 +132,7 @@ func TestApprovalFlushAndExecuteRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestApprovalCardFlowRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageApprovalCardFlowRemainingEdges(t *testing.T) {
 	reply := func(context.Context, string, string) error { return nil }
 	req := ApprovalRequest{Requester: "r", Summary: "x", Action: plannedAction{Product: "todo", Tool: "tool"}}
 
@@ -160,7 +160,7 @@ func TestApprovalCardFlowRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestApprovalCardCallbackRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageApprovalCardCallbackRemainingEdges(t *testing.T) {
 	var nilOrchestrator *approvalOrchestrator
 	if _, err := nilOrchestrator.handleCardCallback(context.Background(), nil); err != nil {
 		t.Fatal(err)
@@ -188,7 +188,7 @@ func TestApprovalCardCallbackRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestDingTalkApprovalCardDeliveryFailureEdge(t *testing.T) {
+func TestCrossPlatformCoverageDingTalkApprovalCardDeliveryFailureEdge(t *testing.T) {
 	recorder, server := newCardAPIServer(t)
 	withCardAPIBase(t, server.URL)
 	recorder.fail["POST /v1.0/card/instances/deliver"] = 500

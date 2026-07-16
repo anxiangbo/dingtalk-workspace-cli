@@ -18,7 +18,7 @@ func (outputFilterCaller) DryRun() bool   { return false }
 func (outputFilterCaller) Fields() string { return "name" }
 func (outputFilterCaller) JQ() string     { return "" }
 
-func TestFormatterRemainingFilterBranches(t *testing.T) {
+func TestCrossPlatformCoverageFormatterRemainingFilterBranches(t *testing.T) {
 	origDeps := deps
 	t.Cleanup(func() { deps = origDeps })
 	var out bytes.Buffer

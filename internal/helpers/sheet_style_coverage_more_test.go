@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestSheetStyleRangeAndFontCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSheetStyleRangeAndFontCoverage(t *testing.T) {
 	for _, raw := range []string{"", "Sheet1!A1:B2", "B2:A1", "A1", "A", "1", "A0", "A-1", "A1:bad"} {
 		_, _, _ = parseA1Range(raw)
 	}
@@ -51,7 +51,7 @@ func TestSheetStyleRangeAndFontCoverage(t *testing.T) {
 	}
 }
 
-func TestSheetBatchSetStyleCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSheetBatchSetStyleCoverage(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "sheet"}
 	t.Cleanup(func() { os.Args = oldArgs })

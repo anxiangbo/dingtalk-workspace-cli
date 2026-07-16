@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestConnectStreamFinalStatementEdges(t *testing.T) {
+func TestCrossPlatformCoverageConnectStreamFinalStatementEdges(t *testing.T) {
 	if got := newConnectMediaClient("client", "secret"); got == nil {
 		t.Fatal("default media client is nil")
 	}
@@ -49,7 +49,7 @@ func TestConnectStreamFinalStatementEdges(t *testing.T) {
 	})
 }
 
-func TestResolveExecAgentInstallAndForwarderErrors(t *testing.T) {
+func TestCrossPlatformCoverageResolveExecAgentInstallAndForwarderErrors(t *testing.T) {
 	clearChannelEnv(t)
 	binDir := t.TempDir()
 	originalPath := os.Getenv("PATH")

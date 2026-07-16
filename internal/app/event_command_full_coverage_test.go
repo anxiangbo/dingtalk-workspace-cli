@@ -22,7 +22,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestEventConsumeCommandAllBranchesCoverage(t *testing.T) {
+func TestCrossPlatformCoverageEventConsumeCommandAllBranchesCoverage(t *testing.T) {
 	oldPersonal := eventRunPersonalConsume
 	oldCreds, oldConsume, oldForeground := eventResolveCredentials, eventConsumeRun, eventRunForeground
 	oldNormalize := eventNormalizeAs
@@ -113,7 +113,7 @@ func TestEventConsumeCommandAllBranchesCoverage(t *testing.T) {
 	}
 }
 
-func TestEventSourcesAndForegroundCoverage(t *testing.T) {
+func TestCrossPlatformCoverageEventSourcesAndForegroundCoverage(t *testing.T) {
 	oldNew, oldToken, oldEventSource, oldBus := eventNewDingtalkSource, eventResolveAccessToken, eventNewEventSource, eventBusRun
 	oldEdition := edition.Get()
 	t.Cleanup(func() {
@@ -175,7 +175,7 @@ func TestEventSourcesAndForegroundCoverage(t *testing.T) {
 	}
 }
 
-func TestEventBusCommandAllBranchesCoverage(t *testing.T) {
+func TestCrossPlatformCoverageEventBusCommandAllBranchesCoverage(t *testing.T) {
 	oldReady, oldPersonal, oldPersonalSource := eventReadyFDFromEnv, eventResolvePersonal, eventNewPersonalSource
 	oldCreds, oldSource, oldRun := eventResolveCredentials, eventNewEventSource, eventBusRun
 	oldMkdir, oldOpen := eventMkdirAll, eventOpenFile
@@ -252,7 +252,7 @@ func TestEventBusCommandAllBranchesCoverage(t *testing.T) {
 	}
 }
 
-func TestEventListStatusCollectAndStopCoverage(t *testing.T) {
+func TestCrossPlatformCoverageEventListStatusCollectAndStopCoverage(t *testing.T) {
 	oldList, oldStatus, oldStopPersonal := eventRunPersonalList, eventRunPersonalStatus, eventRunPersonalStop
 	oldEnum, oldFind, oldQuery, oldStop := eventEnumerateBuses, eventFindBus, eventQueryEntry, eventStopBus
 	oldCreds := eventResolveAppCredentials
@@ -396,7 +396,7 @@ func TestEventListStatusCollectAndStopCoverage(t *testing.T) {
 	}
 }
 
-func TestEventCommandParentCoverage(t *testing.T) {
+func TestCrossPlatformCoverageEventCommandParentCoverage(t *testing.T) {
 	cmd := newEventCommand()
 	cmd.SetOut(io.Discard)
 	if err := cmd.RunE(cmd, nil); err != nil {
@@ -407,7 +407,7 @@ func TestEventCommandParentCoverage(t *testing.T) {
 	}
 }
 
-func TestEventCommandPureAndRenderBranchesCoverage(t *testing.T) {
+func TestCrossPlatformCoverageEventCommandPureAndRenderBranchesCoverage(t *testing.T) {
 	t.Setenv(authpkg.EnvClientID, "client")
 	t.Setenv(authpkg.EnvClientSecret, "secret")
 	if got := (eventStreamTicketOptions{Mode: "custom", SourceID: " source ", TicketURL: " https://ticket "}).spawnArgs(); len(got) != 6 {
@@ -495,7 +495,7 @@ func TestEventCommandPureAndRenderBranchesCoverage(t *testing.T) {
 	}
 }
 
-func TestEventCommandClosureErrorBranchesCoverage(t *testing.T) {
+func TestCrossPlatformCoverageEventCommandClosureErrorBranchesCoverage(t *testing.T) {
 	oldNormalize := eventNormalizeAs
 	oldList, oldStatus := eventRunPersonalList, eventRunPersonalStatus
 	oldCreds, oldFind, oldQuery := eventResolveAppCredentials, eventFindBus, eventQueryEntry

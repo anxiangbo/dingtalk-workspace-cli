@@ -29,7 +29,7 @@ type upgradeFailWriter struct{}
 
 func (upgradeFailWriter) Write([]byte) (int, error) { return 0, errors.New("write failed") }
 
-func TestDownloaderEdgeCases(t *testing.T) {
+func TestCrossPlatformCoverageDownloaderEdgeCases(t *testing.T) {
 	badParent := filepath.Join(t.TempDir(), "file")
 	if err := os.WriteFile(badParent, []byte("x"), 0o600); err != nil {
 		t.Fatal(err)
@@ -117,7 +117,7 @@ func TestDownloaderEdgeCases(t *testing.T) {
 	}
 }
 
-func TestGitHubClientEdgeCases(t *testing.T) {
+func TestCrossPlatformCoverageGitHubClientEdgeCases(t *testing.T) {
 	t.Setenv("DWS_UPGRADE_URL", "http://mirror.test/")
 	t.Setenv("DWS_UPGRADE_REPOSITORY", "owner/repo")
 	client := NewClient()
@@ -204,7 +204,7 @@ func TestGitHubClientEdgeCases(t *testing.T) {
 	}
 }
 
-func TestGitHubGetJSONMatrix(t *testing.T) {
+func TestCrossPlatformCoverageGitHubGetJSONMatrix(t *testing.T) {
 	client := NewClientWithBaseURL("")
 	if err := client.getJSON(":", &map[string]any{}); err == nil {
 		t.Fatal("invalid request URL accepted")
@@ -237,7 +237,7 @@ func TestGitHubGetJSONMatrix(t *testing.T) {
 	}
 }
 
-func TestUpgradePathsAndSkillsEdges(t *testing.T) {
+func TestCrossPlatformCoverageUpgradePathsAndSkillsEdges(t *testing.T) {
 	originalHome := upgradeUserHomeDir
 	originalDirs := append([]string(nil), knownSkillDirs...)
 	t.Cleanup(func() {
@@ -298,7 +298,7 @@ func TestUpgradePathsAndSkillsEdges(t *testing.T) {
 	}
 }
 
-func TestExecutablePathEdges(t *testing.T) {
+func TestCrossPlatformCoverageExecutablePathEdges(t *testing.T) {
 	originalExecutable := upgradeExecutable
 	originalEval := upgradeEvalSymlinks
 	t.Cleanup(func() {
@@ -317,7 +317,7 @@ func TestExecutablePathEdges(t *testing.T) {
 	}
 }
 
-func TestReplacerAndZipEdges(t *testing.T) {
+func TestCrossPlatformCoverageReplacerAndZipEdges(t *testing.T) {
 	originalExecutable := upgradeExecutable
 	originalEval := upgradeEvalSymlinks
 	originalRename := upgradeRename
@@ -431,7 +431,7 @@ func TestReplacerAndZipEdges(t *testing.T) {
 	syncParentDir("/definitely/missing/file")
 }
 
-func TestRollbackLifecycleEdges(t *testing.T) {
+func TestCrossPlatformCoverageRollbackLifecycleEdges(t *testing.T) {
 	originalExecutable := upgradeExecutable
 	originalEval := upgradeEvalSymlinks
 	originalHome := upgradeUserHomeDir
@@ -501,7 +501,7 @@ func TestRollbackLifecycleEdges(t *testing.T) {
 	syncFileData("/missing/file")
 }
 
-func TestVersionPrereleaseEdges(t *testing.T) {
+func TestCrossPlatformCoverageVersionPrereleaseEdges(t *testing.T) {
 	cases := []struct {
 		a, b string
 		want int
@@ -522,7 +522,7 @@ func TestVersionPrereleaseEdges(t *testing.T) {
 	}
 }
 
-func TestDownloaderRetryControlEdges(t *testing.T) {
+func TestCrossPlatformCoverageDownloaderRetryControlEdges(t *testing.T) {
 	originalAfter := downloadAfter
 	t.Cleanup(func() { downloadAfter = originalAfter })
 
@@ -556,7 +556,7 @@ func TestDownloaderRetryControlEdges(t *testing.T) {
 	}
 }
 
-func TestGitHubFetchReleasesError(t *testing.T) {
+func TestCrossPlatformCoverageGitHubFetchReleasesError(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		http.Error(w, "failure", http.StatusInternalServerError)
 	}))
@@ -566,7 +566,7 @@ func TestGitHubFetchReleasesError(t *testing.T) {
 	}
 }
 
-func TestUpgradePathInjectedFailures(t *testing.T) {
+func TestCrossPlatformCoverageUpgradePathInjectedFailures(t *testing.T) {
 	originalHome := upgradeUserHomeDir
 	originalDirs := append([]string(nil), knownSkillDirs...)
 	originalCopy := upgradeCopyDir
@@ -603,7 +603,7 @@ func TestUpgradePathInjectedFailures(t *testing.T) {
 	}
 }
 
-func TestReplacerInjectedIOEdges(t *testing.T) {
+func TestCrossPlatformCoverageReplacerInjectedIOEdges(t *testing.T) {
 	originalExecutable := upgradeExecutable
 	originalEval := upgradeEvalSymlinks
 	originalRename := upgradeRename
@@ -726,7 +726,7 @@ func TestReplacerInjectedIOEdges(t *testing.T) {
 	}
 }
 
-func TestRollbackInjectedFailures(t *testing.T) {
+func TestCrossPlatformCoverageRollbackInjectedFailures(t *testing.T) {
 	originalExecutable := upgradeExecutable
 	originalEval := upgradeEvalSymlinks
 	originalStat := rollbackStat
@@ -829,7 +829,7 @@ func TestRollbackInjectedFailures(t *testing.T) {
 	}
 }
 
-func TestCopyDirAndVerifyErrors(t *testing.T) {
+func TestCrossPlatformCoverageCopyDirAndVerifyErrors(t *testing.T) {
 	if err := copyDir("missing", t.TempDir()); err == nil {
 		t.Fatal("missing source directory accepted")
 	}
@@ -857,7 +857,7 @@ func TestCopyDirAndVerifyErrors(t *testing.T) {
 	}
 }
 
-func TestCopyDirAndBackupEntryInjectedEdges(t *testing.T) {
+func TestCrossPlatformCoverageCopyDirAndBackupEntryInjectedEdges(t *testing.T) {
 	originalRollbackInfo := rollbackEntryInfo
 	originalStat := upgradeDirStat
 	originalMkdir := upgradeDirMkdirAll

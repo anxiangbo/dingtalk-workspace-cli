@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func TestCopyFileExecutablePermissions(t *testing.T) {
+func TestCrossPlatformCoverageCopyFileExecutablePermissions(t *testing.T) {
 	dir := t.TempDir()
 	src := filepath.Join(dir, "src")
 	dst := filepath.Join(dir, "dst")

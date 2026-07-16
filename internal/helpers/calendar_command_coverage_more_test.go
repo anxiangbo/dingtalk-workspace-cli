@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestCalendarOptionalFlagsRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageCalendarOptionalFlagsRemainingCoverage(t *testing.T) {
 	installScriptedCaller(t, &scriptedToolCaller{dry: true})
 	start := "2030-01-01T09:00:00+08:00"
 	end := "2030-01-01T10:00:00+08:00"
@@ -44,7 +44,7 @@ func TestCalendarOptionalFlagsRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestCalendarUnknownFlagAndSuggestionRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageCalendarUnknownFlagAndSuggestionRemainingCoverage(t *testing.T) {
 	root := &cobra.Command{Use: "calendar"}
 	group := &cobra.Command{Use: "room"}
 	group.SuggestionsMinimumDistance = 3

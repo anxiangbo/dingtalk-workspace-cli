@@ -25,7 +25,7 @@ func streamingExecForwarder(bin string) *execForwarder {
 	}
 }
 
-func TestExecForwarderStreamingRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageExecForwarderStreamingRemainingCoverage(t *testing.T) {
 	// Streaming-disabled forwarders use their ordinary one-shot command.
 	oneShot := writeStreamingAgent(t, `printf 'one-shot\n'`)
 	f := streamingExecForwarder(oneShot)
@@ -96,7 +96,7 @@ printf '%s\n' '{"type":"result","result":"API Error: failed"}'`)
 	}
 }
 
-func TestParseStreamLineCCInvalidJSON(t *testing.T) {
+func TestCrossPlatformCoverageParseStreamLineCCInvalidJSON(t *testing.T) {
 	if delta, final := parseStreamLine("cc", `{not json`); delta != "" || final != "" {
 		t.Fatalf("invalid cc JSON delta=%q final=%q", delta, final)
 	}

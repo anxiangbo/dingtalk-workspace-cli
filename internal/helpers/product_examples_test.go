@@ -126,7 +126,7 @@ func (c *productExampleCaller) DryRun() bool { return c.dry }
 func (*productExampleCaller) Fields() string { return "" }
 func (*productExampleCaller) JQ() string     { return "" }
 
-func TestProductCommandExamplesAreExecutableContracts(t *testing.T) {
+func TestCrossPlatformCoverageProductCommandExamplesAreExecutableContracts(t *testing.T) {
 	workingDirectory, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("get working directory: %v", err)

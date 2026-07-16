@@ -31,7 +31,7 @@ func executeTodoEdge(t *testing.T, caller *scriptedToolCaller, args ...string) e
 	return cmd.Execute()
 }
 
-func TestTodoCreateAndListCommandEdges(t *testing.T) {
+func TestCrossPlatformCoverageTodoCreateAndListCommandEdges(t *testing.T) {
 	validDate := "2026-03-10T18:00:00+08:00"
 	errorCases := [][]string{
 		{"task", "create", "--title", "x", "--executors", "u", "--remind-at", validDate},
@@ -67,7 +67,7 @@ func TestTodoCreateAndListCommandEdges(t *testing.T) {
 	}
 }
 
-func TestTodoSimpleCommandValidationAndSuccessEdges(t *testing.T) {
+func TestCrossPlatformCoverageTodoSimpleCommandValidationAndSuccessEdges(t *testing.T) {
 	errorCases := [][]string{
 		{"task", "create"},
 		{"task", "create", "--title", "x"},
@@ -130,7 +130,7 @@ func TestTodoSimpleCommandValidationAndSuccessEdges(t *testing.T) {
 	}
 }
 
-func TestTodoUpdateReminderAndDetailEdges(t *testing.T) {
+func TestCrossPlatformCoverageTodoUpdateReminderAndDetailEdges(t *testing.T) {
 	validDate := "2026-03-10T18:00:00+08:00"
 	errorCases := [][]string{
 		{"task", "update", "--task-id", "1", "--remind-at", validDate},
@@ -173,7 +173,7 @@ func TestTodoUpdateReminderAndDetailEdges(t *testing.T) {
 	}
 }
 
-func TestTodoAttachmentCommandEdges(t *testing.T) {
+func TestCrossPlatformCoverageTodoAttachmentCommandEdges(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "attachment.txt")
 	if err := os.WriteFile(file, []byte("data"), 0o600); err != nil {
 		t.Fatal(err)
@@ -208,7 +208,7 @@ func TestTodoAttachmentCommandEdges(t *testing.T) {
 	}
 }
 
-func TestTodoDeleteCancellationAndConfirmationEdges(t *testing.T) {
+func TestCrossPlatformCoverageTodoDeleteCancellationAndConfirmationEdges(t *testing.T) {
 	originalArgs, originalStdin := os.Args, os.Stdin
 	defer func() {
 		os.Args = originalArgs
@@ -248,7 +248,7 @@ func TestTodoDeleteCancellationAndConfirmationEdges(t *testing.T) {
 	}
 }
 
-func TestTodoMD5AndEmptyListEdges(t *testing.T) {
+func TestCrossPlatformCoverageTodoMD5AndEmptyListEdges(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "file.txt")
 	if err := os.WriteFile(file, []byte("data"), 0o600); err != nil {
 		t.Fatal(err)

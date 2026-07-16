@@ -9,7 +9,7 @@ import (
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/edition"
 )
 
-func TestSplitMarkdownSafePreservesContentAndLimitsChunks(t *testing.T) {
+func TestCrossPlatformCoverageSplitMarkdownSafePreservesContentAndLimitsChunks(t *testing.T) {
 	short := "short 文本"
 	if got := splitMarkdownSafe(short, 100); len(got) != 1 || got[0] != short {
 		t.Fatalf("short split = %#v", got)
@@ -33,7 +33,7 @@ func TestSplitMarkdownSafePreservesContentAndLimitsChunks(t *testing.T) {
 	}
 }
 
-func TestMergeBlocksUsesHeadingsAndHardSplits(t *testing.T) {
+func TestCrossPlatformCoverageMergeBlocksUsesHeadingsAndHardSplits(t *testing.T) {
 	blocks := []markdownBlock{
 		{text: "aaaa", blockType: blockNormal},
 		{text: "# h\n", blockType: blockH1},
@@ -66,7 +66,7 @@ func TestMergeBlocksUsesHeadingsAndHardSplits(t *testing.T) {
 	}
 }
 
-func TestHardSplitBlockCoversParagraphAndRuneBoundaries(t *testing.T) {
+func TestCrossPlatformCoverageHardSplitBlockCoversParagraphAndRuneBoundaries(t *testing.T) {
 	for _, text := range []string{
 		"aa\n\nbb\n\ncc",
 		"aa\n\n" + strings.Repeat("x", 12),
@@ -85,7 +85,7 @@ func TestHardSplitBlockCoversParagraphAndRuneBoundaries(t *testing.T) {
 	}
 }
 
-func TestRuntimeDefaultsRegistryValidationAndSnapshot(t *testing.T) {
+func TestCrossPlatformCoverageRuntimeDefaultsRegistryValidationAndSnapshot(t *testing.T) {
 	runtimeDefaultsMu.Lock()
 	previous := runtimeDefaults
 	runtimeDefaults = make(map[string]edition.RuntimeDefaultFn)

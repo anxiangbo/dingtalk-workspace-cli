@@ -15,7 +15,7 @@ import (
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/edition"
 )
 
-func TestMigrateKeychainToFileDEKCoverage(t *testing.T) {
+func TestCrossPlatformCoverageMigrateKeychainToFileDEKCoverage(t *testing.T) {
 	orig := authMigrateToFileDEK
 	t.Cleanup(func() { authMigrateToFileDEK = orig })
 
@@ -30,7 +30,7 @@ func TestMigrateKeychainToFileDEKCoverage(t *testing.T) {
 	}
 }
 
-func TestTokenPersistencePreflightRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageTokenPersistencePreflightRemainingEdges(t *testing.T) {
 	origHooks := edition.Get()
 	origGet := authKeychainGet
 	origValidate := authValidateEntries
@@ -90,7 +90,7 @@ func TestTokenPersistencePreflightRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestPortableExportRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoveragePortableExportRemainingEdges(t *testing.T) {
 	origStat := portableStat
 	origConfigFiles := portableConfigFilesForExport
 	origManifest := portableWriteManifest
@@ -167,7 +167,7 @@ func TestPortableExportRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestLoadTokenDataForProfileLegacyFailure(t *testing.T) {
+func TestCrossPlatformCoverageLoadTokenDataForProfileLegacyFailure(t *testing.T) {
 	origResolve := tokenResolveProfile
 	origLoadCorp := tokenLoadKeychainForCorpID
 	origLoadLegacy := tokenLoadKeychain

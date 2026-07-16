@@ -19,7 +19,7 @@ func docWriteCoverageCommand() *cobra.Command {
 	return cmd
 }
 
-func TestDocWritePipelineStrategyRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDocWritePipelineStrategyRemainingCoverage(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "doc"}
 	t.Cleanup(func() { os.Args = oldArgs })
@@ -53,7 +53,7 @@ func TestDocWritePipelineStrategyRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestChunkedWriteAdaptiveRetryRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageChunkedWriteAdaptiveRetryRemainingCoverage(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "doc"}
 	t.Cleanup(func() { os.Args = oldArgs })

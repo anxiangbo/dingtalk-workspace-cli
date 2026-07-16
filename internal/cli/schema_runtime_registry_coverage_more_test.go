@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestResolveAndAssembleSchemaRegistryErrorBoundaries(t *testing.T) {
+func TestCrossPlatformCoverageResolveAndAssembleSchemaRegistryErrorBoundaries(t *testing.T) {
 	oldApply := resolveApplyManualSchemaHints
 	oldEffective := resolveEffectiveCommandRegistry
 	oldBind := resolveBoundCommandRegistry
@@ -121,7 +121,7 @@ func TestResolveAndAssembleSchemaRegistryErrorBoundaries(t *testing.T) {
 	}
 }
 
-func TestRuntimeToolSpecDependencyErrors(t *testing.T) {
+func TestCrossPlatformCoverageRuntimeToolSpecDependencyErrors(t *testing.T) {
 	oldDryRun := resolveReviewedDryRun
 	oldText := resolveRuntimeToolText
 	oldParameters := resolveRuntimeParameters
@@ -157,7 +157,7 @@ func TestRuntimeToolSpecDependencyErrors(t *testing.T) {
 	}
 }
 
-func TestRuntimeSchemaRegistryPayloadBranches(t *testing.T) {
+func TestCrossPlatformCoverageRuntimeSchemaRegistryPayloadBranches(t *testing.T) {
 	oldSnapshot := renderRegistrySnapshot
 	oldPayload := renderRegistryPayload
 	oldProduct := renderRegistryProductSummary
@@ -233,7 +233,7 @@ func TestRuntimeSchemaRegistryPayloadBranches(t *testing.T) {
 	}
 }
 
-func TestRuntimeRegistryIdentityAndAgentMetadataRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageRuntimeRegistryIdentityAndAgentMetadataRemainingEdges(t *testing.T) {
 	baseTool := ToolSpec{Identity: ToolIdentitySpec{
 		ProductID: "sample", Name: "run", CanonicalPath: "sample.run", Path: "sample.run",
 		CLIPath: "sample run", PrimaryCLIPath: "sample run", Aliases: []string{"sample execute"}, Source: "registry",
@@ -317,7 +317,7 @@ func TestRuntimeRegistryIdentityAndAgentMetadataRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestFinalSchemaProvenanceRejectsInvalidTool(t *testing.T) {
+func TestCrossPlatformCoverageFinalSchemaProvenanceRejectsInvalidTool(t *testing.T) {
 	registry := SchemaRegistry{Products: []ProductSpec{{
 		ID:              "sample",
 		Selection:       SelectionSpec{AgentSummary: "summary", UseWhen: []string{}, AvoidWhen: []string{}},

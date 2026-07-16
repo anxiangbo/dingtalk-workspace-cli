@@ -16,7 +16,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestSchemaCommandRemainingBranches(t *testing.T) {
+func TestCrossPlatformCoverageSchemaCommandRemainingBranches(t *testing.T) {
 	for _, tc := range []struct {
 		name    string
 		args    []string
@@ -57,7 +57,7 @@ func TestSchemaCommandRemainingBranches(t *testing.T) {
 	}
 }
 
-func TestSchemaCommandCatalogFailure(t *testing.T) {
+func TestCrossPlatformCoverageSchemaCommandCatalogFailure(t *testing.T) {
 	original := schemaCommandCatalogError
 	t.Cleanup(func() { schemaCommandCatalogError = original })
 	schemaCommandCatalogError = func() error { return errors.New("catalog failed") }
@@ -68,7 +68,7 @@ func TestSchemaCommandCatalogFailure(t *testing.T) {
 	}
 }
 
-func TestSchemaSupportParameterAndIdentityEdges(t *testing.T) {
+func TestCrossPlatformCoverageSchemaSupportParameterAndIdentityEdges(t *testing.T) {
 	if hasRuntimeSchemaCommand(nil) {
 		t.Fatal("nil command has runtime schema")
 	}
@@ -99,14 +99,14 @@ func TestSchemaSupportParameterAndIdentityEdges(t *testing.T) {
 	}
 }
 
-func TestAgentMetadataRemainingPureEdges(t *testing.T) {
+func TestCrossPlatformCoverageAgentMetadataRemainingPureEdges(t *testing.T) {
 	provenance := resolvedFieldProvenance(make(chan int), " source ", " ref ", " precedence ", " resolution ", " reason ")
 	if string(provenance.Value) != "null" || len(provenance.Candidates) != 1 {
 		t.Fatalf("fallback provenance = %#v", provenance)
 	}
 }
 
-func TestEmbeddedAgentMetadataLoaderEdges(t *testing.T) {
+func TestCrossPlatformCoverageEmbeddedAgentMetadataLoaderEdges(t *testing.T) {
 	for _, source := range []fs.FS{
 		fstest.MapFS{},
 		fstest.MapFS{"schema_agent_metadata/index.json": {Data: []byte("{")}},
@@ -137,7 +137,7 @@ func TestEmbeddedAgentMetadataLoaderEdges(t *testing.T) {
 	}
 }
 
-func TestManualAgentSelectionRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageManualAgentSelectionRemainingEdges(t *testing.T) {
 	baseBound := manualAgentSelectionBoundFixture()
 	baseHints := manualAgentHintSetFixture()
 	for _, tc := range []struct {
@@ -239,7 +239,7 @@ func cloneManualAgentTools(source map[string]ManualAgentToolHint) map[string]Man
 	return out
 }
 
-func TestHintDirectoryLoaderRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageHintDirectoryLoaderRemainingEdges(t *testing.T) {
 	directoryJSON := fstest.MapFS{"bad.json": {Mode: fs.ModeDir}}
 	invalidJSON := fstest.MapFS{"bad.json": {Data: []byte("{")}}
 	if _, err := loadParameterCommandsFromMetadata(fstest.MapFS{}, "["); err == nil {
@@ -292,7 +292,7 @@ func TestHintDirectoryLoaderRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestInterfaceRegistryRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageInterfaceRegistryRemainingEdges(t *testing.T) {
 	ref := &embeddedMCPInterfaceRef{ProductID: "sample", RPCName: "get"}
 	for _, tools := range []map[string]embeddedMCPToolMetadata{
 		{" ": {InterfaceRef: ref}},
@@ -326,7 +326,7 @@ func TestInterfaceRegistryRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestReviewedDryRunCapabilityRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageReviewedDryRunCapabilityRemainingEdges(t *testing.T) {
 	originalGroups := reviewedDryRunCapabilityGroups
 	t.Cleanup(func() {
 		reviewedDryRunCapabilityGroups = originalGroups
@@ -382,7 +382,7 @@ func resetReviewedDryRunCapabilitiesForTest() {
 	reviewedDryRunCapabilitiesLazy.err = nil
 }
 
-func TestSchemaSnapshotAdapterRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageSchemaSnapshotAdapterRemainingEdges(t *testing.T) {
 	if _, err := schemaToolSpecFromPayload(map[string]any{"bad": make(chan int)}); err == nil {
 		t.Fatal("unmarshalable tool payload succeeded")
 	}

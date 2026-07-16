@@ -16,7 +16,7 @@ import (
 
 var errKeychainInjected = errors.New("injected keychain failure")
 
-func TestUnavailableErrorEdges(t *testing.T) {
+func TestCrossPlatformCoverageUnavailableErrorEdges(t *testing.T) {
 	var nilErr *UnavailableError
 	if nilErr.Error() != "" || nilErr.Unwrap() != nil {
 		t.Fatal("nil unavailable error should be empty")
@@ -38,7 +38,7 @@ func TestUnavailableErrorEdges(t *testing.T) {
 	_ = Diagnose()
 }
 
-func TestFileDEKFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageFileDEKFailureEdges(t *testing.T) {
 	origRead := keychainReadFile
 	origMkdir := keychainMkdirAll
 	origWrite := keychainWriteFile
@@ -113,7 +113,7 @@ func TestFileDEKFailureEdges(t *testing.T) {
 	}
 }
 
-func TestDarwinStorageAndDiagnosticEdges(t *testing.T) {
+func TestCrossPlatformCoverageDarwinStorageAndDiagnosticEdges(t *testing.T) {
 	t.Setenv(DisableKeychainEnv, "")
 	origHome := keychainUserHomeDir
 	origReadDefault := readDefaultKeychain
@@ -192,7 +192,7 @@ func TestDarwinStorageAndDiagnosticEdges(t *testing.T) {
 	}
 }
 
-func TestDarwinDEKKeyringEdges(t *testing.T) {
+func TestCrossPlatformCoverageDarwinDEKKeyringEdges(t *testing.T) {
 	origReadDefault := readDefaultKeychain
 	origStat := keychainStat
 	origGet := keyringGet
@@ -311,7 +311,7 @@ func waitDarwinKeychainWorkerDone(t *testing.T, done <-chan struct{}) {
 	}
 }
 
-func TestDarwinCryptoAndPlatformFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageDarwinCryptoAndPlatformFailureEdges(t *testing.T) {
 	origRead := keychainReadFile
 	origMkdir := keychainMkdirAll
 	origWrite := keychainWriteFile
@@ -420,7 +420,7 @@ func TestDarwinCryptoAndPlatformFailureEdges(t *testing.T) {
 	}
 }
 
-func TestMigrationEdges(t *testing.T) {
+func TestCrossPlatformCoverageMigrationEdges(t *testing.T) {
 	origMAC := migrateGetMACAddress
 	origDecrypt := migrateDecrypt
 	origExists := migrateExists

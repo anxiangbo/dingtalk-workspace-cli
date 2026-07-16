@@ -17,7 +17,7 @@ func (r devAppErrorRunner) Run(context.Context, executor.Invocation) (executor.R
 	return executor.Result{}, r.err
 }
 
-func TestDevAppNormalizationEdges(t *testing.T) {
+func TestCrossPlatformCoverageDevAppNormalizationEdges(t *testing.T) {
 	for _, response := range []map[string]any{
 		{},
 		{"content": "plain"},
@@ -49,7 +49,7 @@ func TestDevAppNormalizationEdges(t *testing.T) {
 	}
 }
 
-func TestDevAppApprovalNormalizationEdges(t *testing.T) {
+func TestCrossPlatformCoverageDevAppApprovalNormalizationEdges(t *testing.T) {
 	for _, content := range []map[string]any{
 		{},
 		{"approvalCandidates": "invalid"},
@@ -107,7 +107,7 @@ func TestDevAppApprovalNormalizationEdges(t *testing.T) {
 	}
 }
 
-func TestDevAppRobotAndStepEdges(t *testing.T) {
+func TestCrossPlatformCoverageDevAppRobotAndStepEdges(t *testing.T) {
 	empty := map[string]any{}
 	normalizeDevAppRobotResult(empty)
 	if _, ok := empty["lifecycle"]; ok {
@@ -158,7 +158,7 @@ func TestDevAppRobotAndStepEdges(t *testing.T) {
 	}
 }
 
-func TestDevAppScalarAndScopeEdges(t *testing.T) {
+func TestCrossPlatformCoverageDevAppScalarAndScopeEdges(t *testing.T) {
 	content := map[string]any{
 		"nil":    nil,
 		"text":   " value ",
@@ -200,7 +200,7 @@ func TestDevAppScalarAndScopeEdges(t *testing.T) {
 	}
 }
 
-func TestDevAppCommandUtilityEdges(t *testing.T) {
+func TestCrossPlatformCoverageDevAppCommandUtilityEdges(t *testing.T) {
 	annotated := annotateDevAppTool(&cobra.Command{Use: "leaf"}, "tool")
 	if annotated.Annotations["mcp-tool"] != "tool" || annotated.Annotations["mcp-source"] != "op-app" {
 		t.Fatalf("annotations = %#v", annotated.Annotations)

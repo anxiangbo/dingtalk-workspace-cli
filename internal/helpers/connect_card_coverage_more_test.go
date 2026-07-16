@@ -12,7 +12,7 @@ import (
 	"github.com/open-dingtalk/dingtalk-stream-sdk-go/chatbot"
 )
 
-func TestAICardAccessTokenRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageAICardAccessTokenRemainingEdges(t *testing.T) {
 	originalBase := dingtalkCardAPIBase
 	defer func() { dingtalkCardAPIBase = originalBase }()
 
@@ -55,7 +55,7 @@ func TestAICardAccessTokenRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestAICardCallRawAndCheckedRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageAICardCallRawAndCheckedRemainingEdges(t *testing.T) {
 	originalBase := dingtalkCardAPIBase
 	defer func() { dingtalkCardAPIBase = originalBase }()
 	cached := func() *aiCardClient {
@@ -99,7 +99,7 @@ func TestAICardCallRawAndCheckedRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestAICardDeliveryStreamingAndSleepEdges(t *testing.T) {
+func TestCrossPlatformCoverageAICardDeliveryStreamingAndSleepEdges(t *testing.T) {
 	recorder, server := newCardAPIServer(t)
 	withCardAPIBase(t, server.URL)
 	c := newAICardClient("client", "secret", defaultAICardTemplateID)
@@ -145,7 +145,7 @@ func TestAICardDeliveryStreamingAndSleepEdges(t *testing.T) {
 	}
 }
 
-func TestCardMarkdownRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageCardMarkdownRemainingEdges(t *testing.T) {
 	table := "intro\n| A | B |\n|---|---|\nend"
 	if got := ensureCardTableBlankLines(table); !strings.Contains(got, "intro\n\n| A") {
 		t.Fatalf("table normalization=%q", got)

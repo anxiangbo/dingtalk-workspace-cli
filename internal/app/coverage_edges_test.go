@@ -63,7 +63,7 @@ type coverageRawStderr string
 func (e coverageRawStderr) Error() string     { return string(e) }
 func (e coverageRawStderr) RawStderr() string { return string(e) }
 
-func TestToolCallerAdapterCoverage(t *testing.T) {
+func TestCrossPlatformCoverageToolCallerAdapterCoverage(t *testing.T) {
 	runner := &coverageRunner{}
 	adapter := newToolCallerAdapter(runner, nil).(*toolCallerAdapter)
 	if adapter.Format() != "json" || adapter.DryRun() || adapter.Fields() != "" || adapter.JQ() != "" {
@@ -100,7 +100,7 @@ func TestToolCallerAdapterCoverage(t *testing.T) {
 	}
 }
 
-func TestRunnerPureCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRunnerPureCoverage(t *testing.T) {
 	for _, tc := range []struct {
 		content map[string]any
 		want    string
@@ -185,7 +185,7 @@ func TestRunnerPureCoverage(t *testing.T) {
 	ResetRuntimeTokenCache()
 }
 
-func TestDocDownloadPureCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDocDownloadPureCoverage(t *testing.T) {
 	for _, inv := range []executor.Invocation{
 		{},
 		{CanonicalProduct: "DOC", Tool: docDownloadFileTool},
@@ -215,7 +215,7 @@ func TestDocDownloadPureCoverage(t *testing.T) {
 	}
 }
 
-func TestRecoveryPureCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRecoveryPureCoverage(t *testing.T) {
 	if _, err := decodeRecoveryAttempts(nil, nil, "", ""); err != nil {
 		t.Fatal(err)
 	}
@@ -326,7 +326,7 @@ func TestRecoveryPureCoverage(t *testing.T) {
 	}
 }
 
-func TestSmallAppRegistryAndRootCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSmallAppRegistryAndRootCoverage(t *testing.T) {
 	RegisterPluginAuth("coverage-registry", &PluginAuth{Token: "token"})
 	t.Cleanup(func() {
 		pluginAuthMu.Lock()
@@ -422,7 +422,7 @@ func TestSmallAppRegistryAndRootCoverage(t *testing.T) {
 	}
 }
 
-func TestDirectRuntimeCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDirectRuntimeCoverage(t *testing.T) {
 	oldEdition := edition.Get()
 	t.Cleanup(func() { edition.Override(oldEdition); SetDynamicServers(nil) })
 	server := mcptypes.ServerDescriptor{
@@ -503,7 +503,7 @@ func TestDirectRuntimeCoverage(t *testing.T) {
 	_ = defaultPATMCPEndpoint()
 }
 
-func TestRecoveryLoadExecutionCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRecoveryLoadExecutionCoverage(t *testing.T) {
 	if _, err := loadRecoveryExecution(filepath.Join(t.TempDir(), "missing")); err == nil {
 		t.Fatal("missing recovery execution succeeded")
 	}
@@ -529,7 +529,7 @@ func TestRecoveryLoadExecutionCoverage(t *testing.T) {
 	}
 }
 
-func TestRecoveryRuntimeHTTP(t *testing.T) {
+func TestCrossPlatformCoverageRecoveryRuntimeHTTP(t *testing.T) {
 	var result map[string]any = map[string]any{"content": []map[string]any{{"type": "text", "text": `{"items":[{"title":"query result","url":"u"}]}`}}}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
@@ -556,7 +556,7 @@ func TestRecoveryRuntimeHTTP(t *testing.T) {
 	}
 }
 
-func TestEventCommandPureCoverage(t *testing.T) {
+func TestCrossPlatformCoverageEventCommandPureCoverage(t *testing.T) {
 	oldEdition := edition.Get()
 	t.Cleanup(func() { edition.Override(oldEdition) })
 	edition.Override(&edition.Hooks{})
@@ -626,7 +626,7 @@ func TestEventCommandPureCoverage(t *testing.T) {
 	}
 }
 
-func TestEventListAndStatusCoverage(t *testing.T) {
+func TestCrossPlatformCoverageEventListAndStatusCoverage(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("DWS_CONFIG_DIR", dir)
 	cmd := &cobra.Command{Use: "event"}
@@ -684,7 +684,7 @@ func TestEventListAndStatusCoverage(t *testing.T) {
 	}
 }
 
-func TestEventCommandValidationCoverage(t *testing.T) {
+func TestCrossPlatformCoverageEventCommandValidationCoverage(t *testing.T) {
 	execute := func(t *testing.T, cmd *cobra.Command, args ...string) error {
 		t.Helper()
 		cmd.SilenceErrors = true
@@ -724,7 +724,7 @@ func TestEventCommandValidationCoverage(t *testing.T) {
 	}
 }
 
-func TestVersionCacheCompletionCoverage(t *testing.T) {
+func TestCrossPlatformCoverageVersionCacheCompletionCoverage(t *testing.T) {
 	oldVersion, oldBuild, oldCommit := version, buildTime, gitCommit
 	t.Cleanup(func() { version, buildTime, gitCommit = oldVersion, oldBuild, oldCommit })
 	version, buildTime, gitCommit = "1.0", "unknown", "unknown"
@@ -776,7 +776,7 @@ func TestVersionCacheCompletionCoverage(t *testing.T) {
 	}
 }
 
-func TestRuntimeRunnerRoutingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRuntimeRunnerRoutingCoverage(t *testing.T) {
 	inv := executor.Invocation{CanonicalProduct: "product", Tool: "tool", Params: map[string]any{"x": 1}}
 	fallback := &coverageRunner{result: executor.Result{Response: map[string]any{"fallback": true}}}
 	r := &runtimeRunner{fallback: fallback}
@@ -851,7 +851,7 @@ func TestRuntimeRunnerRoutingCoverage(t *testing.T) {
 	}
 }
 
-func TestExecuteInvocationCoverage(t *testing.T) {
+func TestCrossPlatformCoverageExecuteInvocationCoverage(t *testing.T) {
 	oldEdition := edition.Get()
 	edition.Override(&edition.Hooks{TokenProvider: func(context.Context, func() (string, error)) (string, error) {
 		return "", nil
@@ -953,7 +953,7 @@ func TestExecuteInvocationCoverage(t *testing.T) {
 	}
 }
 
-func TestAuthCommandPureCoverage(t *testing.T) {
+func TestCrossPlatformCoverageAuthCommandPureCoverage(t *testing.T) {
 	oldEdition := edition.Get()
 	oldPrompt := authLoginManualCredentialsPrompt
 	oldInteractive := authLoginInteractiveTerminal
@@ -1078,7 +1078,7 @@ func TestAuthCommandPureCoverage(t *testing.T) {
 
 }
 
-func TestAuthLoginTokenCommandCoverage(t *testing.T) {
+func TestCrossPlatformCoverageAuthLoginTokenCommandCoverage(t *testing.T) {
 	oldInteractive := authLoginInteractiveTerminal
 	authLoginInteractiveTerminal = func() bool { return false }
 	t.Cleanup(func() { authLoginInteractiveTerminal = oldInteractive; authpkg.SetRuntimeProfile("") })
@@ -1118,7 +1118,7 @@ func TestAuthLoginTokenCommandCoverage(t *testing.T) {
 	}
 }
 
-func TestPluginCommandLifecycleCoverage(t *testing.T) {
+func TestCrossPlatformCoveragePluginCommandLifecycleCoverage(t *testing.T) {
 	home := t.TempDir()
 	work := t.TempDir()
 	t.Setenv("HOME", home)
@@ -1281,7 +1281,7 @@ func TestPluginCommandLifecycleCoverage(t *testing.T) {
 	}
 }
 
-func TestUpgradeCommandHTTPAndDryRunCoverage(t *testing.T) {
+func TestCrossPlatformCoverageUpgradeCommandHTTPAndDryRunCoverage(t *testing.T) {
 	oldEdition := edition.Get()
 	oldVersion := version
 	t.Cleanup(func() { edition.Override(oldEdition); version = oldVersion })
@@ -1375,7 +1375,7 @@ func TestUpgradeCommandHTTPAndDryRunCoverage(t *testing.T) {
 	}
 }
 
-func TestUpgradeRemainingPureCoverage(t *testing.T) {
+func TestCrossPlatformCoverageUpgradeRemainingPureCoverage(t *testing.T) {
 	originalCommandOutput := upgradeCommandOutput
 	t.Cleanup(func() { upgradeCommandOutput = originalCommandOutput })
 	for _, beta := range []bool{false, true} {
@@ -1439,7 +1439,7 @@ func TestUpgradeRemainingPureCoverage(t *testing.T) {
 	_ = shortenHome(filepath.Join(os.Getenv("HOME"), "path"))
 }
 
-func TestPersonalEventPureCoverage(t *testing.T) {
+func TestCrossPlatformCoveragePersonalEventPureCoverage(t *testing.T) {
 	cmd := &cobra.Command{Use: "personal"}
 	var out bytes.Buffer
 	cmd.SetOut(&out)
@@ -1576,7 +1576,7 @@ func personalCommonOptions(eventTypes []string, filter string) commonConsumeOpti
 	return commonConsumeOptions{EventTypes: eventTypes, Filter: filter}
 }
 
-func TestPersonalSubscriptionAndSourceCoverage(t *testing.T) {
+func TestCrossPlatformCoveragePersonalSubscriptionAndSourceCoverage(t *testing.T) {
 	identity := personal.Identity{AccessToken: "token", CorpID: "corp", UserID: "user", ClientID: "client", SourceID: "source"}
 	var createCount, cancelCount int
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -1639,7 +1639,7 @@ func TestPersonalSubscriptionAndSourceCoverage(t *testing.T) {
 	}
 }
 
-func TestPersonalEventCommandRuntimeCoverage(t *testing.T) {
+func TestCrossPlatformCoveragePersonalEventCommandRuntimeCoverage(t *testing.T) {
 	configDir := setupPersonalIdentityToken(t, &authpkg.TokenData{
 		AccessToken: "access", RefreshToken: "refresh", ExpiresAt: time.Now().Add(time.Hour),
 		CorpID: "corp", UserID: "user", ClientID: "client",
@@ -1700,7 +1700,7 @@ func TestPersonalEventCommandRuntimeCoverage(t *testing.T) {
 	}
 }
 
-func TestDoctorCommandCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDoctorCommandCoverage(t *testing.T) {
 	configDir := setupPersonalIdentityToken(t, &authpkg.TokenData{
 		AccessToken: "access", ExpiresAt: time.Now().Add(time.Hour), ClientID: "client",
 	})
@@ -1817,7 +1817,7 @@ func coverageSkillZip(t *testing.T) []byte {
 	return buf.Bytes()
 }
 
-func TestSkillCommandHTTPCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSkillCommandHTTPCoverage(t *testing.T) {
 	configDir := setupPersonalIdentityToken(t, &authpkg.TokenData{AccessToken: "access", ExpiresAt: time.Now().Add(time.Hour), ClientID: "client"})
 	t.Setenv("DWS_CONFIG_DIR", configDir)
 	home := t.TempDir()
@@ -1904,7 +1904,7 @@ func serverURL(r *http.Request) string {
 	return "http://" + r.Host
 }
 
-func TestSkillHelpersAndErrorsCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSkillHelpersAndErrorsCoverage(t *testing.T) {
 	oldEmbedded := edition.Get()
 	t.Cleanup(func() { edition.Override(oldEmbedded) })
 	for _, embedded := range []bool{false, true} {
@@ -1985,7 +1985,7 @@ func TestSkillHelpersAndErrorsCoverage(t *testing.T) {
 	}
 }
 
-func TestProfileCommandAndModelCoverage(t *testing.T) {
+func TestCrossPlatformCoverageProfileCommandAndModelCoverage(t *testing.T) {
 	configDir := t.TempDir()
 	t.Setenv("DWS_CONFIG_DIR", configDir)
 	now := time.Now().UTC()
@@ -2134,7 +2134,7 @@ func TestProfileCommandAndModelCoverage(t *testing.T) {
 	}
 }
 
-func TestSkillSetupRuntimeCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSkillSetupRuntimeCoverage(t *testing.T) {
 	home := t.TempDir()
 	oldSetupHome := skillSetupUserHomeDir
 	skillSetupUserHomeDir = func() (string, error) { return home, nil }
@@ -2202,7 +2202,7 @@ func TestSkillSetupRuntimeCoverage(t *testing.T) {
 	}
 }
 
-func TestSkillSetupPureCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSkillSetupPureCoverage(t *testing.T) {
 	all := []string{"dingtalk-a", "dingtalk-b", "dws-shared"}
 	for _, tc := range []struct {
 		include []string

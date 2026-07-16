@@ -39,7 +39,7 @@ func skillSetupCoverageCommand(t *testing.T, mode string, yes bool) *cobra.Comma
 	return cmd
 }
 
-func TestSkillSetupHighLevelRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSkillSetupHighLevelRemainingCoverage(t *testing.T) {
 	oldMode := skillSetupResolveMode
 	oldSource := skillSetupResolveSource
 	oldTargets := skillSetupResolveTargets
@@ -120,7 +120,7 @@ func TestSkillSetupHighLevelRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestSkillSetupLowLevelRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSkillSetupLowLevelRemainingCoverage(t *testing.T) {
 	oldRunForm, oldInteractive := skillSetupRunForm, skillSetupInteractive
 	oldReadDir, oldStat := skillSetupReadDir, skillSetupStat
 	oldExecutable, oldGetwd, oldHome := skillSetupExecutable, skillSetupGetwd, skillSetupUserHomeDir

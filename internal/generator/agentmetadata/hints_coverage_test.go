@@ -28,7 +28,7 @@ func validCoverageIndex(metadataPath, selectionPath string) string {
 	return `{"version":1,"format":"dws-agent-hint-index","source":{"kind":"explicit"},"metadata":{"sample":"` + metadataPath + `"},"selection":{"sample":"` + selectionPath + `"}}`
 }
 
-func TestHintUnmarshalAndIndexValidationEdges(t *testing.T) {
+func TestCrossPlatformCoverageHintUnmarshalAndIndexValidationEdges(t *testing.T) {
 	if err := json.Unmarshal([]byte(`{`), &HintProduct{}); err == nil {
 		t.Fatal("invalid HintProduct succeeded")
 	}
@@ -76,7 +76,7 @@ func TestHintUnmarshalAndIndexValidationEdges(t *testing.T) {
 	}
 }
 
-func TestHintFileAndRoleValidationEdges(t *testing.T) {
+func TestCrossPlatformCoverageHintFileAndRoleValidationEdges(t *testing.T) {
 	root := t.TempDir()
 	tests := []struct {
 		name string
@@ -128,7 +128,7 @@ func TestHintFileAndRoleValidationEdges(t *testing.T) {
 	}
 }
 
-func TestHintHelperRemainingBranches(t *testing.T) {
+func TestCrossPlatformCoverageHintHelperRemainingBranches(t *testing.T) {
 	falseValue := false
 	if got := hintSelectionRank(HintSource{}, &falseValue); got != selectionRankUnreviewedExplicit {
 		t.Fatalf("unreviewed rank = %d", got)
@@ -150,7 +150,7 @@ func TestHintHelperRemainingBranches(t *testing.T) {
 	}
 }
 
-func TestHintParsingAndApplicationConflictEdges(t *testing.T) {
+func TestCrossPlatformCoverageHintParsingAndApplicationConflictEdges(t *testing.T) {
 	var product HintProduct
 	if err := product.UnmarshalJSON([]byte(`{`)); err == nil {
 		t.Fatal("direct invalid HintProduct succeeded")

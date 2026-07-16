@@ -20,7 +20,7 @@ import (
 
 var errBusInjected = errors.New("injected bus failure")
 
-func TestMatcherConsumerAndCounterEdges(t *testing.T) {
+func TestCrossPlatformCoverageMatcherConsumerAndCounterEdges(t *testing.T) {
 	m, err := compileMatcher([]string{"", "*", "im.*", "prefix*", "exact"}, "^im", " sub ")
 	if err != nil {
 		t.Fatal(err)
@@ -100,7 +100,7 @@ func TestMatcherConsumerAndCounterEdges(t *testing.T) {
 	}
 }
 
-func TestDropWarningScanEdges(t *testing.T) {
+func TestCrossPlatformCoverageDropWarningScanEdges(t *testing.T) {
 	origInterval := dropWarnTickInterval
 	t.Cleanup(func() { dropWarnTickInterval = origInterval })
 	ctx, cancel := context.WithCancel(context.Background())
@@ -140,7 +140,7 @@ func TestDropWarningScanEdges(t *testing.T) {
 	dropWarnWatcher(ctx, c, logger, 25)
 }
 
-func TestLockFailureInjection(t *testing.T) {
+func TestCrossPlatformCoverageLockFailureInjection(t *testing.T) {
 	origTry := busTryAcquire
 	origSeek := busSeek
 	origRead := busReadAll
@@ -231,7 +231,7 @@ func TestLockFailureInjection(t *testing.T) {
 	}
 }
 
-func TestMetaFailureInjection(t *testing.T) {
+func TestCrossPlatformCoverageMetaFailureInjection(t *testing.T) {
 	origMarshal := metaMarshalIndent
 	origWrite := metaWriteFile
 	origRename := metaRename
@@ -266,7 +266,7 @@ type edgeSource struct {
 
 func (s edgeSource) Start(ctx context.Context, emit dwsevent.EmitFn) error { return s.start(ctx, emit) }
 
-func TestRunStartupAndSourceEdges(t *testing.T) {
+func TestCrossPlatformCoverageRunStartupAndSourceEdges(t *testing.T) {
 	if err := Run(context.Background(), Config{}); err == nil {
 		t.Fatal("source validation expected")
 	}
@@ -333,7 +333,7 @@ func (l *scriptedListener) Accept() (net.Conn, error) { return l.accept() }
 func (l *scriptedListener) Close() error              { l.closed = true; return nil }
 func (*scriptedListener) Endpoint() string            { return "edge" }
 
-func TestDaemonMethodEdges(t *testing.T) {
+func TestCrossPlatformCoverageDaemonMethodEdges(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	calls := 0
 	l := &scriptedListener{accept: func() (net.Conn, error) {
@@ -400,7 +400,7 @@ func TestDaemonMethodEdges(t *testing.T) {
 	}
 }
 
-func TestHandleConnectionProtocolEdges(t *testing.T) {
+func TestCrossPlatformCoverageHandleConnectionProtocolEdges(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	newDaemon := func() *daemon {
 		return &daemon{

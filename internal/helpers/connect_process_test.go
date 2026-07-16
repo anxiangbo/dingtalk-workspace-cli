@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestProcessAlivePlatformEdges(t *testing.T) {
+func TestCrossPlatformCoverageProcessAlivePlatformEdges(t *testing.T) {
 	if processAlive(0) {
 		t.Fatal("pid 0 must not be treated as a managed live process")
 	}

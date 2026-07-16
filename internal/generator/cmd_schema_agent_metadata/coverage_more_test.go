@@ -19,7 +19,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestMetadataMainReportsEveryStageFailure(t *testing.T) {
+func TestCrossPlatformCoverageMetadataMainReportsEveryStageFailure(t *testing.T) {
 	originalArgs, originalFlags := os.Args, flag.CommandLine
 	originalIsolation := validateMetadataIsolation
 	originalAllowlist := validateMetadataAllowlist
@@ -114,7 +114,7 @@ func TestMetadataMainReportsEveryStageFailure(t *testing.T) {
 	})
 }
 
-func TestMetadataWriterFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageMetadataWriterFailureEdges(t *testing.T) {
 	originalMkdir := makeMetadataDirectory
 	originalRead := readMetadataDirectory
 	originalRemove := removeMetadataFile
@@ -226,7 +226,7 @@ func TestMetadataWriterFailureEdges(t *testing.T) {
 	}
 }
 
-func TestMetadataRegistryAndSelectionFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageMetadataRegistryAndSelectionFailureEdges(t *testing.T) {
 	originalRoot := newMetadataRoot
 	originalBuild := buildEffectiveMetadata
 	originalBind := bindEffectiveMetadata

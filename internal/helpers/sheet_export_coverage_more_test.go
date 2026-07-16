@@ -23,7 +23,7 @@ func executeSheetExportCoverage(t *testing.T, caller *scriptedToolCaller, args .
 	return runSheetExport(cmd, nil)
 }
 
-func TestSheetExportCommandRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSheetExportCommandRemainingCoverage(t *testing.T) {
 	installImmediateTiming(t)
 	if err := executeSheetExportCoverage(t, &scriptedToolCaller{}); err == nil {
 		t.Fatal("missing node returned nil")
@@ -80,7 +80,7 @@ func TestSheetExportCommandRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestSheetExportFilenameDotCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSheetExportFilenameDotCoverage(t *testing.T) {
 	if got := inferSheetExportFilename("https://example.test/."); got != "" {
 		t.Fatalf("dot filename = %q", got)
 	}

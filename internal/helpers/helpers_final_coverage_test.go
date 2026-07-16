@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestLastPureAndCommandBranches(t *testing.T) {
+func TestCrossPlatformCoverageLastPureAndCommandBranches(t *testing.T) {
 	if commandBoolFlag(nil, "dry-run") {
 		t.Fatal("nil command flag is true")
 	}
@@ -74,7 +74,7 @@ func TestLastPureAndCommandBranches(t *testing.T) {
 	}
 }
 
-func TestLastIOAndConfirmationBranches(t *testing.T) {
+func TestCrossPlatformCoverageLastIOAndConfirmationBranches(t *testing.T) {
 	origOpen, origRead, origRemove := connectLockOpenFile, connectLockReadFile, connectLockRemove
 	connectLockOpenFile = func(string, int, os.FileMode) (*os.File, error) { return nil, errors.New("open") }
 	if _, err := acquireConnectLock("client"); err == nil || err.Error() != "open" {

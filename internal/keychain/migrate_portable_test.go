@@ -19,7 +19,7 @@ import (
 	"testing"
 )
 
-func TestMigrateFromLegacyPortableEdges(t *testing.T) {
+func TestCrossPlatformCoverageMigrateFromLegacyPortableEdges(t *testing.T) {
 	injectedErr := errors.New("injected migration failure")
 	origMAC := migrateGetMACAddress
 	origDecrypt := migrateDecrypt

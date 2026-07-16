@@ -7,7 +7,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-func TestLanguageSelectionAndTranslation(t *testing.T) {
+func TestCrossPlatformCoverageLanguageSelectionAndTranslation(t *testing.T) {
 	Init()
 	SetLang(" zh_CN.UTF-8 ")
 	if Lang() != "zh" || LangTag() != language.Chinese {
@@ -57,7 +57,7 @@ func TestLanguageSelectionAndTranslation(t *testing.T) {
 	}
 }
 
-func TestLoadCatalogHandlesValidAndInvalidResources(t *testing.T) {
+func TestCrossPlatformCoverageLoadCatalogHandlesValidAndInvalidResources(t *testing.T) {
 	if catalog := loadCatalog("en"); len(catalog) == 0 {
 		t.Fatal("loadCatalog(en) returned an empty catalog")
 	}

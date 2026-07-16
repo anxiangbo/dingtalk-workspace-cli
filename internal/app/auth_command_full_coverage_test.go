@@ -65,7 +65,7 @@ func authCoverageRunLogin(t *testing.T, caller edition.ToolCaller, format string
 	return out.String(), errOut.String(), err
 }
 
-func TestAuthCoverageFormsParentAndTargets(t *testing.T) {
+func TestCrossPlatformCoverageAuthCoverageFormsParentAndTargets(t *testing.T) {
 	oldEdition := edition.Get()
 	oldRunForm := authRunForm
 	oldPrompt := authLoginManualCredentialsPrompt
@@ -206,7 +206,7 @@ func TestAuthCoverageFormsParentAndTargets(t *testing.T) {
 	}
 }
 
-func TestAuthCoverageLoginFlows(t *testing.T) {
+func TestCrossPlatformCoverageAuthCoverageLoginFlows(t *testing.T) {
 	t.Setenv("DWS_CONFIG_DIR", t.TempDir())
 	oldSave := authSaveTokenData
 	oldDevice := authDeviceLogin
@@ -335,7 +335,7 @@ func TestAuthCoverageLoginFlows(t *testing.T) {
 	}
 }
 
-func TestAuthCoverageContactEnrichment(t *testing.T) {
+func TestCrossPlatformCoverageAuthCoverageContactEnrichment(t *testing.T) {
 	oldSave := authSaveTokenData
 	t.Cleanup(func() { authSaveTokenData = oldSave })
 	ctx := context.Background()
@@ -387,7 +387,7 @@ func TestAuthCoverageContactEnrichment(t *testing.T) {
 	}
 }
 
-func TestAuthCoverageDefaultSeamClosures(t *testing.T) {
+func TestCrossPlatformCoverageAuthCoverageDefaultSeamClosures(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 	configDir := t.TempDir()
@@ -401,7 +401,7 @@ func TestAuthCoverageDefaultSeamClosures(t *testing.T) {
 	_ = fmt.Sprintf("%v", os.ErrNotExist)
 }
 
-func TestAuthCoverageStatusAndLogout(t *testing.T) {
+func TestCrossPlatformCoverageAuthCoverageStatusAndLogout(t *testing.T) {
 	t.Setenv("DWS_CONFIG_DIR", t.TempDir())
 	oldEdition := edition.Get()
 	oldStatus := authOAuthStatus
@@ -589,7 +589,7 @@ func TestAuthCoverageStatusAndLogout(t *testing.T) {
 	}
 }
 
-func TestAuthCoveragePortableExchangeAndReset(t *testing.T) {
+func TestCrossPlatformCoverageAuthCoveragePortableExchangeAndReset(t *testing.T) {
 	t.Setenv("DWS_CONFIG_DIR", t.TempDir())
 	oldEdition := edition.Get()
 	oldSupported := authPortableExportSupported

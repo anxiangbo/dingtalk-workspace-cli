@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestMainWritesProductionSmokeRegistry(t *testing.T) {
+func TestCrossPlatformCoverageMainWritesProductionSmokeRegistry(t *testing.T) {
 	outputFile, err := os.CreateTemp(t.TempDir(), "schema-registry-smoke-*.json")
 	if err != nil {
 		t.Fatal(err)
@@ -39,7 +39,7 @@ func TestMainWritesProductionSmokeRegistry(t *testing.T) {
 	}
 }
 
-func TestMainReportsSmokeRegistryFailures(t *testing.T) {
+func TestCrossPlatformCoverageMainReportsSmokeRegistryFailures(t *testing.T) {
 	originalRoot := newSmokeRoot
 	originalBuild := buildEffectiveSmokeRegistry
 	originalBind := bindEffectiveSmokeRegistry
@@ -100,7 +100,7 @@ func TestMainReportsSmokeRegistryFailures(t *testing.T) {
 	}
 }
 
-func TestBuildSmokeRegistryIncludesEveryPublicPathDeterministically(t *testing.T) {
+func TestCrossPlatformCoverageBuildSmokeRegistryIncludesEveryPublicPathDeterministically(t *testing.T) {
 	registry := cli.EffectiveCommandRegistry{Commands: []cli.CommandSpec{
 		{
 			CanonicalPath:  "internal.hidden",
@@ -136,7 +136,7 @@ func TestBuildSmokeRegistryIncludesEveryPublicPathDeterministically(t *testing.T
 	}
 }
 
-func TestBuildSmokeRegistryRejectsRegistryWithoutPublicCommands(t *testing.T) {
+func TestCrossPlatformCoverageBuildSmokeRegistryRejectsRegistryWithoutPublicCommands(t *testing.T) {
 	_, err := buildSmokeRegistry(cli.EffectiveCommandRegistry{Commands: []cli.CommandSpec{{
 		CanonicalPath:  "sample.run",
 		PrimaryCLIPath: "sample run",

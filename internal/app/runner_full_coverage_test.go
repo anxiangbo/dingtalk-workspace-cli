@@ -25,7 +25,7 @@ func (f runnerCoverageFallback) Run(context.Context, executor.Invocation) (execu
 	return f.result, f.err
 }
 
-func TestRunnerRemainingRoutingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRunnerRemainingRoutingCoverage(t *testing.T) {
 	oldResolveMulti := runnerResolveMultiProfileSelections
 	oldResolveProfile := runnerResolveProfile
 	oldCachedToken := runnerGetCachedRuntimeToken
@@ -127,7 +127,7 @@ func TestRunnerRemainingRoutingCoverage(t *testing.T) {
 	}
 }
 
-func TestRunnerRemainingExecutionCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRunnerRemainingExecutionCoverage(t *testing.T) {
 	oldEdition := edition.Get()
 	oldPreflight := runnerPreflightDocDownload
 	oldCall := runnerCallTool
@@ -288,7 +288,7 @@ func TestRunnerRemainingExecutionCoverage(t *testing.T) {
 	}
 }
 
-func TestRunnerRemainingStdioAuthAndHeadersCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRunnerRemainingStdioAuthAndHeadersCoverage(t *testing.T) {
 	oldStdioInit := runnerStdioEnsureInitialized
 	oldStdioCall := runnerStdioCallTool
 	oldEdition := edition.Get()

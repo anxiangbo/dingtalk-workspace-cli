@@ -16,7 +16,7 @@ import (
 
 var errBusctlInjected = errors.New("injected busctl failure")
 
-func TestDiscoverValidationAndFailures(t *testing.T) {
+func TestCrossPlatformCoverageDiscoverValidationAndFailures(t *testing.T) {
 	for name, cfg := range map[string]DiscoverConfig{
 		"workdir":  {IPCEndpoint: "endpoint", ClientID: "id"},
 		"endpoint": {WorkDir: t.TempDir(), ClientID: "id"},
@@ -53,7 +53,7 @@ func TestDiscoverValidationAndFailures(t *testing.T) {
 	}
 }
 
-func TestWaitReadyRejectsShortSuccessfulRead(t *testing.T) {
+func TestCrossPlatformCoverageWaitReadyRejectsShortSuccessfulRead(t *testing.T) {
 	original := busctlReadFull
 	t.Cleanup(func() { busctlReadFull = original })
 	busctlReadFull = func(io.Reader, []byte) (int, error) { return 0, nil }
@@ -68,7 +68,7 @@ func TestWaitReadyRejectsShortSuccessfulRead(t *testing.T) {
 	}
 }
 
-func TestSpawnAndReadyFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageSpawnAndReadyFailureEdges(t *testing.T) {
 	origExecutable := spawnExecutable
 	origPipe := spawnPipe
 	origTimeout := ReadyTimeout
@@ -147,7 +147,7 @@ func TestSpawnAndReadyFailureEdges(t *testing.T) {
 	_ = pw.Close()
 }
 
-func TestStatusFilesystemEdges(t *testing.T) {
+func TestCrossPlatformCoverageStatusFilesystemEdges(t *testing.T) {
 	origReadDir := statusReadDir
 	origStat := statusStat
 	t.Cleanup(func() { statusReadDir = origReadDir; statusStat = origStat })
@@ -249,7 +249,7 @@ type dummyAddr string
 func (a dummyAddr) Network() string { return string(a) }
 func (a dummyAddr) String() string  { return string(a) }
 
-func TestQueryStatusAndEntryEdges(t *testing.T) {
+func TestCrossPlatformCoverageQueryStatusAndEntryEdges(t *testing.T) {
 	origDial := statusDial
 	origQuery := queryStatus
 	t.Cleanup(func() { statusDial = origDial; queryStatus = origQuery })
@@ -282,7 +282,7 @@ func TestQueryStatusAndEntryEdges(t *testing.T) {
 	}
 }
 
-func TestStopInjectedEdges(t *testing.T) {
+func TestCrossPlatformCoverageStopInjectedEdges(t *testing.T) {
 	origRead := stopReadHolderPID
 	origAlive := stopAlive
 	origFind := stopFindProcess

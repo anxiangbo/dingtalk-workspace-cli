@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestSheetCellInfoCleanupRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSheetCellInfoCleanupRemainingCoverage(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "sheet"}
 	t.Cleanup(func() { os.Args = oldArgs })

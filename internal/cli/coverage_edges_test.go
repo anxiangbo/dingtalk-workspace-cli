@@ -15,7 +15,7 @@ import (
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/edition"
 )
 
-func TestCanonicalCommandsAndFlags(t *testing.T) {
+func TestCrossPlatformCoverageCanonicalCommandsAndFlags(t *testing.T) {
 	mcp := NewMCPCommand(t.Context(), nil, nil, nil)
 	mcp.SetOut(&bytes.Buffer{})
 	if err := mcp.Execute(); err != nil {
@@ -84,7 +84,7 @@ func TestCanonicalCommandsAndFlags(t *testing.T) {
 	}
 }
 
-func TestLoaderAndPriorityEdges(t *testing.T) {
+func TestCrossPlatformCoverageLoaderAndPriorityEdges(t *testing.T) {
 	for _, reason := range []CatalogDegradedReason{DegradedUnauthenticated, DegradedMarketUnreachable, DegradedRuntimeAllFailed, "other"} {
 		degraded := newCatalogDegraded(reason, 2)
 		if degraded.Error() == "" || degradedHint(reason, 2) == "" || degraded.Hint == "" {
@@ -131,7 +131,7 @@ func TestLoaderAndPriorityEdges(t *testing.T) {
 	}
 }
 
-func TestSchemaValidationCompleteMatrix(t *testing.T) {
+func TestCrossPlatformCoverageSchemaValidationCompleteMatrix(t *testing.T) {
 	if err := ValidateInputSchema(nil, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -212,7 +212,7 @@ func TestSchemaValidationCompleteMatrix(t *testing.T) {
 	}
 }
 
-func TestStdinCompleteMatrix(t *testing.T) {
+func TestCrossPlatformCoverageStdinCompleteMatrix(t *testing.T) {
 	original := os.Stdin
 	t.Cleanup(func() { os.Stdin = original })
 	closed, err := os.CreateTemp(t.TempDir(), "closed")

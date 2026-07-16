@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestBuildConnectVideoStoryboardEdges(t *testing.T) {
+func TestCrossPlatformCoverageBuildConnectVideoStoryboardEdges(t *testing.T) {
 	originalLookPath := connectStoryboardLookPath
 	originalCommand := connectStoryboardCommand
 	originalMkdir := connectStoryboardMkdirAll

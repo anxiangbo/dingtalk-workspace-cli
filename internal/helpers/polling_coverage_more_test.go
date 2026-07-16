@@ -70,7 +70,7 @@ func installImmediateTiming(t *testing.T) {
 	})
 }
 
-func TestDocPollingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDocPollingCoverage(t *testing.T) {
 	installImmediateTiming(t)
 	oldArgs := os.Args
 	os.Args = []string{"dws", "doc"}
@@ -119,7 +119,7 @@ func TestDocPollingCoverage(t *testing.T) {
 	_, _ = pollImportTask(cancelled, "task", importConfig)
 }
 
-func TestSheetExportPollingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSheetExportPollingCoverage(t *testing.T) {
 	installImmediateTiming(t)
 	oldArgs := os.Args
 	os.Args = []string{"dws", "sheet"}
@@ -156,7 +156,7 @@ func TestSheetExportPollingCoverage(t *testing.T) {
 	}
 }
 
-func TestChunkedWriteCoverage(t *testing.T) {
+func TestCrossPlatformCoverageChunkedWriteCoverage(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "doc"}
 	t.Cleanup(func() { os.Args = oldArgs })
@@ -194,7 +194,7 @@ func TestChunkedWriteCoverage(t *testing.T) {
 	}
 }
 
-func TestTodoListAutoPageCoverage(t *testing.T) {
+func TestCrossPlatformCoverageTodoListAutoPageCoverage(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "todo"}
 	t.Cleanup(func() { os.Args = oldArgs })
@@ -228,7 +228,7 @@ func TestTodoListAutoPageCoverage(t *testing.T) {
 	}
 }
 
-func TestAitableRetryAndPaginationCoverage(t *testing.T) {
+func TestCrossPlatformCoverageAitableRetryAndPaginationCoverage(t *testing.T) {
 	installImmediateTiming(t)
 	oldArgs := os.Args
 	os.Args = []string{"dws", "aitable"}

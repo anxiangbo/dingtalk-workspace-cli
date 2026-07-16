@@ -19,7 +19,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestRootExecuteAllBranchesCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRootExecuteAllBranchesCoverage(t *testing.T) {
 	oldNormalize := rootNormalizeProcessProfileArgs
 	oldExecute := rootExecuteCommand
 	oldNewRoot := rootNewRootCommandWithEngine
@@ -65,7 +65,7 @@ func TestRootExecuteAllBranchesCoverage(t *testing.T) {
 	}
 }
 
-func TestRootConstructionHooksAndVersionCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRootConstructionHooksAndVersionCoverage(t *testing.T) {
 	oldLoadPlugins := rootLoadPlugins
 	oldEdition := edition.Get()
 	oldVersion, oldBuild, oldCommit := version, buildTime, gitCommit
@@ -120,7 +120,7 @@ func TestRootConstructionHooksAndVersionCoverage(t *testing.T) {
 	}
 }
 
-func TestRootFlagsPluginsAndOutputRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRootFlagsPluginsAndOutputRemainingCoverage(t *testing.T) {
 	t.Chdir(t.TempDir())
 	parent := &cobra.Command{Use: "root"}
 	parent.PersistentFlags().String("format", "json", "")
@@ -229,7 +229,7 @@ func TestRootFlagsPluginsAndOutputRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestRootLoadPluginsRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRootLoadPluginsRemainingCoverage(t *testing.T) {
 	oldInject := rootPluginInjectConfigEnv
 	oldUser := rootPluginLoadUser
 	oldDev := rootPluginLoadDev

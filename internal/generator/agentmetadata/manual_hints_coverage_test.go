@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestReviewedSelectionRetentionAndDeliveryFailures(t *testing.T) {
+func TestCrossPlatformCoverageReviewedSelectionRetentionAndDeliveryFailures(t *testing.T) {
 	retainReviewedSelectionCandidates(nil)
 	file := File{
 		Products: map[string]ProductMetadata{"sample": {}},
@@ -74,7 +74,7 @@ func TestReviewedSelectionRetentionAndDeliveryFailures(t *testing.T) {
 	}
 }
 
-func TestExpectedCanonicalToolHelpersRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageExpectedCanonicalToolHelpersRemainingEdges(t *testing.T) {
 	paths := expectedCanonicalToolPaths(Options{CanonicalToolPaths: map[string]string{
 		" sample.tool ": " sample item get ",
 		"":              "blank",
@@ -104,7 +104,7 @@ func TestExpectedCanonicalToolHelpersRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestSelectionAuthoringLoadFailure(t *testing.T) {
+func TestCrossPlatformCoverageSelectionAuthoringLoadFailure(t *testing.T) {
 	root := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(root, "hints"), 0o700); err != nil {
 		t.Fatal(err)
@@ -121,7 +121,7 @@ func TestSelectionAuthoringLoadFailure(t *testing.T) {
 	}
 }
 
-func TestSelectionAuthoringSelectionContractFailure(t *testing.T) {
+func TestCrossPlatformCoverageSelectionAuthoringSelectionContractFailure(t *testing.T) {
 	root := t.TempDir()
 	writeSelectionFixture(t, root, true, `["dws sample item search --query value"]`)
 	path := filepath.Join(root, "internal/cli/schema_hints/selection/sample.json")

@@ -14,7 +14,7 @@ type alwaysErrorReader struct{ err error }
 
 func (r alwaysErrorReader) Read([]byte) (int, error) { return 0, r.err }
 
-func TestEncryptRandomSourceErrors(t *testing.T) {
+func TestCrossPlatformCoverageEncryptRandomSourceErrors(t *testing.T) {
 	old := cryptoRandReader
 	t.Cleanup(func() { cryptoRandReader = old })
 	wantErr := errors.New("entropy unavailable")
@@ -28,7 +28,7 @@ func TestEncryptRandomSourceErrors(t *testing.T) {
 	}
 }
 
-func TestGetMACAddressEnumerationError(t *testing.T) {
+func TestCrossPlatformCoverageGetMACAddressEnumerationError(t *testing.T) {
 	old := networkInterfaces
 	t.Cleanup(func() { networkInterfaces = old })
 	wantErr := errors.New("enumeration failed")
@@ -53,7 +53,7 @@ func (f *scriptedTokenTempFile) Write(p []byte) (int, error) {
 func (f *scriptedTokenTempFile) Sync() error  { return f.syncErr }
 func (f *scriptedTokenTempFile) Close() error { return f.closeErr }
 
-func TestSecureTokenStorageFailureBoundaries(t *testing.T) {
+func TestCrossPlatformCoverageSecureTokenStorageFailureBoundaries(t *testing.T) {
 	oldMkdir, oldMarshal, oldEncrypt := mkdirTokenDir, marshalTokenData, encryptTokenData
 	oldOpen, oldRemove, oldRename := openTokenTempFile, removeTokenFile, renameTokenFile
 	oldRead, oldDecrypt, oldUnmarshal := readTokenFile, decryptTokenData, unmarshalTokenData

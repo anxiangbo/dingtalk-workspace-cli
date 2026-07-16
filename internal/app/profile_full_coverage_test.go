@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestProfileRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageProfileRemainingCoverage(t *testing.T) {
 	oldMigrate := profileEnsureProfilesMigration
 	oldLoad := profileLoadProfiles
 	oldPrevious := profileUsePrevious

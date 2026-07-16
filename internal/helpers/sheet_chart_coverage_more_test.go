@@ -8,7 +8,7 @@ import (
 
 const validChartPropertiesCoverage = `{"position":{"row":0,"col":"A"},"dimensions":{"width":100,"height":100},"chart":{"type":"line","series":[{"value":["A1:A2"]}]}}`
 
-func TestSheetChartCommandRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSheetChartCommandRemainingCoverage(t *testing.T) {
 	installScriptedCaller(t, &scriptedToolCaller{dry: true})
 	base := []string{"--node", "node", "--sheet-id", "sheet"}
 	for _, args := range [][]string{

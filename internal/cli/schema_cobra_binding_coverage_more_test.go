@@ -20,7 +20,7 @@ func requirePanicCoverage(t *testing.T, fn func()) {
 	fn()
 }
 
-func TestRuntimeCompatibilityAnnotationEdges(t *testing.T) {
+func TestCrossPlatformCoverageRuntimeCompatibilityAnnotationEdges(t *testing.T) {
 	valid := RuntimeCompatibilityEquivalence{ID: "pair", Reason: "reviewed", Reviewed: true}
 	requirePanicCoverage(t, func() { AnnotateRuntimeCompatibilityEquivalence(nil, &cobra.Command{}, valid) })
 	requirePanicCoverage(t, func() {
@@ -55,7 +55,7 @@ func TestRuntimeCompatibilityAnnotationEdges(t *testing.T) {
 	}
 }
 
-func TestBindEffectiveCommandRegistryWrapperEdges(t *testing.T) {
+func TestCrossPlatformCoverageBindEffectiveCommandRegistryWrapperEdges(t *testing.T) {
 	oldValidate := bindValidateParameterBindings
 	t.Cleanup(func() { bindValidateParameterBindings = oldValidate })
 	if _, err := BindEffectiveCommandRegistry(nil, EffectiveCommandRegistry{}); err == nil || !strings.Contains(err.Error(), "root is nil") {
@@ -71,7 +71,7 @@ func TestBindEffectiveCommandRegistryWrapperEdges(t *testing.T) {
 	}
 }
 
-func TestCommandRegistryAliasBindingRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageCommandRegistryAliasBindingRemainingEdges(t *testing.T) {
 	spec := CommandSpec{CanonicalPath: "sample.run", PrimaryCLIPath: "sample run"}
 	root := commandRegistryTestRoot("sample run", "sample group")
 	primary := exactSchemaCommand(root, "sample run")
@@ -97,7 +97,7 @@ func TestCommandRegistryAliasBindingRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestCompatibilityLeafContractDependencyAndMetadataEdges(t *testing.T) {
+func TestCrossPlatformCoverageCompatibilityLeafContractDependencyAndMetadataEdges(t *testing.T) {
 	oldContracts := loadCompatibilityFlagContracts
 	oldBindings := compatibilityParameterBindings
 	t.Cleanup(func() {
@@ -185,7 +185,7 @@ func TestCompatibilityLeafContractDependencyAndMetadataEdges(t *testing.T) {
 	}
 }
 
-func TestCompatibilityFlagContractDifferenceEdges(t *testing.T) {
+func TestCrossPlatformCoverageCompatibilityFlagContractDifferenceEdges(t *testing.T) {
 	oldContracts := loadCompatibilityFlagContracts
 	t.Cleanup(func() { loadCompatibilityFlagContracts = oldContracts })
 	primaryContracts := map[string]compatibilityFlagContract{
@@ -216,7 +216,7 @@ func TestCompatibilityFlagContractDifferenceEdges(t *testing.T) {
 	}
 }
 
-func TestCompatibilityHandlerAndArgsRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageCompatibilityHandlerAndArgsRemainingEdges(t *testing.T) {
 	if problems := compatibilityHandlerContractProblems(nil, &cobra.Command{}); len(problems) != 1 {
 		t.Fatalf("nil handler problems = %v", problems)
 	}
@@ -292,7 +292,7 @@ func TestCompatibilityHandlerAndArgsRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestCompatibilityPathAndHelperRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageCompatibilityPathAndHelperRemainingEdges(t *testing.T) {
 	if got := compatibilityJSON(func() {}); !strings.Contains(got, "0x") {
 		t.Fatalf("compatibilityJSON(func) = %q", got)
 	}

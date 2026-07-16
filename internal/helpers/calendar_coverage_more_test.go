@@ -25,7 +25,7 @@ func newRecurrenceTestCommand() *cobra.Command {
 	return cmd
 }
 
-func TestCalendarMeetingRoomHintCoverage(t *testing.T) {
+func TestCrossPlatformCoverageCalendarMeetingRoomHintCoverage(t *testing.T) {
 	for _, message := range []string{"plain", "所选组织不支持预定钉钉会议室", `{"errorCode": "400056"}`, `{"errorCode":"400056"}`} {
 		_ = isMeetingRoomDisabledError(message)
 	}
@@ -49,7 +49,7 @@ func installCalendarCaller(t *testing.T, caller *helpersCoreCaller) {
 	t.Cleanup(func() { os.Args = oldArgs })
 }
 
-func TestCalendarSearchResponseCoverage(t *testing.T) {
+func TestCrossPlatformCoverageCalendarSearchResponseCoverage(t *testing.T) {
 	caller := &helpersCoreCaller{format: "json", result: textToolResult(`{"result":{"rooms":[]}}`)}
 	installCalendarCaller(t, caller)
 	cmd := &cobra.Command{Use: "search"}
@@ -70,7 +70,7 @@ func TestCalendarSearchResponseCoverage(t *testing.T) {
 	_ = callMeetingRoomSearchResult(cmd, args, true, true, true)
 }
 
-func TestCalendarRangeAttachmentCoverage(t *testing.T) {
+func TestCrossPlatformCoverageCalendarRangeAttachmentCoverage(t *testing.T) {
 	now := time.Now().UnixMilli()
 	for _, tc := range []struct{ start, end, corrected bool }{
 		{false, false, false}, {false, true, false}, {true, false, false}, {true, true, false}, {true, true, true},
@@ -104,7 +104,7 @@ func TestCalendarRangeAttachmentCoverage(t *testing.T) {
 	attachCalendarSearchRange(map[string]any{}, nil, map[string]any{"startTime": now})
 }
 
-func TestCalendarBusyAndEventResponseCoverage(t *testing.T) {
+func TestCrossPlatformCoverageCalendarBusyAndEventResponseCoverage(t *testing.T) {
 	caller := &helpersCoreCaller{format: "json"}
 	installCalendarCaller(t, caller)
 	cmd := &cobra.Command{Use: "events"}
@@ -142,7 +142,7 @@ func TestCalendarBusyAndEventResponseCoverage(t *testing.T) {
 	}
 }
 
-func TestBuildRecurrenceCoverage(t *testing.T) {
+func TestCrossPlatformCoverageBuildRecurrenceCoverage(t *testing.T) {
 	_ = buildReminders("5,bad,0,10")
 	if recurrence, err := buildRecurrence(newRecurrenceTestCommand()); err != nil || recurrence != nil {
 		t.Fatalf("empty recurrence = %#v, %v", recurrence, err)
@@ -173,7 +173,7 @@ func TestBuildRecurrenceCoverage(t *testing.T) {
 	}
 }
 
-func TestCalendarUnknownFallbackCoverage(t *testing.T) {
+func TestCrossPlatformCoverageCalendarUnknownFallbackCoverage(t *testing.T) {
 	root := &cobra.Command{Use: "calendar"}
 	group := &cobra.Command{Use: "room", RunE: func(*cobra.Command, []string) error { return errors.New("previous") }}
 	known := &cobra.Command{Use: "search", Aliases: []string{"find"}}

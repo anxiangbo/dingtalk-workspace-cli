@@ -22,7 +22,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestPersonalEventRemainingSchemaAndSubscriptionCoverage(t *testing.T) {
+func TestCrossPlatformCoveragePersonalEventRemainingSchemaAndSubscriptionCoverage(t *testing.T) {
 	for _, args := range [][]string{
 		{"known", "--as", "app"},
 		{"not-a-real-event"},
@@ -74,7 +74,7 @@ func TestPersonalEventRemainingSchemaAndSubscriptionCoverage(t *testing.T) {
 	}
 }
 
-func TestPersonalEventRemainingConsumeCoverage(t *testing.T) {
+func TestCrossPlatformCoveragePersonalEventRemainingConsumeCoverage(t *testing.T) {
 	oldIdentity := personalResolveEventIdentity
 	oldEnsure := personalEnsureSubscription
 	oldUpsert := personalUpsertRunState
@@ -172,7 +172,7 @@ func TestPersonalEventRemainingConsumeCoverage(t *testing.T) {
 	}
 }
 
-func TestPersonalEventRemainingStatusStopAndInterruptCoverage(t *testing.T) {
+func TestCrossPlatformCoveragePersonalEventRemainingStatusStopAndInterruptCoverage(t *testing.T) {
 	oldIdentity := personalResolveEventIdentity
 	oldFindBus := personalFindBusByIdentity
 	oldQueryEntry := personalQueryEntry
@@ -296,7 +296,7 @@ func TestPersonalEventRemainingStatusStopAndInterruptCoverage(t *testing.T) {
 	}
 }
 
-func TestPersonalEventRemainingIdentityAndSourceCoverage(t *testing.T) {
+func TestCrossPlatformCoveragePersonalEventRemainingIdentityAndSourceCoverage(t *testing.T) {
 	oldAux := personalResolveAuxiliaryAccessToken
 	oldLoad := personalLoadTokenData
 	oldClientID := personalClientID

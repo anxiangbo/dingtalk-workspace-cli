@@ -14,7 +14,7 @@ import (
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/transport"
 )
 
-func TestRecoveryModelEdges(t *testing.T) {
+func TestCrossPlatformCoverageRecoveryModelEdges(t *testing.T) {
 	typedCases := []struct {
 		name string
 		err  error
@@ -146,7 +146,7 @@ func TestRecoveryModelEdges(t *testing.T) {
 	}
 }
 
-func TestPlannerRuleAndSearchEdges(t *testing.T) {
+func TestCrossPlatformCoveragePlannerRuleAndSearchEdges(t *testing.T) {
 	rules := []struct {
 		name     string
 		rc       RecoveryContext
@@ -286,7 +286,7 @@ func (f fakeRecoveryInvoker) CallToolDirect(context.Context, string, string, map
 	return f.result, f.err
 }
 
-func TestExecutorAndProbeEdges(t *testing.T) {
+func TestCrossPlatformCoverageExecutorAndProbeEdges(t *testing.T) {
 	last := LastError{
 		EventID: "evt-1",
 		Context: RecoveryContext{
@@ -408,7 +408,7 @@ func TestExecutorAndProbeEdges(t *testing.T) {
 	}
 }
 
-func TestStoreRuntimeAndPruningEdges(t *testing.T) {
+func TestCrossPlatformCoverageStoreRuntimeAndPruningEdges(t *testing.T) {
 	ResetRuntimeState()
 	if LatestCapture() != nil {
 		t.Fatal("latest capture should start nil")
@@ -578,7 +578,7 @@ func TestStoreRuntimeAndPruningEdges(t *testing.T) {
 	}
 }
 
-func TestStoreMarshalErrors(t *testing.T) {
+func TestCrossPlatformCoverageStoreMarshalErrors(t *testing.T) {
 	store := NewStore(t.TempDir())
 	if err := store.writeJSON(filepath.Join(store.dir(), "bad.json"), map[string]any{"bad": func() {}}); err == nil {
 		t.Fatal("expected writeJSON marshal error")
@@ -594,7 +594,7 @@ func TestStoreMarshalErrors(t *testing.T) {
 	}
 }
 
-func TestLoadErrorByEventFallback(t *testing.T) {
+func TestCrossPlatformCoverageLoadErrorByEventFallback(t *testing.T) {
 	store := NewStore(t.TempDir())
 	last := LastError{EventID: "fallback", RecordedAt: time.Now().UTC().Format(time.RFC3339Nano)}
 	data, err := json.Marshal(last)
@@ -627,7 +627,7 @@ func TestLoadErrorByEventFallback(t *testing.T) {
 	}
 }
 
-func TestStoreSystemCallEdges(t *testing.T) {
+func TestCrossPlatformCoverageStoreSystemCallEdges(t *testing.T) {
 	oldReadFile := recoveryReadFile
 	oldWriteFile := recoveryWriteFile
 	oldOpen := recoveryOpen

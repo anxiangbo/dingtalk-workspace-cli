@@ -59,7 +59,7 @@ func appRPCServer(t *testing.T, initOK, listOK bool) *httptest.Server {
 	}))
 }
 
-func TestPluginAuthCoverage(t *testing.T) {
+func TestCrossPlatformCoveragePluginAuthCoverage(t *testing.T) {
 	registerPluginAuthFromHeaders(mcptypes.ServerDescriptor{Key: "fallback", Endpoint: "%", AuthHeaders: map[string]string{"Authorization": "token"}})
 	registerPluginAuthFromHeaders(mcptypes.ServerDescriptor{Key: "server", Endpoint: "https://x.test", CLI: mcptypes.CLIOverlay{ID: "cli"}, AuthHeaders: map[string]string{"Authorization": "Bearer token", "X": "Y"}})
 	registerPluginAuthFromHeaders(mcptypes.ServerDescriptor{Key: "none"})
@@ -68,7 +68,7 @@ func TestPluginAuthCoverage(t *testing.T) {
 	}
 }
 
-func TestRawAPIAndTokenCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRawAPIAndTokenCoverage(t *testing.T) {
 	oldProvider := newAccessTokenProvider
 	oldManager := newLegacyTokenManager
 	t.Cleanup(func() {
@@ -178,7 +178,7 @@ func TestRawAPIAndTokenCoverage(t *testing.T) {
 	}
 }
 
-func TestRootUtilityAndTimingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRootUtilityAndTimingCoverage(t *testing.T) {
 	_ = resolveVerbosity(nil)
 	for _, flags := range []struct {
 		debug   bool

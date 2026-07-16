@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestAPIAndTimingRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageAPIAndTimingRemainingCoverage(t *testing.T) {
 	oldProvider := newAppTokenProvider
 	oldClientID, oldClientSecret := apiClientID, apiClientSecret
 	oldMarshal, oldMkdir := timingMarshalIndent, timingMkdirAll
@@ -114,7 +114,7 @@ func TestAPIAndTimingRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestDirectRuntimeRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDirectRuntimeRemainingCoverage(t *testing.T) {
 	oldEdition := edition.Get()
 	t.Cleanup(func() {
 		edition.Override(oldEdition)
@@ -214,7 +214,7 @@ func containsText(value, substring string) bool {
 	return false
 }
 
-func TestEmbeddedSkillAndTinyCommandsRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageEmbeddedSkillAndTinyCommandsRemainingCoverage(t *testing.T) {
 	oldStat, oldTemp, oldRemove := embeddedSkillStat, embeddedSkillMkdirTemp, embeddedSkillRemoveAll
 	oldWalk, oldRead := embeddedSkillWalkDir, embeddedSkillReadFile
 	oldMkdir, oldWrite := embeddedSkillMkdirAll, embeddedSkillWriteFile

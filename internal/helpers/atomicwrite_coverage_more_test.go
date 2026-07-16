@@ -26,7 +26,7 @@ type atomicErrorReader struct{}
 
 func (atomicErrorReader) Read([]byte) (int, error) { return 0, errors.New("read") }
 
-func TestAtomicWriteRemainingFailures(t *testing.T) {
+func TestCrossPlatformCoverageAtomicWriteRemainingFailures(t *testing.T) {
 	origMkdir, origCreate := atomicMkdirAll, atomicCreateTemp
 	origRemove, origRename := atomicRemove, atomicRename
 	t.Cleanup(func() {

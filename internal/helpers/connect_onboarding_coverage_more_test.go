@@ -32,7 +32,7 @@ func (r *onboardingCoverageRunner) Run(context.Context, executor.Invocation) (ex
 	return executor.Result{}, nil
 }
 
-func TestConnectOnboardingFailureCoverage(t *testing.T) {
+func TestCrossPlatformCoverageConnectOnboardingFailureCoverage(t *testing.T) {
 	boom := errors.New("onboarding failure")
 	originalStat := connectStdinStat
 	originalSleep := connectOnboardingSleep

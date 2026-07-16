@@ -50,7 +50,7 @@ func findCoverageSubcommand(t *testing.T, root *cobra.Command, name string) *cob
 	return nil
 }
 
-func TestFilterViewFetchAndHandlerRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageFilterViewFetchAndHandlerRemainingCoverage(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "sheet"}
 	t.Cleanup(func() { os.Args = oldArgs })
@@ -121,7 +121,7 @@ func TestFilterViewFetchAndHandlerRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestFilterCommandOptionalArgumentRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageFilterCommandOptionalArgumentRemainingCoverage(t *testing.T) {
 	installScriptedCaller(t, &scriptedToolCaller{dry: true})
 	common := []string{"--node", "node", "--sheet-id", "sheet"}
 	if err := executeFilterCoverage(t, newFilterCmd(), append([]string{"create"}, append(common, "--range", "A1:B2", "--criteria", "[]")...)...); err != nil {

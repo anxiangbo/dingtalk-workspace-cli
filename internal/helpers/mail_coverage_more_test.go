@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestMailDraftAttachmentValidationCoverage(t *testing.T) {
+func TestCrossPlatformCoverageMailDraftAttachmentValidationCoverage(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "mail"}
 	t.Cleanup(func() { os.Args = oldArgs })
@@ -43,7 +43,7 @@ func TestMailDraftAttachmentValidationCoverage(t *testing.T) {
 	}
 }
 
-func TestMailDraftAttachmentWorkflowCoverage(t *testing.T) {
+func TestCrossPlatformCoverageMailDraftAttachmentWorkflowCoverage(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "mail"}
 	t.Cleanup(func() { os.Args = oldArgs })
@@ -93,7 +93,7 @@ func TestMailDraftAttachmentWorkflowCoverage(t *testing.T) {
 	_, _ = runMailDraftWithAttachment("create_draft", map[string]any{"from": "user@example.com"}, "", "body", []string{attachment}, nil)
 }
 
-func TestMailParsingAndValidationCoverage(t *testing.T) {
+func TestCrossPlatformCoverageMailParsingAndValidationCoverage(t *testing.T) {
 	for _, raw := range []string{`{`, `{}`, `{"messageId":"id"}`, `{"result":{"message":{"id":"nested"}}}`} {
 		_, _ = parseMailDraftId(raw)
 	}

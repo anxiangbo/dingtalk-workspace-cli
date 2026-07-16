@@ -35,7 +35,7 @@ func executeDriveEdge(t *testing.T, caller *scriptedToolCaller, args ...string) 
 	return root.Execute()
 }
 
-func TestParseDriveUploadInfoRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageParseDriveUploadInfoRemainingCoverage(t *testing.T) {
 	cases := []struct {
 		name string
 		json string
@@ -60,7 +60,7 @@ func TestParseDriveUploadInfoRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestDriveUploadValidationAndDryRunCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDriveUploadValidationAndDryRunCoverage(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "fixture.txt")
 	if err := os.WriteFile(file, []byte("fixture"), 0o600); err != nil {
 		t.Fatal(err)
@@ -88,7 +88,7 @@ func TestDriveUploadValidationAndDryRunCoverage(t *testing.T) {
 	}
 }
 
-func TestDriveUploadTransportCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDriveUploadTransportCoverage(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "fixture.txt")
 	if err := os.WriteFile(file, []byte("fixture"), 0o600); err != nil {
 		t.Fatal(err)
@@ -154,7 +154,7 @@ func TestDriveUploadTransportCoverage(t *testing.T) {
 	})
 }
 
-func TestDriveCommandRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageDriveCommandRemainingEdges(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "fixture.txt")
 	_ = os.WriteFile(file, []byte("fixture"), 0o600)
 	cases := [][]string{
@@ -175,7 +175,7 @@ func TestDriveCommandRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestDriveDownloadDirectoryCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDriveDownloadDirectoryCoverage(t *testing.T) {
 	oldGet := httpGetFile
 	httpGetFile = func(context.Context, string, map[string]string, string) error { return nil }
 	t.Cleanup(func() { httpGetFile = oldGet })
@@ -190,7 +190,7 @@ func TestDriveDownloadDirectoryCoverage(t *testing.T) {
 	}
 }
 
-func TestDriveConfirmationCancellationCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDriveConfirmationCancellationCoverage(t *testing.T) {
 	oldStdin := os.Stdin
 	t.Cleanup(func() { os.Stdin = oldStdin })
 	for _, args := range [][]string{
@@ -214,7 +214,7 @@ func TestDriveConfirmationCancellationCoverage(t *testing.T) {
 	}
 }
 
-func TestDriveInfoDocFallbackCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDriveInfoDocFallbackCoverage(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "drive", "info"}
 	t.Cleanup(func() { os.Args = oldArgs })
@@ -250,7 +250,7 @@ func TestDriveInfoDocFallbackCoverage(t *testing.T) {
 	}
 }
 
-func TestDriveSmallHelperEdges(t *testing.T) {
+func TestCrossPlatformCoverageDriveSmallHelperEdges(t *testing.T) {
 	for _, ext := range []string{"adoc", "AXLS", "amind", "adraw", "pdf"} {
 		_ = isDingTalkDocExtension(ext)
 	}

@@ -27,7 +27,7 @@ func (w *failNthWriter) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 
-func TestOutputJSONFailureInjection(t *testing.T) {
+func TestCrossPlatformCoverageOutputJSONFailureInjection(t *testing.T) {
 	origMarshal := marshalJSON
 	origUnmarshal := unmarshalJSON
 	origOutput := marshalJSONOutput
@@ -93,7 +93,7 @@ func TestOutputJSONFailureInjection(t *testing.T) {
 	}
 }
 
-func TestOutputFlagEdges(t *testing.T) {
+func TestCrossPlatformCoverageOutputFlagEdges(t *testing.T) {
 	if _, ok := formatFromFlagSet(nil, FormatRaw); ok {
 		t.Fatal("nil flag set should not resolve")
 	}
@@ -149,7 +149,7 @@ func TestOutputFlagEdges(t *testing.T) {
 	}
 }
 
-func TestOutputWriterFailures(t *testing.T) {
+func TestCrossPlatformCoverageOutputWriterFailures(t *testing.T) {
 	filtered := filterSlice([]any{"scalar", map[string]any{"keep": 1}}, map[string]bool{"keep": true})
 	if len(filtered) != 2 || filtered[0] != "scalar" {
 		t.Fatalf("filterSlice = %#v", filtered)
@@ -192,7 +192,7 @@ func TestOutputWriterFailures(t *testing.T) {
 	}
 }
 
-func TestCSVFailureAndShapeEdges(t *testing.T) {
+func TestCrossPlatformCoverageCSVFailureAndShapeEdges(t *testing.T) {
 	origWrite := writeCSVRecord
 	t.Cleanup(func() { writeCSVRecord = origWrite })
 
@@ -244,7 +244,7 @@ func TestCSVFailureAndShapeEdges(t *testing.T) {
 	}
 }
 
-func TestNDJSONFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageNDJSONFailureEdges(t *testing.T) {
 	origEncode := encodeNDJSON
 	t.Cleanup(func() { encodeNDJSON = origEncode })
 	encodeNDJSON = func(*json.Encoder, any) error { return errOutputInjected }
@@ -264,7 +264,7 @@ func TestNDJSONFailureEdges(t *testing.T) {
 	}
 }
 
-func TestPrettyAndFormattingEdges(t *testing.T) {
+func TestCrossPlatformCoveragePrettyAndFormattingEdges(t *testing.T) {
 	forceNoColor(t)
 	for _, payload := range []map[string]any{
 		{"kind": "schema", "degraded": true, "reason": "offline", "hint": "retry"},
@@ -342,7 +342,7 @@ func TestPrettyAndFormattingEdges(t *testing.T) {
 	}
 }
 
-func TestExtractRowsNestedMetadataCollision(t *testing.T) {
+func TestCrossPlatformCoverageExtractRowsNestedMetadataCollision(t *testing.T) {
 	payload := map[string]any{
 		"result": map[string]any{
 			"items": []any{map[string]any{"id": 1}},

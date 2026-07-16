@@ -54,7 +54,7 @@ func writeKnowledgeFile(t *testing.T, dir, name string) {
 	}
 }
 
-func TestBuildConnectPlanQoderAndOpencodeCoverage(t *testing.T) {
+func TestCrossPlatformCoverageBuildConnectPlanQoderAndOpencodeCoverage(t *testing.T) {
 	for _, ch := range []string{"qoder", "qoderwork", "opencode", "gemini"} {
 		if got := buildConnectPlan(ch, "id", "robot")["method"]; got == "unknown" {
 			t.Fatalf("buildConnectPlan(%q) = unknown", ch)
@@ -62,7 +62,7 @@ func TestBuildConnectPlanQoderAndOpencodeCoverage(t *testing.T) {
 	}
 }
 
-func TestLaunchConnectorExternalAndGuidanceCoverage(t *testing.T) {
+func TestCrossPlatformCoverageLaunchConnectorExternalAndGuidanceCoverage(t *testing.T) {
 	cmd, out := connectCoverageCommand(t)
 	binDir := t.TempDir()
 	writeShellExecutable(t, binDir, "connector-ok", "test \"$CID:$SEC:$DWS_AGENT_CHANNEL\" = \"id:secret:hermes\"\n")
@@ -85,7 +85,7 @@ func TestLaunchConnectorExternalAndGuidanceCoverage(t *testing.T) {
 	}
 }
 
-func TestLaunchConnectorValidationAndKnowledgeCoverage(t *testing.T) {
+func TestCrossPlatformCoverageLaunchConnectorValidationAndKnowledgeCoverage(t *testing.T) {
 	t.Setenv("DWS_CONNECT_CMD", "")
 	t.Setenv("DWS_AGENT_CMD", "sh -c printf\\ ok")
 	cmd, _ := connectCoverageCommand(t)
@@ -119,7 +119,7 @@ func TestLaunchConnectorValidationAndKnowledgeCoverage(t *testing.T) {
 	}
 }
 
-func TestLaunchConnectorFullStreamAssemblyCoverage(t *testing.T) {
+func TestCrossPlatformCoverageLaunchConnectorFullStreamAssemblyCoverage(t *testing.T) {
 	t.Setenv("DWS_CONNECT_CMD", "")
 	t.Setenv("DWS_AGENT_CMD", "sh -c printf\\ ok")
 	t.Setenv("DWS_CONFIG_DIR", t.TempDir())
@@ -200,7 +200,7 @@ func TestLaunchConnectorFullStreamAssemblyCoverage(t *testing.T) {
 	}
 }
 
-func TestConnectAgentOptionRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageConnectAgentOptionRemainingCoverage(t *testing.T) {
 	clearChannelEnv(t)
 	t.Setenv("DWS_REPLY_CARD", "false")
 	t.Setenv("DWS_AGENT_MODEL", "model")
@@ -269,7 +269,7 @@ func TestConnectAgentOptionRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestConnectAgentOptionsPayloadRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageConnectAgentOptionsPayloadRemainingCoverage(t *testing.T) {
 	cases := []struct {
 		channel string
 		memory  bool
@@ -287,7 +287,7 @@ func TestConnectAgentOptionsPayloadRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestDevAppConnectCommandRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDevAppConnectCommandRemainingCoverage(t *testing.T) {
 	origInteractive := devAppConnectStdinInteractive
 	origOnboarding := devAppRunConnectOnboarding
 	origDaemon := devAppStartConnectDaemon
@@ -364,7 +364,7 @@ func TestDevAppConnectCommandRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestDevAppFetchCredentialsErrorCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDevAppFetchCredentialsErrorCoverage(t *testing.T) {
 	cmd, _ := connectCoverageCommand(t)
 	want := errors.New("runner failure")
 	if _, _, err := devAppFetchCredentials(connectCoverageRunner{err: want}, cmd, "app"); !errors.Is(err, want) {

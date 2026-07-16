@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func TestMetadataMarshalAndProjectionEdges(t *testing.T) {
+func TestCrossPlatformCoverageMetadataMarshalAndProjectionEdges(t *testing.T) {
 	bad := map[string]FieldProvenance{"bad": {Value: make(chan int)}}
 	if _, err := json.Marshal(ProductMetadata{FieldProvenance: bad}); err == nil {
 		t.Fatal("product metadata with unsupported provenance value succeeded")
@@ -46,7 +46,7 @@ func TestMetadataMarshalAndProjectionEdges(t *testing.T) {
 	}
 }
 
-func TestMetadataCandidateAndMergeEdges(t *testing.T) {
+func TestCrossPlatformCoverageMetadataCandidateAndMergeEdges(t *testing.T) {
 	seedToolFieldCandidates(nil)
 	effectiveSelectionScalarRank("", true, selectionRankDefault)
 	effectiveSelectionListRank(nil, true, selectionRankDefault)
@@ -117,7 +117,7 @@ func TestMetadataCandidateAndMergeEdges(t *testing.T) {
 	}
 }
 
-func TestMetadataConflictAndProvenanceEdges(t *testing.T) {
+func TestCrossPlatformCoverageMetadataConflictAndProvenanceEdges(t *testing.T) {
 	conflict := map[string][]FieldCandidateProvenance{
 		"field": {
 			{Value: "b", Source: "same", Precedence: selectionPrecedenceSkill},
@@ -262,7 +262,7 @@ func TestMetadataConflictAndProvenanceEdges(t *testing.T) {
 	}
 }
 
-func TestMetadataSourceAndPathEdges(t *testing.T) {
+func TestCrossPlatformCoverageMetadataSourceAndPathEdges(t *testing.T) {
 	if _, _, err := generateFromSources(Options{ProductsDir: "definitely-missing-agentmetadata-products"}); err == nil {
 		t.Fatal("default-root missing products succeeded")
 	}
@@ -341,7 +341,7 @@ func TestMetadataSourceAndPathEdges(t *testing.T) {
 	}
 }
 
-func TestMetadataListAndDispositionEdges(t *testing.T) {
+func TestCrossPlatformCoverageMetadataListAndDispositionEdges(t *testing.T) {
 	var values []string
 	present := false
 	rank := 0
@@ -428,7 +428,7 @@ func TestMetadataListAndDispositionEdges(t *testing.T) {
 	}
 }
 
-func TestMetadataParserConflictEdges(t *testing.T) {
+func TestCrossPlatformCoverageMetadataParserConflictEdges(t *testing.T) {
 	out := &File{Products: map[string]ProductMetadata{}, Tools: map[string]ToolMetadata{}}
 	parseProductRouting(out, "## 意图判断决策树\n用户提到“empty” → `dws`", "source")
 
@@ -479,7 +479,7 @@ func TestMetadataParserConflictEdges(t *testing.T) {
 	}
 }
 
-func TestGenerateFromSourcesFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageGenerateFromSourcesFailureEdges(t *testing.T) {
 	base := func(t *testing.T) (string, Options) {
 		t.Helper()
 		root := t.TempDir()

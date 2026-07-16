@@ -63,7 +63,7 @@ func (i upgradeFileInfo) ModTime() time.Time { return time.Time{} }
 func (i upgradeFileInfo) IsDir() bool        { return false }
 func (i upgradeFileInfo) Sys() any           { return nil }
 
-func TestUpgradeRollbackAndCommandBranchesCoverage(t *testing.T) {
+func TestCrossPlatformCoverageUpgradeRollbackAndCommandBranchesCoverage(t *testing.T) {
 	oldClient, oldRollback := newUpgradeReleaseClient, newUpgradeRollback
 	oldEdition := edition.Get()
 	oldStdin := os.Stdin
@@ -150,7 +150,7 @@ func TestUpgradeRollbackAndCommandBranchesCoverage(t *testing.T) {
 	}
 }
 
-func TestRunUpgradeAllStagesCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRunUpgradeAllStagesCoverage(t *testing.T) {
 	oldClient, oldRollback := newUpgradeReleaseClient, newUpgradeRollback
 	oldEnsure, oldCleanup := ensureUpgradeDirs, cleanupUpgradeStale
 	oldNeeds, oldBinary, oldSkills, oldChecksums := upgradeNeedsUpgrade, findUpgradeBinary, findUpgradeSkills, findUpgradeChecksums
@@ -355,7 +355,7 @@ func TestRunUpgradeAllStagesCoverage(t *testing.T) {
 	}
 }
 
-func TestUpgradeBinaryHelpersFailureCoverage(t *testing.T) {
+func TestCrossPlatformCoverageUpgradeBinaryHelpersFailureCoverage(t *testing.T) {
 	oldStat, oldChmod := upgradeStat, upgradeChmod
 	oldTry, oldRepair := upgradeTryExecVersion, upgradeRepairDarwin
 	oldGOOS := upgradeRuntimeGOOS

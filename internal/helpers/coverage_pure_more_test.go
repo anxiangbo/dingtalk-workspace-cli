@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestPureScalarAndCommandHelpersCoverage(t *testing.T) {
+func TestCrossPlatformCoveragePureScalarAndCommandHelpersCoverage(t *testing.T) {
 	previousDeps := deps
 	InitDeps(&productExampleCaller{})
 	deps.Out.w = io.Discard
@@ -77,7 +77,7 @@ func TestPureScalarAndCommandHelpersCoverage(t *testing.T) {
 	}
 }
 
-func TestChartMailAndSheetPureHelpersCoverage(t *testing.T) {
+func TestCrossPlatformCoverageChartMailAndSheetPureHelpersCoverage(t *testing.T) {
 	valid := map[string]any{
 		"position":   map[string]any{"row": float64(1), "col": float64(1)},
 		"dimensions": map[string]any{"width": float64(10), "height": float64(10)},
@@ -234,7 +234,7 @@ func TestChartMailAndSheetPureHelpersCoverage(t *testing.T) {
 	_, _ = findFilterViewByID(views, "missing")
 }
 
-func TestSheetResponseCleanupCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSheetResponseCleanupCoverage(t *testing.T) {
 	previous := deps
 	caller := &helpersCoreCaller{format: "json"}
 	InitDeps(caller)
@@ -260,7 +260,7 @@ func TestSheetResponseCleanupCoverage(t *testing.T) {
 	_ = callMCPToolSheetInfo(nil)
 }
 
-func TestSmallHandlerAndFormatterCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSmallHandlerAndFormatterCoverage(t *testing.T) {
 	if (Manifest{Vendor: " vendor ", Name: " name "}).FullName() != "vendor/name" {
 		t.Fatal("manifest full name")
 	}

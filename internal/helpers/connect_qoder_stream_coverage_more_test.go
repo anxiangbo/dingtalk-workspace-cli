@@ -40,7 +40,7 @@ func installImmediateQoderAfter(t *testing.T) {
 	t.Cleanup(func() { helperAfter = orig })
 }
 
-func TestQoderForwardStreamRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageQoderForwardStreamRemainingEdges(t *testing.T) {
 	installImmediateQoderAfter(t)
 	boom := errors.New("write failed")
 	f := activeQoderForwarder(qoderErrorWriteCloser{err: boom})
@@ -89,7 +89,7 @@ func TestQoderForwardStreamRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestQoderEnsureLockedRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageQoderEnsureLockedRemainingEdges(t *testing.T) {
 	origExec := qoderExecCommand
 	origAbs := qoderAbsPath
 	t.Cleanup(func() {
@@ -149,7 +149,7 @@ func TestQoderEnsureLockedRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestQoderInitializeAndIOEdges(t *testing.T) {
+func TestCrossPlatformCoverageQoderInitializeAndIOEdges(t *testing.T) {
 	installImmediateQoderAfter(t)
 	origUUID := qoderUUIDString
 	qoderUUIDString = func() string { return "fixed" }
@@ -226,7 +226,7 @@ func TestQoderInitializeAndIOEdges(t *testing.T) {
 	}
 }
 
-func TestQoderControlAndParseRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageQoderControlAndParseRemainingEdges(t *testing.T) {
 	f := &qoderStreamForwarder{stdin: &qoderTestWriteCloser{}}
 	for _, line := range []string{
 		`{`, `{"type":"other"}`, `{"type":"control_request"}`,
@@ -273,7 +273,7 @@ func TestQoderControlAndParseRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestQoderCloseAndScanEdges(t *testing.T) {
+func TestCrossPlatformCoverageQoderCloseAndScanEdges(t *testing.T) {
 	installImmediateQoderAfter(t)
 	closer := &qoderCloseRecorder{}
 	f := &qoderStreamForwarder{stdin: closer, done: make(chan error)}

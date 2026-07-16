@@ -19,7 +19,7 @@ import (
 	"testing"
 )
 
-func TestEndpointPortableCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoverageEndpointPortableCoverageEdges(t *testing.T) {
 	if got := MaxUnixSocketPath(); got != 103 && got != 107 {
 		t.Fatalf("MaxUnixSocketPath() = %d", got)
 	}

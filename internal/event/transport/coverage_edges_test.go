@@ -13,7 +13,7 @@ import (
 	"testing"
 )
 
-func TestFrameCodecCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoverageFrameCodecCoverageEdges(t *testing.T) {
 	if _, err := NewReader(strings.NewReader("partial")).Read(); !errors.Is(err, io.EOF) {
 		t.Fatalf("partial frame error = %v, want EOF", err)
 	}
@@ -25,13 +25,18 @@ func TestFrameCodecCoverageEdges(t *testing.T) {
 	}
 }
 
-func TestUnixListenErrorCoverage(t *testing.T) {
+func TestCrossPlatformCoverageUnixListenErrorCoverage(t *testing.T) {
 	oldStat, oldRemove, oldListen, oldChmod := statSocket, removeSocket, listenUnix, chmodSocket
 	t.Cleanup(func() {
 		statSocket, removeSocket, listenUnix, chmodSocket = oldStat, oldRemove, oldListen, oldChmod
 	})
 	wantErr := errors.New("synthetic failure")
-	path := filepath.Join(t.TempDir(), "bus.sock")
+	tempDir, err := os.MkdirTemp("", "dws-et-")
+	if err != nil {
+		t.Fatalf("create short socket temp dir: %v", err)
+	}
+	t.Cleanup(func() { _ = os.RemoveAll(tempDir) })
+	path := filepath.Join(tempDir, "bus.sock")
 	if _, err := listen(strings.Repeat("x", 512)); err == nil {
 		t.Fatal("overlong socket path should fail")
 	}

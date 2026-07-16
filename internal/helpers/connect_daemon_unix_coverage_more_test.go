@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func TestDaemonUnixStatusAndStopEdges(t *testing.T) {
+func TestCrossPlatformCoverageDaemonUnixStatusAndStopEdges(t *testing.T) {
 	t.Run("stale supervisor stops orphan", func(t *testing.T) {
 		preserveDaemonHooks(t)
 		connectDaemonDirOverride = t.TempDir()

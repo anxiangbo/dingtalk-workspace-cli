@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
-func TestRuntimeSchemaLoaderAndAnnotationEdges(t *testing.T) {
+func TestCrossPlatformCoverageRuntimeSchemaLoaderAndAnnotationEdges(t *testing.T) {
 	originalJSON := embeddedMCPMetadataJSON
 	t.Cleanup(func() { embeddedMCPMetadataJSON = originalJSON })
 	embeddedMCPMetadataJSON = []byte("{")
@@ -45,7 +45,7 @@ func TestRuntimeSchemaLoaderAndAnnotationEdges(t *testing.T) {
 	}
 }
 
-func TestCollectRuntimeSchemaEntriesErrorsAndOrdering(t *testing.T) {
+func TestCrossPlatformCoverageCollectRuntimeSchemaEntriesErrorsAndOrdering(t *testing.T) {
 	originalValidate := validateReviewedParameterBindings
 	originalRegistry := loadReviewedCommandRegistry
 	originalManual := loadReviewedManualSchemaHints
@@ -89,7 +89,7 @@ func TestCollectRuntimeSchemaEntriesErrorsAndOrdering(t *testing.T) {
 	}
 }
 
-func TestRuntimeSchemaMetadataLookupEdges(t *testing.T) {
+func TestCrossPlatformCoverageRuntimeSchemaMetadataLookupEdges(t *testing.T) {
 	originalHints := defaultSchemaHintRegistry
 	t.Cleanup(func() { defaultSchemaHintRegistry = originalHints })
 	defaultSchemaHintRegistry = newSchemaHintRegistry()
@@ -142,7 +142,7 @@ func TestRuntimeSchemaMetadataLookupEdges(t *testing.T) {
 	}
 }
 
-func TestRuntimeSchemaCandidateAndProvenanceEdges(t *testing.T) {
+func TestCrossPlatformCoverageRuntimeSchemaCandidateAndProvenanceEdges(t *testing.T) {
 	left := runtimeSchemaStringCandidateAtPriority("same", true, "same", 1, "z")
 	right := runtimeSchemaStringCandidateAtPriority("same", true, "same", 1, "a")
 	winner, err := resolveRuntimeSchemaCandidate("ordering", left, right)
@@ -180,7 +180,7 @@ func TestRuntimeSchemaCandidateAndProvenanceEdges(t *testing.T) {
 	}
 }
 
-func TestRuntimeCommandParameterErrorEdges(t *testing.T) {
+func TestCrossPlatformCoverageRuntimeCommandParameterErrorEdges(t *testing.T) {
 	cmd := &cobra.Command{Use: "run"}
 	cmd.Flags().String("value", "", "value")
 	flag := cmd.Flags().Lookup("value")
@@ -269,7 +269,7 @@ func TestRuntimeCommandParameterErrorEdges(t *testing.T) {
 	}
 }
 
-func TestRuntimeSchemaPureHelperEdges(t *testing.T) {
+func TestCrossPlatformCoverageRuntimeSchemaPureHelperEdges(t *testing.T) {
 	if runtimeCommandFlag(nil, "x") != nil || runtimeCommandFlag(&cobra.Command{Use: "run"}, " ") != nil {
 		t.Fatal("invalid command flag lookup should be nil")
 	}
@@ -323,7 +323,7 @@ func TestRuntimeSchemaPureHelperEdges(t *testing.T) {
 	}
 }
 
-func TestSchemaCompactProjectionEdges(t *testing.T) {
+func TestCrossPlatformCoverageSchemaCompactProjectionEdges(t *testing.T) {
 	if stripSchemaPayloadCompact(nil) != nil {
 		t.Fatal("nil compact payload should stay nil")
 	}

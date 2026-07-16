@@ -20,7 +20,7 @@ type roundTripFunc func(*http.Request) (*http.Response, error)
 
 func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) { return f(req) }
 
-func TestDefaultFileHTTPTransfersCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDefaultFileHTTPTransfersCoverage(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "file.txt")
 	if err := os.WriteFile(file, []byte("payload"), 0o600); err != nil {
 		t.Fatal(err)
@@ -73,7 +73,7 @@ func TestDefaultFileHTTPTransfersCoverage(t *testing.T) {
 	SetHTTPGetFile(nil)
 }
 
-func TestMailHTTPTransfersCoverage(t *testing.T) {
+func TestCrossPlatformCoverageMailHTTPTransfersCoverage(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "attachment.bin")
 	if err := os.WriteFile(file, []byte("mail"), 0o600); err != nil {
 		t.Fatal(err)
@@ -117,7 +117,7 @@ func TestMailHTTPTransfersCoverage(t *testing.T) {
 	}
 }
 
-func TestChatMediaHTTPAndDocVersionsCoverage(t *testing.T) {
+func TestCrossPlatformCoverageChatMediaHTTPAndDocVersionsCoverage(t *testing.T) {
 	previousTransport := http.DefaultTransport
 	mode := "success"
 	var requestQuery url.Values
@@ -214,7 +214,7 @@ func TestChatMediaHTTPAndDocVersionsCoverage(t *testing.T) {
 
 func jsonNumber(value string) json.Number { return json.Number(value) }
 
-func TestRunDocReadJsonMLCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRunDocReadJsonMLCoverage(t *testing.T) {
 	previous := deps
 	t.Cleanup(func() { deps = previous })
 	caller := &helpersCoreCaller{format: "json"}

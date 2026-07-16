@@ -24,7 +24,7 @@ func recoveryCoverageRun(cmdArgs ...string) (string, error) {
 	return out.String(), err
 }
 
-func TestRecoveryCommandRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRecoveryCommandRemainingCoverage(t *testing.T) {
 	oldSavePlan, oldSaveAnalysis := recoverySavePlan, recoverySaveAnalysis
 	t.Cleanup(func() {
 		recoverySavePlan, recoverySaveAnalysis = oldSavePlan, oldSaveAnalysis
@@ -114,7 +114,7 @@ func TestRecoveryCommandRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestRecoveryExecutionAndRuntimeRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRecoveryExecutionAndRuntimeRemainingCoverage(t *testing.T) {
 	t.Setenv("DINGTALK_DEVDOC_MCP_URL", "http://127.0.0.1:1")
 	path := filepath.Join(t.TempDir(), "execution.json")
 	if err := os.WriteFile(path, []byte(`{"attempts":{}}`), 0o600); err != nil {

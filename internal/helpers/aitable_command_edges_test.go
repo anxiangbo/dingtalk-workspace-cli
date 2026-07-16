@@ -63,7 +63,7 @@ func runAitableCoverageCommand(t *testing.T, caller edition.ToolCaller, args ...
 	return root.ExecuteContext(context.Background())
 }
 
-func TestAitableRetryWrappersExhaustAndRecover(t *testing.T) {
+func TestCrossPlatformCoverageAitableRetryWrappersExhaustAndRecover(t *testing.T) {
 	oldDeps, oldSleep := deps, helperSleep
 	t.Cleanup(func() { deps, helperSleep = oldDeps, oldSleep })
 	helperSleep = func(time.Duration) {}
@@ -88,7 +88,7 @@ func TestAitableRetryWrappersExhaustAndRecover(t *testing.T) {
 	}
 }
 
-func TestAitableCommandValidationEdges(t *testing.T) {
+func TestCrossPlatformCoverageAitableCommandValidationEdges(t *testing.T) {
 	oldDeps, oldArgs, oldStdin, oldSleep := deps, os.Args, os.Stdin, helperSleep
 	t.Cleanup(func() {
 		deps, os.Args, os.Stdin, helperSleep = oldDeps, oldArgs, oldStdin, oldSleep
@@ -189,7 +189,7 @@ func TestAitableCommandValidationEdges(t *testing.T) {
 	_ = runAitableCoverageCommand(t, caller, formGet...)
 }
 
-func TestAitableViewCommandEdges(t *testing.T) {
+func TestCrossPlatformCoverageAitableViewCommandEdges(t *testing.T) {
 	oldDeps, oldArgs, oldSleep := deps, os.Args, helperSleep
 	t.Cleanup(func() { deps, os.Args, helperSleep = oldDeps, oldArgs, oldSleep })
 	helperSleep = func(time.Duration) {}
@@ -263,7 +263,7 @@ func TestAitableViewCommandEdges(t *testing.T) {
 	_ = runAitableCoverageCommand(t, &aitableCommandCoverageCaller{err: fmt.Errorf("transport")}, with([]string{"view", "update", "card"}, "--no-cover")...)
 }
 
-func TestAitableDeleteCancellationEdges(t *testing.T) {
+func TestCrossPlatformCoverageAitableDeleteCancellationEdges(t *testing.T) {
 	oldDeps, oldArgs, oldStdin := deps, os.Args, os.Stdin
 	t.Cleanup(func() { deps, os.Args, os.Stdin = oldDeps, oldArgs, oldStdin })
 	os.Args = []string{"dws", "aitable"}

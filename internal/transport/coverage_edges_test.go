@@ -64,7 +64,7 @@ func edgeClient(fn roundTripFunc) *Client {
 	return c
 }
 
-func TestCallErrorAndRedirectEdges(t *testing.T) {
+func TestCrossPlatformCoverageCallErrorAndRedirectEdges(t *testing.T) {
 	httpClient := &http.Client{}
 	if got := NewClient(httpClient); got.HTTPClient.Transport == nil || got.HTTPClient.CheckRedirect == nil {
 		t.Fatalf("NewClient did not fill HTTP defaults: %#v", got.HTTPClient)
@@ -129,7 +129,7 @@ func TestCallErrorAndRedirectEdges(t *testing.T) {
 	}
 }
 
-func TestToolCallResultUnmarshalEdges(t *testing.T) {
+func TestCrossPlatformCoverageToolCallResultUnmarshalEdges(t *testing.T) {
 	for _, raw := range []string{"[]", `{"content":42}`} {
 		var result ToolCallResult
 		if err := json.Unmarshal([]byte(raw), &result); err == nil {
@@ -157,7 +157,7 @@ func TestToolCallResultUnmarshalEdges(t *testing.T) {
 	}
 }
 
-func TestClientProtocolAndValidationEdges(t *testing.T) {
+func TestCrossPlatformCoverageClientProtocolAndValidationEdges(t *testing.T) {
 	original := supportedProtocolVersions
 	supportedProtocolVersions = nil
 	if _, err := edgeClient(func(*http.Request) (*http.Response, error) { return edgeResponse(http.StatusOK, "{}"), nil }).Initialize(context.Background(), "https://x.test"); err == nil {
@@ -201,7 +201,7 @@ func TestClientProtocolAndValidationEdges(t *testing.T) {
 	}
 }
 
-func TestCallJSONRPCEdges(t *testing.T) {
+func TestCrossPlatformCoverageCallJSONRPCEdges(t *testing.T) {
 	c := edgeClient(func(*http.Request) (*http.Response, error) { return edgeResponse(http.StatusOK, "{}"), nil })
 	if err := c.callJSONRPC(context.Background(), "https://x.test", requestEnvelope{Method: "x", Params: func() {}}, true, nil); err == nil {
 		t.Fatal("unencodable request succeeded")
@@ -239,7 +239,7 @@ func TestCallJSONRPCEdges(t *testing.T) {
 	}
 }
 
-func TestRetryAndFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageRetryAndFailureEdges(t *testing.T) {
 	if _, err := edgeClient(func(*http.Request) (*http.Response, error) { return nil, nil }).doWithRetry(context.Background(), "://", nil, ""); err == nil {
 		t.Fatal("invalid endpoint succeeded")
 	}
@@ -300,7 +300,7 @@ func TestRetryAndFailureEdges(t *testing.T) {
 	}
 }
 
-func TestRetryHelperAndTrustEdges(t *testing.T) {
+func TestCrossPlatformCoverageRetryHelperAndTrustEdges(t *testing.T) {
 	for _, err := range []error{nil, context.DeadlineExceeded, context.Canceled, os.ErrDeadlineExceeded, errors.New("Client.Timeout exceeded"), errors.New("TLS handshake timeout"), errors.New("other")} {
 		_ = isTimeoutError(err)
 		_, _ = classifyRequestFailure(err)
@@ -383,7 +383,7 @@ func TestRetryHelperAndTrustEdges(t *testing.T) {
 	}
 }
 
-func TestHTTPStatusAndDiagnosticsEdges(t *testing.T) {
+func TestCrossPlatformCoverageHTTPStatusAndDiagnosticsEdges(t *testing.T) {
 	for _, tc := range []struct {
 		method string
 		code   int
@@ -425,7 +425,7 @@ func TestHTTPStatusAndDiagnosticsEdges(t *testing.T) {
 	}
 }
 
-func TestStdioCallAndStartEdges(t *testing.T) {
+func TestCrossPlatformCoverageStdioCallAndStartEdges(t *testing.T) {
 	makeClient := func(response string) (*StdioClient, *edgeWriteCloser) {
 		stdin := &edgeWriteCloser{}
 		return &StdioClient{started: true, stdin: stdin, stdout: bufio.NewReader(strings.NewReader(response))}, stdin
@@ -521,7 +521,7 @@ func TestStdioCallAndStartEdges(t *testing.T) {
 	stderr.drainStderr()
 }
 
-func TestDiagnosticsRecursiveArraysAndStdioInitializationCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDiagnosticsRecursiveArraysAndStdioInitializationCoverage(t *testing.T) {
 	content := map[string]any{
 		"errorCode": "ERROR",
 		"content": []any{
@@ -552,7 +552,7 @@ func TestDiagnosticsRecursiveArraysAndStdioInitializationCoverage(t *testing.T) 
 	}
 }
 
-func TestEnsureInitializedReturnsStartError(t *testing.T) {
+func TestCrossPlatformCoverageEnsureInitializedReturnsStartError(t *testing.T) {
 	client := NewStdioClient(filepath.Join(t.TempDir(), "missing"), nil, nil)
 	if err := client.EnsureInitialized(context.Background()); err == nil {
 		t.Fatal("EnsureInitialized() error = nil")

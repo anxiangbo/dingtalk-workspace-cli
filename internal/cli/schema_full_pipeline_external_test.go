@@ -15,7 +15,7 @@ import (
 // test package. Keeping this here (rather than in a generator package) means
 // Go's normal per-package coverage accounting attributes the exercised Schema
 // assembly code to internal/cli.
-func TestProductionSchemaSourcePipeline(t *testing.T) {
+func TestCrossPlatformCoverageProductionSchemaSourcePipeline(t *testing.T) {
 	root := app.NewRootCommand()
 	resolved, err := cli.ResolveSchemaBuild(root)
 	if err != nil {

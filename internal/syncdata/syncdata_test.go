@@ -2,7 +2,7 @@ package syncdata
 
 import "testing"
 
-func TestGeneratedSyncDataIsSelfConsistent(t *testing.T) {
+func TestCrossPlatformCoverageGeneratedSyncDataIsSelfConsistent(t *testing.T) {
 	servers := StaticServers()
 	routes := CmdToProduct()
 	if len(servers) == 0 || len(routes) == 0 {

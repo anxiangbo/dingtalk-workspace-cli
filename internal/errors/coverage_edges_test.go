@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func TestDiagnosticsAndErrorRenderingEdges(t *testing.T) {
+func TestCrossPlatformCoverageDiagnosticsAndErrorRenderingEdges(t *testing.T) {
 	retryable := false
 	err := NewAPI("message",
 		nil,
@@ -72,7 +72,7 @@ func TestDiagnosticsAndErrorRenderingEdges(t *testing.T) {
 	}
 }
 
-func TestValidationCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoverageValidationCoverageEdges(t *testing.T) {
 	for _, name := range []string{"", strings.Repeat("a", 129), "1startsWithDigit", "bad name"} {
 		if ResourceName(name) == nil {
 			t.Errorf("ResourceName(%q) should fail", name)
@@ -147,7 +147,7 @@ func TestValidationCoverageEdges(t *testing.T) {
 	}
 }
 
-func TestPATURLAndMutationCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoveragePATURLAndMutationCoverageEdges(t *testing.T) {
 	oldHost := hostControlProvider
 	oldBrowser := patBrowserProvider
 	t.Cleanup(func() {
@@ -216,7 +216,7 @@ func mustParseURLForTest(t *testing.T, raw string) *url.URL {
 	return parsed
 }
 
-func TestInvalidRPCDataIsOmitted(t *testing.T) {
+func TestCrossPlatformCoverageInvalidRPCDataIsOmitted(t *testing.T) {
 	err := NewAPI("bad rpc", WithRPCData(json.RawMessage(`{`)))
 	var out bytes.Buffer
 	if printErr := PrintJSON(&out, err); printErr != nil {

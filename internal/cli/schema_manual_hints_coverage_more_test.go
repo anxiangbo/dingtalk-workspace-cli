@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestManualSchemaHintDecodeAndValidationEdges(t *testing.T) {
+func TestCrossPlatformCoverageManualSchemaHintDecodeAndValidationEdges(t *testing.T) {
 	valid := ManualSchemaHintSnapshot{
 		Schema:     manualSchemaHintSchemaRef,
 		Version:    manualSchemaHintVersion,
@@ -140,7 +140,7 @@ func TestManualSchemaHintDecodeAndValidationEdges(t *testing.T) {
 	}
 }
 
-func TestManualAgentExamplePlanAndParserEdges(t *testing.T) {
+func TestCrossPlatformCoverageManualAgentExamplePlanAndParserEdges(t *testing.T) {
 	_, leaf := manualSchemaHintTestTree()
 	spec := BoundCommandSpec{
 		CommandSpec:    CommandSpec{CanonicalPath: "sample.search_items", PrimaryCLIPath: "sample item search"},
@@ -241,7 +241,7 @@ func TestManualAgentExamplePlanAndParserEdges(t *testing.T) {
 	}
 }
 
-func TestManualAgentExampleCobraContractEdges(t *testing.T) {
+func TestCrossPlatformCoverageManualAgentExampleCobraContractEdges(t *testing.T) {
 	root, leaf := manualSchemaHintTestTree()
 	root.PersistentFlags().StringP("format", "f", "", "format")
 	leaf.Flags().BoolP("verbose", "v", false, "verbose")
@@ -325,7 +325,7 @@ func TestManualAgentExampleCobraContractEdges(t *testing.T) {
 	}
 }
 
-func TestApplyManualSchemaHintsAndAnnotationEdges(t *testing.T) {
+func TestCrossPlatformCoverageApplyManualSchemaHintsAndAnnotationEdges(t *testing.T) {
 	if _, err := applyManualSchemaHints(nil, ManualSchemaHintSnapshot{Version: manualSchemaHintVersion}); err == nil || !strings.Contains(err.Error(), "root is nil") {
 		t.Fatalf("nil root error = %v", err)
 	}
@@ -470,7 +470,7 @@ func TestApplyManualSchemaHintsAndAnnotationEdges(t *testing.T) {
 	}
 }
 
-func TestEmbeddedManualSchemaHintWrapperErrors(t *testing.T) {
+func TestCrossPlatformCoverageEmbeddedManualSchemaHintWrapperErrors(t *testing.T) {
 	previous := loadManualSchemaHints
 	loadManualSchemaHints = func() (ManualSchemaHintSnapshot, error) {
 		return ManualSchemaHintSnapshot{}, errors.New("hints failed")

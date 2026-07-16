@@ -17,7 +17,7 @@ import (
 // every public product command, including leaves that intentionally have no
 // Example text. It supplies required flags and a small set of positional/flag
 // variants, exercising validation, compatibility aliases, and response parsing.
-func TestProductCommandMatrixCoverage(t *testing.T) {
+func TestCrossPlatformCoverageProductCommandMatrixCoverage(t *testing.T) {
 	workingDirectory, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)

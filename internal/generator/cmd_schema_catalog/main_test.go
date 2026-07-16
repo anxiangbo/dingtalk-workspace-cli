@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestMainGeneratesCatalogToTemporaryFile(t *testing.T) {
+func TestCrossPlatformCoverageMainGeneratesCatalogToTemporaryFile(t *testing.T) {
 	repositoryRoot, err := filepath.Abs(filepath.Join("..", "..", ".."))
 	if err != nil {
 		t.Fatal(err)
@@ -31,7 +31,7 @@ func TestMainGeneratesCatalogToTemporaryFile(t *testing.T) {
 	main()
 }
 
-func TestCatalogMainReportsIsolationAndGenerationFailures(t *testing.T) {
+func TestCrossPlatformCoverageCatalogMainReportsIsolationAndGenerationFailures(t *testing.T) {
 	originalArgs, originalFlags := os.Args, flag.CommandLine
 	originalValidate := validateCatalogParameterBindings
 	originalExit := exitCatalogProcess
@@ -61,7 +61,7 @@ func TestCatalogMainReportsIsolationAndGenerationFailures(t *testing.T) {
 	invoke("-root", repositoryRoot, "-output", filepath.Join(t.TempDir(), "catalog.json"))
 }
 
-func TestGenerateSchemaCatalogFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageGenerateSchemaCatalogFailureEdges(t *testing.T) {
 	originalValidate := validateCatalogParameterBindings
 	originalSnapshot := buildCatalogSnapshot
 	originalMkdir := makeCatalogDirectory
@@ -130,7 +130,7 @@ func TestGenerateSchemaCatalogFailureEdges(t *testing.T) {
 	}
 }
 
-func TestGenerateSchemaCatalogResolvesBuildExactlyOnce(t *testing.T) {
+func TestCrossPlatformCoverageGenerateSchemaCatalogResolvesBuildExactlyOnce(t *testing.T) {
 	root := app.NewRootCommand()
 	resolveCalls := 0
 	resolvedRegistryHash := ""
@@ -165,14 +165,14 @@ func TestGenerateSchemaCatalogResolvesBuildExactlyOnce(t *testing.T) {
 	}
 }
 
-func TestValidateDeprecatedSurfaceAcceptsEmbeddedRegistrySource(t *testing.T) {
+func TestCrossPlatformCoverageValidateDeprecatedSurfaceAcceptsEmbeddedRegistrySource(t *testing.T) {
 	path := filepath.Join("..", "..", "cli", "schema_command_registry.json")
 	if err := validateDeprecatedSurface(path); err != nil {
 		t.Fatalf("validateDeprecatedSurface() error = %v", err)
 	}
 }
 
-func TestValidateDeprecatedSurfaceRejectsDifferentIdentitySource(t *testing.T) {
+func TestCrossPlatformCoverageValidateDeprecatedSurfaceRejectsDifferentIdentitySource(t *testing.T) {
 	sourcePath := filepath.Join("..", "..", "cli", "schema_command_registry.json")
 	data, err := os.ReadFile(sourcePath)
 	if err != nil {
@@ -193,13 +193,13 @@ func TestValidateDeprecatedSurfaceRejectsDifferentIdentitySource(t *testing.T) {
 	}
 }
 
-func TestValidateDeprecatedSurfaceAllowsOmittedCompatibilityFlag(t *testing.T) {
+func TestCrossPlatformCoverageValidateDeprecatedSurfaceAllowsOmittedCompatibilityFlag(t *testing.T) {
 	if err := validateDeprecatedSurface(""); err != nil {
 		t.Fatalf("validateDeprecatedSurface() error = %v", err)
 	}
 }
 
-func TestValidateCatalogOutputIsolationProtectsEveryInputLayer(t *testing.T) {
+func TestCrossPlatformCoverageValidateCatalogOutputIsolationProtectsEveryInputLayer(t *testing.T) {
 	root := t.TempDir()
 	files := []string{
 		"skills/mono/SKILL.md",

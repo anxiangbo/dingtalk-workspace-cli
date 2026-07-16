@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func TestAgoalUpdateRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageAgoalUpdateRemainingCoverage(t *testing.T) {
 	installScriptedCaller(t, &scriptedToolCaller{dry: true})
 	if err := executeFilterCoverage(t, newAgoalCommand(),
 		"strategy", "update", "--profile-id", "profile", "--content", `[]`, "--request-id", "request",
@@ -33,7 +33,7 @@ func TestAgoalUpdateRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestAgoalLocationFallbackCoverage(t *testing.T) {
+func TestCrossPlatformCoverageAgoalLocationFallbackCoverage(t *testing.T) {
 	original := agoalLoadLocation
 	agoalLoadLocation = func(string) (*time.Location, error) { return nil, errors.New("zoneinfo unavailable") }
 	t.Cleanup(func() { agoalLoadLocation = original })

@@ -2,7 +2,7 @@ package ir
 
 import "testing"
 
-func TestCatalogLookupCoverage(t *testing.T) {
+func TestCrossPlatformCoverageCatalogLookupCoverage(t *testing.T) {
 	tool := ToolDescriptor{RPCName: "create"}
 	product := CanonicalProduct{ID: "doc", Tools: []ToolDescriptor{tool}}
 	catalog := Catalog{Products: []CanonicalProduct{product}}

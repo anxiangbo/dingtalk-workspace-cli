@@ -16,7 +16,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestEventStopPreviewConfirmationAndStdinCoverage(t *testing.T) {
+func TestCrossPlatformCoverageEventStopPreviewConfirmationAndStdinCoverage(t *testing.T) {
 	originalNormalize := eventNormalizeAs
 	t.Cleanup(func() { eventNormalizeAs = originalNormalize })
 	eventNormalizeAs = func(string) (string, error) { return "app", nil }
@@ -77,7 +77,7 @@ func TestEventStopPreviewConfirmationAndStdinCoverage(t *testing.T) {
 	}
 }
 
-func TestRunnerPluginStdioAndDryRunErrorCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRunnerPluginStdioAndDryRunErrorCoverage(t *testing.T) {
 	if _, err := (*runtimeRunner)(nil).Run(context.Background(), executor.Invocation{}); err == nil {
 		t.Fatal("nil runtime runner error = nil")
 	}

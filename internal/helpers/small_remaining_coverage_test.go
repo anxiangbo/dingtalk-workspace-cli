@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestSheetAndMinutesSmallRemainingBranches(t *testing.T) {
+func TestCrossPlatformCoverageSheetAndMinutesSmallRemainingBranches(t *testing.T) {
 	if err := applyStyleSpec(&styleSpec{FontColorsJSON: "{"}, 1, 1, map[string]any{}); err == nil {
 		t.Fatal("invalid font colors JSON returned nil")
 	}
@@ -34,7 +34,7 @@ func TestSheetAndMinutesSmallRemainingBranches(t *testing.T) {
 	}
 }
 
-func TestGeminiForwardRemainingFailures(t *testing.T) {
+func TestCrossPlatformCoverageGeminiForwardRemainingFailures(t *testing.T) {
 	invalid := &geminiAPIForwarder{baseURL: "%", model: "model", timeout: time.Second}
 	if _, err := invalid.forward(context.Background(), "", "text"); err == nil {
 		t.Fatal("invalid Gemini endpoint returned nil")

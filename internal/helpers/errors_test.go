@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestCLIErrorFormattingExitCodesAndJSON(t *testing.T) {
+func TestCrossPlatformCoverageCLIErrorFormattingExitCodesAndJSON(t *testing.T) {
 	cause := errors.New("root cause")
 	err := &CLIError{Code: CodeInvalidParam, Message: "bad input", Suggestion: "fix it", Operation: "doc/read", Cause: cause}
 	if got := err.Error(); !strings.Contains(got, "doc/read") || !strings.Contains(got, "fix it") {
@@ -52,7 +52,7 @@ func TestCLIErrorFormattingExitCodesAndJSON(t *testing.T) {
 	}
 }
 
-func TestWrapErrorClassifiesEveryErrorFamily(t *testing.T) {
+func TestCrossPlatformCoverageWrapErrorClassifiesEveryErrorFamily(t *testing.T) {
 	if WrapError(nil) != nil {
 		t.Fatal("WrapError(nil) != nil")
 	}
@@ -117,7 +117,7 @@ func TestWrapErrorClassifiesEveryErrorFamily(t *testing.T) {
 	}
 }
 
-func TestBusinessSuggestionsAndResponseClassification(t *testing.T) {
+func TestCrossPlatformCoverageBusinessSuggestionsAndResponseClassification(t *testing.T) {
 	suggestions := map[string]string{
 		"搜索内容不能为空":                                    "doc search",
 		"User has no permission to access this email": "mailbox list",
@@ -182,7 +182,7 @@ func TestBusinessSuggestionsAndResponseClassification(t *testing.T) {
 	}
 }
 
-func TestPATCleanupAndMatchingHelpers(t *testing.T) {
+func TestCrossPlatformCoveragePATCleanupAndMatchingHelpers(t *testing.T) {
 	cleaned := cleanPATJSON(map[string]any{
 		"code": "PAT_NO_PERMISSION",
 		"data": map[string]any{"class": "secret", "items": []any{map[string]any{"class": "hidden", "keep": true}}},

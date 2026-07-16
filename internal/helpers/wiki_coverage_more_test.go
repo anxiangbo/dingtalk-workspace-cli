@@ -18,7 +18,7 @@ func newProxyTestRoot(proxy *cobra.Command, target *cobra.Command) *cobra.Comman
 	return root
 }
 
-func TestProxySubCommandCoverage(t *testing.T) {
+func TestCrossPlatformCoverageProxySubCommandCoverage(t *testing.T) {
 	t.Run("missing product", func(t *testing.T) {
 		proxy := proxySubCmd("proxy", "doc", "read", nil)
 		newProxyTestRoot(proxy, nil)
@@ -127,7 +127,7 @@ func executeWikiEdge(t *testing.T, args ...string) error {
 	return root.Execute()
 }
 
-func TestWikiRoutingAndValidationEdges(t *testing.T) {
+func TestCrossPlatformCoverageWikiRoutingAndValidationEdges(t *testing.T) {
 	for _, args := range [][]string{
 		{"space", "list", "--type", "orgSpace", "--limit", "3", "--cursor", "next"},
 		{"space", "list", "--type", "mySpace", "--limit", "not-a-number"},
@@ -149,7 +149,7 @@ func TestWikiRoutingAndValidationEdges(t *testing.T) {
 	}
 }
 
-func TestWikiDeleteCancellationEdges(t *testing.T) {
+func TestCrossPlatformCoverageWikiDeleteCancellationEdges(t *testing.T) {
 	oldStdin := os.Stdin
 	t.Cleanup(func() { os.Stdin = oldStdin })
 	for _, args := range [][]string{

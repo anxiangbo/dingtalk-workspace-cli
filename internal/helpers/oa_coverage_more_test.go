@@ -2,7 +2,7 @@ package helpers
 
 import "testing"
 
-func TestOARemainingTimeAndRevertBranches(t *testing.T) {
+func TestCrossPlatformCoverageOARemainingTimeAndRevertBranches(t *testing.T) {
 	installScriptedCaller(t, &scriptedToolCaller{dry: true})
 	for _, args := range [][]string{
 		{"approval", "list-pending", "--start", "bad", "--end", "2030-01-01T10:00:00+08:00"},

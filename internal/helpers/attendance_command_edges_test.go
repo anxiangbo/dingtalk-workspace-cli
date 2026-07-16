@@ -118,7 +118,7 @@ func attendanceInput(t *testing.T, text string) *os.File {
 	return file
 }
 
-func TestAttendanceCommandEdgeValidation(t *testing.T) {
+func TestCrossPlatformCoverageAttendanceCommandEdgeValidation(t *testing.T) {
 	previousDeps, previousArgs, previousStdin := deps, os.Args, os.Stdin
 	os.Args = []string{"dws", "attendance"}
 	InitDeps(&productExampleCaller{})
@@ -150,7 +150,7 @@ func TestAttendanceCommandEdgeValidation(t *testing.T) {
 	}
 }
 
-func TestAttendanceConfirmedMutationEdges(t *testing.T) {
+func TestCrossPlatformCoverageAttendanceConfirmedMutationEdges(t *testing.T) {
 	previousDeps, previousArgs, previousStdin := deps, os.Args, os.Stdin
 	os.Args = []string{"dws", "attendance"}
 	t.Cleanup(func() { deps, os.Args, os.Stdin = previousDeps, previousArgs, previousStdin })
@@ -198,7 +198,7 @@ func TestAttendanceConfirmedMutationEdges(t *testing.T) {
 	_ = root.Execute()
 }
 
-func TestAttendanceConfirmedMutationSuccessCoverage(t *testing.T) {
+func TestCrossPlatformCoverageAttendanceConfirmedMutationSuccessCoverage(t *testing.T) {
 	previousDeps, previousArgs := deps, os.Args
 	os.Args = []string{"dws", "attendance"}
 	t.Cleanup(func() { deps, os.Args = previousDeps, previousArgs })
@@ -297,7 +297,7 @@ func TestAttendanceConfirmedMutationSuccessCoverage(t *testing.T) {
 	}
 }
 
-func TestAttendanceVacationAndScheduleEdges(t *testing.T) {
+func TestCrossPlatformCoverageAttendanceVacationAndScheduleEdges(t *testing.T) {
 	previousDeps, previousArgs, previousStdin := deps, os.Args, os.Stdin
 	os.Args = []string{"dws", "attendance"}
 	t.Cleanup(func() { deps, os.Args, os.Stdin = previousDeps, previousArgs, previousStdin })

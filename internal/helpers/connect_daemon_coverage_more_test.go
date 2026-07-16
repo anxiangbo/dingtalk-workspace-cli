@@ -75,7 +75,7 @@ func instantAfter(time.Duration) <-chan time.Time {
 	return ch
 }
 
-func TestStartDaemonLifecycleEdges(t *testing.T) {
+func TestCrossPlatformCoverageStartDaemonLifecycleEdges(t *testing.T) {
 	t.Run("unsupported", func(t *testing.T) {
 		preserveDaemonHooks(t)
 		daemonDetachEnabled = false
@@ -194,7 +194,7 @@ func TestStartDaemonLifecycleEdges(t *testing.T) {
 	})
 }
 
-func TestDaemonFileOperationEdges(t *testing.T) {
+func TestCrossPlatformCoverageDaemonFileOperationEdges(t *testing.T) {
 	t.Run("default config directory", func(t *testing.T) {
 		preserveDaemonHooks(t)
 		t.Setenv("HOME", t.TempDir())
@@ -280,7 +280,7 @@ func TestDaemonFileOperationEdges(t *testing.T) {
 	}
 }
 
-func TestRunSupervisorLifecycleEdges(t *testing.T) {
+func TestCrossPlatformCoverageRunSupervisorLifecycleEdges(t *testing.T) {
 	t.Run("missing key", func(t *testing.T) {
 		preserveDaemonHooks(t)
 		t.Setenv("DWS_CONNECT_DAEMON_DIRKEY", "")
@@ -461,7 +461,7 @@ func TestRunSupervisorLifecycleEdges(t *testing.T) {
 	})
 }
 
-func TestSuperviseWaitForcedKill(t *testing.T) {
+func TestCrossPlatformCoverageSuperviseWaitForcedKill(t *testing.T) {
 	preserveDaemonHooks(t)
 	worker := exec.Command("sh", "-c", "trap '' TERM; sleep 5")
 	if err := worker.Start(); err != nil {
@@ -474,7 +474,7 @@ func TestSuperviseWaitForcedKill(t *testing.T) {
 	_ = superviseWait(ctx, worker)
 }
 
-func TestDaemonNotifyStateChangeEdges(t *testing.T) {
+func TestCrossPlatformCoverageDaemonNotifyStateChangeEdges(t *testing.T) {
 	preserveDaemonHooks(t)
 	daemonExecutable = func() (string, error) { return "", errors.New("missing") }
 	daemonNotifyStateChange("staff", "custom", "client", "started", "")
@@ -498,7 +498,7 @@ func TestDaemonNotifyStateChangeEdges(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 }
 
-func TestDaemonStatusAndStopEdges(t *testing.T) {
+func TestCrossPlatformCoverageDaemonStatusAndStopEdges(t *testing.T) {
 	t.Run("status directory and corrupt files", func(t *testing.T) {
 		preserveDaemonHooks(t)
 		blocked := filepath.Join(t.TempDir(), "blocked")
@@ -592,7 +592,7 @@ func TestDaemonStatusAndStopEdges(t *testing.T) {
 	})
 }
 
-func TestDaemonStopHookedLifecycleEdges(t *testing.T) {
+func TestCrossPlatformCoverageDaemonStopHookedLifecycleEdges(t *testing.T) {
 	const (
 		supervisorPID = 101
 		workerPID     = 202
@@ -734,7 +734,7 @@ func (r *daemonSequenceRunner) Run(_ context.Context, invocation executor.Invoca
 	return executor.Result{Invocation: invocation, Response: response}, nil
 }
 
-func TestDaemonListAndNamePaginationEdges(t *testing.T) {
+func TestCrossPlatformCoverageDaemonListAndNamePaginationEdges(t *testing.T) {
 	preserveDaemonHooks(t)
 	connectDaemonDirOverride = t.TempDir()
 	cmd := &cobra.Command{Use: "list"}
@@ -798,7 +798,7 @@ func TestDaemonListAndNamePaginationEdges(t *testing.T) {
 	}
 }
 
-func TestDaemonControlCommandEdges(t *testing.T) {
+func TestCrossPlatformCoverageDaemonControlCommandEdges(t *testing.T) {
 	preserveDaemonHooks(t)
 	connectDaemonDirOverride = t.TempDir()
 	baseDir := connectDaemonDirOverride

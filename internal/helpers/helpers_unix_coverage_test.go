@@ -21,7 +21,7 @@ import (
 	"testing"
 )
 
-func TestUnixConnectProcessAndFDLimitCoverage(t *testing.T) {
+func TestCrossPlatformCoverageUnixConnectProcessAndFDLimitCoverage(t *testing.T) {
 	_ = detachSysProcAttr()
 
 	origGetrlimit := connectGetrlimit

@@ -2,7 +2,7 @@ package helpers
 
 import "testing"
 
-func TestCondFormatRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageCondFormatRemainingCoverage(t *testing.T) {
 	installScriptedCaller(t, &scriptedToolCaller{dry: true})
 	base := []string{"create", "--node", "node", "--sheet-id", "sheet"}
 	for _, extra := range [][]string{

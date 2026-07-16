@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func TestFilesystemSeamFailures(t *testing.T) {
+func TestCrossPlatformCoverageFilesystemSeamFailures(t *testing.T) {
 	originalAbs, originalEval, originalRel := guardAbs, guardEvalSymlinks, guardRel
 	originalStat, originalWalk := guardStat, guardWalk
 	t.Cleanup(func() {
@@ -66,7 +66,7 @@ func TestFilesystemSeamFailures(t *testing.T) {
 	}
 }
 
-func TestValidateCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoverageValidateCoverageEdges(t *testing.T) {
 	root := t.TempDir()
 	inputFile := filepath.Join(root, "input.json")
 	if err := os.WriteFile(inputFile, []byte("{}"), 0o600); err != nil {
@@ -148,7 +148,7 @@ func TestValidateCoverageEdges(t *testing.T) {
 	}
 }
 
-func TestValidateRejectsHardLinkToProtectedDirectoryMember(t *testing.T) {
+func TestCrossPlatformCoverageValidateRejectsHardLinkToProtectedDirectoryMember(t *testing.T) {
 	root := t.TempDir()
 	protectedDir := filepath.Join(root, "inputs")
 	if err := os.MkdirAll(protectedDir, 0o755); err != nil {
@@ -171,7 +171,7 @@ func TestValidateRejectsHardLinkToProtectedDirectoryMember(t *testing.T) {
 	}
 }
 
-func TestValidateRepoTargetAllowlist(t *testing.T) {
+func TestCrossPlatformCoverageValidateRepoTargetAllowlist(t *testing.T) {
 	root := t.TempDir()
 	allowed := filepath.Join(root, "internal/cli/schema_catalog.json")
 	if err := os.MkdirAll(filepath.Dir(allowed), 0o755); err != nil {

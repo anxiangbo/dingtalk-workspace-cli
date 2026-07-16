@@ -22,7 +22,7 @@ func (f *failingSessionTempFile) Write(p []byte) (int, error) {
 }
 func (f *failingSessionTempFile) Close() error { return f.closeErr }
 
-func TestConnectSessionStoreFailureCoverage(t *testing.T) {
+func TestCrossPlatformCoverageConnectSessionStoreFailureCoverage(t *testing.T) {
 	originalRead := connectSessionReadFile
 	originalMkdir := connectSessionMkdirAll
 	originalCreate := connectSessionCreateTemp

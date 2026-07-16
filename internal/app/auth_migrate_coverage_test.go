@@ -62,3 +62,9 @@ func TestAuthMigrateKeychainRemainingBranches(t *testing.T) {
 		}
 	}
 }
+
+// Keep the original test name for the focused macOS auth workflow while also
+// opting the coverage fixture into the native platform coverage gate.
+func TestCrossPlatformCoverageAuthMigrateKeychainRemainingBranches(t *testing.T) {
+	TestAuthMigrateKeychainRemainingBranches(t)
+}

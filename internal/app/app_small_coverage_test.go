@@ -73,7 +73,7 @@ func docPreflightServer(t *testing.T, result map[string]any) *httptest.Server {
 	}))
 }
 
-func TestDocDownloadPreflightCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDocDownloadPreflightCoverage(t *testing.T) {
 	runner := &runtimeRunner{}
 	base := executor.Invocation{CanonicalProduct: "doc", Tool: "download_file", Params: map[string]any{"nodeId": " node "}}
 	if err := runner.preflightDocDownload(context.Background(), transport.NewClient(nil), "", executor.Invocation{}); err != nil {
@@ -137,7 +137,7 @@ func TestDocDownloadPreflightCoverage(t *testing.T) {
 	}
 }
 
-func TestRootHelpRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRootHelpRemainingCoverage(t *testing.T) {
 	configureRootHelp(nil)
 	renderRootGlobalFlags(nil)
 	if visiblePersistentFlags(nil) != nil || formatRootFlag(nil) != "" || commandShort(nil) != "" || visibleMCPRootCommands(nil) != nil || visibleUtilityRootCommands(nil) != nil {
@@ -178,7 +178,7 @@ func TestRootHelpRemainingCoverage(t *testing.T) {
 	_ = visibleMCPRootCommands(root)
 }
 
-func TestConfigAndTokenSeamsCoverage(t *testing.T) {
+func TestCrossPlatformCoverageConfigAndTokenSeamsCoverage(t *testing.T) {
 	oldHome, oldExe, oldEval := userHomeDir, executablePath, evaluateSymlink
 	oldEdition := edition.Get()
 	t.Cleanup(func() {
@@ -239,7 +239,7 @@ func TestConfigAndTokenSeamsCoverage(t *testing.T) {
 	}
 }
 
-func TestForceRefreshAndStdioFailureCoverage(t *testing.T) {
+func TestCrossPlatformCoverageForceRefreshAndStdioFailureCoverage(t *testing.T) {
 	oldMark, oldFactory := markAccessTokenStale, newRefreshProvider
 	oldStop := stopStdio
 	t.Cleanup(func() {
@@ -287,7 +287,7 @@ func TestForceRefreshAndStdioFailureCoverage(t *testing.T) {
 	}
 }
 
-func TestOverlayRecoveryHostAndHelperRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageOverlayRecoveryHostAndHelperRemainingCoverage(t *testing.T) {
 	root := t.TempDir()
 	writeOverlay := filepath.Join(root, "overlay.json")
 	if err := os.WriteFile(writeOverlay, []byte(`{"toolOverrides":{"tool":{}}}`), 0o600); err != nil {
@@ -342,7 +342,7 @@ func TestOverlayRecoveryHostAndHelperRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestConfigAndCacheCommandRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageConfigAndCacheCommandRemainingCoverage(t *testing.T) {
 	for _, command := range []*cobra.Command{newConfigCommand(), newCacheCommand()} {
 		command.SetOut(io.Discard)
 		if err := command.RunE(command, nil); err != nil {

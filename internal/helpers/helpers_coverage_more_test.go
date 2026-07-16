@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestMCPInternalClassificationAndUnescapeRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageMCPInternalClassificationAndUnescapeRemainingCoverage(t *testing.T) {
 	caller := &helpersCoreCaller{format: "raw"}
 	out, _ := installHelpersCoreDeps(t, caller)
 
@@ -34,7 +34,7 @@ func TestMCPInternalClassificationAndUnescapeRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestCurrentUserMalformedTailFallbackCoverage(t *testing.T) {
+func TestCrossPlatformCoverageCurrentUserMalformedTailFallbackCoverage(t *testing.T) {
 	caller := &helpersCoreCaller{result: textToolResult(`{"result":[{"orgEmployeeModel":{"userId":"fallback-user"}},{"orgEmployeeModel":"malformed"}]}`)}
 	installHelpersCoreDeps(t, caller)
 	if got, err := getCurrentUserID(context.Background()); err != nil || got != "fallback-user" {

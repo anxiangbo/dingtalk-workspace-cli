@@ -28,7 +28,7 @@ func mediaCoverageClient(transport roundTripFunc) *aiCardClient {
 	return client
 }
 
-func TestConnectMediaPureFunctionRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageConnectMediaPureFunctionRemainingCoverage(t *testing.T) {
 	info := parseFileInbound(map[string]interface{}{
 		"filePath": " /tmp/file ", "fileType": " text/plain ",
 		"dentryID": int64(1), "spaceID": int(2), "size": json.Number("3"),
@@ -63,7 +63,7 @@ func TestConnectMediaPureFunctionRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestDownloadMessageFileRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDownloadMessageFileRemainingCoverage(t *testing.T) {
 	withCardAPIBase(t, "https://api.test")
 	boom := errors.New("media failure")
 	originalMkdir := mediaMkdirAll
@@ -128,7 +128,7 @@ func TestDownloadMessageFileRemainingCoverage(t *testing.T) {
 	mediaCopy = originalCopy
 }
 
-func TestDentryMediaRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDentryMediaRemainingCoverage(t *testing.T) {
 	withCardAPIBase(t, "https://api.test")
 	boom := errors.New("dentry failure")
 

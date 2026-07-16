@@ -31,7 +31,7 @@ func (c *fakeStreamClient) RegisterAllEventRouter(h handler.IFrameHandler) { c.h
 func (c *fakeStreamClient) Start(context.Context) error                    { return c.startErr }
 func (c *fakeStreamClient) Close()                                         { c.closed = true }
 
-func TestDingtalkStartEdges(t *testing.T) {
+func TestCrossPlatformCoverageDingtalkStartEdges(t *testing.T) {
 	s, err := New(Config{ClientID: "id", ClientSecret: "secret"})
 	if err != nil {
 		t.Fatal(err)
@@ -42,7 +42,7 @@ func TestDingtalkStartEdges(t *testing.T) {
 	}
 }
 
-func TestDingtalkStartInjected(t *testing.T) {
+func TestCrossPlatformCoverageDingtalkStartInjected(t *testing.T) {
 	origNew := newStreamClient
 	t.Cleanup(func() { newStreamClient = origNew })
 	_ = origNew()
@@ -78,7 +78,7 @@ func staticPersonalTicketClient(endpoint, body string) *http.Client {
 	})}
 }
 
-func TestPersonalRunAttemptAndFrameFailures(t *testing.T) {
+func TestCrossPlatformCoveragePersonalRunAttemptAndFrameFailures(t *testing.T) {
 	base := PersonalConfig{
 		AccessToken: "token", ClientID: "id", SourceID: "source", TicketURL: "https://ticket",
 		ReconnectMin: time.Millisecond, ReconnectMax: time.Millisecond,
@@ -164,7 +164,7 @@ func TestPersonalRunAttemptAndFrameFailures(t *testing.T) {
 	}
 }
 
-func TestNewAndPersonalValidationEdges(t *testing.T) {
+func TestCrossPlatformCoverageNewAndPersonalValidationEdges(t *testing.T) {
 	invalidPortal := &PortalTicketConfig{}
 	if _, err := New(Config{PortalTicket: invalidPortal}); err == nil {
 		t.Fatal("invalid portal expected")
@@ -221,7 +221,7 @@ type errorReadCloser struct{}
 func (errorReadCloser) Read([]byte) (int, error) { return 0, errSourceInjected }
 func (errorReadCloser) Close() error             { return nil }
 
-func TestPersonalTicketAndHelperEdges(t *testing.T) {
+func TestCrossPlatformCoveragePersonalTicketAndHelperEdges(t *testing.T) {
 	clientWith := func(fn func(*http.Request) (*http.Response, error)) *http.Client {
 		return &http.Client{Transport: roundTripFunc(fn)}
 	}
@@ -326,7 +326,7 @@ func TestPersonalTicketAndHelperEdges(t *testing.T) {
 	}
 }
 
-func TestPortalConfigAndRequestEdges(t *testing.T) {
+func TestCrossPlatformCoveragePortalConfigAndRequestEdges(t *testing.T) {
 	for name, cfg := range map[string]*PortalTicketConfig{
 		"nil":    nil,
 		"url":    {AccessToken: "t", SourceID: "s"},
@@ -405,7 +405,7 @@ func TestPortalConfigAndRequestEdges(t *testing.T) {
 	_ = truncatePortalTicketLog(" long value ", 4)
 }
 
-func TestPortalStartEndToEndAndFailures(t *testing.T) {
+func TestCrossPlatformCoveragePortalStartEndToEndAndFailures(t *testing.T) {
 	makeSource := func(cfg *PortalTicketConfig) *DingtalkSource {
 		s, err := New(Config{PortalTicket: cfg})
 		if err != nil {
@@ -477,7 +477,7 @@ func TestPortalStartEndToEndAndFailures(t *testing.T) {
 	}
 }
 
-func TestPortalStartHandshakeReadAndAckErrors(t *testing.T) {
+func TestCrossPlatformCoveragePortalStartHandshakeReadAndAckErrors(t *testing.T) {
 	origWriteMessage := portalWriteMessage
 	t.Cleanup(func() { portalWriteMessage = origWriteMessage })
 	makeSource := func(endpoint string) *DingtalkSource {

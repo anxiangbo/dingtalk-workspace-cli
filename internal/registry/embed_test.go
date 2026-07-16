@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestEmbeddedRegistryDataReturnsDefensiveCopies(t *testing.T) {
+func TestCrossPlatformCoverageEmbeddedRegistryDataReturnsDefensiveCopies(t *testing.T) {
 	personas := PersonasYAML()
 	recipes := RecipesYAML()
 	if len(personas) == 0 || len(recipes) == 0 {

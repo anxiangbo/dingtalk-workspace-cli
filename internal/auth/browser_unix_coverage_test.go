@@ -21,7 +21,7 @@ import (
 	"testing"
 )
 
-func TestUnixBrowserCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoverageUnixBrowserCoverageEdges(t *testing.T) {
 	oldStart := browserStartCommand
 	t.Cleanup(func() { browserStartCommand = oldStart })
 

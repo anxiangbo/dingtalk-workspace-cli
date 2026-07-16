@@ -49,7 +49,7 @@ func installReportTestDeps(t *testing.T, caller *reportTestCaller) (*bytes.Buffe
 	return out, errOut
 }
 
-func TestReportReadableListEnrichment(t *testing.T) {
+func TestCrossPlatformCoverageReportReadableListEnrichment(t *testing.T) {
 	caller := &reportTestCaller{format: "json", response: `{
 		"result":{"reportName":"Detail","creatorName":"Alice","createTime":1700000000000,"readStatus":true,"url":"dingtalk://detail","contents":[{"key":"Done","content":"A|B"}]}}
 	`}
@@ -92,7 +92,7 @@ func TestReportReadableListEnrichment(t *testing.T) {
 	}
 }
 
-func TestReportReadableValueFormatting(t *testing.T) {
+func TestCrossPlatformCoverageReportReadableValueFormatting(t *testing.T) {
 	columns := reportListDisplayColumns("sent")
 	if len(columns) != 6 || len(reportListDisplayColumns("list")) != 5 {
 		t.Fatal("display columns changed")
@@ -169,7 +169,7 @@ func TestReportReadableValueFormatting(t *testing.T) {
 	}
 }
 
-func TestReportResponseTraversalAndLinks(t *testing.T) {
+func TestCrossPlatformCoverageReportResponseTraversalAndLinks(t *testing.T) {
 	detail := map[string]any{"result": map[string]any{
 		"report_name": "Title", "creatorName": "Alice", "createTime": "2026-01-02T03:04:05Z",
 		"readStatus": "read", "contents": []any{map[string]any{"key": "Done", "content": "work"}},
@@ -216,7 +216,7 @@ func TestReportResponseTraversalAndLinks(t *testing.T) {
 	}
 }
 
-func TestReportCreateEnrichmentBranches(t *testing.T) {
+func TestCrossPlatformCoverageReportCreateEnrichmentBranches(t *testing.T) {
 	caller := &reportTestCaller{format: "json", response: `{"result":{"url":"dingtalk://detail"}}`}
 	out, _ := installReportTestDeps(t, caller)
 	if enrichReportCreateWithDetailURL(context.Background(), []any{"unchanged"}) == nil {
@@ -263,7 +263,7 @@ func TestReportCreateEnrichmentBranches(t *testing.T) {
 	}
 }
 
-func TestCallReportCreateWithDetailURLCoverage(t *testing.T) {
+func TestCrossPlatformCoverageCallReportCreateWithDetailURLCoverage(t *testing.T) {
 	caller := &reportTestCaller{dry: true, format: "json", response: `{"ok":true}`}
 	installReportTestDeps(t, caller)
 	_ = callReportCreateWithDetailURL(map[string]any{"template_id": "template"})
@@ -279,7 +279,7 @@ func TestCallReportCreateWithDetailURLCoverage(t *testing.T) {
 	}
 }
 
-func TestReportContentsValidationMatrix(t *testing.T) {
+func TestCrossPlatformCoverageReportContentsValidationMatrix(t *testing.T) {
 	valid := map[string]any{"key": " Done ", "sort": 1, "content": "", "type": "text", "contentType": "text"}
 	if err := validateAndNormalizeReportContents([]map[string]any{valid}); err != nil {
 		t.Fatalf("valid contents error = %v", err)
@@ -329,7 +329,7 @@ type failingReader struct{}
 
 func (failingReader) Read([]byte) (int, error) { return 0, errors.New("read failed") }
 
-func TestReportContentsSourcesAndSafePaths(t *testing.T) {
+func TestCrossPlatformCoverageReportContentsSourcesAndSafePaths(t *testing.T) {
 	dir := t.TempDir()
 	previousWD, err := os.Getwd()
 	if err != nil {
@@ -410,7 +410,7 @@ func TestReportContentsSourcesAndSafePaths(t *testing.T) {
 	}
 }
 
-func TestReportDispatchHintsAndDeprecation(t *testing.T) {
+func TestCrossPlatformCoverageReportDispatchHintsAndDeprecation(t *testing.T) {
 	caller := &reportTestCaller{format: "table"}
 	out, _ := installReportTestDeps(t, caller)
 	for _, operation := range []string{"template-list", "template-detail", "detail", "stats", "list", "sent", "create", "unknown"} {

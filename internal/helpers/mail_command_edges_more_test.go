@@ -34,7 +34,7 @@ func executeMailEdge(t *testing.T, caller *scriptedToolCaller, args ...string) e
 	return cmd.Execute()
 }
 
-func TestMailSearchSendAndThreadEdges(t *testing.T) {
+func TestCrossPlatformCoverageMailSearchSendAndThreadEdges(t *testing.T) {
 	valid := [][]string{
 		{"message", "search", "--email", "a@example.com", "--query", "subject:x"},
 		{"message", "list", "--email", "a@example.com"},
@@ -68,7 +68,7 @@ func TestMailSearchSendAndThreadEdges(t *testing.T) {
 	}
 }
 
-func TestMailReplyForwardAndDraftEdges(t *testing.T) {
+func TestCrossPlatformCoverageMailReplyForwardAndDraftEdges(t *testing.T) {
 	draftSteps := func() []scriptedToolStep {
 		return []scriptedToolStep{{text: `{}`}, {text: `{"result":{"message":{"id":"message"}}}`}, {text: `{}`}}
 	}
@@ -112,7 +112,7 @@ func TestMailReplyForwardAndDraftEdges(t *testing.T) {
 	}
 }
 
-func TestMailRulesRecallAndTemplateEdges(t *testing.T) {
+func TestCrossPlatformCoverageMailRulesRecallAndTemplateEdges(t *testing.T) {
 	if err := executeMailEdge(t, &scriptedToolCaller{}, "sent-message", "recall", "--email", "a@example.com", "--id", "1", "--subject", "s"); err == nil {
 		t.Fatal("recall without confirmation returned nil")
 	}
@@ -144,7 +144,7 @@ func TestMailRulesRecallAndTemplateEdges(t *testing.T) {
 	}
 }
 
-func TestMailDraftInlineFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageMailDraftInlineFailureEdges(t *testing.T) {
 	previousArgs := os.Args
 	os.Args = []string{"dws", "mail"}
 	defer func() { os.Args = previousArgs }()
@@ -186,7 +186,7 @@ func TestMailDraftInlineFailureEdges(t *testing.T) {
 	deps = previous
 }
 
-func TestMailDownloadWorkflowEdges(t *testing.T) {
+func TestCrossPlatformCoverageMailDownloadWorkflowEdges(t *testing.T) {
 	previousArgs := os.Args
 	os.Args = []string{"dws", "mail"}
 	defer func() { os.Args = previousArgs }()
@@ -234,7 +234,7 @@ type mailFailingReadCloser struct{}
 func (mailFailingReadCloser) Read([]byte) (int, error) { return 0, errors.New("read") }
 func (mailFailingReadCloser) Close() error             { return nil }
 
-func TestMailHTTPAndLimitRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageMailHTTPAndLimitRemainingEdges(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "file.txt")
 	if err := os.WriteFile(file, []byte("data"), 0o600); err != nil {
 		t.Fatal(err)

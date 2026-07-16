@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestPrepareJSONMLRemainingErrorPaths(t *testing.T) {
+func TestCrossPlatformCoveragePrepareJSONMLRemainingErrorPaths(t *testing.T) {
 	strict := jsonMLTestCommand(t, false)
 	fixing := jsonMLTestCommand(t, true)
 

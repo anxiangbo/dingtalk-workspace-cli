@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestPublicProductCommandsBuildCompleteUniqueTrees(t *testing.T) {
+func TestCrossPlatformCoveragePublicProductCommandsBuildCompleteUniqueTrees(t *testing.T) {
 	commands := NewPublicCommands(&captureRunner{})
 	if len(commands) == 0 {
 		t.Fatal("NewPublicCommands() returned no commands")

@@ -7,7 +7,7 @@ import (
 
 func floatPtr(value float64) *float64 { return &value }
 
-func TestSchemaLoadingAndLookup(t *testing.T) {
+func TestCrossPlatformCoverageSchemaLoadingAndLookup(t *testing.T) {
 	if !schemaV2.IsKnownTag("root") || schemaV2.IsKnownTag("definitely-unknown") {
 		t.Fatal("schema known-tag lookup is incorrect")
 	}
@@ -34,7 +34,7 @@ func TestSchemaLoadingAndLookup(t *testing.T) {
 	}
 }
 
-func TestValidateJSONMLSourceAndShapes(t *testing.T) {
+func TestCrossPlatformCoverageValidateJSONMLSourceAndShapes(t *testing.T) {
 	if result := ValidateJsonMLBodyV2(nil); result.HasErrors() || result.Summary() != "" {
 		t.Fatalf("empty body result = %#v", result)
 	}
@@ -81,7 +81,7 @@ func TestValidateJSONMLSourceAndShapes(t *testing.T) {
 	}
 }
 
-func TestTypeValidationCoversEverySchemaType(t *testing.T) {
+func TestCrossPlatformCoverageTypeValidationCoversEverySchemaType(t *testing.T) {
 	result := &JsonMLValidationResult{}
 	cases := []struct {
 		value any
@@ -130,7 +130,7 @@ func TestTypeValidationCoversEverySchemaType(t *testing.T) {
 	}
 }
 
-func TestDiagnosticsFormattingAndAggregation(t *testing.T) {
+func TestCrossPlatformCoverageDiagnosticsFormattingAndAggregation(t *testing.T) {
 	diagnostics := DiagnosticList{
 		{Range: Range{Start: Position{Line: 2, Col: 3}}, Severity: SeverityError, Code: "E", Message: "bad", Suggestion: "fix"},
 		{Severity: SeverityWarning, Code: "W", Message: "warn", Source: SourceJSONMLSchema},

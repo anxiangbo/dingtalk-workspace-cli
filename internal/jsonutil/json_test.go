@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestMarshalPreservesHTMLCharacters(t *testing.T) {
+func TestCrossPlatformCoverageMarshalPreservesHTMLCharacters(t *testing.T) {
 	got, err := Marshal(map[string]string{"url": "https://example.test/?a=1&b=<tag>"})
 	if err != nil {
 		t.Fatalf("Marshal() error = %v", err)
@@ -23,7 +23,7 @@ func TestMarshalPreservesHTMLCharacters(t *testing.T) {
 	}
 }
 
-func TestMarshalReturnsEncoderErrors(t *testing.T) {
+func TestCrossPlatformCoverageMarshalReturnsEncoderErrors(t *testing.T) {
 	unsupported := make(chan int)
 	if _, err := Marshal(unsupported); err == nil {
 		t.Fatal("Marshal(channel) error = nil")

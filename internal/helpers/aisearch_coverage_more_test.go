@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestAISearchRemainingFallbackBranches(t *testing.T) {
+func TestCrossPlatformCoverageAISearchRemainingFallbackBranches(t *testing.T) {
 	if got := flagValue(&cobra.Command{Use: "empty"}, "missing"); got != "" {
 		t.Fatalf("missing flag=%q", got)
 	}

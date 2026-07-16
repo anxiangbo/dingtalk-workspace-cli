@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestTodoPureUtilityCoverage(t *testing.T) {
+func TestCrossPlatformCoverageTodoPureUtilityCoverage(t *testing.T) {
 	cmd := &cobra.Command{Use: "todo"}
 	cmd.Flags().String("remind-at", "", "")
 	_ = rejectUnsupportedTodoReminderFlags(cmd)
@@ -30,7 +30,7 @@ func TestTodoPureUtilityCoverage(t *testing.T) {
 	}
 }
 
-func TestTodoFileUtilityCoverage(t *testing.T) {
+func TestCrossPlatformCoverageTodoFileUtilityCoverage(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "file.txt")
 	if err := os.WriteFile(file, []byte("content"), 0o600); err != nil {
 		t.Fatal(err)
@@ -48,7 +48,7 @@ func TestTodoFileUtilityCoverage(t *testing.T) {
 	}
 }
 
-func TestUploadTodoLocalFileCoverage(t *testing.T) {
+func TestCrossPlatformCoverageUploadTodoLocalFileCoverage(t *testing.T) {
 	oldPut := httpPutFile
 	t.Cleanup(func() { httpPutFile = oldPut })
 	meta := todoLocalFileMeta{LocalPath: "file", FileName: "file.txt", FileSize: 4, MD5: "md5"}
@@ -72,7 +72,7 @@ func TestUploadTodoLocalFileCoverage(t *testing.T) {
 	}
 }
 
-func TestTodoAutoPageStopsAtWantedSize(t *testing.T) {
+func TestCrossPlatformCoverageTodoAutoPageStopsAtWantedSize(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "todo"}
 	t.Cleanup(func() { os.Args = oldArgs })

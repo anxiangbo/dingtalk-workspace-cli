@@ -46,7 +46,7 @@ func installHelpersCoreDeps(t *testing.T, caller *helpersCoreCaller) (*bytes.Buf
 	return out, errOut
 }
 
-func TestSharedDependenciesRoutingAndWrappers(t *testing.T) {
+func TestCrossPlatformCoverageSharedDependenciesRoutingAndWrappers(t *testing.T) {
 	oldDeps := deps
 	deps = nil
 	if GetCaller() != nil || GetFormatter() == nil {
@@ -91,7 +91,7 @@ func TestSharedDependenciesRoutingAndWrappers(t *testing.T) {
 	_ = GroupRunE(root, nil)
 }
 
-func TestMCPReturnTextClassification(t *testing.T) {
+func TestCrossPlatformCoverageMCPReturnTextClassification(t *testing.T) {
 	caller := &helpersCoreCaller{}
 	installHelpersCoreDeps(t, caller)
 	cases := []struct {
@@ -129,7 +129,7 @@ func TestMCPReturnTextClassification(t *testing.T) {
 	}
 }
 
-func TestMCPOutputModesAndDevdocFormatting(t *testing.T) {
+func TestCrossPlatformCoverageMCPOutputModesAndDevdocFormatting(t *testing.T) {
 	caller := &helpersCoreCaller{format: "json", result: textToolResult(`{"url":"https://example.test/?a=1&b=2"}`)}
 	out, _ := installHelpersCoreDeps(t, caller)
 	if err := callMCPToolInternalOpts("server", "tool", map[string]any{"x": 1}, true); err != nil {
@@ -176,7 +176,7 @@ func TestMCPOutputModesAndDevdocFormatting(t *testing.T) {
 	}
 }
 
-func TestCurrentUserResponseShapes(t *testing.T) {
+func TestCrossPlatformCoverageCurrentUserResponseShapes(t *testing.T) {
 	caller := &helpersCoreCaller{}
 	installHelpersCoreDeps(t, caller)
 	for _, response := range []string{
@@ -198,7 +198,7 @@ func TestCurrentUserResponseShapes(t *testing.T) {
 	}
 }
 
-func TestCoreClassificationSuggestionsAndConfirmation(t *testing.T) {
+func TestCrossPlatformCoverageCoreClassificationSuggestionsAndConfirmation(t *testing.T) {
 	if classifyPATError(map[string]any{"errorCode": "PAT_LOW_RISK_NO_PERMISSION"}) == nil ||
 		classifyPATError(map[string]any{"code": "other"}) != nil {
 		t.Fatal("PAT classification mismatch")
@@ -257,7 +257,7 @@ func TestCoreClassificationSuggestionsAndConfirmation(t *testing.T) {
 	}
 }
 
-func TestCamelCaseAliasesAndFlagCopying(t *testing.T) {
+func TestCrossPlatformCoverageCamelCaseAliasesAndFlagCopying(t *testing.T) {
 	for input, want := range map[string]string{"base-id": "baseId", "plain": "plain", "a--b": "aB"} {
 		if got := toCamelCase(input); got != want {
 			t.Errorf("toCamelCase(%q) = %q, want %q", input, got, want)

@@ -33,7 +33,7 @@ func executeDevAppEdge(runner executor.Runner, args ...string) (string, error) {
 	return out.String(), err
 }
 
-func TestDevAppParentHelpCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDevAppParentHelpCoverage(t *testing.T) {
 	for _, path := range [][]string{
 		{}, {"webapp"}, {"permission"}, {"credentials"}, {"member"},
 		{"security"}, {"robot"}, {"version"}, {"event"},
@@ -44,7 +44,7 @@ func TestDevAppParentHelpCoverage(t *testing.T) {
 	}
 }
 
-func TestDevAppValidationBranchesCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDevAppValidationBranchesCoverage(t *testing.T) {
 	cases := []struct {
 		name string
 		args []string
@@ -113,7 +113,7 @@ func TestDevAppValidationBranchesCoverage(t *testing.T) {
 	}
 }
 
-func TestDevAppOptionalMutationBranchesCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDevAppOptionalMutationBranchesCoverage(t *testing.T) {
 	success := [][]string{
 		{"update", "--dry-run", "--unified-app-id", "app", "--icon-media-id", "media"},
 		{"delete", "--dry-run", "--unified-app-id", "app"},
@@ -133,7 +133,7 @@ func TestDevAppOptionalMutationBranchesCoverage(t *testing.T) {
 	}
 }
 
-func TestDevAppRobotCreateRequiredFieldsCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDevAppRobotCreateRequiredFieldsCoverage(t *testing.T) {
 	cmd := newDevAppRobotSubmitCommand(&captureRunner{})
 	if _, err := devAppRobotCreateParams(cmd); err == nil {
 		t.Fatal("missing name returned nil")
@@ -148,7 +148,7 @@ func TestDevAppRobotCreateRequiredFieldsCoverage(t *testing.T) {
 	}
 }
 
-func TestDevAppDeleteFetchErrorCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDevAppDeleteFetchErrorCoverage(t *testing.T) {
 	want := errors.New("fetch app failed")
 	_, err := executeDevAppEdge(devAppErrorRunner{err: want}, "delete", "--yes", "--unified-app-id", "app", "--confirm-name", "name")
 	if !errors.Is(err, want) {
@@ -156,7 +156,7 @@ func TestDevAppDeleteFetchErrorCoverage(t *testing.T) {
 	}
 }
 
-func TestDevAppPrettyAndAnnotationEdges(t *testing.T) {
+func TestCrossPlatformCoverageDevAppPrettyAndAnnotationEdges(t *testing.T) {
 	cmd := &cobra.Command{Use: "test"}
 	annotateDevAppTool(cmd, "tool")
 	if cmd.Annotations["mcp-tool"] != "tool" {

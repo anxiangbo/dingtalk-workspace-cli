@@ -20,7 +20,7 @@ import (
 	"testing"
 )
 
-func TestPortableDefaultFunctionCoverage(t *testing.T) {
+func TestCrossPlatformCoveragePortableDefaultFunctionCoverage(t *testing.T) {
 	originalDiscoverDial := discoverDial
 	client, server := net.Pipe()
 	t.Cleanup(func() {

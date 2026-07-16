@@ -32,7 +32,7 @@ func (r connectResponseRunner) Run(_ context.Context, invocation executor.Invoca
 	return executor.Result{Invocation: invocation, Response: r.response}, r.err
 }
 
-func TestConnectForwarderPureCoverage(t *testing.T) {
+func TestCrossPlatformCoverageConnectForwarderPureCoverage(t *testing.T) {
 	streamSDKLogger{}.Debugf("debug %s", "x")
 	streamSDKLogger{}.Infof("info %s", "x")
 	streamSDKLogger{}.Warningf("warn %s", "x")
@@ -120,7 +120,7 @@ func TestConnectForwarderPureCoverage(t *testing.T) {
 	_ = officialChannelGuidance("unknown")
 }
 
-func TestGeminiAPIForwarderCoverage(t *testing.T) {
+func TestCrossPlatformCoverageGeminiAPIForwarderCoverage(t *testing.T) {
 	t.Setenv("GEMINI_API_KEY", "")
 	t.Setenv("GOOGLE_API_KEY", "")
 	if _, err := newGeminiAPIForwarder(0, connectAgentOptions{}); err == nil {
@@ -159,7 +159,7 @@ func TestGeminiAPIForwarderCoverage(t *testing.T) {
 	}
 }
 
-func TestConnectDaemonAndApprovalPureCoverage(t *testing.T) {
+func TestCrossPlatformCoverageConnectDaemonAndApprovalPureCoverage(t *testing.T) {
 	oldOverride := connectDaemonDirOverride
 	connectDaemonDirOverride = t.TempDir()
 	t.Cleanup(func() { connectDaemonDirOverride = oldOverride })
@@ -222,7 +222,7 @@ func TestConnectDaemonAndApprovalPureCoverage(t *testing.T) {
 	_ = orchestrator.decorateForActionDetection("prompt")
 }
 
-func TestAtPollTextAndCancellationCoverage(t *testing.T) {
+func TestCrossPlatformCoverageAtPollTextAndCancellationCoverage(t *testing.T) {
 	for _, tc := range []struct{ content, kind string }{
 		{"", "text"},
 		{`{"text":" hello "}`, "text"},
@@ -244,7 +244,7 @@ func TestAtPollTextAndCancellationCoverage(t *testing.T) {
 	_ = json.Unmarshal([]byte(`{"ok":true}`), &payload)
 }
 
-func TestConnectStreamRemainingPureEdges(t *testing.T) {
+func TestCrossPlatformCoverageConnectStreamRemainingPureEdges(t *testing.T) {
 	if convSessionKey("  ") != "_default" || convSessionKey(" conv ") != "conv" {
 		t.Fatal("conversation key normalization failed")
 	}
@@ -325,7 +325,7 @@ func TestConnectStreamRemainingPureEdges(t *testing.T) {
 	}
 }
 
-func TestConnectCLIResolutionEdges(t *testing.T) {
+func TestCrossPlatformCoverageConnectCLIResolutionEdges(t *testing.T) {
 	clearChannelEnv(t)
 	t.Setenv("DWS_CONNECT_NO_INSTALL", "1")
 	for _, channel := range []string{"openclaw", "hermes", "custom", "unknown"} {

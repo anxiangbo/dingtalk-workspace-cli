@@ -32,7 +32,7 @@ func runDocCoverageCommand(t *testing.T, caller edition.ToolCaller, args ...stri
 	return root.ExecuteContext(context.Background())
 }
 
-func TestDocTransferAndDiffEdges(t *testing.T) {
+func TestCrossPlatformCoverageDocTransferAndDiffEdges(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "doc"}
 	t.Cleanup(func() { os.Args = oldArgs })
@@ -68,7 +68,7 @@ func TestDocTransferAndDiffEdges(t *testing.T) {
 	}
 }
 
-func TestDocUploadAndMediaErrorEdges(t *testing.T) {
+func TestCrossPlatformCoverageDocUploadAndMediaErrorEdges(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "doc"}
 	t.Cleanup(func() { os.Args = oldArgs })
@@ -209,7 +209,7 @@ func TestDocUploadAndMediaErrorEdges(t *testing.T) {
 	})
 }
 
-func TestDefaultDocHTTPTransportEdges(t *testing.T) {
+func TestCrossPlatformCoverageDefaultDocHTTPTransportEdges(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "body")
 	if err := os.WriteFile(file, []byte("body"), 0o600); err != nil {
 		t.Fatal(err)
@@ -240,7 +240,7 @@ func TestDefaultDocHTTPTransportEdges(t *testing.T) {
 	}
 }
 
-func TestDocCreateUpdateAndBlockCommandEdges(t *testing.T) {
+func TestCrossPlatformCoverageDocCreateUpdateAndBlockCommandEdges(t *testing.T) {
 	oldDeps, oldArgs, oldPut, oldGet := deps, os.Args, httpPutFile, httpGetFile
 	t.Cleanup(func() {
 		deps, os.Args, httpPutFile, httpGetFile = oldDeps, oldArgs, oldPut, oldGet
@@ -330,7 +330,7 @@ func TestDocCreateUpdateAndBlockCommandEdges(t *testing.T) {
 	_, _ = buildBlockElement(newBlockCommand())
 }
 
-func TestDocDestructiveCancellationEdges(t *testing.T) {
+func TestCrossPlatformCoverageDocDestructiveCancellationEdges(t *testing.T) {
 	oldDeps, oldArgs, oldStdin := deps, os.Args, os.Stdin
 	t.Cleanup(func() { deps, os.Args, os.Stdin = oldDeps, oldArgs, oldStdin })
 	os.Args = []string{"dws", "doc"}
@@ -350,7 +350,7 @@ func TestDocDestructiveCancellationEdges(t *testing.T) {
 	}
 }
 
-func TestDocExportImportCommandEdges(t *testing.T) {
+func TestCrossPlatformCoverageDocExportImportCommandEdges(t *testing.T) {
 	oldDeps, oldArgs, oldPut, oldGet, oldSleep, oldAfter := deps, os.Args, httpPutFile, httpGetFile, helperSleep, helperAfter
 	t.Cleanup(func() {
 		deps, os.Args, httpPutFile, httpGetFile, helperSleep, helperAfter = oldDeps, oldArgs, oldPut, oldGet, oldSleep, oldAfter
@@ -463,7 +463,7 @@ func TestDocExportImportCommandEdges(t *testing.T) {
 	}
 }
 
-func TestDocVersionRevertCommandEdges(t *testing.T) {
+func TestCrossPlatformCoverageDocVersionRevertCommandEdges(t *testing.T) {
 	oldDeps, oldArgs, oldStdin := deps, os.Args, os.Stdin
 	t.Cleanup(func() { deps, os.Args, os.Stdin = oldDeps, oldArgs, oldStdin })
 

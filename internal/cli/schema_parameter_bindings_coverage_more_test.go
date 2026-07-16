@@ -28,7 +28,7 @@ func validParameterBindingSnapshotForCoverage(t *testing.T) schemaParameterBindi
 	}
 }
 
-func TestSchemaParameterBindingSnapshotAuditEdges(t *testing.T) {
+func TestCrossPlatformCoverageSchemaParameterBindingSnapshotAuditEdges(t *testing.T) {
 	valid := validParameterBindingSnapshotForCoverage(t)
 	encoded, err := json.Marshal(valid)
 	if err != nil {
@@ -112,7 +112,7 @@ func TestSchemaParameterBindingSnapshotAuditEdges(t *testing.T) {
 	}
 }
 
-func TestSchemaParameterBindingDeliveryRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageSchemaParameterBindingDeliveryRemainingEdges(t *testing.T) {
 	command := &cobra.Command{Use: "read"}
 	command.Flags().String("id", "", "id")
 	boundSpec := BoundCommandSpec{CommandSpec: CommandSpec{CanonicalPath: "sample.read", Visibility: SchemaVisibilityPublic}, PrimaryCommand: command}
@@ -186,7 +186,7 @@ func TestSchemaParameterBindingDeliveryRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestSchemaParameterBindingHelpersAndLoaderErrors(t *testing.T) {
+func TestCrossPlatformCoverageSchemaParameterBindingHelpersAndLoaderErrors(t *testing.T) {
 	if _, ok := finalSchemaParameterByName(ToolSpec{}, "missing"); ok {
 		t.Fatal("missing parameter found")
 	}

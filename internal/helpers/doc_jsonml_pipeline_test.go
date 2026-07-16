@@ -18,7 +18,7 @@ func jsonMLTestCommand(t *testing.T, fix bool) *cobra.Command {
 	return cmd
 }
 
-func TestJSONMLInputSanitizingAndShapeCoercion(t *testing.T) {
+func TestCrossPlatformCoverageJSONMLInputSanitizingAndShapeCoercion(t *testing.T) {
 	for _, r := range []rune{0x200B, 0x200C, 0x200D, 0xFEFF, 0x202A, 0x202B, 0x202C, 0x202D, 0x202E, 0x2028, 0x2029, 0x2066, 0x2067, 0x2068, 0x2069} {
 		if !isInputDangerousUnicode(r) {
 			t.Errorf("rune %U should be dangerous", r)
@@ -73,7 +73,7 @@ func TestJSONMLInputSanitizingAndShapeCoercion(t *testing.T) {
 	emitFixNotes(notes)
 }
 
-func TestPrepareJSONMLBody(t *testing.T) {
+func TestCrossPlatformCoveragePrepareJSONMLBody(t *testing.T) {
 	strict := jsonMLTestCommand(t, false)
 	valid := `{"jsonml":["root",{},["p",{},["span",{},"ok"]]]}`
 	if got, err := prepareJsonMLBody(strict, valid); err != nil || !strings.Contains(got, `"root"`) {
@@ -104,7 +104,7 @@ func TestPrepareJSONMLBody(t *testing.T) {
 	}
 }
 
-func TestPrepareJSONMLNode(t *testing.T) {
+func TestCrossPlatformCoveragePrepareJSONMLNode(t *testing.T) {
 	strict := jsonMLTestCommand(t, false)
 	if _, err := prepareJsonMLNode(strict, ""); err == nil {
 		t.Fatal("empty node should fail")

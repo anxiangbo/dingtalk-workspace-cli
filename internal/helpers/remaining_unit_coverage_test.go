@@ -84,7 +84,7 @@ func (c *coverageMediaClient) downloadDentryFile(_ context.Context, spaceID, den
 	return c.downloadDentry(fileInboundInfo{SpaceID: spaceID, DentryID: dentryID, FileName: name}, unionID)
 }
 
-func TestConnectMediaParsingRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageConnectMediaParsingRemainingEdges(t *testing.T) {
 	empty := filepath.Join(t.TempDir(), "empty.bin")
 	if err := os.WriteFile(empty, nil, 0o600); err != nil {
 		t.Fatal(err)
@@ -154,7 +154,7 @@ func TestConnectMediaParsingRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestWriteCompleteMediaFileRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageWriteCompleteMediaFileRemainingEdges(t *testing.T) {
 	origCreate, origCopy, origRemove := mediaCreate, mediaCopy, mediaRemove
 	t.Cleanup(func() {
 		mediaCreate, mediaCopy, mediaRemove = origCreate, origCopy, origRemove
@@ -197,7 +197,7 @@ func TestWriteCompleteMediaFileRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestPivotAndInputValidationRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoveragePivotAndInputValidationRemainingEdges(t *testing.T) {
 	cases := []map[string]any{
 		{"values": "not-array"},
 		{"values": []any{map[string]any{}}},
@@ -229,7 +229,7 @@ func TestPivotAndInputValidationRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestDangerousConfirmationRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageDangerousConfirmationRemainingEdges(t *testing.T) {
 	if confirmDangerousAction(nil, "publish", "resource") {
 		t.Fatal("nil command confirmed")
 	}
@@ -247,7 +247,7 @@ func TestDangerousConfirmationRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestProtectSheetMutationCommandPanics(t *testing.T) {
+func TestCrossPlatformCoverageProtectSheetMutationCommandPanics(t *testing.T) {
 	assertPanic := func(name string, fn func()) {
 		t.Helper()
 		defer func() {
@@ -264,7 +264,7 @@ func TestProtectSheetMutationCommandPanics(t *testing.T) {
 	assertPanic("missing RunE", func() { protectSheetMutationCommand(&cobra.Command{Use: "leaf"}, "delete", "target") })
 }
 
-func TestOpenCodeAttachmentFallbackNameAndStat(t *testing.T) {
+func TestCrossPlatformCoverageOpenCodeAttachmentFallbackNameAndStat(t *testing.T) {
 	orig := generateConnectVideoStoryboard
 	t.Cleanup(func() { generateConnectVideoStoryboard = orig })
 	video := filepath.Join(t.TempDir(), "video.mp4")
@@ -279,7 +279,7 @@ func TestOpenCodeAttachmentFallbackNameAndStat(t *testing.T) {
 	}
 }
 
-func TestAssembleConnectTurnMediaBranches(t *testing.T) {
+func TestCrossPlatformCoverageAssembleConnectTurnMediaBranches(t *testing.T) {
 	origRecover := recoverChatRecordUnknownsForConnect
 	t.Cleanup(func() { recoverChatRecordUnknownsForConnect = origRecover })
 	fail := errors.New("download failed")
@@ -376,7 +376,7 @@ func TestAssembleConnectTurnMediaBranches(t *testing.T) {
 	}
 }
 
-func TestChatRecordDownloadWrapperAndWriteEdges(t *testing.T) {
+func TestCrossPlatformCoverageChatRecordDownloadWrapperAndWriteEdges(t *testing.T) {
 	origCall := chatRecordDownloadToolCall
 	origCreate := mediaCreate
 	t.Cleanup(func() {
@@ -408,7 +408,7 @@ func TestChatRecordDownloadWrapperAndWriteEdges(t *testing.T) {
 	}
 }
 
-func TestChatRecordEnrichmentInvalidConversationResponse(t *testing.T) {
+func TestCrossPlatformCoverageChatRecordEnrichmentInvalidConversationResponse(t *testing.T) {
 	resolved := map[string]chatRecordMessage{"wanted": {OpenMessageID: "wanted", Content: "[文件] old"}}
 	all := []chatRecordMessage{{OpenMessageID: "wanted", OpenConversationID: "conv", CreateTime: "2026-01-01 00:00:00"}}
 	enrichForwardedFileLocators(context.Background(), all, resolved, func(context.Context, string, string, map[string]any) (string, error) {
@@ -416,7 +416,7 @@ func TestChatRecordEnrichmentInvalidConversationResponse(t *testing.T) {
 	})
 }
 
-func TestGeminiRemainingAttachmentEdges(t *testing.T) {
+func TestCrossPlatformCoverageGeminiRemainingAttachmentEdges(t *testing.T) {
 	origPollInterval := geminiFilePollInterval
 	t.Cleanup(func() { geminiFilePollInterval = origPollInterval })
 	f := &geminiAPIForwarder{model: "model", apiKey: "key", baseURL: "https://example.test/v1beta", timeout: 1, httpClient: http.DefaultClient}
@@ -453,7 +453,7 @@ func TestGeminiRemainingAttachmentEdges(t *testing.T) {
 	}
 }
 
-func TestCallbackMediaCrossSourceDeduplication(t *testing.T) {
+func TestCrossPlatformCoverageCallbackMediaCrossSourceDeduplication(t *testing.T) {
 	content := map[string]any{
 		"downloadCode": "same",
 		"fileName":     "top.txt",
@@ -471,7 +471,7 @@ func TestCallbackMediaCrossSourceDeduplication(t *testing.T) {
 	}
 }
 
-func TestForwarderAttachmentDispatchRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageForwarderAttachmentDispatchRemainingEdges(t *testing.T) {
 	streaming := &coverageStreamingAttachmentForwarder{}
 	if reply, err := forwardConnectTurn(context.Background(), streaming, "conv", "prompt", nil, func(string) {}); err != nil || reply != "streamed" || !streaming.called {
 		t.Fatalf("streaming attachment dispatch = %q, %v, called=%v", reply, err, streaming.called)
@@ -506,7 +506,7 @@ func TestForwarderAttachmentDispatchRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestQoderAttachmentForwardingRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageQoderAttachmentForwardingRemainingEdges(t *testing.T) {
 	cancelled, cancel := context.WithCancel(context.Background())
 	cancel()
 	fwd := &qoderStreamForwarder{name: "qoder", bin: "missing-qoder", timeout: 1}
@@ -540,7 +540,7 @@ func TestQoderAttachmentForwardingRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestOpenCodeAndCodexAttachmentWrappers(t *testing.T) {
+func TestCrossPlatformCoverageOpenCodeAndCodexAttachmentWrappers(t *testing.T) {
 	var requestBody string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		raw, _ := io.ReadAll(r.Body)
@@ -567,7 +567,7 @@ func TestOpenCodeAndCodexAttachmentWrappers(t *testing.T) {
 	}
 }
 
-func TestRunStreamConnectorChatRecordLookupBranches(t *testing.T) {
+func TestCrossPlatformCoverageRunStreamConnectorChatRecordLookupBranches(t *testing.T) {
 	origRecover := recoverChatRecordUnknownsForConnect
 	t.Cleanup(func() { recoverChatRecordUnknownsForConnect = origRecover })
 	recoverChatRecordUnknownsForConnect = func(context.Context, chatRecordLookup, chatRecordToolCall) (chatRecordEnrichment, error) {
@@ -587,7 +587,7 @@ func TestRunStreamConnectorChatRecordLookupBranches(t *testing.T) {
 	}
 }
 
-func TestRemainingCommandExecutionBranches(t *testing.T) {
+func TestCrossPlatformCoverageRemainingCommandExecutionBranches(t *testing.T) {
 	t.Run("aitable view with timeout", func(t *testing.T) {
 		caller, err := runAitableExportCommand(t,
 			"--base-id", "base", "--scope", "view", "--table-id", "table", "--view-id", "view",
@@ -649,7 +649,7 @@ func TestRemainingCommandExecutionBranches(t *testing.T) {
 	})
 }
 
-func TestAttachSheetConfirmationGuardMissingPath(t *testing.T) {
+func TestCrossPlatformCoverageAttachSheetConfirmationGuardMissingPath(t *testing.T) {
 	defer func() {
 		if recover() == nil {
 			t.Fatal("missing Sheet path did not panic")
@@ -658,7 +658,7 @@ func TestAttachSheetConfirmationGuardMissingPath(t *testing.T) {
 	attachSheetConfirmationGuard(&cobra.Command{Use: "sheet"}, "missing leaf", "delete", "target")
 }
 
-func TestDentryDownloadRejectsDeclaredOversize(t *testing.T) {
+func TestCrossPlatformCoverageDentryDownloadRejectsDeclaredOversize(t *testing.T) {
 	orig := connectMediaCallRaw
 	t.Cleanup(func() { connectMediaCallRaw = orig })
 	connectMediaCallRaw = func(*aiCardClient, context.Context, string, string, map[string]any) (string, error) {

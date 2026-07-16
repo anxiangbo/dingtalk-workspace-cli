@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestAliveUnixErrorClassification(t *testing.T) {
+func TestCrossPlatformCoverageAliveUnixErrorClassification(t *testing.T) {
 	previous := killProcess
 	t.Cleanup(func() { killProcess = previous })
 	for _, tc := range []struct {

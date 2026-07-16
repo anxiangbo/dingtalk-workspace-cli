@@ -20,7 +20,7 @@ import (
 	"testing"
 )
 
-func TestFramePartialEOFPortable(t *testing.T) {
+func TestCrossPlatformCoverageFramePartialEOFPortable(t *testing.T) {
 	frame, err := NewReader(strings.NewReader("partial")).Read()
 	if frame != nil || !errors.Is(err, io.EOF) {
 		t.Fatalf("partial frame = %q, %v; want nil, EOF", frame, err)

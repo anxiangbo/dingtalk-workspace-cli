@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestLookupOpenDingTalkIDsByAisearchPersonCoverage(t *testing.T) {
+func TestCrossPlatformCoverageLookupOpenDingTalkIDsByAisearchPersonCoverage(t *testing.T) {
 	caller := &helpersCoreCaller{result: textToolResult(`{"result":[{"userId":"u1","openDingTalkId":"open1","name":"Alice"}]}`)}
 	installHelpersCoreDeps(t, caller)
 	openIDs := map[string]string{}
@@ -29,7 +29,7 @@ func TestLookupOpenDingTalkIDsByAisearchPersonCoverage(t *testing.T) {
 	}
 }
 
-func TestOpencodeWaitHealthyCoverage(t *testing.T) {
+func TestCrossPlatformCoverageOpencodeWaitHealthyCoverage(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != opencodeServerHealthPath {
 			t.Fatalf("health path = %q", r.URL.Path)

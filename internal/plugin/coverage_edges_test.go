@@ -93,7 +93,7 @@ func buildFakeGit(t *testing.T) string {
 	return binDir
 }
 
-func TestPluginConverterEdges(t *testing.T) {
+func TestCrossPlatformCoveragePluginConverterEdges(t *testing.T) {
 	root := filepath.Join(t.TempDir(), "user", "sample-plugin")
 	t.Setenv("PLUGIN_TOKEN", "secret")
 	p := &Plugin{
@@ -154,7 +154,7 @@ func TestPluginConverterEdges(t *testing.T) {
 	}
 }
 
-func TestHookAdapterEdges(t *testing.T) {
+func TestCrossPlatformCoverageHookAdapterEdges(t *testing.T) {
 	phases := map[string]pipeline.Phase{
 		" PRE-PARSE ":   pipeline.PreParse,
 		"post-parse":    pipeline.PostParse,
@@ -202,7 +202,7 @@ func TestHookAdapterEdges(t *testing.T) {
 	}
 }
 
-func TestManifestEdges(t *testing.T) {
+func TestCrossPlatformCoverageManifestEdges(t *testing.T) {
 	dir := t.TempDir()
 	if _, err := ParseManifest(filepath.Join(dir, "missing.json")); err == nil {
 		t.Fatal("expected missing manifest error")
@@ -297,7 +297,7 @@ func TestManifestEdges(t *testing.T) {
 	}
 }
 
-func TestLoaderDiscoveryLifecycle(t *testing.T) {
+func TestCrossPlatformCoverageLoaderDiscoveryLifecycle(t *testing.T) {
 	oldHome := pluginUserHomeDir
 	t.Cleanup(func() { pluginUserHomeDir = oldHome })
 	home := t.TempDir()
@@ -413,7 +413,7 @@ func configPluginDataDirForTest() string {
 	return "data"
 }
 
-func TestLoaderDevAndConfigEdges(t *testing.T) {
+func TestCrossPlatformCoverageLoaderDevAndConfigEdges(t *testing.T) {
 	root := t.TempDir()
 	l := &Loader{PluginsDir: root, CLIVersion: "1.0.0"}
 	if got := l.LoadDev(); got != nil {
@@ -473,7 +473,7 @@ func TestLoaderDevAndConfigEdges(t *testing.T) {
 	empty.saveSettings(nil)
 }
 
-func TestLoaderInstallBuildAndGit(t *testing.T) {
+func TestCrossPlatformCoverageLoaderInstallBuildAndGit(t *testing.T) {
 	root := t.TempDir()
 	l := &Loader{PluginsDir: root, CLIVersion: "1.0.0"}
 	if _, err := l.InstallFromDir(filepath.Join(t.TempDir(), "missing")); err == nil {
@@ -604,7 +604,7 @@ func TestLoaderInstallBuildAndGit(t *testing.T) {
 	}
 }
 
-func TestLoaderSystemCallEdges(t *testing.T) {
+func TestCrossPlatformCoverageLoaderSystemCallEdges(t *testing.T) {
 	oldReadDir := pluginReadDir
 	oldMkdirTemp := pluginMkdirTemp
 	oldRemoveAll := pluginRemoveAll
@@ -699,7 +699,7 @@ func TestLoaderSystemCallEdges(t *testing.T) {
 	pluginMkdirTemp = oldMkdirTemp
 }
 
-func TestInstallFromGitValidationAndBuildEdges(t *testing.T) {
+func TestCrossPlatformCoverageInstallFromGitValidationAndBuildEdges(t *testing.T) {
 	oldCopyDir := pluginCopyDir
 	oldRunBuild := pluginRunBuild
 	t.Cleanup(func() {
@@ -730,7 +730,7 @@ func TestInstallFromGitValidationAndBuildEdges(t *testing.T) {
 	}
 }
 
-func TestParseGitURLEdges(t *testing.T) {
+func TestCrossPlatformCoverageParseGitURLEdges(t *testing.T) {
 	for _, raw := range []string{"/tmp/x", "./x", "git@host", "git@host:single", "ftp://host/org/repo", "://bad"} {
 		if _, _, err := parseGitURL(raw); err == nil {
 			t.Errorf("parseGitURL(%q) unexpectedly succeeded", raw)
@@ -741,7 +741,7 @@ func TestParseGitURLEdges(t *testing.T) {
 	}
 }
 
-func TestSyncSkillsEdges(t *testing.T) {
+func TestCrossPlatformCoverageSyncSkillsEdges(t *testing.T) {
 	oldHome := pluginUserHomeDir
 	t.Cleanup(func() { pluginUserHomeDir = oldHome })
 	SyncSkills(nil)
@@ -780,7 +780,7 @@ func TestSyncSkillsEdges(t *testing.T) {
 	}
 }
 
-func TestCopyAndStaleEdges(t *testing.T) {
+func TestCrossPlatformCoverageCopyAndStaleEdges(t *testing.T) {
 	src := t.TempDir()
 	dst := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(src, "nested"), 0o750); err != nil {
@@ -832,7 +832,7 @@ func TestCopyAndStaleEdges(t *testing.T) {
 	removeStaleFiles(filepath.Join(src, "missing"), filepath.Join(dst, "missing"))
 }
 
-func TestCopyAndStaleSystemCallEdges(t *testing.T) {
+func TestCrossPlatformCoverageCopyAndStaleSystemCallEdges(t *testing.T) {
 	oldMkdirAll := pluginMkdirAll
 	oldReadFile := pluginReadFile
 	oldWriteFile := pluginWriteFile
@@ -929,7 +929,7 @@ func TestCopyAndStaleSystemCallEdges(t *testing.T) {
 	removeStaleFiles(src, staleDst)
 }
 
-func TestCopyAndStaleSystemCallEdgesDuplicate(t *testing.T) {
+func TestCrossPlatformCoverageCopyAndStaleSystemCallEdgesDuplicate(t *testing.T) {
 	oldMkdirAll := pluginMkdirAll
 	oldReadFile := pluginReadFile
 	oldWriteFile := pluginWriteFile

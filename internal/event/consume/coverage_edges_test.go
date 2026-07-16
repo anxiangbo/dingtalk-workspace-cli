@@ -27,7 +27,7 @@ type errorSink struct{ err error }
 func (s errorSink) Write(transport.Event, []byte) error { return s.err }
 func (s errorSink) Close() error                        { return s.err }
 
-func TestFormatterPipelineRouterAndSinkEdges(t *testing.T) {
+func TestCrossPlatformCoverageFormatterPipelineRouterAndSinkEdges(t *testing.T) {
 	wantErr := errors.New("synthetic failure")
 	oldMarshal, oldIndent, oldCompact := marshalEvent, marshalEventIndent, marshalCompact
 	oldMkdir, oldWrite, oldRename, oldRemove := mkdirSinkDir, writeSinkFile, renameSinkFile, removeSinkFile
@@ -103,7 +103,7 @@ func validRunConfig() Config {
 	return Config{WorkDir: "work", IPCEndpoint: "endpoint", ClientID: "client", Stdout: io.Discard, Stderr: io.Discard, Format: FormatNDJSON}
 }
 
-func TestRunSetupAndDiscoveryEdges(t *testing.T) {
+func TestCrossPlatformCoverageRunSetupAndDiscoveryEdges(t *testing.T) {
 	if err := Run(context.Background(), Config{}); err == nil {
 		t.Fatal("missing required run config should fail")
 	}
@@ -139,7 +139,7 @@ func TestRunSetupAndDiscoveryEdges(t *testing.T) {
 	}
 }
 
-func TestRunFrameAndDeliveryEdges(t *testing.T) {
+func TestCrossPlatformCoverageRunFrameAndDeliveryEdges(t *testing.T) {
 	oldDiscover := discoverBus
 	t.Cleanup(func() { discoverBus = oldDiscover })
 	ack := mustJSONFrame(t, transport.HelloAck{Type: transport.FrameTypeHelloAck, BusPID: 1})
@@ -282,7 +282,7 @@ type consumeAddr string
 func (a consumeAddr) Network() string { return "test" }
 func (a consumeAddr) String() string  { return string(a) }
 
-func TestWatchStdinEOFCancelledAfterData(t *testing.T) {
+func TestCrossPlatformCoverageWatchStdinEOFCancelledAfterData(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 	called := false

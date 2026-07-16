@@ -41,7 +41,7 @@ func reportListCoverageCommand(t *testing.T, sent bool, values map[string]string
 	return cmd
 }
 
-func TestReportHandlerRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageReportHandlerRemainingCoverage(t *testing.T) {
 	caller := &reportTestCaller{dry: true, format: "json"}
 	installReportTestDeps(t, caller)
 	validContents := `[{"key":"Done","sort":"0","content":"work","contentType":"markdown","type":"1"}]`
@@ -82,7 +82,7 @@ func TestReportHandlerRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestReportReadableRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageReportReadableRemainingCoverage(t *testing.T) {
 	caller := &reportTestCaller{format: "json", response: "{"}
 	installReportTestDeps(t, caller)
 	if got := reportDetailForListRow(context.Background(), "report", true); got.markdownLink != "查看详情" {
@@ -108,7 +108,7 @@ func TestReportReadableRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestReportFilesystemFailureCoverage(t *testing.T) {
+func TestCrossPlatformCoverageReportFilesystemFailureCoverage(t *testing.T) {
 	originalOpen := reportOpenFile
 	originalAbs := reportAbsPath
 	originalGetwd := reportGetwd

@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestRuntimeAnnotationAPIsCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRuntimeAnnotationAPIsCoverage(t *testing.T) {
 	AttachRuntimeSchema(nil, "p", "t", "s")
 	AttachRuntimeSchema(&cobra.Command{}, "", "", "")
 	AnnotateRuntimeToolMetadata(nil, "", "", "")
@@ -60,7 +60,7 @@ func TestRuntimeAnnotationAPIsCoverage(t *testing.T) {
 	}
 }
 
-func TestRuntimeRegistriesAndSchemaHintsCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRuntimeRegistriesAndSchemaHintsCoverage(t *testing.T) {
 	originalConstraints := runtimeSchemaConstraintsByCanonical
 	originalParameters := runtimeSchemaParameterMetadataByCanonical
 	t.Cleanup(func() {

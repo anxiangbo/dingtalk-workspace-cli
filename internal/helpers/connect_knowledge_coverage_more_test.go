@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestKnowledgeLoadAndAugmentRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageKnowledgeLoadAndAugmentRemainingCoverage(t *testing.T) {
 	if _, err := loadKnowledgeBase(filepath.Join(t.TempDir(), "missing")); err == nil {
 		t.Fatal("missing knowledge directory returned nil")
 	}

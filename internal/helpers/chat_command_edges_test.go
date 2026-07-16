@@ -43,7 +43,7 @@ func runChatCoverageDirect(t *testing.T, path []string, flags map[string]string)
 	return command.RunE(command, nil)
 }
 
-func TestChatCommandValidationAndSuccessEdges(t *testing.T) {
+func TestCrossPlatformCoverageChatCommandValidationAndSuccessEdges(t *testing.T) {
 	previousDeps, previousArgs := deps, os.Args
 	os.Args = []string{"dws", "chat"}
 	t.Cleanup(func() { deps, os.Args = previousDeps, previousArgs })
@@ -107,7 +107,7 @@ func TestChatCommandValidationAndSuccessEdges(t *testing.T) {
 	_ = runChatCoverageCommand(t, &scriptedToolCaller{steps: []scriptedToolStep{{text: `{"result":[{"userId":"u1","openDingTalkId":"D1"}]}`}, {text: `{}`}}}, "group-mute-member", "--group=cid", "--users=u1", "--off")
 }
 
-func TestChatCreateAndMessageSendEdges(t *testing.T) {
+func TestCrossPlatformCoverageChatCreateAndMessageSendEdges(t *testing.T) {
 	previousDeps, previousArgs := deps, os.Args
 	os.Args = []string{"dws", "chat", "--debug"}
 	t.Cleanup(func() { deps, os.Args = previousDeps, previousArgs })
@@ -160,7 +160,7 @@ func TestChatCreateAndMessageSendEdges(t *testing.T) {
 	}
 }
 
-func TestChatWebhookReplyConversationAndDownloadEdges(t *testing.T) {
+func TestCrossPlatformCoverageChatWebhookReplyConversationAndDownloadEdges(t *testing.T) {
 	previousDeps, previousArgs := deps, os.Args
 	os.Args = []string{"dws", "chat"}
 	t.Cleanup(func() { deps, os.Args = previousDeps, previousArgs })

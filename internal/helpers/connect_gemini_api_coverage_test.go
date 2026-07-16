@@ -20,7 +20,7 @@ func geminiResponse(status int, body string, headers map[string]string) *http.Re
 	return &http.Response{StatusCode: status, Header: header, Body: io.NopCloser(strings.NewReader(body))}
 }
 
-func TestGeminiAttachmentAndUploadFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageGeminiAttachmentAndUploadFailureEdges(t *testing.T) {
 	f := &geminiAPIForwarder{model: "model", apiKey: "key", baseURL: "https://example.test/v1beta", timeout: time.Second, httpClient: http.DefaultClient}
 	parts, err := f.partsWithAttachments(context.Background(), "text", []connectMediaAttachment{{LocalPath: ""}})
 	if err != nil || len(parts) != 1 {
@@ -108,7 +108,7 @@ func TestGeminiAttachmentAndUploadFailureEdges(t *testing.T) {
 	}
 }
 
-func TestGeminiUploadedFilePollingEdges(t *testing.T) {
+func TestCrossPlatformCoverageGeminiUploadedFilePollingEdges(t *testing.T) {
 	originalInterval := geminiFilePollInterval
 	t.Cleanup(func() { geminiFilePollInterval = originalInterval })
 	f := &geminiAPIForwarder{apiKey: "key", baseURL: "https://example.test/v1beta", httpClient: http.DefaultClient}

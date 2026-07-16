@@ -31,7 +31,7 @@ func (sink *auditCoverageSink) Emit(event *audit.Event) error {
 
 func (sink *auditCoverageSink) Close() error { return sink.closeErr }
 
-func TestAuditCommandsAndFileHelpersCoverage(t *testing.T) {
+func TestCrossPlatformCoverageAuditCommandsAndFileHelpersCoverage(t *testing.T) {
 	originalExit, originalVerify := auditExit, auditVerify
 	t.Cleanup(func() { auditExit, auditVerify = originalExit, originalVerify })
 	dir := t.TempDir()
@@ -193,7 +193,7 @@ func TestAuditCommandsAndFileHelpersCoverage(t *testing.T) {
 	}
 }
 
-func TestAuditRuntimeCoverage(t *testing.T) {
+func TestCrossPlatformCoverageAuditRuntimeCoverage(t *testing.T) {
 	previousSink, previousLoader := sharedAuditSink, loadTokenForProfile
 	t.Cleanup(func() {
 		sharedAuditSink = previousSink

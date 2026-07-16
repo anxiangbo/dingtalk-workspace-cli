@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestCommandRegistryLoaderErrorWrappers(t *testing.T) {
+func TestCrossPlatformCoverageCommandRegistryLoaderErrorWrappers(t *testing.T) {
 	previousRegistry := loadReviewedCommandRegistry
 	previousBindings := validateReviewedParameterBindings
 	previousManual := loadReviewedManualSchemaHints
@@ -47,7 +47,7 @@ func TestCommandRegistryLoaderErrorWrappers(t *testing.T) {
 	}
 }
 
-func TestCommandRegistryDecodeAndIndexRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageCommandRegistryDecodeAndIndexRemainingEdges(t *testing.T) {
 	base := func(products string) string {
 		return `{"$schema":"./schema_command_registry.schema.json","version":1,"products":` + products + `}`
 	}
@@ -111,7 +111,7 @@ func TestCommandRegistryDecodeAndIndexRemainingEdges(t *testing.T) {
 	_ = hashCommandSpecs([]CommandSpec{{CanonicalPath: "sample.get", PrimaryCLIPath: "sample get"}})
 }
 
-func TestEffectiveCommandRegistryRemainingErrors(t *testing.T) {
+func TestCrossPlatformCoverageEffectiveCommandRegistryRemainingErrors(t *testing.T) {
 	if _, err := BuildEffectiveCommandRegistry(nil); err == nil {
 		t.Fatal("nil effective root succeeded")
 	}

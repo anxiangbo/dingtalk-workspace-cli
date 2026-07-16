@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestEmbeddedRuntimeSchemaExclusionDecodeEdges(t *testing.T) {
+func TestCrossPlatformCoverageEmbeddedRuntimeSchemaExclusionDecodeEdges(t *testing.T) {
 	previous := embeddedRuntimeSchemaExclusionsJSON
 	t.Cleanup(func() { embeddedRuntimeSchemaExclusionsJSON = previous })
 	cases := []struct {
@@ -32,7 +32,7 @@ func TestEmbeddedRuntimeSchemaExclusionDecodeEdges(t *testing.T) {
 	embeddedRuntimeSchemaExclusionsJSON = previous
 }
 
-func TestCompletenessWrapperErrorBoundaries(t *testing.T) {
+func TestCrossPlatformCoverageCompletenessWrapperErrorBoundaries(t *testing.T) {
 	oldLoad := completenessLoadExclusions
 	oldApply := completenessApplyManual
 	oldBuild := completenessBuildEffective
@@ -124,7 +124,7 @@ func TestCompletenessWrapperErrorBoundaries(t *testing.T) {
 	}
 }
 
-func TestCatalogDeliveryCompletenessLoadedIdentityEdges(t *testing.T) {
+func TestCrossPlatformCoverageCatalogDeliveryCompletenessLoadedIdentityEdges(t *testing.T) {
 	oldQuery := deliverySchemaPayload
 	oldResolve := deliveryIndexResolve
 	oldTool := deliveryToolPayload
@@ -283,7 +283,7 @@ func TestCatalogDeliveryCompletenessLoadedIdentityEdges(t *testing.T) {
 	schemaCatalogDeliveryCompletenessAgainstLoadedAndIdentity(root, loaded, nil, identities, nil)
 }
 
-func TestSchemaRegistryProjectionRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageSchemaRegistryProjectionRemainingEdges(t *testing.T) {
 	oldRegistry := deliveryRegistryPayload
 	oldProduct := renderRegistryProductSummary
 	oldQuery := deliverySchemaPayload
@@ -400,7 +400,7 @@ func TestSchemaRegistryProjectionRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestCompletenessIdentityAndPathHelpersRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageCompletenessIdentityAndPathHelpersRemainingEdges(t *testing.T) {
 	bound := BoundCommandRegistry{Commands: []BoundCommandSpec{
 		{CommandSpec: CommandSpec{CanonicalPath: "sample.one", PrimaryCLIPath: "sample run", Visibility: SchemaVisibilityPublic}},
 		{CommandSpec: CommandSpec{CanonicalPath: "sample.two", PrimaryCLIPath: "sample run", Visibility: SchemaVisibilityPublic}},

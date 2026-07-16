@@ -279,7 +279,7 @@ func runConnectorScenarioWithCard(t *testing.T, messages []*chatbot.BotCallbackD
 	return replier, stream
 }
 
-func TestRunStreamConnectorBasicMessageEdges(t *testing.T) {
+func TestCrossPlatformCoverageRunStreamConnectorBasicMessageEdges(t *testing.T) {
 	t.Run("blank fallback and missing webhook drop", func(t *testing.T) {
 		fwd := &basicConnectorForwarder{reply: "unused"}
 		blank := connectorMessage("blank", "")
@@ -352,7 +352,7 @@ func TestRunStreamConnectorBasicMessageEdges(t *testing.T) {
 	})
 }
 
-func TestRunStreamConnectorForwardAndReplyEdges(t *testing.T) {
+func TestCrossPlatformCoverageRunStreamConnectorForwardAndReplyEdges(t *testing.T) {
 	t.Run("long markdown and retry success", func(t *testing.T) {
 		fwd := &basicConnectorForwarder{reply: strings.Repeat("long", 80)}
 		replier, _ := runConnectorScenario(t, []*chatbot.BotCallbackDataModel{connectorMessage("long", "question")}, fwd, nil, &connectExtras{persona: "Persona"}, []error{errors.New("one"), errors.New("two"), nil}, 3)
@@ -406,7 +406,7 @@ func TestRunStreamConnectorForwardAndReplyEdges(t *testing.T) {
 	})
 }
 
-func TestRunStreamConnectorControlAndLifecycleEdges(t *testing.T) {
+func TestCrossPlatformCoverageRunStreamConnectorControlAndLifecycleEdges(t *testing.T) {
 	t.Run("asynchronous card repair runner", func(t *testing.T) {
 		done := make(chan struct{})
 		runConnectCardRepair(func() { close(done) })
@@ -532,7 +532,7 @@ func TestRunStreamConnectorControlAndLifecycleEdges(t *testing.T) {
 	})
 }
 
-func TestRunStreamConnectorMediaEdges(t *testing.T) {
+func TestCrossPlatformCoverageRunStreamConnectorMediaEdges(t *testing.T) {
 	cases := []struct {
 		name    string
 		message *chatbot.BotCallbackDataModel
@@ -662,7 +662,7 @@ func TestRunStreamConnectorMediaEdges(t *testing.T) {
 	}
 }
 
-func TestRunStreamConnectorCardEdges(t *testing.T) {
+func TestCrossPlatformCoverageRunStreamConnectorCardEdges(t *testing.T) {
 	t.Run("card client without template", func(t *testing.T) {
 		rec, srv := newCardAPIServer(t)
 		withCardAPIBase(t, srv.URL)

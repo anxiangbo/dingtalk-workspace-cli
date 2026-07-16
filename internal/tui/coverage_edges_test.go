@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestThemePresentationHelpers(t *testing.T) {
+func TestCrossPlatformCoverageThemePresentationHelpers(t *testing.T) {
 	for name, render := range map[string]func(string) string{
 		"brand": Brand, "blue": Blue, "cyan": Cyan, "white": White, "gray": Gray,
 		"success": Success, "warning": Warning, "danger": Danger, "bold": Bold, "dim": Dim,
@@ -50,7 +50,7 @@ func TestThemePresentationHelpers(t *testing.T) {
 	}
 }
 
-func TestPanelSuccessAndWriteFailures(t *testing.T) {
+func TestCrossPlatformCoveragePanelSuccessAndWriteFailures(t *testing.T) {
 	var out bytes.Buffer
 	if err := Panel(&out, "Title", []string{"line", strings.Repeat("wide", MaxPanelWidth)}); err != nil {
 		t.Fatalf("Panel(): %v", err)

@@ -45,7 +45,7 @@ func installApprovalIODefaults(t *testing.T) func() {
 	}
 }
 
-func TestApprovalGateLookupMutationAndAwaitEdges(t *testing.T) {
+func TestCrossPlatformCoverageApprovalGateLookupMutationAndAwaitEdges(t *testing.T) {
 	g := newApprovalGate("")
 	g.setOutTrackID("missing", "track")
 	if got := g.findByOutTrackID("  "); got != nil {
@@ -93,7 +93,7 @@ func TestApprovalGateLookupMutationAndAwaitEdges(t *testing.T) {
 	}
 }
 
-func TestApprovalGatePersistFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageApprovalGatePersistFailureEdges(t *testing.T) {
 	t.Setenv("DWS_CONFIG_DIR", t.TempDir())
 	defaults := installApprovalIODefaults(t)
 	g := &approvalGate{clientID: "io"}
@@ -129,7 +129,7 @@ func TestApprovalGatePersistFailureEdges(t *testing.T) {
 	g.persist(req)
 }
 
-func TestApprovalGateLoadRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageApprovalGateLoadRemainingEdges(t *testing.T) {
 	t.Setenv("DWS_CONFIG_DIR", t.TempDir())
 	defaults := installApprovalIODefaults(t)
 	g := &approvalGate{clientID: "load", reqs: make(map[string]*ApprovalRequest), waiters: make(map[string]chan struct{})}
@@ -166,7 +166,7 @@ func TestApprovalGateLoadRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestApprovalMarkerAndDueRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageApprovalMarkerAndDueRemainingEdges(t *testing.T) {
 	act, cleaned, found := parseActionMarker(`before [[ACTION:todo.create title='single quoted']] after`)
 	if !found || act.Args["title"] != "single quoted" || strings.Contains(cleaned, "ACTION") {
 		t.Fatalf("action=%+v cleaned=%q found=%v", act, cleaned, found)

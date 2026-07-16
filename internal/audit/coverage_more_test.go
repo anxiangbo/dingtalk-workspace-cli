@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func TestChainErrorAndLargeRecordCoverage(t *testing.T) {
+func TestCrossPlatformCoverageChainErrorAndLargeRecordCoverage(t *testing.T) {
 	dir := t.TempDir()
 	closed, err := os.Create(filepath.Join(dir, "closed"))
 	if err != nil {
@@ -86,7 +86,7 @@ func TestChainErrorAndLargeRecordCoverage(t *testing.T) {
 	}
 }
 
-func TestCollectionAndRotationCoverage(t *testing.T) {
+func TestCrossPlatformCoverageCollectionAndRotationCoverage(t *testing.T) {
 	for _, value := range []string{"1", "true", "on", "yes", "y"} {
 		t.Setenv(EnvAuditDebug, value)
 		if !DebugEnabled() {
@@ -264,7 +264,7 @@ func TestCollectionAndRotationCoverage(t *testing.T) {
 	}
 }
 
-func TestSinkAndForwarderFailureCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSinkAndForwarderFailureCoverage(t *testing.T) {
 	originalMarshal, originalWrite := sinkMarshal, sinkWrite
 	originalForwardMarshal, originalRedact := forwardMarshal, forwardRedactEventJSON
 	originalReadAt, originalSeek, originalChainMarshal := chainReadAt, chainSeek, chainMarshal

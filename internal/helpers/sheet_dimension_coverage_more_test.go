@@ -29,7 +29,7 @@ func executeDimensionCoverage(t *testing.T, name string, args ...string) error {
 	return cmd.Execute()
 }
 
-func TestDimensionValidationRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDimensionValidationRemainingCoverage(t *testing.T) {
 	installScriptedCaller(t, &scriptedToolCaller{dry: true})
 	common := []string{"--node", "node", "--sheet-id", "sheet"}
 	if err := executeDimensionCoverage(t, "insert-dimension", append(common, "--dimension", "ROWS", "--position", "1", "--length", "5001")...); err == nil {
@@ -74,7 +74,7 @@ func TestDimensionValidationRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestDropdownValidationRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDropdownValidationRemainingCoverage(t *testing.T) {
 	installScriptedCaller(t, &scriptedToolCaller{dry: true})
 	base := []string{"--node", "node", "--sheet-id", "sheet", "--range", "A1"}
 	for _, options := range []string{"[]", `[{"value":"a,b"}]`} {

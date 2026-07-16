@@ -49,7 +49,7 @@ func personalHTTPClient(status int, body string) *http.Client {
 	})}
 }
 
-func TestPersonalClientEdgeCases(t *testing.T) {
+func TestCrossPlatformCoveragePersonalClientEdgeCases(t *testing.T) {
 	if got := (Identity{}).Key(); !strings.HasPrefix(got, "unknown\x00") {
 		t.Fatalf("unknown identity key = %q", got)
 	}
@@ -143,7 +143,7 @@ func TestPersonalClientEdgeCases(t *testing.T) {
 	}
 }
 
-func TestPersonalClientHelpersAndOperations(t *testing.T) {
+func TestCrossPlatformCoveragePersonalClientHelpersAndOperations(t *testing.T) {
 	trueValue := true
 	if (responseEnvelope{}).apiError() != nil {
 		t.Fatal("empty response envelope returned an error")
@@ -247,7 +247,7 @@ func TestPersonalClientHelpersAndOperations(t *testing.T) {
 	}
 }
 
-func TestPersonalPaginationFiltersAndGuard(t *testing.T) {
+func TestCrossPlatformCoveragePersonalPaginationFiltersAndGuard(t *testing.T) {
 	client := &Client{BaseURL: "http://example.test", Identity: Identity{AccessToken: "token"}}
 	items := `[{"subId":"id1","status":2,"eventKey":"target"},{"subId":"id2","status":1,"eventKey":"other"},{"subId":"idx","status":1,"eventKey":"target"},{"subId":"id3","status":1,"eventKey":"target"}]`
 	client.HTTPClient = personalHTTPClient(200, `{"success":true,"result":{"items":`+items+`}}`)
@@ -265,7 +265,7 @@ func TestPersonalPaginationFiltersAndGuard(t *testing.T) {
 	}
 }
 
-func TestPersonalRegistryEdgeCases(t *testing.T) {
+func TestCrossPlatformCoveragePersonalRegistryEdgeCases(t *testing.T) {
 	if got := (&SchemaPendingError{EventKey: "pending"}).Error(); !strings.Contains(got, "pending") {
 		t.Fatalf("pending error = %q", got)
 	}
@@ -339,7 +339,7 @@ func TestPersonalRegistryEdgeCases(t *testing.T) {
 	}
 }
 
-func TestRunStateEdgeCases(t *testing.T) {
+func TestCrossPlatformCoverageRunStateEdgeCases(t *testing.T) {
 	workDir := t.TempDir()
 	if err := UpsertRunState(workDir, RunState{}); err != nil {
 		t.Fatal(err)
@@ -370,7 +370,7 @@ func TestRunStateEdgeCases(t *testing.T) {
 	}
 }
 
-func TestRunStateInjectedFailures(t *testing.T) {
+func TestCrossPlatformCoverageRunStateInjectedFailures(t *testing.T) {
 	originalRead := runStateReadFile
 	originalMkdir := runStateMkdirAll
 	originalAcquire := runStateTryAcquire

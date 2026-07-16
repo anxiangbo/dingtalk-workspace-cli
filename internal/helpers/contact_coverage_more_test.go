@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestContactRemainingCompatibilityBranches(t *testing.T) {
+func TestCrossPlatformCoverageContactRemainingCompatibilityBranches(t *testing.T) {
 	cmd := &cobra.Command{Use: "flags"}
 	cmd.Flags().String("id", "", "")
 	if got := contactFirstSetFlagName(cmd, "id"); got != "id" {

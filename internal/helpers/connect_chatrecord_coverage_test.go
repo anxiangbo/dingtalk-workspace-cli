@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func TestChatRecordParsingAndRecoveryEdges(t *testing.T) {
+func TestCrossPlatformCoverageChatRecordParsingAndRecoveryEdges(t *testing.T) {
 	if chatRecordEntries("not-map") != nil {
 		t.Fatal("chatRecordEntries(non-map) != nil")
 	}
@@ -114,7 +114,7 @@ func TestChatRecordParsingAndRecoveryEdges(t *testing.T) {
 	}
 }
 
-func TestChatRecordDownloadFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageChatRecordDownloadFailureEdges(t *testing.T) {
 	client := &aiCardClient{httpClient: http.DefaultClient}
 	if _, err := client.downloadRecoveredChatRecordFileWithCall(context.Background(), fileInboundInfo{}, nil); err == nil {
 		t.Fatal("download without locator succeeded")

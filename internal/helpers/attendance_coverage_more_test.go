@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestAttendanceResponseAndDateCoverage(t *testing.T) {
+func TestCrossPlatformCoverageAttendanceResponseAndDateCoverage(t *testing.T) {
 	previous := deps
 	InitDeps(&productExampleCaller{})
 	deps.Out.w = io.Discard
@@ -42,7 +42,7 @@ func TestAttendanceResponseAndDateCoverage(t *testing.T) {
 	}
 }
 
-func TestAttendanceFlagFallbackCoverage(t *testing.T) {
+func TestCrossPlatformCoverageAttendanceFlagFallbackCoverage(t *testing.T) {
 	newCommand := func() *cobra.Command {
 		cmd := &cobra.Command{Use: "flags"}
 		cmd.Flags().Int64("primary64", 7, "")
@@ -84,7 +84,7 @@ func TestAttendanceFlagFallbackCoverage(t *testing.T) {
 	}
 }
 
-func TestConvertClassCheckTimeCoverage(t *testing.T) {
+func TestCrossPlatformCoverageConvertClassCheckTimeCoverage(t *testing.T) {
 	class := map[string]any{
 		"sections": []any{
 			"bad",
@@ -115,7 +115,7 @@ func validAttendanceFlagValue(valueType string) string {
 	}
 }
 
-func TestSelfSettingSaveCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSelfSettingSaveCoverage(t *testing.T) {
 	for _, spec := range selfSettingSaveFlagSpecs {
 		cmd := &cobra.Command{Use: "self"}
 		registerSelfSettingSaveFlags(cmd)
@@ -147,7 +147,7 @@ func TestSelfSettingSaveCoverage(t *testing.T) {
 	}
 }
 
-func TestGlobalSettingSaveCoverage(t *testing.T) {
+func TestCrossPlatformCoverageGlobalSettingSaveCoverage(t *testing.T) {
 	for _, spec := range globalSettingSaveFlagSpecs {
 		cmd := &cobra.Command{Use: "global"}
 		registerGlobalSettingSaveFlags(cmd)

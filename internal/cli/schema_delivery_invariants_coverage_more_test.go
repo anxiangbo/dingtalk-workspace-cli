@@ -30,7 +30,7 @@ func requireDeliveryProblem(t *testing.T, loaded loadedSchemaCatalog, want strin
 	}
 }
 
-func TestSchemaDeliveryInvariantBoundaryErrors(t *testing.T) {
+func TestCrossPlatformCoverageSchemaDeliveryInvariantBoundaryErrors(t *testing.T) {
 	badSnapshot := SchemaCatalogSnapshot{Catalog: map[string]any{"bad": func() {}}}
 	if err := ValidateSchemaDeliveryInvariants(SchemaRegistry{}, badSnapshot); err == nil || !strings.Contains(err.Error(), "encode final") {
 		t.Fatalf("ValidateSchemaDeliveryInvariants() marshal error = %v", err)
@@ -69,7 +69,7 @@ func TestSchemaDeliveryInvariantBoundaryErrors(t *testing.T) {
 	}
 }
 
-func TestSchemaJSONDifferenceRemainingShapes(t *testing.T) {
+func TestCrossPlatformCoverageSchemaJSONDifferenceRemainingShapes(t *testing.T) {
 	path, left, _ := firstSchemaJSONDifference(func() {}, map[string]any{})
 	if path != "$" || !strings.Contains(left, "encode error") {
 		t.Fatalf("encode difference = %q %q", path, left)
@@ -104,7 +104,7 @@ func TestSchemaJSONDifferenceRemainingShapes(t *testing.T) {
 	}
 }
 
-func TestSchemaDeliveryInvariantProjectionEdges(t *testing.T) {
+func TestCrossPlatformCoverageSchemaDeliveryInvariantProjectionEdges(t *testing.T) {
 	oldRegistry := deliveryRegistryPayload
 	oldQuery := deliverySchemaPayload
 	oldOverview := deliveryOverviewPayload
@@ -258,7 +258,7 @@ func TestSchemaDeliveryInvariantProjectionEdges(t *testing.T) {
 	requireDeliveryProblem(t, loaded, "Catalog full tools contain 2 tools")
 }
 
-func TestSchemaDeliveryToolExtractionAndAliasPathEdge(t *testing.T) {
+func TestCrossPlatformCoverageSchemaDeliveryToolExtractionAndAliasPathEdge(t *testing.T) {
 	payload := map[string]any{"products": []map[string]any{{"tools": []map[string]any{{"title": "missing"}}}}}
 	_, problems := schemaDeliveryToolsByCanonical(payload, "view")
 	if len(problems) != 1 || !strings.Contains(problems[0], "without canonical_path") {

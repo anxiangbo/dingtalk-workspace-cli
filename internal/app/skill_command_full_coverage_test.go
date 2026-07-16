@@ -36,7 +36,7 @@ func skillCoverageCommand() *cobra.Command {
 	return cmd
 }
 
-func TestSkillCommandHighLevelRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSkillCommandHighLevelRemainingCoverage(t *testing.T) {
 	oldToken := skillLoadAccessToken
 	oldTmp := skillDownloadToTmp
 	oldHTTP := skillHTTPDo
@@ -150,7 +150,7 @@ func TestSkillCommandHighLevelRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestSkillCommandLowLevelRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSkillCommandLowLevelRemainingCoverage(t *testing.T) {
 	oldHTTP := skillHTTPDo
 	oldNewRequest, oldLoadToken := skillNewRequest, skillLoadTokenData
 	oldHome := skillUserHomeDir

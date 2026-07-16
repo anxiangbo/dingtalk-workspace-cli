@@ -20,7 +20,7 @@ func opencodeTestClient(t *testing.T, handler http.HandlerFunc) (*opencodeHTTPCl
 	return &opencodeHTTPClient{baseURL: server.URL, username: "user", password: "pass", httpClient: server.Client()}, server.Close
 }
 
-func TestOpencodeForwarderRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageOpencodeForwarderRemainingEdges(t *testing.T) {
 	t.Run("create session error", func(t *testing.T) {
 		client, closeServer := opencodeTestClient(t, func(w http.ResponseWriter, _ *http.Request) { http.Error(w, "failed", http.StatusInternalServerError) })
 		defer closeServer()
@@ -79,7 +79,7 @@ func TestOpencodeForwarderRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestOpencodeServerEnsureAndCloseEdges(t *testing.T) {
+func TestCrossPlatformCoverageOpencodeServerEnsureAndCloseEdges(t *testing.T) {
 	origPort := opencodeFreeLocalPort
 	origCommand := opencodeExecCommand
 	origWait := opencodeServerStartupWait
@@ -156,7 +156,7 @@ func TestOpencodeServerEnsureAndCloseEdges(t *testing.T) {
 	}
 }
 
-func TestOpencodeWaitHealthyRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageOpencodeWaitHealthyRemainingEdges(t *testing.T) {
 	origWait := opencodeServerStartupWait
 	origSleep := helperSleep
 	t.Cleanup(func() {
@@ -191,7 +191,7 @@ func TestOpencodeWaitHealthyRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestOpencodeHTTPClientRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageOpencodeHTTPClientRemainingEdges(t *testing.T) {
 	ctx := context.Background()
 	empty := &opencodeHTTPClient{httpClient: &http.Client{}}
 	if err := empty.health(ctx); err == nil {
@@ -240,7 +240,7 @@ func TestOpencodeHTTPClientRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestOpencodeDoJSONAndPartsEdges(t *testing.T) {
+func TestCrossPlatformCoverageOpencodeDoJSONAndPartsEdges(t *testing.T) {
 	ctx := context.Background()
 	client := &opencodeHTTPClient{baseURL: "http://example.invalid", httpClient: &http.Client{}}
 	if err := client.doJSON(ctx, http.MethodPost, "/x", make(chan int), nil); err == nil {
@@ -297,7 +297,7 @@ func TestOpencodeDoJSONAndPartsEdges(t *testing.T) {
 	}
 }
 
-func TestOpencodeSystemHelperEdges(t *testing.T) {
+func TestCrossPlatformCoverageOpencodeSystemHelperEdges(t *testing.T) {
 	origPort := opencodeFreeLocalPort
 	origRand := opencodeRandRead
 	origListen := freeLocalPortListen

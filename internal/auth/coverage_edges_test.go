@@ -120,7 +120,7 @@ func (f *fakePortableTemp) Chmod(os.FileMode) error { return f.chmodErr }
 func (f *fakePortableTemp) Sync() error             { return f.syncErr }
 func (f *fakePortableTemp) Close() error            { f.closeCall++; return f.closeErr }
 
-func TestAppTokenEdges(t *testing.T) {
+func TestCrossPlatformCoverageAppTokenEdges(t *testing.T) {
 	if err := SaveAppTokenData(&AppTokenData{}); err == nil {
 		t.Fatal("empty client ID save succeeded")
 	}
@@ -216,7 +216,7 @@ func TestAppTokenEdges(t *testing.T) {
 	}
 }
 
-func TestDeviceFlowRequestAndOutputEdges(t *testing.T) {
+func TestCrossPlatformCoverageDeviceFlowRequestAndOutputEdges(t *testing.T) {
 	var buf bytes.Buffer
 	p := &DeviceFlowProvider{Output: &buf, clientID: "client", scope: "scope", httpClient: http.DefaultClient}
 	p.SetScope("custom")
@@ -334,7 +334,7 @@ func TestDeviceFlowRequestAndOutputEdges(t *testing.T) {
 	}
 }
 
-func TestDeviceFlowWaitImmediateEdges(t *testing.T) {
+func TestCrossPlatformCoverageDeviceFlowWaitImmediateEdges(t *testing.T) {
 	p := &DeviceFlowProvider{Output: io.Discard}
 	if _, err := p.waitForAuthorizationByFlowID(context.Background(), &DeviceAuthResponse{ExpiresIn: 0}); err == nil {
 		t.Fatal("flow deadline succeeded")
@@ -357,7 +357,7 @@ func TestDeviceFlowWaitImmediateEdges(t *testing.T) {
 	}
 }
 
-func TestDeviceFlowLoginRetry(t *testing.T) {
+func TestCrossPlatformCoverageDeviceFlowLoginRetry(t *testing.T) {
 	oldClient := oauthHTTPClient
 	oldAfter := deviceFlowAfter
 	oldBrowser := deviceOpenBrowser
@@ -418,7 +418,7 @@ func TestDeviceFlowLoginRetry(t *testing.T) {
 	}
 }
 
-func TestPortablePathHelpers(t *testing.T) {
+func TestCrossPlatformCoveragePortablePathHelpers(t *testing.T) {
 	if _, err := cleanPortableName("../escape"); err == nil {
 		t.Fatal("unsafe portable name succeeded")
 	}
@@ -461,7 +461,7 @@ func TestPortablePathHelpers(t *testing.T) {
 	}
 }
 
-func TestProfilesLifecycleEdges(t *testing.T) {
+func TestCrossPlatformCoverageProfilesLifecycleEdges(t *testing.T) {
 	dir := t.TempDir()
 	cfg, err := LoadProfiles(dir)
 	if err != nil || cfg.Version != 1 || len(cfg.Profiles) != 0 {
@@ -595,7 +595,7 @@ func TestProfilesLifecycleEdges(t *testing.T) {
 	}
 }
 
-func TestProfilesMigrationAndMirror(t *testing.T) {
+func TestCrossPlatformCoverageProfilesMigrationAndMirror(t *testing.T) {
 	dir := t.TempDir()
 	_ = DeleteTokenDataKeychain()
 	legacy := &TokenData{CorpID: "legacy-corp", CorpName: "Legacy", AccessToken: "token"}
@@ -632,7 +632,7 @@ func TestProfilesMigrationAndMirror(t *testing.T) {
 	}
 }
 
-func TestTokenEditionHooksAndCleanup(t *testing.T) {
+func TestCrossPlatformCoverageTokenEditionHooksAndCleanup(t *testing.T) {
 	oldHooks := edition.Get()
 	t.Cleanup(func() {
 		edition.Override(oldHooks)
@@ -678,7 +678,7 @@ func TestTokenEditionHooksAndCleanup(t *testing.T) {
 	}
 }
 
-func TestTokenAndKeychainEdges(t *testing.T) {
+func TestCrossPlatformCoverageTokenAndKeychainEdges(t *testing.T) {
 	dir := t.TempDir()
 	if err := SaveTokenDataKeychainForCorpID("", &TokenData{}); err == nil {
 		t.Fatal("empty corp token save succeeded")
@@ -742,7 +742,7 @@ func TestTokenAndKeychainEdges(t *testing.T) {
 	}
 }
 
-func TestAppConfigDeleteReloadEdges(t *testing.T) {
+func TestCrossPlatformCoverageAppConfigDeleteReloadEdges(t *testing.T) {
 	dir := t.TempDir()
 	if err := os.Mkdir(GetAppConfigPath(dir), 0o755); err != nil {
 		t.Fatal(err)
@@ -780,7 +780,7 @@ func TestAppConfigDeleteReloadEdges(t *testing.T) {
 	}
 }
 
-func TestBasicAuthCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoverageBasicAuthCoverageEdges(t *testing.T) {
 	t.Run("channel and status", func(t *testing.T) {
 		t.Setenv(AgentCodeEnv, " agent ")
 		if !AgentCodeEnvPresent() || !HostOwnsPATFlow() {
@@ -1054,7 +1054,7 @@ func TestBasicAuthCoverageEdges(t *testing.T) {
 	})
 }
 
-func TestPortableAuthBundleCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoveragePortableAuthBundleCoverageEdges(t *testing.T) {
 	makeBundle := func(t *testing.T, entries []tar.Header, bodies []string) []byte {
 		t.Helper()
 		var buf bytes.Buffer
@@ -1439,7 +1439,7 @@ func TestPortableAuthBundleCoverageEdges(t *testing.T) {
 	})
 }
 
-func TestTokenStorageAndRevocationCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoverageTokenStorageAndRevocationCoverageEdges(t *testing.T) {
 	oldMarshalIndent := tokenJSONMarshalIndent
 	oldMarshal := tokenJSONMarshal
 	oldMkdir := tokenMkdirAll
@@ -1826,7 +1826,7 @@ func TestTokenStorageAndRevocationCoverageEdges(t *testing.T) {
 	})
 }
 
-func TestSmallRemainingAuthEdges(t *testing.T) {
+func TestCrossPlatformCoverageSmallRemainingAuthEdges(t *testing.T) {
 	t.Run("app token hooks", func(t *testing.T) {
 		oldIndent := appTokenMarshalIndent
 		oldMarshal := appTokenMarshal
@@ -2025,7 +2025,7 @@ func TestSmallRemainingAuthEdges(t *testing.T) {
 	}
 }
 
-func TestProfilesCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoverageProfilesCoverageEdges(t *testing.T) {
 	oldAcquire := profilesAcquireDualLock
 	oldRead := profilesReadFile
 	oldRename := profilesRename
@@ -2270,7 +2270,7 @@ func TestProfilesCoverageEdges(t *testing.T) {
 	normalizeProfilesConfig(nil)
 }
 
-func TestSecureIdentityKeychainAndLockEdges(t *testing.T) {
+func TestCrossPlatformCoverageSecureIdentityKeychainAndLockEdges(t *testing.T) {
 	t.Run("secure store", func(t *testing.T) {
 		oldGetMAC := secureGetMAC
 		oldMkdir := secureMkdirAll
@@ -2582,7 +2582,7 @@ func TestSecureIdentityKeychainAndLockEdges(t *testing.T) {
 	})
 }
 
-func TestAppConfigHookCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoverageAppConfigHookCoverageEdges(t *testing.T) {
 	oldStore := appConfigStoreSecret
 	oldMarshal := appConfigMarshalIndent
 	oldWrite := appConfigAtomicWrite
@@ -2678,7 +2678,7 @@ func TestAppConfigHookCoverageEdges(t *testing.T) {
 	}
 }
 
-func TestDeviceFlowHighLevelCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoverageDeviceFlowHighLevelCoverageEdges(t *testing.T) {
 	oldFetch := deviceFetchClientID
 	oldLogin := deviceLoginOnce
 	oldRequest := deviceRequestCode

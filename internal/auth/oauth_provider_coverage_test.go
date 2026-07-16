@@ -131,7 +131,7 @@ func httpGetBody(t *testing.T, rawURL string) (int, string) {
 	return resp.StatusCode, string(data)
 }
 
-func TestOAuthLoginCallbackAndAPIs(t *testing.T) {
+func TestCrossPlatformCoverageOAuthLoginCallbackAndAPIs(t *testing.T) {
 	f := newOAuthLoginFixture(t, func(int32) CLIAuthStatus {
 		return CLIAuthStatus{Success: true, Result: &CLIAuthResult{CLIAuthEnabled: true}}
 	})
@@ -224,7 +224,7 @@ func TestOAuthLoginCallbackAndAPIs(t *testing.T) {
 	}
 }
 
-func TestOAuthLoginMissingCallbackCode(t *testing.T) {
+func TestCrossPlatformCoverageOAuthLoginMissingCallbackCode(t *testing.T) {
 	f := newOAuthLoginFixture(t, func(int32) CLIAuthStatus {
 		return CLIAuthStatus{Success: true, Result: &CLIAuthResult{CLIAuthEnabled: true}}
 	})
@@ -244,7 +244,7 @@ func TestOAuthLoginMissingCallbackCode(t *testing.T) {
 	}
 }
 
-func TestOAuthLoginEarlyAndListenerEdges(t *testing.T) {
+func TestCrossPlatformCoverageOAuthLoginEarlyAndListenerEdges(t *testing.T) {
 	var buf bytes.Buffer
 	p := &OAuthProvider{configDir: t.TempDir(), Output: &buf}
 	if p.output() != &buf || (*OAuthProvider)(nil).output() != io.Discard {
@@ -279,7 +279,7 @@ func TestOAuthLoginEarlyAndListenerEdges(t *testing.T) {
 	}
 }
 
-func TestOAuthLoginTimeoutAndServerError(t *testing.T) {
+func TestCrossPlatformCoverageOAuthLoginTimeoutAndServerError(t *testing.T) {
 	oldTimeout := oauthLoginTimeout
 	oldListen := oauthListen
 	t.Cleanup(func() {
@@ -310,7 +310,7 @@ func TestOAuthLoginTimeoutAndServerError(t *testing.T) {
 	}
 }
 
-func TestOAuthProviderOtherMethods(t *testing.T) {
+func TestCrossPlatformCoverageOAuthProviderOtherMethods(t *testing.T) {
 	dir := t.TempDir()
 	_ = DeleteTokenDataKeychain()
 	t.Cleanup(func() { _ = DeleteTokenDataKeychain() })
@@ -362,7 +362,7 @@ func (f roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) {
 	return f(r)
 }
 
-func TestOAuthPersistConfigEdges(t *testing.T) {
+func TestCrossPlatformCoverageOAuthPersistConfigEdges(t *testing.T) {
 	p := &OAuthProvider{configDir: t.TempDir(), logger: slog.Default()}
 	SetClientID("")
 	SetClientSecret("")
@@ -387,7 +387,7 @@ func TestOAuthPersistConfigEdges(t *testing.T) {
 	SetClientSecret("")
 }
 
-func TestBuildOAuthAuthURLTarget(t *testing.T) {
+func TestCrossPlatformCoverageBuildOAuthAuthURLTarget(t *testing.T) {
 	raw := buildAuthURL("client", "http://localhost/callback", "corp")
 	parsed, err := url.Parse(raw)
 	if err != nil {
@@ -398,7 +398,7 @@ func TestBuildOAuthAuthURLTarget(t *testing.T) {
 	}
 }
 
-func TestOAuthLoginDenialAndPolling(t *testing.T) {
+func TestCrossPlatformCoverageOAuthLoginDenialAndPolling(t *testing.T) {
 	oldPoll := oauthPollInterval
 	oldApproval := oauthApprovalTimeout
 	oldPause := oauthSuccessPause
@@ -514,7 +514,7 @@ func TestOAuthLoginDenialAndPolling(t *testing.T) {
 	})
 }
 
-func TestOAuthLoginExchangeFailure(t *testing.T) {
+func TestCrossPlatformCoverageOAuthLoginExchangeFailure(t *testing.T) {
 	f := newOAuthLoginFixture(t, func(int32) CLIAuthStatus {
 		return CLIAuthStatus{Success: true, Result: &CLIAuthResult{CLIAuthEnabled: true}}
 	})
@@ -535,7 +535,7 @@ func TestOAuthLoginExchangeFailure(t *testing.T) {
 	}
 }
 
-func TestOAuthRefreshAndParsingEdges(t *testing.T) {
+func TestCrossPlatformCoverageOAuthRefreshAndParsingEdges(t *testing.T) {
 	t.Setenv("DWS_CLIENT_ID", "")
 	t.Setenv("DWS_CLIENT_SECRET", "")
 	dir := t.TempDir()
@@ -639,7 +639,7 @@ func TestOAuthRefreshAndParsingEdges(t *testing.T) {
 	}
 }
 
-func TestOAuthProviderHighLevelEdges(t *testing.T) {
+func TestCrossPlatformCoverageOAuthProviderHighLevelEdges(t *testing.T) {
 	oldLoad := oauthLoadToken
 	oldAcquire := oauthAcquireLock
 	oldMark := oauthMarkProfile
@@ -769,7 +769,7 @@ func TestOAuthProviderHighLevelEdges(t *testing.T) {
 	}
 }
 
-func TestOAuthCallbackRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageOAuthCallbackRemainingEdges(t *testing.T) {
 	oldCheck := oauthCheckStatus
 	oldAdmins := oauthGetAdmins
 	oldApply := oauthSendApply
@@ -936,7 +936,7 @@ func TestOAuthCallbackRemainingEdges(t *testing.T) {
 	})
 }
 
-func TestOAuthHelperRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageOAuthHelperRemainingEdges(t *testing.T) {
 	oldClient := oauthHTTPClient
 	oldRequest := oauthNewRequest
 	oldRetry := oauthRetryAfter

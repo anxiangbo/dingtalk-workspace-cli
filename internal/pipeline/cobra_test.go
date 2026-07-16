@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestFlagInfoFromCommandIncludesLocalInheritedAndAnnotations(t *testing.T) {
+func TestCrossPlatformCoverageFlagInfoFromCommandIncludesLocalInheritedAndAnnotations(t *testing.T) {
 	if FlagInfoFromCommand(nil) != nil {
 		t.Fatal("FlagInfoFromCommand(nil) != nil")
 	}
@@ -46,7 +46,7 @@ func TestFlagInfoFromCommandIncludesLocalInheritedAndAnnotations(t *testing.T) {
 	}
 }
 
-func TestRunPreParseGuardAndTraversalBranches(t *testing.T) {
+func TestCrossPlatformCoverageRunPreParseGuardAndTraversalBranches(t *testing.T) {
 	previousArgs := os.Args
 	t.Cleanup(func() { os.Args = previousArgs })
 	root := &cobra.Command{Use: "root"}
@@ -67,7 +67,7 @@ func TestRunPreParseGuardAndTraversalBranches(t *testing.T) {
 	RunPreParse(root, engine)
 }
 
-func TestRunPreParseAppliesCorrectionsOnlyOnSuccess(t *testing.T) {
+func TestCrossPlatformCoverageRunPreParseAppliesCorrectionsOnlyOnSuccess(t *testing.T) {
 	previousArgs := os.Args
 	t.Cleanup(func() { os.Args = previousArgs })
 

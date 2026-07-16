@@ -16,7 +16,7 @@ import (
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/executor"
 )
 
-func TestPATRetryRemainingPureAndWaitCoverage(t *testing.T) {
+func TestCrossPlatformCoveragePATRetryRemainingPureAndWaitCoverage(t *testing.T) {
 	typed := apperrors.NewAPI("ordinary", apperrors.WithHint("insufficient_scope"))
 	if !isPatScopeError(typed) {
 		t.Fatal("typed insufficient_scope was not recognized")
@@ -88,7 +88,7 @@ func TestPATRetryRemainingPureAndWaitCoverage(t *testing.T) {
 	}
 }
 
-func TestPATRetryRemainingOrchestrationCoverage(t *testing.T) {
+func TestCrossPlatformCoveragePATRetryRemainingOrchestrationCoverage(t *testing.T) {
 	oldWait := patWaitForAuthorization
 	oldPoll := patPollDeviceFlowWithInterval
 	oldSaveApp := patSaveAppConfig
@@ -212,7 +212,7 @@ func patRaw(flowID, clientID, secret string) string {
 	return `{"code":"x","data":{"desc":"authorize","flowId":"` + flowID + `","uri":"https://auth.test","clientId":"` + clientID + `","clientSecret":"` + secret + `"}}`
 }
 
-func TestPATRetryRemainingPollAndBrowserCoverage(t *testing.T) {
+func TestCrossPlatformCoveragePATRetryRemainingPollAndBrowserCoverage(t *testing.T) {
 	oldDo := patPollHTTPDo
 	oldRequest := patPollNewRequest
 	oldLoad := patLoadTokenData

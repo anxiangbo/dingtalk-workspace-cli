@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func TestConnectHealthRemainingIOAndListingBranches(t *testing.T) {
+func TestCrossPlatformCoverageConnectHealthRemainingIOAndListingBranches(t *testing.T) {
 	origOverride := connectDaemonDirOverride
 	origReadDir := connectHealthReadDir
 	t.Cleanup(func() {

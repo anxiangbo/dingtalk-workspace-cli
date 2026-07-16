@@ -24,7 +24,7 @@ func pluginCoverageRun(cmd *cobra.Command, args ...string) (string, error) {
 	return out.String(), err
 }
 
-func TestPluginCommandRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoveragePluginCommandRemainingCoverage(t *testing.T) {
 	oldGit := pluginInstallFromGit
 	oldStat := pluginStat
 	oldMkdir := pluginMkdirAll

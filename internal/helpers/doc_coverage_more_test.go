@@ -17,7 +17,7 @@ type docFailingReader struct{}
 
 func (docFailingReader) Read([]byte) (int, error) { return 0, errors.New("read failed") }
 
-func TestDocVersionTraversalCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDocVersionTraversalCoverage(t *testing.T) {
 	for _, value := range []any{
 		map[string]any{"hasMore": false, "nextCursor": "ignored"},
 		map[string]any{"nextCursor": "next"}, map[string]any{"nextToken": "token"}, map[string]any{"cursor": "cursor"},
@@ -55,7 +55,7 @@ func TestDocVersionTraversalCoverage(t *testing.T) {
 	_, _ = docVersionExists(context.Background(), "node", 3)
 }
 
-func TestDocUploadDownloadParsingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDocUploadDownloadParsingCoverage(t *testing.T) {
 	for _, raw := range []string{
 		`{`, `{}`,
 		`{"resourceUrl":"https://upload","uploadKey":"key","headers":{"x":"value","bad":1}}`,
@@ -80,7 +80,7 @@ func TestDocUploadDownloadParsingCoverage(t *testing.T) {
 	}
 }
 
-func TestResolveDocContentCoverage(t *testing.T) {
+func TestCrossPlatformCoverageResolveDocContentCoverage(t *testing.T) {
 	previous := deps
 	InitDeps(&productExampleCaller{})
 	deps.Out.w = io.Discard
@@ -119,7 +119,7 @@ func TestResolveDocContentCoverage(t *testing.T) {
 	}
 }
 
-func TestRunDocReadJSONMLCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRunDocReadJSONMLCoverage(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "doc"}
 	t.Cleanup(func() { os.Args = oldArgs })
@@ -151,7 +151,7 @@ func TestRunDocReadJSONMLCoverage(t *testing.T) {
 	}
 }
 
-func TestDocDeprecationWrappersCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDocDeprecationWrappersCoverage(t *testing.T) {
 	previous := deps
 	InitDeps(&productExampleCaller{})
 	deps.Out.w = io.Discard
@@ -176,7 +176,7 @@ func TestDocDeprecationWrappersCoverage(t *testing.T) {
 	}
 }
 
-func TestRunDocUploadDownloadAndMediaCoverage(t *testing.T) {
+func TestCrossPlatformCoverageRunDocUploadDownloadAndMediaCoverage(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "doc"}
 	t.Cleanup(func() { os.Args = oldArgs })

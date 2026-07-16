@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-func TestAuthTokenCiphertextPathFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageAuthTokenCiphertextPathFailureEdges(t *testing.T) {
 	origReadDir, origInfo := authEntriesReadDir, authEntryInfo
 	t.Cleanup(func() {
 		authEntriesReadDir = origReadDir
@@ -56,7 +56,7 @@ func TestAuthTokenCiphertextPathFailureEdges(t *testing.T) {
 	}
 }
 
-func TestDarwinRemainingValidationAndReadEdges(t *testing.T) {
+func TestCrossPlatformCoverageDarwinRemainingValidationAndReadEdges(t *testing.T) {
 	origRead := keychainEntryReadFile
 	origPaths := keychainAuthTokenCiphertextPaths
 	origGet := keyringGet
@@ -123,7 +123,7 @@ func TestDarwinRemainingValidationAndReadEdges(t *testing.T) {
 	}
 }
 
-func TestDarwinFileDEKMigrationFailureEdges(t *testing.T) {
+func TestCrossPlatformCoverageDarwinFileDEKMigrationFailureEdges(t *testing.T) {
 	origPaths := migrationAuthTokenCiphertextPaths
 	origRead := migrationReadFile
 	origFileDEK := migrationFileDEK

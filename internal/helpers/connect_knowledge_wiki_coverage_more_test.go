@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestWikiPullRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageWikiPullRemainingCoverage(t *testing.T) {
 	ctx := context.Background()
 	if _, err := pullWikiDocs(ctx, fakeWikiFetcher{readErrFor: map[string]error{"doc": errors.New("read")}}, knowledgeSource{kind: knowledgeSourceDoc, ref: "doc"}); err == nil {
 		t.Fatal("single doc read error returned nil")
@@ -33,7 +33,7 @@ func TestWikiPullRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestWikiCacheFailureRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageWikiCacheFailureRemainingCoverage(t *testing.T) {
 	originalLoad := wikiLoadKnowledgeBase
 	originalRemove := wikiRemoveAll
 	originalMkdir := wikiMkdirAll

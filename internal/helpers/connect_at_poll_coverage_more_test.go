@@ -70,7 +70,7 @@ func newAtPollForTest(fwd forwarder, extras *connectExtras) *atMentionPoller {
 	}
 }
 
-func TestAtMentionPollerStartAndPollCoverage(t *testing.T) {
+func TestCrossPlatformCoverageAtMentionPollerStartAndPollCoverage(t *testing.T) {
 	origAfter := helperAfter
 	origExecutable := atPollExecutable
 	origCommand := atPollCommandContext
@@ -132,7 +132,7 @@ func TestAtMentionPollerStartAndPollCoverage(t *testing.T) {
 	}
 }
 
-func TestAtMentionPollerHandleCoverage(t *testing.T) {
+func TestCrossPlatformCoverageAtMentionPollerHandleCoverage(t *testing.T) {
 	base := atMentionMessage{MsgID: "m", OpenConversationID: "conv", SenderStaffID: "user", SenderNick: "nick", Content: `{"text":"hello"}`, ConversationType: "2"}
 
 	p := newAtPollForTest(&atPollSignalForwarder{done: make(chan struct{}, 1)}, &connectExtras{})
@@ -198,7 +198,7 @@ func TestAtMentionPollerHandleCoverage(t *testing.T) {
 	waitAtPollForward(t, slow)
 }
 
-func TestAtMentionPollerSendGroupReplyCoverage(t *testing.T) {
+func TestCrossPlatformCoverageAtMentionPollerSendGroupReplyCoverage(t *testing.T) {
 	origBase := dingtalkCardAPIBase
 	t.Cleanup(func() { dingtalkCardAPIBase = origBase })
 	p := newAtPollForTest(&atPollSignalForwarder{done: make(chan struct{}, 1)}, &connectExtras{})

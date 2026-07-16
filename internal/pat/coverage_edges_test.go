@@ -51,7 +51,7 @@ func patText(text string) *edition.ToolResult {
 	return &edition.ToolResult{Content: []edition.ContentBlock{{Type: "text", Text: text}}}
 }
 
-func TestBrowserPolicyInjectedEdges(t *testing.T) {
+func TestCrossPlatformCoverageBrowserPolicyInjectedEdges(t *testing.T) {
 	originalRead := patPolicyReadFile
 	originalHome := patPolicyUserHomeDir
 	originalMarshal := patPolicyMarshal
@@ -138,7 +138,7 @@ func TestBrowserPolicyInjectedEdges(t *testing.T) {
 	}
 }
 
-func TestBrowserPolicyCommandWriteError(t *testing.T) {
+func TestCrossPlatformCoverageBrowserPolicyCommandWriteError(t *testing.T) {
 	t.Setenv("DWS_CONFIG_DIR", t.TempDir())
 	cmd := newBrowserPolicyCommand()
 	cmd.SetOut(patFailWriter{})
@@ -151,7 +151,7 @@ func TestBrowserPolicyCommandWriteError(t *testing.T) {
 	}
 }
 
-func TestBrowserPolicyCommandSetError(t *testing.T) {
+func TestCrossPlatformCoverageBrowserPolicyCommandSetError(t *testing.T) {
 	badDir := filepath.Join(t.TempDir(), "file")
 	if err := os.WriteFile(badDir, []byte("x"), 0o600); err != nil {
 		t.Fatal(err)
@@ -164,7 +164,7 @@ func TestBrowserPolicyCommandSetError(t *testing.T) {
 	}
 }
 
-func TestPATPureHelperEdges(t *testing.T) {
+func TestCrossPlatformCoveragePATPureHelperEdges(t *testing.T) {
 	if got := collectChmodProductCodes([]string{"", "a,a", " b "}, []string{"b", "c"}); strings.Join(got, ",") != "a,b,c" {
 		t.Fatalf("product codes = %#v", got)
 	}
@@ -258,7 +258,7 @@ func TestPATPureHelperEdges(t *testing.T) {
 	}
 }
 
-func TestPATPlanExtractionEdges(t *testing.T) {
+func TestCrossPlatformCoveragePATPlanExtractionEdges(t *testing.T) {
 	invalidResults := []*edition.ToolResult{nil, patText(`{`), patText(`{}`)}
 	for _, result := range invalidResults {
 		_, _ = extractLoginRecommendProducts(result)
@@ -293,7 +293,7 @@ func TestPATPlanExtractionEdges(t *testing.T) {
 	}
 }
 
-func TestPATResultAndFlagEdges(t *testing.T) {
+func TestCrossPlatformCoveragePATResultAndFlagEdges(t *testing.T) {
 	if err := handleToolResult(nil, nil, nil); err == nil {
 		t.Fatal("nil result accepted")
 	}
@@ -365,7 +365,7 @@ func TestPATResultAndFlagEdges(t *testing.T) {
 	}
 }
 
-func TestPATAuthorizationSummaryEdges(t *testing.T) {
+func TestCrossPlatformCoveragePATAuthorizationSummaryEdges(t *testing.T) {
 	if formatPATAuthorizationSummary("not json", nil) != "" || formatPATAuthorizationSummary(`{}`, nil) != "" {
 		t.Fatal("invalid summary payload rendered")
 	}
@@ -397,7 +397,7 @@ func TestPATAuthorizationSummaryEdges(t *testing.T) {
 	}
 }
 
-func TestLoginRecommendWrappers(t *testing.T) {
+func TestCrossPlatformCoverageLoginRecommendWrappers(t *testing.T) {
 	if err := RunLoginRecommendAuthorization(t.Context(), nil, io.Discard); err == nil {
 		t.Fatal("nil login recommend caller accepted")
 	}
@@ -417,7 +417,7 @@ func TestLoginRecommendWrappers(t *testing.T) {
 	}
 }
 
-func TestChmodCommandRemainingBranches(t *testing.T) {
+func TestCrossPlatformCoverageChmodCommandRemainingBranches(t *testing.T) {
 	cmd := newChmodCommand(nil)
 	if err := cmd.Args(cmd, []string{"scope"}); err != nil {
 		t.Fatal(err)
@@ -474,7 +474,7 @@ func TestChmodCommandRemainingBranches(t *testing.T) {
 	}
 }
 
-func TestLoginRecommendErrorMatrix(t *testing.T) {
+func TestCrossPlatformCoverageLoginRecommendErrorMatrix(t *testing.T) {
 	caller := &patEdgeCaller{errs: []error{errors.New("plan failed")}}
 	if _, err := PlanLoginRecommendAuthorization(t.Context(), caller); err == nil {
 		t.Fatal("plan wrapper error did not propagate")
@@ -552,7 +552,7 @@ func TestLoginRecommendErrorMatrix(t *testing.T) {
 	}
 }
 
-func TestLegacySchemaMismatchWithoutValidationKeyword(t *testing.T) {
+func TestCrossPlatformCoverageLegacySchemaMismatchWithoutValidationKeyword(t *testing.T) {
 	canonical := map[string]any{"scopes": []string{"a"}}
 	legacy := map[string]any{"scope": "a"}
 	if isLegacyGrantSchemaMismatchError(errors.New("scope problem"), canonical, legacy) {

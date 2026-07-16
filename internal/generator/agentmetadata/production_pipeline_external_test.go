@@ -13,7 +13,7 @@ import (
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/generator/agentmetadata"
 )
 
-func TestGenerateProductionAgentMetadataPipeline(t *testing.T) {
+func TestCrossPlatformCoverageGenerateProductionAgentMetadataPipeline(t *testing.T) {
 	repositoryRoot, err := filepath.Abs(filepath.Join("..", "..", ".."))
 	if err != nil {
 		t.Fatal(err)

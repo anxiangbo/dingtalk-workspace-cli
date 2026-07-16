@@ -17,7 +17,7 @@ func contractCoverageTool(product, name, cliPath string) ToolSpec {
 	}}
 }
 
-func TestContractModelProvenanceValueAndDryRunEdges(t *testing.T) {
+func TestCrossPlatformCoverageContractModelProvenanceValueAndDryRunEdges(t *testing.T) {
 	if err := (DryRunSpec{}).Validate(""); err == nil || !strings.Contains(err.Error(), "no preview_kind") {
 		t.Fatalf("empty dry-run error = %v", err)
 	}
@@ -43,7 +43,7 @@ func TestContractModelProvenanceValueAndDryRunEdges(t *testing.T) {
 	}
 }
 
-func TestSchemaIndexRemainingCollisionEdges(t *testing.T) {
+func TestCrossPlatformCoverageSchemaIndexRemainingCollisionEdges(t *testing.T) {
 	base := contractCoverageTool("sample", "run", "sample run")
 	alias := base
 	alias.Identity.IsAlias = true
@@ -88,7 +88,7 @@ func TestSchemaIndexRemainingCollisionEdges(t *testing.T) {
 	}
 }
 
-func TestSchemaSnapshotRendererDependencyEdges(t *testing.T) {
+func TestCrossPlatformCoverageSchemaSnapshotRendererDependencyEdges(t *testing.T) {
 	oldToolSummary := snapshotToolSummary
 	oldToolPayload := snapshotToolPayload
 	oldProductSummary := snapshotProductSummary
@@ -125,7 +125,7 @@ func TestSchemaSnapshotRendererDependencyEdges(t *testing.T) {
 	}
 }
 
-func TestToolSpecValidationRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageToolSpecValidationRemainingEdges(t *testing.T) {
 	base := contractCoverageTool("sample", "run", "sample run")
 	cases := []struct {
 		name   string
@@ -162,7 +162,7 @@ func TestToolSpecValidationRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestFinalFieldProvenanceRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageFinalFieldProvenanceRemainingEdges(t *testing.T) {
 	if err := validateFinalFieldProvenance("owner", "field", FieldProvenance{}, func() {}); err == nil || !strings.Contains(err.Error(), "cannot encode") {
 		t.Fatalf("final encode error = %v", err)
 	}
@@ -189,7 +189,7 @@ func TestFinalFieldProvenanceRemainingEdges(t *testing.T) {
 	}
 }
 
-func TestContractModelNormalizationSortEdges(t *testing.T) {
+func TestCrossPlatformCoverageContractModelNormalizationSortEdges(t *testing.T) {
 	registry := SchemaRegistry{Products: []ProductSpec{{
 		ID: " sample ",
 		Tools: []ToolSpec{
@@ -212,7 +212,7 @@ func TestContractModelNormalizationSortEdges(t *testing.T) {
 	}
 }
 
-func TestContractModelPayloadErrorEdges(t *testing.T) {
+func TestCrossPlatformCoverageContractModelPayloadErrorEdges(t *testing.T) {
 	invalidRegistry := SchemaRegistry{Products: []ProductSpec{{ID: " "}}}
 	if _, err := invalidRegistry.ToPayload(); err == nil {
 		t.Fatal("invalid registry ToPayload succeeded")

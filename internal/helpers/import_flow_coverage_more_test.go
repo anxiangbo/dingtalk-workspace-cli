@@ -36,7 +36,7 @@ func importCoverageCommand(t *testing.T, filePath string) *cobra.Command {
 	return cmd
 }
 
-func TestImportFlowRemainingBranches(t *testing.T) {
+func TestCrossPlatformCoverageImportFlowRemainingBranches(t *testing.T) {
 	t.Run("missing flag aliases are skipped", func(t *testing.T) {
 		cmd := &cobra.Command{Use: "import"}
 		cmd.Flags().String("folder", "", "")

@@ -29,7 +29,7 @@ func executeSheetMediaEdge(t *testing.T, index int, caller *scriptedToolCaller, 
 	return cmd.Execute()
 }
 
-func TestSheetMediaUploadRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSheetMediaUploadRemainingCoverage(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "photo.png")
 	if err := os.WriteFile(file, []byte("image"), 0o600); err != nil {
 		t.Fatal(err)
@@ -78,7 +78,7 @@ func TestSheetMediaUploadRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestSheetWriteImageRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSheetWriteImageRemainingCoverage(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "photo.png")
 	if err := os.WriteFile(file, []byte("image"), 0o600); err != nil {
 		t.Fatal(err)
@@ -136,7 +136,7 @@ func TestSheetWriteImageRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestSheetMediaCommandDefinitionsCoverage(t *testing.T) {
+func TestCrossPlatformCoverageSheetMediaCommandDefinitionsCoverage(t *testing.T) {
 	for _, cmd := range newMediaCmds() {
 		if cmd.RunE == nil || cmd.Name() == "" {
 			t.Fatalf("invalid media command %#v", cmd)

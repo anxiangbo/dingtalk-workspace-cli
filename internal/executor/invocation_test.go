@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestInvocationBuildersAndEchoRunner(t *testing.T) {
+func TestCrossPlatformCoverageInvocationBuildersAndEchoRunner(t *testing.T) {
 	params := map[string]any{"name": "value"}
 	compat := NewCompatibilityInvocation("old path", "doc", "read", params)
 	if compat.Kind != "compat_invocation" || compat.CanonicalPath != "doc.read" || !reflect.DeepEqual(compat.Params, params) {
@@ -41,7 +41,7 @@ func TestInvocationBuildersAndEchoRunner(t *testing.T) {
 	}
 }
 
-func TestMergePayloadsAndToolCallRequest(t *testing.T) {
+func TestCrossPlatformCoverageMergePayloadsAndToolCallRequest(t *testing.T) {
 	merged, err := MergePayloads(`{"a":1,"same":"json"}`, `{"b":2,"same":"params"}`, map[string]any{"c": 3, "same": "override"})
 	if err != nil {
 		t.Fatalf("MergePayloads() error = %v", err)

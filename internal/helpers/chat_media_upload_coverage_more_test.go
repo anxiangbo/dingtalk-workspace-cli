@@ -13,7 +13,7 @@ import (
 	"testing"
 )
 
-func TestChatMediaUploadCommandRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageChatMediaUploadCommandRemainingCoverage(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "image.png")
 	if err := os.WriteFile(file, []byte("image"), 0o600); err != nil {
 		t.Fatal(err)
@@ -51,7 +51,7 @@ func TestChatMediaUploadCommandRemainingCoverage(t *testing.T) {
 	}
 }
 
-func TestMediaUploadMultipartWriterRemainingFailures(t *testing.T) {
+func TestCrossPlatformCoverageMediaUploadMultipartWriterRemainingFailures(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "image.png")
 	if err := os.WriteFile(file, []byte("image"), 0o600); err != nil {
 		t.Fatal(err)

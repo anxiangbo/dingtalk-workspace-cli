@@ -6,7 +6,7 @@ import (
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/pipeline"
 )
 
-func TestParamValueCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoverageParamValueCoverageEdges(t *testing.T) {
 	ctx := &pipeline.Context{
 		Params: map[string]any{"ignored": "value", "unknown": "value"},
 		Schema: makeSchema(map[string]any{"ignored": "not-a-schema"}),
@@ -46,7 +46,7 @@ func TestParamValueCoverageEdges(t *testing.T) {
 	}
 }
 
-func TestNameAndStickyCoverageEdges(t *testing.T) {
+func TestCrossPlatformCoverageNameAndStickyCoverageEdges(t *testing.T) {
 	if _, ok := tryFuzzyMatch("--", map[string]bool{}, nil); ok {
 		t.Fatal("bare -- should not fuzzy match")
 	}

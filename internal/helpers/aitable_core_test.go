@@ -54,7 +54,7 @@ func installAitableDeps(t *testing.T, caller *aitableTestCaller) *bytes.Buffer {
 	return out
 }
 
-func TestAitableFlagAndJSONNormalizers(t *testing.T) {
+func TestCrossPlatformCoverageAitableFlagAndJSONNormalizers(t *testing.T) {
 	cmd := &cobra.Command{Use: "test"}
 	cmd.Flags().String("enabled", "", "")
 	cmd.Flags().String("records", "", "")
@@ -152,7 +152,7 @@ func TestAitableFlagAndJSONNormalizers(t *testing.T) {
 	}
 }
 
-func TestAitableViewConfigAndHelpers(t *testing.T) {
+func TestCrossPlatformCoverageAitableViewConfigAndHelpers(t *testing.T) {
 	config := map[string]any{
 		"filter": map[string]any{"operator": "and", "operands": []any{}},
 		"sort":   map[string]any{"fieldId": "f"}, "group": []any{},
@@ -259,7 +259,7 @@ func TestAitableViewConfigAndHelpers(t *testing.T) {
 	}
 }
 
-func TestAitableToolResponseAndPaginationHelpers(t *testing.T) {
+func TestCrossPlatformCoverageAitableToolResponseAndPaginationHelpers(t *testing.T) {
 	caller := &aitableTestCaller{responses: []string{`{"data":{"views":[{"viewId":"v","viewType":"Grid"}]}}`}}
 	installAitableDeps(t, caller)
 	view, viewType, err := getViewRaw(context.Background(), "b", "t", "v")

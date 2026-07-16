@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestInterfaceMetadataFailureAndConflictEdges(t *testing.T) {
+func TestCrossPlatformCoverageInterfaceMetadataFailureAndConflictEdges(t *testing.T) {
 	root := t.TempDir()
 	display := filepath.ToSlash("interface.json")
 	opts := Options{Root: root, InterfaceMetadataPath: "interface.json", ToolPaths: map[string]string{"sample.tool": "sample tool"}}
@@ -53,7 +53,7 @@ func TestInterfaceMetadataFailureAndConflictEdges(t *testing.T) {
 	}
 }
 
-func TestInterfaceSummaryRemainingEdges(t *testing.T) {
+func TestCrossPlatformCoverageInterfaceSummaryRemainingEdges(t *testing.T) {
 	if got := summarizeInterfaceDescription("\n\nusable summary", 0); got != "usable summary" {
 		t.Fatalf("default max summary = %q", got)
 	}

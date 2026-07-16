@@ -36,7 +36,7 @@ func newChatFlagTestCommand() *cobra.Command {
 	return cmd
 }
 
-func TestChatDirectionAndScalarCoverage(t *testing.T) {
+func TestCrossPlatformCoverageChatDirectionAndScalarCoverage(t *testing.T) {
 	search := &cobra.Command{Use: "search"}
 	search.Flags().String("nicks", "", "")
 	search.Flags().Int("limit", 20, "")
@@ -116,7 +116,7 @@ func TestChatDirectionAndScalarCoverage(t *testing.T) {
 	}
 }
 
-func TestChatContactMappingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageChatContactMappingCoverage(t *testing.T) {
 	openIDs := map[string]string{}
 	names := map[string]string{}
 	collectContactUserMappings([]any{
@@ -137,7 +137,7 @@ func TestChatContactMappingCoverage(t *testing.T) {
 	}
 }
 
-func TestResolveOpenDingTalkIDsCoverage(t *testing.T) {
+func TestCrossPlatformCoverageResolveOpenDingTalkIDsCoverage(t *testing.T) {
 	if id, err := resolveOpenDingTalkID(context.Background(), "D-direct"); err != nil || id != "D-direct" {
 		t.Fatalf("direct ID = %q, %v", id, err)
 	}
@@ -213,7 +213,7 @@ func TestResolveOpenDingTalkIDsCoverage(t *testing.T) {
 	}
 }
 
-func TestChatTargetAndGrantCoverage(t *testing.T) {
+func TestCrossPlatformCoverageChatTargetAndGrantCoverage(t *testing.T) {
 	for _, configure := range []func(*cobra.Command){
 		func(c *cobra.Command) { _ = c.Flags().Set("group", "group") },
 		func(c *cobra.Command) { _ = c.Flags().Set("open-dingtalk-id", "123") },
@@ -277,7 +277,7 @@ func TestChatTargetAndGrantCoverage(t *testing.T) {
 	putChatChmodParam(params, "existing", "new")
 }
 
-func TestChatFileUtilityCoverage(t *testing.T) {
+func TestCrossPlatformCoverageChatFileUtilityCoverage(t *testing.T) {
 	file := filepath.Join(t.TempDir(), "file.txt")
 	if err := os.WriteFile(file, []byte("content"), 0o600); err != nil {
 		t.Fatal(err)
@@ -334,7 +334,7 @@ func TestChatFileUtilityCoverage(t *testing.T) {
 	caller.format = "raw"
 }
 
-func TestUploadConversationLocalFileCoverage(t *testing.T) {
+func TestCrossPlatformCoverageUploadConversationLocalFileCoverage(t *testing.T) {
 	oldPut := httpPutFile
 	t.Cleanup(func() { httpPutFile = oldPut })
 	meta := conversationLocalFileMeta{LocalPath: "file", FileName: "file.txt", FileSize: 4, MD5: "md5"}
@@ -358,7 +358,7 @@ func TestUploadConversationLocalFileCoverage(t *testing.T) {
 	}
 }
 
-func TestGuardGroupOwnerRemovalCoverage(t *testing.T) {
+func TestCrossPlatformCoverageGuardGroupOwnerRemovalCoverage(t *testing.T) {
 	oldArgs := os.Args
 	os.Args = []string{"dws", "chat"}
 	t.Cleanup(func() { os.Args = oldArgs })

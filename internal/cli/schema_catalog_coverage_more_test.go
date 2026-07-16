@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestBuildSchemaCatalogSnapshotGateFailures(t *testing.T) {
+func TestCrossPlatformCoverageBuildSchemaCatalogSnapshotGateFailures(t *testing.T) {
 	registry, _ := validSnapshotAdapterFixture(t)
 	resolved := ResolvedSchemaBuild{root: &cobra.Command{Use: "root"}, registry: registry}
 	original := captureCatalogHooks()
@@ -70,7 +70,7 @@ func TestBuildSchemaCatalogSnapshotGateFailures(t *testing.T) {
 	}
 }
 
-func TestLoadSchemaCatalogSnapshotGateFailures(t *testing.T) {
+func TestCrossPlatformCoverageLoadSchemaCatalogSnapshotGateFailures(t *testing.T) {
 	_, base := validSnapshotAdapterFixture(t)
 	base.Version = SchemaCatalogSnapshotVersion
 	base.SourceHash = schemaCatalogSnapshotHash(base)
@@ -120,7 +120,7 @@ func TestLoadSchemaCatalogSnapshotGateFailures(t *testing.T) {
 	}
 }
 
-func TestSchemaCatalogLookupAndConversionEdges(t *testing.T) {
+func TestCrossPlatformCoverageSchemaCatalogLookupAndConversionEdges(t *testing.T) {
 	if exactSchemaCommand(nil, "sample") != nil {
 		t.Fatal("nil root resolved a command")
 	}

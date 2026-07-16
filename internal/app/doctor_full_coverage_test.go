@@ -18,7 +18,7 @@ import (
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/edition"
 )
 
-func TestDoctorRemainingCoverage(t *testing.T) {
+func TestCrossPlatformCoverageDoctorRemainingCoverage(t *testing.T) {
 	oldEdition := edition.Get()
 	oldDiagnose := doctorKeychainDiagnose
 	oldStatus := doctorAuthStatus

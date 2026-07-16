@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func TestProcessAliveExitedChildWithRetainedHandle(t *testing.T) {
+func TestCrossPlatformCoverageProcessAliveExitedChildWithRetainedHandle(t *testing.T) {
 	child := nativeExitCommand(t)
 	if err := child.Start(); err != nil {
 		t.Fatal(err)
