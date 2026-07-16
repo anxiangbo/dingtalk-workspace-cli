@@ -138,6 +138,58 @@ func TestReleaseVersionOrdering(t *testing.T) {
 	}
 }
 
+func TestReleaseLibHelpersPreserveCallerVariables(t *testing.T) {
+	sourceRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatalf("Abs(repo root) error = %v", err)
+	}
+	lib := filepath.Join(sourceRoot, "scripts", "release", "release-lib.sh")
+	changelogPath := filepath.Join(t.TempDir(), "CHANGELOG.md")
+	mustWriteFile(t, changelogPath, []byte("## [1.2.3] - 2026-07-16\n\n- Test release.\n"), 0o644)
+
+	script := `
+. "$1"
+version=caller-version
+expected=caller-expected
+actual=caller-actual
+candidate=caller-candidate
+baseline=caller-baseline
+changelog=caller-changelog
+semver=caller-semver
+output=caller-output
+tmp=caller-tmp
+status=caller-status
+
+release_channel_for_version v1.2.3 >/dev/null
+release_validate_version_channel stable v1.2.3
+release_core_tag v1.2.3-beta.1 >/dev/null
+release_core_is_greater v1.2.4 v1.2.3
+release_extract_changelog "$2" 1.2.3 - >/dev/null
+
+printf '%s\n' "$version" "$expected" "$actual" "$candidate" "$baseline" \
+  "$changelog" "$semver" "$output" "$tmp" "$status"
+`
+	output, err := exec.Command("sh", "-c", script, "sh", lib, changelogPath).CombinedOutput()
+	if err != nil {
+		t.Fatalf("release helper variable isolation error = %v\noutput:\n%s", err, output)
+	}
+	want := strings.Join([]string{
+		"caller-version",
+		"caller-expected",
+		"caller-actual",
+		"caller-candidate",
+		"caller-baseline",
+		"caller-changelog",
+		"caller-semver",
+		"caller-output",
+		"caller-tmp",
+		"caller-status",
+	}, "\n") + "\n"
+	if string(output) != want {
+		t.Fatalf("release helpers changed caller variables:\ngot:\n%s\nwant:\n%s", output, want)
+	}
+}
+
 func TestReleaseNpmPackingIgnoresLifecycleScripts(t *testing.T) {
 	sourceRoot, err := filepath.Abs(filepath.Join("..", ".."))
 	if err != nil {

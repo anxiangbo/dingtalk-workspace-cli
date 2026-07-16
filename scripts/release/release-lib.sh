@@ -16,32 +16,32 @@ release_is_prerelease_version() {
 }
 
 release_channel_for_version() {
-  version="$1"
-  if release_is_stable_version "$version"; then
+  _rcfv_version="$1"
+  if release_is_stable_version "$_rcfv_version"; then
     printf '%s\n' stable
     return 0
   fi
-  if release_is_prerelease_version "$version"; then
+  if release_is_prerelease_version "$_rcfv_version"; then
     printf '%s\n' prerelease
     return 0
   fi
-  printf 'invalid release version: %s (expected vX.Y.Z or vX.Y.Z-beta.N)\n' "$version" >&2
+  printf 'invalid release version: %s (expected vX.Y.Z or vX.Y.Z-beta.N)\n' "$_rcfv_version" >&2
   return 1
 }
 
 release_validate_version_channel() {
-  expected="$1"
-  version="$2"
-  case "$expected" in
+  _rvvc_expected="$1"
+  _rvvc_version="$2"
+  case "$_rvvc_expected" in
     stable|prerelease) ;;
     *)
-      printf 'invalid release channel: %s (expected prerelease or stable)\n' "$expected" >&2
+      printf 'invalid release channel: %s (expected prerelease or stable)\n' "$_rvvc_expected" >&2
       return 1
       ;;
   esac
-  actual="$(release_channel_for_version "$version")" || return 1
-  if [ "$actual" != "$expected" ]; then
-    printf 'release channel/version mismatch: channel=%s version=%s\n' "$expected" "$version" >&2
+  _rvvc_actual="$(release_channel_for_version "$_rvvc_version")" || return 1
+  if [ "$_rvvc_actual" != "$_rvvc_expected" ]; then
+    printf 'release channel/version mismatch: channel=%s version=%s\n' "$_rvvc_expected" "$_rvvc_version" >&2
     return 1
   fi
 }
@@ -51,8 +51,8 @@ release_semver() {
 }
 
 release_core_tag() {
-  version="$1"
-  printf '%s\n' "${version%%-beta.*}"
+  _rct_version="$1"
+  printf '%s\n' "${_rct_version%%-beta.*}"
 }
 
 release_beta_number() {
@@ -60,11 +60,11 @@ release_beta_number() {
 }
 
 release_core_is_greater() {
-  candidate="$(release_core_tag "$1")"
-  baseline="$(release_core_tag "$2")"
-  candidate="${candidate#v}"
-  baseline="${baseline#v}"
-  awk -v candidate="$candidate" -v baseline="$baseline" 'BEGIN {
+  _rcig_candidate="$(release_core_tag "$1")"
+  _rcig_baseline="$(release_core_tag "$2")"
+  _rcig_candidate="${_rcig_candidate#v}"
+  _rcig_baseline="${_rcig_baseline#v}"
+  awk -v candidate="$_rcig_candidate" -v baseline="$_rcig_baseline" 'BEGIN {
     split(candidate, c, ".")
     split(baseline, b, ".")
     for (i = 1; i <= 3; i++) {
@@ -100,13 +100,13 @@ release_version_is_greater() {
 # Extract one exact CHANGELOG section (without its H2 heading) and validate that
 # it is dated, unique, non-placeholder content with at least one bullet.
 release_extract_changelog() {
-  changelog="$1"
-  semver="$2"
-  output="$3"
-  tmp="$(mktemp "${TMPDIR:-/tmp}/dws-release-notes.XXXXXX")"
+  _rec_changelog="$1"
+  _rec_semver="$2"
+  _rec_output="$3"
+  _rec_tmp="$(mktemp "${TMPDIR:-/tmp}/dws-release-notes.XXXXXX")"
 
   set +e
-  awk -v wanted="$semver" '
+  awk -v wanted="$_rec_semver" '
     BEGIN {
       prefix = "## [" wanted "] - "
       found = 0
@@ -139,29 +139,29 @@ release_extract_changelog() {
       if (!meaningful || !bullet) exit 43
       if (placeholder) exit 44
     }
-  ' "$changelog" > "$tmp"
-  status=$?
+  ' "$_rec_changelog" > "$_rec_tmp"
+  _rec_status=$?
   set -e
 
-  case "$status" in
+  case "$_rec_status" in
     0) ;;
-    41) printf 'CHANGELOG must contain exactly one section: ## [%s] - YYYY-MM-DD\n' "$semver" >&2 ;;
-    42) printf 'CHANGELOG section for %s has an invalid date\n' "$semver" >&2 ;;
-    43) printf 'CHANGELOG section for %s must contain release notes and at least one bullet\n' "$semver" >&2 ;;
-    44) printf 'CHANGELOG section for %s still contains TODO/TBD placeholders\n' "$semver" >&2 ;;
-    *) printf 'failed to parse CHANGELOG section for %s\n' "$semver" >&2 ;;
+    41) printf 'CHANGELOG must contain exactly one section: ## [%s] - YYYY-MM-DD\n' "$_rec_semver" >&2 ;;
+    42) printf 'CHANGELOG section for %s has an invalid date\n' "$_rec_semver" >&2 ;;
+    43) printf 'CHANGELOG section for %s must contain release notes and at least one bullet\n' "$_rec_semver" >&2 ;;
+    44) printf 'CHANGELOG section for %s still contains TODO/TBD placeholders\n' "$_rec_semver" >&2 ;;
+    *) printf 'failed to parse CHANGELOG section for %s\n' "$_rec_semver" >&2 ;;
   esac
-  if [ "$status" -ne 0 ]; then
-    rm -f "$tmp"
-    return "$status"
+  if [ "$_rec_status" -ne 0 ]; then
+    rm -f "$_rec_tmp"
+    return "$_rec_status"
   fi
 
-  if [ "$output" = "-" ]; then
-    cat "$tmp"
+  if [ "$_rec_output" = "-" ]; then
+    cat "$_rec_tmp"
   else
-    mkdir -p "$(dirname "$output")"
-    mv "$tmp" "$output"
-    tmp=""
+    mkdir -p "$(dirname "$_rec_output")"
+    mv "$_rec_tmp" "$_rec_output"
+    _rec_tmp=""
   fi
-  [ -z "$tmp" ] || rm -f "$tmp"
+  [ -z "$_rec_tmp" ] || rm -f "$_rec_tmp"
 }
