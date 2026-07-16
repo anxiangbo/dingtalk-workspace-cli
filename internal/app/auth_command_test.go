@@ -1087,6 +1087,12 @@ func TestAuthLoginRecommendSkipsPostLoginTUI(t *testing.T) {
 		`{"success":true,"data":{"items":[{"scope":"calendar.event:read","productCode":"calendar","productName":"日历"}],"selectedScopes":["calendar.event:read"]}}`,
 		`{"success":true,"data":{"grantedScopes":["calendar.event:read"]}}`,
 	}}
+	authpkg.SetRuntimeProfile("corp_old:user_old")
+	t.Cleanup(func() { authpkg.SetRuntimeProfile("") })
+	var authorizationProfiles []string
+	fake.beforeCall = func(string) {
+		authorizationProfiles = append(authorizationProfiles, authpkg.RuntimeProfile())
+	}
 	cmd := newAuthLoginCommand(fake)
 	var out bytes.Buffer
 	cmd.SetOut(&out)
@@ -1104,6 +1110,61 @@ func TestAuthLoginRecommendSkipsPostLoginTUI(t *testing.T) {
 	}
 	if got := fake.args[0]["recommend"]; got != true {
 		t.Fatalf("--recommend plan recommend = %#v, want true", got)
+	}
+	for _, profile := range authorizationProfiles {
+		if profile != "" {
+			t.Fatalf("manual token post-login profile = %q, want empty runtime selector", profile)
+		}
+	}
+	if got := authpkg.RuntimeProfile(); got != "corp_old:user_old" {
+		t.Fatalf("runtime profile after authorization = %q, want restored selector", got)
+	}
+}
+
+func TestAuthLoginRecommendUsesNewExactIdentity(t *testing.T) {
+	t.Setenv(keychain.DisableKeychainEnv, "1")
+	t.Setenv(keychain.StorageDirEnv, t.TempDir())
+	t.Setenv("DWS_CONFIG_DIR", t.TempDir())
+
+	oldOAuthLogin := authOAuthLogin
+	oldInteractive := authLoginInteractiveTerminal
+	t.Cleanup(func() {
+		authOAuthLogin = oldOAuthLogin
+		authLoginInteractiveTerminal = oldInteractive
+		authpkg.SetRuntimeProfile("")
+	})
+	authLoginInteractiveTerminal = func() bool { return false }
+	authOAuthLogin = func(*authpkg.OAuthProvider, context.Context, bool) (*authpkg.TokenData, error) {
+		return &authpkg.TokenData{
+			AccessToken: "new-token",
+			CorpID:      "corp_same",
+			UserID:      "user_new",
+			ExpiresAt:   time.Now().Add(time.Hour),
+		}, nil
+	}
+	fake := &authLoginRecommendSequenceCaller{responses: []string{
+		`{"success":true,"data":{"items":[],"selectedScopes":[]}}`,
+	}}
+	var authorizationProfiles []string
+	fake.beforeCall = func(string) {
+		authorizationProfiles = append(authorizationProfiles, authpkg.RuntimeProfile())
+	}
+	authpkg.SetRuntimeProfile("corp_same:user_old")
+
+	cmd := newAuthLoginCommand(fake)
+	cmd.SetOut(io.Discard)
+	cmd.SetErr(io.Discard)
+	cmd.SetArgs([]string{"--recommend"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("auth login --recommend error = %v", err)
+	}
+	for _, profile := range authorizationProfiles {
+		if profile != "corp_same:user_new" {
+			t.Fatalf("post-login authorization profile = %q, want new exact identity", profile)
+		}
+	}
+	if got := authpkg.RuntimeProfile(); got != "corp_same:user_old" {
+		t.Fatalf("runtime profile after authorization = %q, want restored old identity", got)
 	}
 }
 
@@ -1377,8 +1438,8 @@ func TestEnrichAuthLoginProfileFromContactBeforePersist(t *testing.T) {
 	if len(fake.tools) != 1 || fake.tools[0] != "get_current_user_profile" {
 		t.Fatalf("tool calls = %v, want get_current_user_profile", fake.tools)
 	}
-	if got := fake.args[0]["profile"]; got != "ding32fff839a3e0105d" {
-		t.Fatalf("contact profile arg = %#v, want ding32fff839a3e0105d", got)
+	if len(fake.args[0]) != 0 {
+		t.Fatalf("contact profile args = %#v, want no arguments", fake.args[0])
 	}
 	if len(fake.tokens) != 1 || fake.tokens[0] != "access-token" {
 		t.Fatalf("token overrides = %v, want access-token", fake.tokens)

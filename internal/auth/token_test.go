@@ -17,6 +17,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -133,6 +134,141 @@ func TestTokenOverwrite(t *testing.T) {
 	}
 }
 
+func TestManualTokenRemainsLoadableWithV2Profiles(t *testing.T) {
+	cleanupKeychain(t)
+	configDir := t.TempDir()
+
+	profileToken := testToken("profile-token", "corp_same", "同一组织")
+	profileToken.UserID = "user_1"
+	if err := SaveTokenData(configDir, profileToken); err != nil {
+		t.Fatalf("SaveTokenData(profile) error = %v", err)
+	}
+
+	manualToken := &TokenData{
+		AccessToken: "manual-token",
+		ExpiresAt:   time.Now().Add(time.Hour),
+	}
+	if err := SaveTokenData(configDir, manualToken); err != nil {
+		t.Fatalf("SaveTokenData(manual) error = %v", err)
+	}
+
+	loaded, err := LoadTokenData(configDir)
+	if err != nil {
+		t.Fatalf("LoadTokenData() error = %v", err)
+	}
+	if loaded.AccessToken != manualToken.AccessToken {
+		t.Fatalf("default token = %q, want manual token", loaded.AccessToken)
+	}
+
+	explicit, err := LoadTokenDataForProfile(configDir, ProfileSelector(Profile{
+		CorpID: profileToken.CorpID,
+		UserID: profileToken.UserID,
+	}))
+	if err != nil {
+		t.Fatalf("LoadTokenDataForProfile() error = %v", err)
+	}
+	if explicit.AccessToken != profileToken.AccessToken {
+		t.Fatalf("explicit profile token = %q, want %q", explicit.AccessToken, profileToken.AccessToken)
+	}
+
+	refreshed := *profileToken
+	refreshed.AccessToken = "profile-token-refreshed"
+	SetRuntimeProfile(ProfileSelector(Profile{CorpID: profileToken.CorpID, UserID: profileToken.UserID}))
+	if err := SaveTokenData(configDir, &refreshed); err != nil {
+		t.Fatalf("SaveTokenData(explicit refresh) error = %v", err)
+	}
+	SetRuntimeProfile("")
+	loaded, err = LoadTokenData(configDir)
+	if err != nil {
+		t.Fatalf("LoadTokenData() after explicit refresh error = %v", err)
+	}
+	if loaded.AccessToken != manualToken.AccessToken {
+		t.Fatalf("default token after explicit refresh = %q, want manual token", loaded.AccessToken)
+	}
+	explicit, err = LoadTokenDataForProfile(
+		configDir,
+		ProfileSelector(Profile{CorpID: profileToken.CorpID, UserID: profileToken.UserID}),
+	)
+	if err != nil {
+		t.Fatalf("LoadTokenDataForProfile() after refresh error = %v", err)
+	}
+	if explicit.AccessToken != refreshed.AccessToken {
+		t.Fatalf("explicit refreshed token = %q, want %q", explicit.AccessToken, refreshed.AccessToken)
+	}
+
+	if err := DeleteTokenDataForProfile(
+		configDir,
+		ProfileSelector(Profile{CorpID: profileToken.CorpID, UserID: profileToken.UserID}),
+	); err != nil {
+		t.Fatalf("DeleteTokenDataForProfile() error = %v", err)
+	}
+	loaded, err = LoadTokenData(configDir)
+	if err != nil {
+		t.Fatalf("LoadTokenData() after selective logout error = %v", err)
+	}
+	if loaded.AccessToken != manualToken.AccessToken {
+		t.Fatalf("default token after selective logout = %q, want manual token", loaded.AccessToken)
+	}
+}
+
+func TestManualTokenRemainsLoadableWithEmptyV2Tombstone(t *testing.T) {
+	cleanupKeychain(t)
+	configDir := t.TempDir()
+	if err := SaveProfiles(configDir, &ProfilesConfig{Version: profilesVersion}); err != nil {
+		t.Fatalf("SaveProfiles() error = %v", err)
+	}
+
+	manualToken := &TokenData{
+		AccessToken: "manual-token",
+		ExpiresAt:   time.Now().Add(time.Hour),
+	}
+	if err := SaveTokenData(configDir, manualToken); err != nil {
+		t.Fatalf("SaveTokenData() error = %v", err)
+	}
+	loaded, err := LoadTokenData(configDir)
+	if err != nil {
+		t.Fatalf("LoadTokenData() error = %v", err)
+	}
+	if loaded.AccessToken != manualToken.AccessToken {
+		t.Fatalf("loaded token = %q, want %q", loaded.AccessToken, manualToken.AccessToken)
+	}
+}
+
+func TestDefaultDeleteRemovesManualTokenWithoutDeletingProfiles(t *testing.T) {
+	cleanupKeychain(t)
+	configDir := t.TempDir()
+	profileToken := testToken("profile-token", "corp_same", "同一组织")
+	profileToken.UserID = "user_1"
+	if err := SaveTokenData(configDir, profileToken); err != nil {
+		t.Fatalf("SaveTokenData(profile) error = %v", err)
+	}
+	manualToken := &TokenData{
+		AccessToken: "manual-token",
+		ExpiresAt:   time.Now().Add(time.Hour),
+	}
+	if err := SaveTokenData(configDir, manualToken); err != nil {
+		t.Fatalf("SaveTokenData(manual) error = %v", err)
+	}
+
+	if err := DeleteTokenData(configDir); err != nil {
+		t.Fatalf("DeleteTokenData() error = %v", err)
+	}
+	cfg, err := LoadProfiles(configDir)
+	if err != nil {
+		t.Fatalf("LoadProfiles() error = %v", err)
+	}
+	if len(cfg.Profiles) != 1 || cfg.CurrentProfile != "corp_same:user_1" {
+		t.Fatalf("profiles after default manual delete = %#v", cfg)
+	}
+	loaded, err := LoadTokenData(configDir)
+	if err != nil {
+		t.Fatalf("LoadTokenData() after manual delete error = %v", err)
+	}
+	if loaded.AccessToken != profileToken.AccessToken {
+		t.Fatalf("default token after manual delete = %q, want profile token", loaded.AccessToken)
+	}
+}
+
 func TestMultiProfileSaveLoadAndSwitch(t *testing.T) {
 	cleanupKeychain(t)
 	configDir := t.TempDir()
@@ -233,6 +369,210 @@ func TestRuntimeProfileOverrideDoesNotMutateCurrent(t *testing.T) {
 	}
 	if loadedDefault.AccessToken != "at_a" {
 		t.Fatalf("default token = %q, want at_a", loadedDefault.AccessToken)
+	}
+}
+
+func TestSaveTokenDataRollsBackPartialProfilePersistence(t *testing.T) {
+	for _, failurePoint := range []string{"organization", "legacy", "marker"} {
+		t.Run(failurePoint, func(t *testing.T) {
+			cleanupKeychain(t)
+			configDir := t.TempDir()
+			existing := testToken("at_existing", "corp_existing", "现有组织")
+			if err := SaveTokenData(configDir, existing); err != nil {
+				t.Fatalf("SaveTokenData(existing) error = %v", err)
+			}
+			before, err := LoadProfiles(configDir)
+			if err != nil {
+				t.Fatalf("LoadProfiles() error = %v", err)
+			}
+
+			incoming := testToken("at_incoming", "corp_incoming", "新组织")
+			failure := errors.New("persist " + failurePoint)
+			originalSaveOrg := tokenSaveKeychainForCorpID
+			originalSaveLegacy := tokenSaveKeychain
+			originalWriteMarker := tokenWriteMarker
+			switch failurePoint {
+			case "organization":
+				tokenSaveKeychainForCorpID = func(corpID string, data *TokenData) error {
+					if corpID == incoming.CorpID {
+						return failure
+					}
+					return originalSaveOrg(corpID, data)
+				}
+			case "legacy":
+				tokenSaveKeychain = func(data *TokenData) error {
+					if data != nil && data.CorpID == incoming.CorpID {
+						return failure
+					}
+					return originalSaveLegacy(data)
+				}
+			case "marker":
+				tokenWriteMarker = func(string) error { return failure }
+			}
+
+			err = SaveTokenData(configDir, incoming)
+			tokenSaveKeychainForCorpID = originalSaveOrg
+			tokenSaveKeychain = originalSaveLegacy
+			tokenWriteMarker = originalWriteMarker
+			if !errors.Is(err, failure) {
+				t.Fatalf("SaveTokenData() error = %v, want %v", err, failure)
+			}
+
+			after, err := LoadProfiles(configDir)
+			if err != nil {
+				t.Fatalf("LoadProfiles() after rollback error = %v", err)
+			}
+			if len(after.Profiles) != len(before.Profiles) ||
+				after.CurrentProfile != before.CurrentProfile ||
+				after.PreviousProfile != before.PreviousProfile {
+				t.Fatalf("profiles after rollback = %#v, want %#v", after, before)
+			}
+			if TokenDataExistsKeychainForIdentity(incoming.CorpID, incoming.UserID) ||
+				TokenDataExistsKeychainForCorpID(incoming.CorpID) {
+				t.Fatal("failed login left incoming token slots behind")
+			}
+			legacy, err := LoadTokenDataKeychain()
+			if err != nil {
+				t.Fatalf("LoadTokenDataKeychain() after rollback error = %v", err)
+			}
+			if legacy.CorpID != existing.CorpID || legacy.UserID != existing.UserID {
+				t.Fatalf("legacy mirror after rollback = %#v, want existing identity", legacy)
+			}
+		})
+	}
+}
+
+func TestSetCurrentProfileRollsBackWhenLegacyMirrorSyncFails(t *testing.T) {
+	cleanupKeychain(t)
+	configDir := t.TempDir()
+	for _, userID := range []string{"user_1", "user_2"} {
+		data := testToken("at_"+userID, "corp_same", "同一组织")
+		data.UserID = userID
+		if err := SaveTokenData(configDir, data); err != nil {
+			t.Fatalf("SaveTokenData(%s) error = %v", userID, err)
+		}
+	}
+
+	before, err := LoadProfiles(configDir)
+	if err != nil {
+		t.Fatalf("LoadProfiles() error = %v", err)
+	}
+	originalSaveLegacy := profilesSaveLegacy
+	failure := errors.New("save legacy mirror")
+	profilesSaveLegacy = func(*TokenData) error { return failure }
+	_, err = SetCurrentProfile(configDir, "corp_same:user_1")
+	profilesSaveLegacy = originalSaveLegacy
+	if !errors.Is(err, failure) {
+		t.Fatalf("SetCurrentProfile() error = %v, want %v", err, failure)
+	}
+	assertProfileSwitchRolledBack(t, configDir, before)
+}
+
+func TestUsePreviousProfileRollsBackWhenLegacyMirrorSyncFails(t *testing.T) {
+	cleanupKeychain(t)
+	configDir := t.TempDir()
+	for _, userID := range []string{"user_1", "user_2"} {
+		data := testToken("at_"+userID, "corp_same", "同一组织")
+		data.UserID = userID
+		if err := SaveTokenData(configDir, data); err != nil {
+			t.Fatalf("SaveTokenData(%s) error = %v", userID, err)
+		}
+	}
+
+	before, err := LoadProfiles(configDir)
+	if err != nil {
+		t.Fatalf("LoadProfiles() error = %v", err)
+	}
+	originalSaveLegacy := profilesSaveLegacy
+	failure := errors.New("save legacy mirror")
+	profilesSaveLegacy = func(*TokenData) error { return failure }
+	_, err = UsePreviousProfile(configDir)
+	profilesSaveLegacy = originalSaveLegacy
+	if !errors.Is(err, failure) {
+		t.Fatalf("UsePreviousProfile() error = %v, want %v", err, failure)
+	}
+	assertProfileSwitchRolledBack(t, configDir, before)
+}
+
+func assertProfileSwitchRolledBack(t *testing.T, configDir string, before *ProfilesConfig) {
+	t.Helper()
+	after, err := LoadProfiles(configDir)
+	if err != nil {
+		t.Fatalf("LoadProfiles() after rollback error = %v", err)
+	}
+	if after.CurrentProfile != before.CurrentProfile ||
+		after.PreviousProfile != before.PreviousProfile ||
+		after.OrgCurrentProfiles["corp_same"] != before.OrgCurrentProfiles["corp_same"] {
+		t.Fatalf("profile selection after rollback = %#v, want %#v", after, before)
+	}
+	_, currentUserID, _ := ParseIdentitySelector(before.CurrentProfile)
+	org, err := LoadTokenDataKeychainForCorpID("corp_same")
+	if err != nil {
+		t.Fatalf("LoadTokenDataKeychainForCorpID() error = %v", err)
+	}
+	if org.UserID != currentUserID {
+		t.Fatalf("organization mirror user = %q, want %q", org.UserID, currentUserID)
+	}
+	legacy, err := LoadTokenDataKeychain()
+	if err != nil {
+		t.Fatalf("LoadTokenDataKeychain() error = %v", err)
+	}
+	if legacy.UserID != currentUserID {
+		t.Fatalf("legacy mirror user = %q, want %q", legacy.UserID, currentUserID)
+	}
+}
+
+func TestFutureProfilesVersionIsNotDowngradedOrOverwritten(t *testing.T) {
+	cleanupKeychain(t)
+	configDir := t.TempDir()
+	future := []byte(`{
+  "version": 3,
+  "currentProfile": "corp_future:user_1",
+  "orgCurrentProfiles": {"corp_future": "corp_future:user_1"},
+  "futureField": {"preserve": true},
+  "profiles": [{
+    "name": "未来账号",
+    "corpId": "corp_future",
+    "userId": "user_1",
+    "futureProfileField": "preserve"
+  }]
+}
+`)
+	if err := os.WriteFile(ProfilesPath(configDir), future, 0o600); err != nil {
+		t.Fatalf("write future profiles fixture: %v", err)
+	}
+
+	incoming := testToken("at_new", "corp_new", "新组织")
+	if err := preflightTokenPersistence(configDir); err == nil ||
+		!strings.Contains(err.Error(), "newer than supported") {
+		t.Fatalf("preflightTokenPersistence() error = %v, want future version rejection", err)
+	}
+	if err := preflightTokenRefreshPersistence(configDir, incoming); err == nil ||
+		!strings.Contains(err.Error(), "newer than supported") {
+		t.Fatalf("preflightTokenRefreshPersistence() error = %v, want future version rejection", err)
+	}
+	if err := SaveTokenData(configDir, incoming); err == nil ||
+		!strings.Contains(err.Error(), "newer than supported") {
+		t.Fatalf("SaveTokenData() error = %v, want future version rejection", err)
+	}
+	if TokenDataExistsKeychainForIdentity(incoming.CorpID, incoming.UserID) {
+		t.Fatal("future version rejection left a new identity token behind")
+	}
+	if _, err := SetCurrentProfile(configDir, "corp_future:user_1"); err == nil ||
+		!strings.Contains(err.Error(), "newer than supported") {
+		t.Fatalf("SetCurrentProfile() error = %v, want future version rejection", err)
+	}
+	if _, _, err := ResolveProfileDeletionScope(configDir, "corp_future:user_1"); err == nil ||
+		!strings.Contains(err.Error(), "newer than supported") {
+		t.Fatalf("ResolveProfileDeletionScope() error = %v, want future version rejection", err)
+	}
+
+	after, err := os.ReadFile(ProfilesPath(configDir))
+	if err != nil {
+		t.Fatalf("read future profiles fixture: %v", err)
+	}
+	if string(after) != string(future) {
+		t.Fatalf("future profiles file was rewritten:\n%s", after)
 	}
 }
 
@@ -778,6 +1118,167 @@ func TestDeleteOrgProfileRemovesAllAccountsInCorp(t *testing.T) {
 	}
 }
 
+func TestDeleteExactProfileRollsBackWhenOrganizationMirrorDeleteFails(t *testing.T) {
+	cleanupKeychain(t)
+	configDir := t.TempDir()
+	data := testToken("at_user_1", "corp_same", "同一组织")
+	data.UserID = "user_1"
+	if err := SaveTokenData(configDir, data); err != nil {
+		t.Fatalf("SaveTokenData() error = %v", err)
+	}
+
+	originalDeleteCorp := tokenDeleteKeychainForCorpID
+	failure := errors.New("delete organization mirror")
+	tokenDeleteKeychainForCorpID = func(string) error { return failure }
+	err := DeleteTokenDataForProfile(configDir, "corp_same:user_1")
+	tokenDeleteKeychainForCorpID = originalDeleteCorp
+	if !errors.Is(err, failure) {
+		t.Fatalf("DeleteTokenDataForProfile() error = %v, want %v", err, failure)
+	}
+
+	assertProfileDeletionRolledBack(t, configDir, []string{"corp_same:user_1"}, "corp_same:user_1")
+}
+
+func TestDeleteExactProfileRollsBackWhenIdentityDeleteFails(t *testing.T) {
+	cleanupKeychain(t)
+	configDir := t.TempDir()
+	for _, userID := range []string{"user_1", "user_2"} {
+		data := testToken("at_"+userID, "corp_same", "同一组织")
+		data.UserID = userID
+		if err := SaveTokenData(configDir, data); err != nil {
+			t.Fatalf("SaveTokenData(%s) error = %v", userID, err)
+		}
+	}
+
+	originalDeleteIdentity := tokenDeleteKeychainIdentity
+	failure := errors.New("delete identity")
+	tokenDeleteKeychainIdentity = func(corpID, userID string) error {
+		if corpID == "corp_same" && userID == "user_2" {
+			return failure
+		}
+		return originalDeleteIdentity(corpID, userID)
+	}
+	err := DeleteTokenDataForProfile(configDir, "corp_same:user_2")
+	tokenDeleteKeychainIdentity = originalDeleteIdentity
+	if !errors.Is(err, failure) {
+		t.Fatalf("DeleteTokenDataForProfile() error = %v, want %v", err, failure)
+	}
+
+	assertProfileDeletionRolledBack(
+		t,
+		configDir,
+		[]string{"corp_same:user_1", "corp_same:user_2"},
+		"corp_same:user_2",
+	)
+}
+
+func TestDeleteOrganizationRollsBackPreviouslyDeletedIdentities(t *testing.T) {
+	cleanupKeychain(t)
+	configDir := t.TempDir()
+	for _, userID := range []string{"user_1", "user_2"} {
+		data := testToken("at_"+userID, "corp_same", "同一组织")
+		data.UserID = userID
+		if err := SaveTokenData(configDir, data); err != nil {
+			t.Fatalf("SaveTokenData(%s) error = %v", userID, err)
+		}
+	}
+
+	originalDeleteIdentity := tokenDeleteKeychainIdentity
+	deleteCalls := 0
+	failure := errors.New("delete second identity")
+	tokenDeleteKeychainIdentity = func(corpID, userID string) error {
+		deleteCalls++
+		if deleteCalls == 2 {
+			return failure
+		}
+		return originalDeleteIdentity(corpID, userID)
+	}
+	err := DeleteTokenDataForProfile(configDir, "corp_same")
+	tokenDeleteKeychainIdentity = originalDeleteIdentity
+	if !errors.Is(err, failure) {
+		t.Fatalf("DeleteTokenDataForProfile() error = %v, want %v", err, failure)
+	}
+
+	assertProfileDeletionRolledBack(
+		t,
+		configDir,
+		[]string{"corp_same:user_1", "corp_same:user_2"},
+		"corp_same:user_2",
+	)
+}
+
+func TestDeleteProfileAllowsUnreadableTargetTokenSlots(t *testing.T) {
+	cleanupKeychain(t)
+	configDir := t.TempDir()
+	data := testToken("at_user_1", "corp_same", "同一组织")
+	data.UserID = "user_1"
+	if err := SaveTokenData(configDir, data); err != nil {
+		t.Fatalf("SaveTokenData() error = %v", err)
+	}
+	for _, account := range []string{
+		TokenAccountForIdentity(data.CorpID, data.UserID),
+		TokenAccountForCorpID(data.CorpID),
+		keychain.AccountToken,
+	} {
+		if err := keychain.Set(keychain.Service, account, "{unreadable"); err != nil {
+			t.Fatalf("write unreadable token slot %q: %v", account, err)
+		}
+	}
+
+	if err := DeleteTokenDataForProfile(configDir, ProfileSelector(Profile{
+		CorpID: data.CorpID,
+		UserID: data.UserID,
+	})); err != nil {
+		t.Fatalf("DeleteTokenDataForProfile() error = %v", err)
+	}
+	cfg, err := LoadProfiles(configDir)
+	if err != nil {
+		t.Fatalf("LoadProfiles() error = %v", err)
+	}
+	if len(cfg.Profiles) != 0 {
+		t.Fatalf("profiles after unreadable target deletion = %#v, want empty", cfg.Profiles)
+	}
+	if TokenDataExistsKeychainForIdentity(data.CorpID, data.UserID) ||
+		TokenDataExistsKeychainForCorpID(data.CorpID) ||
+		TokenDataExistsKeychain() {
+		t.Fatal("unreadable target token slots still exist after logout")
+	}
+}
+
+func assertProfileDeletionRolledBack(t *testing.T, configDir string, selectors []string, current string) {
+	t.Helper()
+	cfg, err := LoadProfiles(configDir)
+	if err != nil {
+		t.Fatalf("LoadProfiles() error = %v", err)
+	}
+	if len(cfg.Profiles) != len(selectors) {
+		t.Fatalf("profiles after rollback = %#v, want %d profiles", cfg.Profiles, len(selectors))
+	}
+	if cfg.CurrentProfile != current {
+		t.Fatalf("current profile after rollback = %q, want %q", cfg.CurrentProfile, current)
+	}
+	for _, selector := range selectors {
+		if _, err := LoadTokenDataForProfile(configDir, selector); err != nil {
+			t.Fatalf("LoadTokenDataForProfile(%q) after rollback error = %v", selector, err)
+		}
+	}
+	legacy, err := LoadTokenDataKeychain()
+	if err != nil {
+		t.Fatalf("LoadTokenDataKeychain() after rollback error = %v", err)
+	}
+	_, currentUserID, _ := ParseIdentitySelector(current)
+	if legacy.UserID != currentUserID {
+		t.Fatalf("legacy mirror user after rollback = %q, want %q", legacy.UserID, currentUserID)
+	}
+	org, err := LoadTokenDataKeychainForCorpID("corp_same")
+	if err != nil {
+		t.Fatalf("LoadTokenDataKeychainForCorpID() after rollback error = %v", err)
+	}
+	if org.UserID != currentUserID {
+		t.Fatalf("organization mirror user after rollback = %q, want %q", org.UserID, currentUserID)
+	}
+}
+
 func TestOAuthLoginEnrichesIdentityBeforePersistingSameCorpAccount(t *testing.T) {
 	cleanupKeychain(t)
 	configDir := t.TempDir()
@@ -1263,6 +1764,74 @@ func TestProfilesMigrationDoesNotOverwriteUnreadableIdentityToken(t *testing.T) 
 	}
 	if raw != "{unreadable" {
 		t.Fatalf("migration overwrote unreadable identity slot: %q", raw)
+	}
+}
+
+func TestProfilesMigrationDoesNotIgnoreUnreadableOrganizationMirror(t *testing.T) {
+	cleanupKeychain(t)
+	configDir := t.TempDir()
+	if err := SaveProfiles(configDir, &ProfilesConfig{
+		Version: 1,
+		Profiles: []Profile{{
+			Name:   "账号一",
+			CorpID: "corp_same",
+			UserID: "user_1",
+		}},
+	}); err != nil {
+		t.Fatalf("SaveProfiles() error = %v", err)
+	}
+	if err := keychain.Set(keychain.Service, TokenAccountForCorpID("corp_same"), "{unreadable"); err != nil {
+		t.Fatalf("write unreadable organization mirror: %v", err)
+	}
+
+	err := EnsureProfilesMigration(configDir)
+	if err == nil || !strings.Contains(err.Error(), "parse token data") {
+		t.Fatalf("EnsureProfilesMigration() error = %v, want unreadable mirror error", err)
+	}
+	cfg, loadErr := LoadProfiles(configDir)
+	if loadErr != nil {
+		t.Fatalf("LoadProfiles() error = %v", loadErr)
+	}
+	if cfg.Version != 1 {
+		t.Fatalf("profiles version after failed migration = %d, want 1", cfg.Version)
+	}
+}
+
+func TestProfileSelectorRoundTripsUserIDContainingColon(t *testing.T) {
+	profile := Profile{CorpID: "corp", UserID: "user:with:colon"}
+	selector := ProfileSelector(profile)
+	if selector != "corp:user:with:colon" {
+		t.Fatalf("ProfileSelector() = %q", selector)
+	}
+	corpID, userID, exact := ParseIdentitySelector(selector)
+	if !exact || corpID != profile.CorpID || userID != profile.UserID {
+		t.Fatalf("ParseIdentitySelector(%q) = %q, %q, %v", selector, corpID, userID, exact)
+	}
+}
+
+func TestMissingCurrentIdentityClearsLegacyMirror(t *testing.T) {
+	cleanupKeychain(t)
+	configDir := t.TempDir()
+	data := testToken("at_user_1", "corp_same", "同一组织")
+	data.UserID = "user_1"
+	if err := SaveTokenData(configDir, data); err != nil {
+		t.Fatalf("SaveTokenData() error = %v", err)
+	}
+	if err := DeleteTokenDataKeychainForIdentity(data.CorpID, data.UserID); err != nil {
+		t.Fatalf("DeleteTokenDataKeychainForIdentity() error = %v", err)
+	}
+	if err := DeleteTokenDataKeychainForCorpID(data.CorpID); err != nil {
+		t.Fatalf("DeleteTokenDataKeychainForCorpID() error = %v", err)
+	}
+
+	if err := SyncLegacyTokenMirror(configDir); err != nil {
+		t.Fatalf("SyncLegacyTokenMirror() error = %v", err)
+	}
+	if TokenDataExistsKeychain() {
+		t.Fatal("legacy mirror still exists after current identity token was confirmed missing")
+	}
+	if _, err := os.Stat(filepath.Join(configDir, tokenJSONFile)); !os.IsNotExist(err) {
+		t.Fatalf("token marker stat error = %v, want not exist", err)
 	}
 }
 

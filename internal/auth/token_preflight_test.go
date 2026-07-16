@@ -18,6 +18,7 @@ package auth
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -150,7 +151,7 @@ func TestPreflightTokenPersistenceRejectsUnreadableProfileSlot(t *testing.T) {
 	}
 }
 
-func TestExactProfileRefreshIgnoresUnreadableOrgMirror(t *testing.T) {
+func TestExactOrgCurrentRefreshRejectsUnreadableOrgMirror(t *testing.T) {
 	cleanupKeychain(t)
 	t.Setenv(keychain.DisableKeychainEnv, "1")
 	configDir := t.TempDir()
@@ -165,8 +166,47 @@ func TestExactProfileRefreshIgnoresUnreadableOrgMirror(t *testing.T) {
 
 	SetRuntimeProfile("corp_exact:user_exact")
 	defer SetRuntimeProfile("")
-	if err := preflightTokenRefreshPersistence(data); err != nil {
-		t.Fatalf("preflightTokenRefreshPersistence(exact) error = %v", err)
+	if err := preflightTokenRefreshPersistence(configDir, data); err == nil ||
+		!strings.Contains(err.Error(), "profile token slot") {
+		t.Fatalf("preflightTokenRefreshPersistence(exact current) error = %v, want unreadable org mirror", err)
+	}
+}
+
+func TestExactNonOrgCurrentRefreshIgnoresUnreadableOrgMirror(t *testing.T) {
+	cleanupKeychain(t)
+	t.Setenv(keychain.DisableKeychainEnv, "1")
+	configDir := t.TempDir()
+	first := testToken("at_first", "corp_exact", "Exact Org")
+	first.UserID = "user_first"
+	second := testToken("at_second", "corp_exact", "Exact Org")
+	second.UserID = "user_second"
+	if err := SaveTokenData(configDir, first); err != nil {
+		t.Fatalf("SaveTokenData(first) error = %v", err)
+	}
+	if err := SaveTokenData(configDir, second); err != nil {
+		t.Fatalf("SaveTokenData(second) error = %v", err)
+	}
+	if err := os.WriteFile(profileCiphertextPathForTest(first.CorpID), []byte("corrupt ciphertext"), 0o600); err != nil {
+		t.Fatalf("WriteFile(profile ciphertext) error = %v", err)
+	}
+
+	SetRuntimeProfile("corp_exact:user_first")
+	defer SetRuntimeProfile("")
+	if err := preflightTokenRefreshPersistence(configDir, first); err != nil {
+		t.Fatalf("preflightTokenRefreshPersistence(exact non-current) error = %v", err)
+	}
+	updated := *first
+	updated.AccessToken = "at_first_refreshed"
+	updated.RefreshToken = "rt_first_refreshed"
+	if err := SaveTokenData(configDir, &updated); err != nil {
+		t.Fatalf("SaveTokenData(exact non-current refresh) error = %v", err)
+	}
+	loaded, err := LoadTokenDataForProfile(configDir, "corp_exact:user_first")
+	if err != nil {
+		t.Fatalf("LoadTokenDataForProfile(refreshed) error = %v", err)
+	}
+	if loaded.AccessToken != updated.AccessToken || loaded.RefreshToken != updated.RefreshToken {
+		t.Fatalf("refreshed exact token = %#v, want %#v", loaded, updated)
 	}
 }
 
@@ -252,7 +292,7 @@ func TestRefreshPreflightIgnoresUnreadableUnrelatedProfile(t *testing.T) {
 		t.Fatalf("WriteFile(A profile ciphertext) error = %v", err)
 	}
 
-	if err := preflightTokenRefreshPersistence(dataB); err != nil {
+	if err := preflightTokenRefreshPersistence(configDir, dataB); err != nil {
 		t.Fatalf("preflightTokenRefreshPersistence(B) error = %v", err)
 	}
 	loaded, err := NewOAuthProvider(configDir, nil).Login(context.Background(), false)
@@ -357,6 +397,45 @@ func TestLockedRefreshPreflightsLegacyMirrorBeforeHTTP(t *testing.T) {
 	_, err := provider.lockedRefresh(context.Background())
 	if err == nil || !strings.Contains(err.Error(), "legacy token slot") {
 		t.Fatalf("lockedRefresh() error = %v, want token persistence preflight error", err)
+	}
+	if got := calls.Load(); got != 0 {
+		t.Fatalf("refresh HTTP calls = %d, want 0", got)
+	}
+}
+
+func TestLockedRefreshRejectsFutureProfilesVersionBeforeHTTP(t *testing.T) {
+	cleanupKeychain(t)
+	t.Setenv(keychain.DisableKeychainEnv, "1")
+	setPreflightTestCredentials(t)
+	configDir := t.TempDir()
+	data := testToken("at_future_refresh", "corp_future", "Future Org")
+	data.ExpiresAt = time.Now().Add(-time.Hour)
+	data.RefreshExpAt = time.Now().Add(time.Hour)
+	if err := SaveTokenData(configDir, data); err != nil {
+		t.Fatalf("SaveTokenData() error = %v", err)
+	}
+	cfg, err := LoadProfiles(configDir)
+	if err != nil {
+		t.Fatalf("LoadProfiles() error = %v", err)
+	}
+	cfg.Version = profilesVersion + 1
+	raw, err := json.Marshal(cfg)
+	if err != nil {
+		t.Fatalf("json.Marshal() error = %v", err)
+	}
+	if err := os.WriteFile(ProfilesPath(configDir), raw, 0o600); err != nil {
+		t.Fatalf("write future profiles: %v", err)
+	}
+
+	var calls atomic.Int32
+	provider := NewOAuthProvider(configDir, nil)
+	provider.httpClient = &http.Client{Transport: preflightRoundTripFunc(func(*http.Request) (*http.Response, error) {
+		calls.Add(1)
+		return nil, errors.New("unexpected refresh request")
+	})}
+	_, err = provider.Login(context.Background(), false)
+	if err == nil || !strings.Contains(err.Error(), "newer than supported") {
+		t.Fatalf("Login() error = %v, want future profiles rejection", err)
 	}
 	if got := calls.Load(); got != 0 {
 		t.Fatalf("refresh HTTP calls = %d, want 0", got)

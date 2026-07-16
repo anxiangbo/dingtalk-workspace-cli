@@ -16,6 +16,7 @@ package app
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -185,6 +186,26 @@ func TestProfileListUsesRealIdentityTokenState(t *testing.T) {
 	}
 	if got.Status != authpkg.ProfileStatusExpired {
 		t.Fatalf("status = %q, want expired", got.Status)
+	}
+}
+
+func TestProfileListDistinguishesMissingAndUnavailableTokenState(t *testing.T) {
+	originalLoad := profileLoadTokenData
+	t.Cleanup(func() { profileLoadTokenData = originalLoad })
+	profile := authpkg.Profile{CorpID: "corp", UserID: "user"}
+
+	profileLoadTokenData = func(string, string) (*authpkg.TokenData, error) {
+		return nil, authpkg.ErrTokenDataNotFound
+	}
+	if state := loadProfileTokenState("cfg", profile); state.Status != authpkg.ProfileStatusRevoked {
+		t.Fatalf("missing token status = %q, want revoked", state.Status)
+	}
+
+	profileLoadTokenData = func(string, string) (*authpkg.TokenData, error) {
+		return nil, errors.New("keychain unavailable")
+	}
+	if state := loadProfileTokenState("cfg", profile); state.Status != authpkg.ProfileStatusUnavailable {
+		t.Fatalf("unavailable token status = %q, want unavailable", state.Status)
 	}
 }
 

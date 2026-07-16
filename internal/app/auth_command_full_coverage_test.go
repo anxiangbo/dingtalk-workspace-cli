@@ -355,6 +355,14 @@ func TestCrossPlatformCoverageAuthCoverageContactEnrichment(t *testing.T) {
 	if err := enrichAuthLoginProfileFromContact(ctx, "cfg", &authCoverageCaller{err: errors.New("call")}, &authpkg.TokenData{CorpID: "ding"}); err == nil {
 		t.Fatal("caller error should propagate")
 	}
+	if err := enrichAuthLoginProfileFromContact(
+		ctx,
+		"cfg",
+		&authCoverageCaller{err: errors.New("call")},
+		&authpkg.TokenData{CorpID: "ding", UserID: "known", AccessToken: "token"},
+	); err != nil {
+		t.Fatalf("optional contact metadata failure with known userId = %v", err)
+	}
 	for _, text := range []string{"", "not-json", `{"result":[]}`, `{"result":[{"orgEmployeeModel":{}}]}`} {
 		caller := &authCoverageCaller{result: &edition.ToolResult{Content: []edition.ContentBlock{{Text: text}}}}
 		if err := enrichAuthLoginProfileFromContact(ctx, "cfg", caller, &authpkg.TokenData{CorpID: "ding", AccessToken: "token"}); err != nil {
@@ -526,13 +534,39 @@ func TestCrossPlatformCoverageAuthCoverageStatusAndLogout(t *testing.T) {
 		return &authpkg.TokenData{CorpID: "ding", UserID: "user"}, nil
 	}
 	authRevokeTokenForData = func(context.Context, *authpkg.TokenData) error { return errors.New("ignored") }
-	authDeleteProfileToken = func(string, string) error { return errors.New("delete") }
+	var deletedSelector string
+	authDeleteProfileToken = func(_ string, selector string) error {
+		deletedSelector = selector
+		return errors.New("delete")
+	}
 	if err := logoutOneProfile(nil, context.Background(), "cfg", "x"); err == nil {
 		t.Fatal("profile delete should fail")
 	}
-	authDeleteProfileToken = func(string, string) error { return nil }
+	if deletedSelector != "ding:user" {
+		t.Fatalf("exact deletion selector = %q, want stable identity selector", deletedSelector)
+	}
+	authDeleteProfileToken = func(_ string, selector string) error {
+		deletedSelector = selector
+		return nil
+	}
 	if err := logoutOneProfile(nil, context.Background(), "cfg", "x"); err != nil {
 		t.Fatal(err)
+	}
+	if deletedSelector != "ding:user" {
+		t.Fatalf("exact deletion selector = %q, want stable identity selector", deletedSelector)
+	}
+
+	authResolveProfileDeletion = func(string, string) (*authpkg.Profile, bool, error) {
+		return &authpkg.Profile{CorpID: "ding", UserID: "user"}, false, nil
+	}
+	authLoadProfiles = func(string) (*authpkg.ProfilesConfig, error) {
+		return &authpkg.ProfilesConfig{Profiles: []authpkg.Profile{{CorpID: "ding", UserID: "user"}}}, nil
+	}
+	if err := logoutOneProfile(nil, context.Background(), "cfg", "organization-name"); err != nil {
+		t.Fatal(err)
+	}
+	if deletedSelector != "ding" {
+		t.Fatalf("organization deletion selector = %q, want stable corpId", deletedSelector)
 	}
 
 	authEnsureProfilesMigration = func(string) error { return errors.New("migrate") }

@@ -156,6 +156,9 @@ func preflightTokenPersistence(configDir string) error {
 	if err != nil {
 		return fmt.Errorf("load token profiles: %w", err)
 	}
+	if err := ensureProfilesWritable(cfg); err != nil {
+		return err
+	}
 	for _, profile := range cfg.Profiles {
 		// LoadProfiles normalizes away blank and duplicate corp IDs.
 		corpID := profile.CorpID
@@ -191,9 +194,16 @@ func preflightTokenPersistence(configDir string) error {
 // preflightTokenRefreshPersistence checks only the slots a refresh can write.
 // An unrelated broken profile must not prevent the current profile from using
 // its still-valid credentials.
-func preflightTokenRefreshPersistence(data *TokenData) error {
+func preflightTokenRefreshPersistence(configDir string, data *TokenData) error {
 	if h := edition.Get(); h.SaveToken != nil {
 		return nil
+	}
+	cfg, err := LoadProfiles(configDir)
+	if err != nil {
+		return err
+	}
+	if err := ensureProfilesWritable(cfg); err != nil {
+		return err
 	}
 
 	if _, err := LoadTokenDataKeychain(); err != nil && !errors.Is(err, ErrTokenDataNotFound) {
@@ -209,11 +219,16 @@ func preflightTokenRefreshPersistence(data *TokenData) error {
 			return fmt.Errorf("identity token slot %q is unreadable: %w", TokenAccountForIdentity(corpID, userID), err)
 		}
 	}
+	checkOrganizationMirror := true
 	if _, _, exact := ParseIdentitySelector(RuntimeProfile()); exact {
-		return nil
+		checkOrganizationMirror =
+			exactProfileSelectorForCorp(cfg, corpID, cfg.OrgCurrentProfiles[corpID]) ==
+				profileSelector(corpID, userID)
 	}
-	if _, err := LoadTokenDataKeychainForCorpID(corpID); err != nil && !errors.Is(err, ErrTokenDataNotFound) {
-		return fmt.Errorf("profile token slot %q is unreadable: %w", TokenAccountForCorpID(corpID), err)
+	if checkOrganizationMirror {
+		if _, err := LoadTokenDataKeychainForCorpID(corpID); err != nil && !errors.Is(err, ErrTokenDataNotFound) {
+			return fmt.Errorf("profile token slot %q is unreadable: %w", TokenAccountForCorpID(corpID), err)
+		}
 	}
 	return nil
 }

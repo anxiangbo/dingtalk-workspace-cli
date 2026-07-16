@@ -178,6 +178,8 @@ func newAuthLoginCommand(patCaller edition.ToolCaller) *cobra.Command {
 				if !recommendAuthMode {
 					return nil
 				}
+				restoreProfile := replaceRuntimeProfile(authpkg.TokenProfileSelector(tokenData))
+				defer restoreProfile()
 				recommendScopeMode := pat.LoginRecommendScopeRecommended
 				var initialPlan *pat.LoginRecommendPlan
 				if postLoginTUIMode {
@@ -647,8 +649,10 @@ func logoutOneProfile(_ *cobra.Command, ctx context.Context, configDir, selector
 	if selected == nil {
 		return apperrors.NewValidation(fmt.Sprintf("profile %q not found", selector))
 	}
+	stableSelector := selected.CorpID
 	if exact {
-		if data, loadErr := authLoadTokenForProfile(configDir, authpkg.ProfileSelector(*selected)); loadErr == nil {
+		stableSelector = authpkg.ProfileSelector(*selected)
+		if data, loadErr := authLoadTokenForProfile(configDir, stableSelector); loadErr == nil {
 			_ = authRevokeTokenForData(ctx, data)
 		}
 	} else if cfg, loadErr := authLoadProfiles(configDir); loadErr == nil {
@@ -661,7 +665,7 @@ func logoutOneProfile(_ *cobra.Command, ctx context.Context, configDir, selector
 			}
 		}
 	}
-	if err := authDeleteProfileToken(configDir, selector); err != nil {
+	if err := authDeleteProfileToken(configDir, stableSelector); err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			return apperrors.NewValidation(err.Error())
 		}
@@ -700,6 +704,14 @@ func pushRuntimeProfile(selector string) func() {
 	}
 	previous := authpkg.RuntimeProfile()
 	authpkg.SetRuntimeProfile(selector)
+	return func() {
+		authpkg.SetRuntimeProfile(previous)
+	}
+}
+
+func replaceRuntimeProfile(selector string) func() {
+	previous := authpkg.RuntimeProfile()
+	authpkg.SetRuntimeProfile(strings.TrimSpace(selector))
 	return func() {
 		authpkg.SetRuntimeProfile(previous)
 	}
@@ -1248,13 +1260,12 @@ func enrichAuthLoginProfileFromContact(ctx context.Context, _ string, caller edi
 		return nil
 	}
 
-	args := map[string]any{"profile": corpID}
 	var (
 		result *edition.ToolResult
 		err    error
 	)
 	if tokenCaller, ok := caller.(tokenOverrideToolCaller); ok && strings.TrimSpace(data.AccessToken) != "" {
-		result, err = tokenCaller.CallToolWithToken(ctx, data.AccessToken, "contact", "get_current_user_profile", args)
+		result, err = tokenCaller.CallToolWithToken(ctx, data.AccessToken, "contact", "get_current_user_profile", nil)
 	} else {
 		if strings.TrimSpace(data.UserID) == "" {
 			return fmt.Errorf("login identity lookup requires an in-memory token override")
@@ -1262,6 +1273,9 @@ func enrichAuthLoginProfileFromContact(ctx context.Context, _ string, caller edi
 		return nil
 	}
 	if err != nil {
+		if strings.TrimSpace(data.UserID) != "" {
+			return nil
+		}
 		return err
 	}
 	identity, ok := contactProfileIdentityFromToolResult(result)

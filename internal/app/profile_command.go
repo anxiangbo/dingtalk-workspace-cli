@@ -146,6 +146,7 @@ var (
 	profileSwitchTUIRunner           = runProfileSwitchTUI
 	profileEnsureProfilesMigration   = authpkg.EnsureProfilesMigration
 	profileLoadProfiles              = authpkg.LoadProfiles
+	profileLoadTokenData             = authpkg.LoadTokenDataForProfile
 	profileUsePrevious               = authpkg.UsePreviousProfile
 	profileSetCurrent                = authpkg.SetCurrentProfile
 	profileRunTeaProgram             = (*tea.Program).Run
@@ -743,9 +744,12 @@ func profileViewFromProfile(
 }
 
 func loadProfileTokenState(configDir string, profile authpkg.Profile) *profileTokenState {
-	data, err := authpkg.LoadTokenDataForProfile(configDir, authpkg.ProfileSelector(profile))
-	if err != nil || data == nil {
+	data, err := profileLoadTokenData(configDir, authpkg.ProfileSelector(profile))
+	if errors.Is(err, authpkg.ErrTokenDataNotFound) || (err == nil && data == nil) {
 		return &profileTokenState{Status: authpkg.ProfileStatusRevoked}
+	}
+	if err != nil {
+		return &profileTokenState{Status: authpkg.ProfileStatusUnavailable}
 	}
 	status := authpkg.ProfileStatusExpired
 	if data.IsAccessTokenValid() {

@@ -31,28 +31,30 @@ import (
 )
 
 var (
-	profilesAcquireDualLock  = AcquireDualLock
-	profilesReadFile         = os.ReadFile
-	profilesRename           = os.Rename
-	profilesMkdirAll         = os.MkdirAll
-	profilesMarshalIndent    = json.MarshalIndent
-	profilesWriteFile        = os.WriteFile
-	profilesRemove           = os.Remove
-	profilesLoad             = LoadProfiles
-	profilesSave             = SaveProfiles
-	profilesEnsureMigration  = ensureProfilesMigrationLocked
-	profilesSyncLegacyMirror = syncLegacyTokenMirrorLocked
-	profilesTokenExists      = TokenDataExistsKeychain
-	profilesLoadLegacy       = LoadTokenDataKeychain
-	profilesSaveCorp         = SaveTokenDataKeychainForCorpID
-	profilesSaveIdentity     = SaveTokenDataKeychainForIdentity
-	profilesTokenExistsCorp  = TokenDataExistsKeychainForCorpID
-	profilesLoadCorp         = LoadTokenDataKeychainForCorpID
-	profilesLoadIdentity     = LoadTokenDataKeychainForIdentity
-	profilesSaveLegacy       = SaveTokenDataKeychain
-	profilesWriteMarker      = WriteTokenMarker
-	profilesDeleteLegacy     = DeleteTokenDataKeychain
-	profilesDeleteMarker     = DeleteTokenMarker
+	profilesAcquireDualLock   = AcquireDualLock
+	profilesReadFile          = os.ReadFile
+	profilesRename            = os.Rename
+	profilesMkdirAll          = os.MkdirAll
+	profilesMarshalIndent     = json.MarshalIndent
+	profilesWriteFile         = os.WriteFile
+	profilesRemove            = os.Remove
+	profilesLoad              = LoadProfiles
+	profilesSave              = SaveProfiles
+	profilesEnsureMigration   = ensureProfilesMigrationLocked
+	profilesSyncLegacyMirror  = syncLegacyTokenMirrorLocked
+	profilesTokenExists       = TokenDataExistsKeychain
+	profilesLoadLegacy        = LoadTokenDataKeychain
+	profilesSaveCorp          = SaveTokenDataKeychainForCorpID
+	profilesSaveIdentity      = SaveTokenDataKeychainForIdentity
+	profilesTokenExistsCorp   = TokenDataExistsKeychainForCorpID
+	profilesLoadCorp          = LoadTokenDataKeychainForCorpID
+	profilesDeleteCorp        = DeleteTokenDataKeychainForCorpID
+	profilesLoadIdentity      = LoadTokenDataKeychainForIdentity
+	profilesSaveLegacy        = SaveTokenDataKeychain
+	profilesWriteMarker       = WriteTokenMarker
+	profilesWriteManualMarker = WriteManualTokenMarker
+	profilesDeleteLegacy      = DeleteTokenDataKeychain
+	profilesDeleteMarker      = DeleteTokenMarker
 )
 
 // withProfilesLock runs fn while holding the auth dual-layer lock (process +
@@ -78,9 +80,10 @@ const (
 )
 
 const (
-	ProfileStatusActive  = "active"
-	ProfileStatusExpired = "expired"
-	ProfileStatusRevoked = "revoked"
+	ProfileStatusActive      = "active"
+	ProfileStatusExpired     = "expired"
+	ProfileStatusRevoked     = "revoked"
+	ProfileStatusUnavailable = "unavailable"
 )
 
 // ProfilesConfig stores non-sensitive profile metadata. Token material stays in keychain.
@@ -162,6 +165,9 @@ func SaveProfiles(configDir string, cfg *ProfilesConfig) error {
 	if cfg == nil {
 		cfg = &ProfilesConfig{}
 	}
+	if err := ensureProfilesWritable(cfg); err != nil {
+		return err
+	}
 	normalizeProfilesConfig(cfg)
 	if err := profilesMkdirAll(configDir, config.DirPerm); err != nil {
 		return fmt.Errorf("create config dir: %w", err)
@@ -200,6 +206,9 @@ func ensureProfilesMigrationLocked(configDir string) error {
 	cfg, err := profilesLoad(configDir)
 	if err != nil {
 		return err
+	}
+	if cfg.Version > profilesVersion {
+		return nil
 	}
 	if len(cfg.Profiles) == 0 {
 		// Version 2 with no profiles is an intentional logged-out tombstone.
@@ -240,9 +249,13 @@ func ensureProfilesMigrationLocked(configDir string) error {
 		orgToken, loaded := orgTokens[corpID]
 		if !loaded {
 			token, loadErr := profilesLoadCorp(corpID)
-			if loadErr == nil {
-				orgToken = token
+			if legacySelectionState && loadErr != nil && !errors.Is(loadErr, ErrTokenDataNotFound) {
+				return loadErr
 			}
+			if loadErr != nil {
+				token = nil
+			}
+			orgToken = token
 			orgTokens[corpID] = orgToken
 		}
 		if orgToken == nil {
@@ -367,6 +380,9 @@ func upsertProfileFromToken(configDir string, cfg *ProfilesConfig, data *TokenDa
 	if corpID == "" {
 		return nil
 	}
+	if err := ensureProfilesWritable(cfg); err != nil {
+		return err
+	}
 	normalizeProfilesConfig(cfg)
 	cfg.Version = profilesVersion
 	userID := strings.TrimSpace(data.UserID)
@@ -453,7 +469,7 @@ func profileSelector(corpID, userID string) string {
 // ParseIdentitySelector splits corpId:userId selectors.
 func ParseIdentitySelector(selector string) (corpID, userID string, ok bool) {
 	selector = strings.TrimSpace(selector)
-	idx := strings.LastIndex(selector, ":")
+	idx := strings.Index(selector, ":")
 	if idx <= 0 || idx >= len(selector)-1 {
 		return "", "", false
 	}
@@ -522,6 +538,9 @@ func ResolveProfileDeletionScope(configDir, selector string) (*Profile, bool, er
 		if err != nil {
 			return err
 		}
+		if err := ensureProfilesWritable(cfg); err != nil {
+			return err
+		}
 		var resolveErr error
 		result, exact, resolveErr = resolveProfileDeletionSelection(cfg, selector)
 		return resolveErr
@@ -575,7 +594,15 @@ func setCurrentProfileLocked(configDir, selector string) (*Profile, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := ensureProfilesWritable(cfg); err != nil {
+		return nil, err
+	}
 	p, _, err := resolveProfileSelection(configDir, cfg, selector)
+	if err != nil {
+		return nil, err
+	}
+	originalCfg := cloneProfilesConfig(cfg)
+	mirrors, err := snapshotProfileSelectionMirrors(configDir, p.CorpID)
 	if err != nil {
 		return nil, err
 	}
@@ -595,10 +622,10 @@ func setCurrentProfileLocked(configDir, selector string) (*Profile, error) {
 		return nil, err
 	}
 	if err := syncOrganizationTokenMirrorForProfile(*p); err != nil {
-		return nil, err
+		return nil, rollbackProfileSelection(configDir, originalCfg, p.CorpID, mirrors, err)
 	}
 	if err := profilesSyncLegacyMirror(configDir); err != nil {
-		return nil, err
+		return nil, rollbackProfileSelection(configDir, originalCfg, p.CorpID, mirrors, err)
 	}
 	return findExactProfile(cfg, p.CorpID, p.UserID), nil
 }
@@ -622,6 +649,9 @@ func usePreviousProfileLocked(configDir string) (*Profile, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := ensureProfilesWritable(cfg); err != nil {
+		return nil, err
+	}
 	prev := strings.TrimSpace(cfg.PreviousProfile)
 	if prev == "" {
 		return nil, fmt.Errorf("previous profile is empty")
@@ -629,6 +659,11 @@ func usePreviousProfileLocked(configDir string) (*Profile, error) {
 	p, _, err := resolveProfileSelection(configDir, cfg, prev)
 	if err != nil {
 		return nil, fmt.Errorf("resolve previous profile %q: %w", prev, err)
+	}
+	originalCfg := cloneProfilesConfig(cfg)
+	mirrors, err := snapshotProfileSelectionMirrors(configDir, p.CorpID)
+	if err != nil {
+		return nil, err
 	}
 	var current *Profile
 	if strings.TrimSpace(cfg.CurrentProfile) != "" {
@@ -645,10 +680,10 @@ func usePreviousProfileLocked(configDir string) (*Profile, error) {
 		return nil, err
 	}
 	if err := syncOrganizationTokenMirrorForProfile(*p); err != nil {
-		return nil, err
+		return nil, rollbackProfileSelection(configDir, originalCfg, p.CorpID, mirrors, err)
 	}
 	if err := profilesSyncLegacyMirror(configDir); err != nil {
-		return nil, err
+		return nil, rollbackProfileSelection(configDir, originalCfg, p.CorpID, mirrors, err)
 	}
 	return findExactProfile(cfg, p.CorpID, p.UserID), nil
 }
@@ -670,6 +705,9 @@ func RemoveProfile(configDir, selector string) (*Profile, error) {
 func removeProfileLocked(configDir, selector string) (*Profile, error) {
 	cfg, err := profilesLoad(configDir)
 	if err != nil {
+		return nil, err
+	}
+	if err := ensureProfilesWritable(cfg); err != nil {
 		return nil, err
 	}
 	p, exact, err := resolveProfileDeletionSelection(cfg, selector)
@@ -771,6 +809,9 @@ func markProfileStatusLocked(configDir, selector, status string) error {
 	if err != nil {
 		return err
 	}
+	if err := ensureProfilesWritable(cfg); err != nil {
+		return err
+	}
 	p, _, resolveErr := resolveProfileSelection(configDir, cfg, selector)
 	if resolveErr != nil {
 		return nil
@@ -778,6 +819,90 @@ func markProfileStatusLocked(configDir, selector, status string) error {
 	p.Status = strings.TrimSpace(status)
 	p.UpdatedAt = time.Now().Format(time.RFC3339)
 	return profilesSave(configDir, cfg)
+}
+
+func ensureProfilesWritable(cfg *ProfilesConfig) error {
+	if cfg != nil && cfg.Version > profilesVersion {
+		return fmt.Errorf(
+			"profiles.json version %d is newer than supported version %d; upgrade dws before changing profiles",
+			cfg.Version,
+			profilesVersion,
+		)
+	}
+	return nil
+}
+
+type profileSelectionMirrorSnapshot struct {
+	organization tokenSlotSnapshot
+	legacy       tokenSlotSnapshot
+	marker       tokenMarkerSnapshot
+}
+
+func snapshotProfileSelectionMirrors(configDir, corpID string) (profileSelectionMirrorSnapshot, error) {
+	organization, err := snapshotTokenSlot(func() (*TokenData, error) {
+		return profilesLoadCorp(corpID)
+	})
+	if err != nil {
+		return profileSelectionMirrorSnapshot{}, err
+	}
+	legacy, err := snapshotTokenSlot(profilesLoadLegacy)
+	if err != nil {
+		return profileSelectionMirrorSnapshot{}, err
+	}
+	marker, err := snapshotTokenMarker(configDir)
+	if err != nil {
+		return profileSelectionMirrorSnapshot{}, err
+	}
+	return profileSelectionMirrorSnapshot{
+		organization: organization,
+		legacy:       legacy,
+		marker:       marker,
+	}, nil
+}
+
+func rollbackProfileSelection(
+	configDir string,
+	cfg *ProfilesConfig,
+	corpID string,
+	mirrors profileSelectionMirrorSnapshot,
+	operationErr error,
+) error {
+	var rollbackErr error
+	if err := profilesSave(configDir, cloneProfilesConfig(cfg)); err != nil {
+		rollbackErr = errors.Join(rollbackErr, err)
+	}
+	if mirrors.organization.exists {
+		if err := profilesSaveCorp(corpID, mirrors.organization.token); err != nil {
+			rollbackErr = errors.Join(rollbackErr, err)
+		}
+	} else if err := profilesDeleteCorp(corpID); err != nil {
+		rollbackErr = errors.Join(rollbackErr, err)
+	}
+	if mirrors.legacy.exists {
+		if err := profilesSaveLegacy(mirrors.legacy.token); err != nil {
+			rollbackErr = errors.Join(rollbackErr, err)
+		}
+	} else if err := profilesDeleteLegacy(); err != nil {
+		rollbackErr = errors.Join(rollbackErr, err)
+	}
+	switch {
+	case !mirrors.marker.exists:
+		if err := profilesDeleteMarker(configDir); err != nil {
+			rollbackErr = errors.Join(rollbackErr, err)
+		}
+	case mirrors.marker.manual:
+		if err := profilesWriteManualMarker(configDir); err != nil {
+			rollbackErr = errors.Join(rollbackErr, err)
+		}
+	default:
+		if err := profilesWriteMarker(configDir); err != nil {
+			rollbackErr = errors.Join(rollbackErr, err)
+		}
+	}
+	if rollbackErr != nil {
+		return errors.Join(operationErr, fmt.Errorf("rollback profile selection: %w", rollbackErr))
+	}
+	return operationErr
 }
 
 // SyncLegacyTokenMirror mirrors the current profile token into legacy auth-token.
@@ -800,9 +925,14 @@ func syncLegacyTokenMirrorLocked(configDir string) error {
 		}
 		data, loadErr := loadTokenForProfileIdentity(*p)
 		if loadErr != nil {
-			// Keep the existing legacy mirror untouched rather than wiping a host
-			// app's login state just because keychain was momentarily unavailable.
-			return nil
+			if errors.Is(loadErr, ErrTokenDataNotFound) {
+				// The current identity and its organization mirror are both
+				// confirmed absent. Clear the stale global compatibility mirror.
+			} else {
+				// Keep the existing legacy mirror untouched rather than wiping a host
+				// app's login state just because keychain was momentarily unavailable.
+				return nil
+			}
 		}
 		if data != nil {
 			if err := profilesSaveLegacy(data); err != nil {
