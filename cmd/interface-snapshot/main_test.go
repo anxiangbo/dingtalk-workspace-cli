@@ -22,7 +22,7 @@ import (
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/interfacesnapshot"
 )
 
-func TestRunGenerateCapturesActualRootOffline(t *testing.T) {
+func TestCrossPlatformCoverageRunGenerateCapturesActualRootOffline(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	if exitCode := run([]string{"generate"}, &stdout, &stderr); exitCode != 0 {
 		t.Fatalf("run(generate) exit=%d stderr=%s", exitCode, stderr.String())
@@ -56,7 +56,7 @@ func TestRunGenerateCapturesActualRootOffline(t *testing.T) {
 	}
 }
 
-func TestRunCompareUsesBothSnapshotInputsAndExitCode(t *testing.T) {
+func TestCrossPlatformCoverageRunCompareUsesBothSnapshotInputsAndExitCode(t *testing.T) {
 	current := commandSnapshot("dws")
 	mergeBase := commandSnapshot("dws")
 	stable := commandSnapshot("dws", "dws legacy")

@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func TestCaptureUsesStableNoiseRulesAndFlagScopes(t *testing.T) {
+func TestCrossPlatformCoverageCaptureUsesStableNoiseRulesAndFlagScopes(t *testing.T) {
 	root := &cobra.Command{Use: "dws", Version: "test"}
 	root.PersistentFlags().String("profile", "", "profile")
 
@@ -93,7 +93,7 @@ func TestCaptureUsesStableNoiseRulesAndFlagScopes(t *testing.T) {
 	}
 }
 
-func TestReadRejectsUnknownSnapshotFields(t *testing.T) {
+func TestCrossPlatformCoverageReadRejectsUnknownSnapshotFields(t *testing.T) {
 	input := bytes.NewBufferString(`{
   "schema_version": 1,
   "rules": {"excluded_command_subtrees": [], "excluded_flags": []},
@@ -105,7 +105,7 @@ func TestReadRejectsUnknownSnapshotFields(t *testing.T) {
 	}
 }
 
-func TestCompareBlocksCandidateSiblingAliasCollision(t *testing.T) {
+func TestCrossPlatformCoverageCompareBlocksCandidateSiblingAliasCollision(t *testing.T) {
 	base := testSnapshot(testCommand("dws"))
 	current := testSnapshot(
 		testCommand("dws"),

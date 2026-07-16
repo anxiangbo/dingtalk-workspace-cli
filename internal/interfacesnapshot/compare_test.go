@@ -15,7 +15,7 @@ package interfacesnapshot
 
 import "testing"
 
-func TestCompareAdmissionPolicy(t *testing.T) {
+func TestCrossPlatformCoverageCompareAdmissionPolicy(t *testing.T) {
 	base := testSnapshot(
 		testCommand("dws"),
 		testCommand("dws search", testFlag("query", "string", false)),
@@ -115,7 +115,7 @@ func TestCompareAdmissionPolicy(t *testing.T) {
 	}
 }
 
-func TestCompareAllowsRenameWhenOldPathIsAlias(t *testing.T) {
+func TestCrossPlatformCoverageCompareAllowsRenameWhenOldPathIsAlias(t *testing.T) {
 	base := testSnapshot(
 		testCommand("dws"),
 		testCommand("dws search", testFlag("query", "string", false)),
@@ -131,7 +131,7 @@ func TestCompareAllowsRenameWhenOldPathIsAlias(t *testing.T) {
 	}
 }
 
-func TestCompareBlocksRemovedAlias(t *testing.T) {
+func TestCrossPlatformCoverageCompareBlocksRemovedAlias(t *testing.T) {
 	base := testSnapshot(
 		testCommand("dws"),
 		testCommandWithAliases("dws search", []string{"find"}),
@@ -147,7 +147,7 @@ func TestCompareBlocksRemovedAlias(t *testing.T) {
 	}
 }
 
-func TestCompareBlocksAliasRetargetedToIncompatibleCommand(t *testing.T) {
+func TestCrossPlatformCoverageCompareBlocksAliasRetargetedToIncompatibleCommand(t *testing.T) {
 	base := testSnapshot(
 		testCommand("dws"),
 		testCommandWithAliases("dws search", []string{"find"}, testFlag("query", "string", false)),
@@ -164,7 +164,7 @@ func TestCompareBlocksAliasRetargetedToIncompatibleCommand(t *testing.T) {
 	}
 }
 
-func TestCompareBlocksSnapshotRuleChanges(t *testing.T) {
+func TestCrossPlatformCoverageCompareBlocksSnapshotRuleChanges(t *testing.T) {
 	base := testSnapshot(testCommand("dws"))
 	current := testSnapshot(testCommand("dws"))
 	current.Rules.ExcludedFlags = append(current.Rules.ExcludedFlags, "legacy")
@@ -175,7 +175,7 @@ func TestCompareBlocksSnapshotRuleChanges(t *testing.T) {
 	}
 }
 
-func TestCompareBlocksCallableMetadataRegressions(t *testing.T) {
+func TestCrossPlatformCoverageCompareBlocksCallableMetadataRegressions(t *testing.T) {
 	baseFlag := testFlag("format", "string", false)
 	baseFlag.Shorthand = "f"
 	baseFlag.NoOpt = "json"
@@ -247,7 +247,7 @@ func TestCompareBlocksCallableMetadataRegressions(t *testing.T) {
 	}
 }
 
-func TestCompareUsesEffectiveFlagsAtEveryCommandPath(t *testing.T) {
+func TestCrossPlatformCoverageCompareUsesEffectiveFlagsAtEveryCommandPath(t *testing.T) {
 	base := testSnapshot(
 		testCommand("dws", testFlag("profile", "string", false)),
 		testCommandWithFlagScopes(
@@ -290,7 +290,7 @@ func TestCompareUsesEffectiveFlagsAtEveryCommandPath(t *testing.T) {
 	})
 }
 
-func TestCompareAllRequiresBothReferencesToPass(t *testing.T) {
+func TestCrossPlatformCoverageCompareAllRequiresBothReferencesToPass(t *testing.T) {
 	current := testSnapshot(testCommand("dws"), testCommand("dws status"))
 	mergeBase := testSnapshot(testCommand("dws"))
 	stable := testSnapshot(testCommand("dws"), testCommand("dws legacy"))
