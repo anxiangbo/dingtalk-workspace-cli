@@ -63,6 +63,20 @@ func portableExportSupportError(goos, disableKeychain string) error {
 	return nil
 }
 
+// PortableImportSupportError explains why the current credential backend
+// cannot consume a portable auth bundle. A nil error means import is
+// supported.
+func PortableImportSupportError() error {
+	return portableImportSupportError(runtime.GOOS)
+}
+
+func portableImportSupportError(goos string) error {
+	if goos == "windows" {
+		return fmt.Errorf("portable auth import is not supported on Windows because file-DEK credentials cannot be represented as DPAPI-protected HKCU Registry values; a portable conversion is not implemented")
+	}
+	return nil
+}
+
 // PortableAuthTargetPopulated reports whether local auth files would be
 // overwritten by a portable import.
 func PortableAuthTargetPopulated(configDir string) bool {
@@ -164,6 +178,9 @@ func ExportPortableAuthBundle(configDir string, w io.Writer) error {
 func ImportPortableAuthBundle(configDir string, r io.Reader) (PortableImportReport, error) {
 	if r == nil {
 		return PortableImportReport{}, fmt.Errorf("missing input reader")
+	}
+	if err := PortableImportSupportError(); err != nil {
+		return PortableImportReport{}, err
 	}
 	gz, err := gzip.NewReader(r)
 	if err != nil {

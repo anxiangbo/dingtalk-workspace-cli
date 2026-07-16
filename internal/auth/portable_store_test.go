@@ -14,8 +14,11 @@
 package auth
 
 import (
+	"archive/tar"
 	"bytes"
+	"compress/gzip"
 	"os"
+	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -83,6 +86,54 @@ func TestPortableExportSupportError(t *testing.T) {
 				t.Fatalf("portableExportSupportError() error = %v, want substring %q", err, test.wantError)
 			}
 		})
+	}
+}
+
+func TestPortableImportSupportError(t *testing.T) {
+	tests := []struct {
+		name      string
+		goos      string
+		wantError string
+	}{
+		{name: "windows dpapi", goos: "windows", wantError: "DPAPI"},
+		{name: "darwin", goos: "darwin"},
+		{name: "linux", goos: "linux"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := portableImportSupportError(test.goos)
+			if test.wantError == "" {
+				if err != nil {
+					t.Fatalf("portableImportSupportError() error = %v, want nil", err)
+				}
+				return
+			}
+			if err == nil || !strings.Contains(err.Error(), test.wantError) {
+				t.Fatalf("portableImportSupportError() error = %v, want substring %q", err, test.wantError)
+			}
+		})
+	}
+}
+
+func TestImportPortableAuthBundleRejectsWindowsDPAPIWithoutMutation(t *testing.T) {
+	if runtime.GOOS != "windows" {
+		t.Skip("Windows DPAPI contract requires a native Windows runner")
+	}
+
+	root := t.TempDir()
+	configDir := filepath.Join(root, ".dws")
+	keychainDir := filepath.Join(root, "keychain")
+	t.Setenv(keychain.StorageDirEnv, keychainDir)
+	bundle := validPortableAuthBundleForTest(t)
+
+	if _, err := ImportPortableAuthBundle(configDir, bytes.NewReader(bundle)); err == nil || !strings.Contains(err.Error(), "DPAPI") {
+		t.Fatalf("ImportPortableAuthBundle() error = %v, want Windows DPAPI unsupported error", err)
+	}
+	for _, path := range []string{configDir, keychainDir} {
+		if _, err := os.Stat(path); !os.IsNotExist(err) {
+			t.Fatalf("unsupported Windows import touched %s: stat error = %v", path, err)
+		}
 	}
 }
 
@@ -265,4 +316,42 @@ func requirePortableFileBackend(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("portable bundle round trips require a file-DEK backend; Windows uses DPAPI registry storage")
 	}
+}
+
+func validPortableAuthBundleForTest(t *testing.T) []byte {
+	t.Helper()
+
+	var bundle bytes.Buffer
+	gz := gzip.NewWriter(&bundle)
+	tw := tar.NewWriter(gz)
+	manifest := portableAuthBundleManifest{
+		Version:         1,
+		CreatedAt:       time.Now().UTC().Format(time.RFC3339),
+		OS:              "linux",
+		KeychainService: keychain.Service,
+		ConfigFiles:     []string{"app.json"},
+	}
+	if err := writePortableManifest(tw, manifest); err != nil {
+		t.Fatalf("writePortableManifest() error = %v", err)
+	}
+	entries := map[string]string{
+		path.Join("keychain", keychain.Service, keychain.AccountToken+".enc"): "encrypted-token",
+		"config/app.json": "{}",
+	}
+	for name, content := range entries {
+		hdr := &tar.Header{Name: name, Mode: 0o600, Size: int64(len(content))}
+		if err := tw.WriteHeader(hdr); err != nil {
+			t.Fatalf("WriteHeader(%s) error = %v", name, err)
+		}
+		if _, err := tw.Write([]byte(content)); err != nil {
+			t.Fatalf("Write(%s) error = %v", name, err)
+		}
+	}
+	if err := tw.Close(); err != nil {
+		t.Fatalf("tar.Close() error = %v", err)
+	}
+	if err := gz.Close(); err != nil {
+		t.Fatalf("gzip.Close() error = %v", err)
+	}
+	return bundle.Bytes()
 }

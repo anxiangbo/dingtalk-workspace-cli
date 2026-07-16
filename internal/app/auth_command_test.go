@@ -149,6 +149,79 @@ func TestAuthExportRejectsWindowsDPAPIBackend(t *testing.T) {
 	}
 }
 
+func TestAuthImportUnsupportedBackendIsValidationErrorBeforeReadingInput(t *testing.T) {
+	root := t.TempDir()
+	configDir := filepath.Join(root, ".dws")
+	keychainDir := filepath.Join(root, "keychain")
+	t.Setenv("DWS_CONFIG_DIR", configDir)
+	t.Setenv(keychain.StorageDirEnv, keychainDir)
+
+	importCmd := newAuthImportCommandWithSupport(func() error {
+		return errors.New("portable auth import is unavailable for the test backend")
+	})
+	importCmd.SetOut(&bytes.Buffer{})
+	importCmd.SetErr(&bytes.Buffer{})
+	importCmd.SetArgs([]string{"--input", filepath.Join(root, "missing-bundle.tar.gz")})
+
+	err := importCmd.Execute()
+	if err == nil {
+		t.Fatal("auth import should reject an unsupported credential backend")
+	}
+	var appErr *apperrors.Error
+	if !errors.As(err, &appErr) || appErr.Category != apperrors.CategoryValidation {
+		t.Fatalf("expected validation error, got %T: %v", err, err)
+	}
+	if !strings.Contains(err.Error(), "test backend") {
+		t.Fatalf("error = %v, want backend-specific reason", err)
+	}
+	for _, path := range []string{configDir, keychainDir} {
+		if _, statErr := os.Stat(path); !os.IsNotExist(statErr) {
+			t.Fatalf("unsupported import touched %s: stat error = %v", path, statErr)
+		}
+	}
+}
+
+func TestAuthImportRejectsWindowsDPAPIBackend(t *testing.T) {
+	if runtime.GOOS != "windows" {
+		t.Skip("Windows DPAPI contract requires a native Windows runner")
+	}
+	t.Cleanup(CloseFileLogger)
+
+	root := t.TempDir()
+	configDir := filepath.Join(root, ".dws")
+	keychainDir := filepath.Join(root, "keychain")
+	inputPath := filepath.Join(root, "bundle.tar.gz")
+	if err := os.WriteFile(inputPath, []byte("the capability guard must run before this input is read"), 0o600); err != nil {
+		t.Fatalf("write input sentinel error = %v", err)
+	}
+	t.Setenv("DWS_CONFIG_DIR", configDir)
+	t.Setenv(keychain.StorageDirEnv, keychainDir)
+
+	importCmd := NewRootCommand()
+	importCmd.SetOut(&bytes.Buffer{})
+	importCmd.SetErr(&bytes.Buffer{})
+	importCmd.SetArgs([]string{"auth", "import", "--input", inputPath})
+
+	err := importCmd.Execute()
+	if err == nil {
+		t.Fatal("auth import should reject the Windows DPAPI backend")
+	}
+	var appErr *apperrors.Error
+	if !errors.As(err, &appErr) || appErr.Category != apperrors.CategoryValidation {
+		t.Fatalf("expected validation error, got %T: %v", err, err)
+	}
+	for _, want := range []string{"Windows", "DPAPI", "HKCU"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Fatalf("error = %v, want substring %q", err, want)
+		}
+	}
+	for _, path := range []string{configDir, keychainDir} {
+		if _, statErr := os.Stat(path); !os.IsNotExist(statErr) {
+			t.Fatalf("unsupported Windows import touched %s: stat error = %v", path, statErr)
+		}
+	}
+}
+
 func TestAuthImportRequiresForceWhenPopulated(t *testing.T) {
 	t.Setenv(keychain.DisableKeychainEnv, "1")
 	root := t.TempDir()

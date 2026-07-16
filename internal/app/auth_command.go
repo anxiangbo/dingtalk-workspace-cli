@@ -699,6 +699,10 @@ func newAuthExportCommandWithSupport(supportError func() error) *cobra.Command {
 }
 
 func newAuthImportCommand() *cobra.Command {
+	return newAuthImportCommandWithSupport(authpkg.PortableImportSupportError)
+}
+
+func newAuthImportCommandWithSupport(supportError func() error) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "import",
 		Short: "导入可迁移认证包",
@@ -726,6 +730,9 @@ func newAuthImportCommand() *cobra.Command {
 			force, err := cmd.Flags().GetBool("force")
 			if err != nil {
 				return apperrors.NewInternal("failed to read --force")
+			}
+			if err := supportError(); err != nil {
+				return apperrors.NewValidation(err.Error())
 			}
 
 			configDir := defaultConfigDir()
