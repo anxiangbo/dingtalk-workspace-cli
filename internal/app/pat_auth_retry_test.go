@@ -650,7 +650,7 @@ func TestEnrichPATErrorWithOpenBrowserKeepsAuthorizationURLAmpersandReadable(t *
 	}
 }
 
-func TestHandlePatAuthCheckOrgPolicyDeniedKeepsOpenBrowserFalse(t *testing.T) {
+func TestCrossPlatformCoverageHandlePatAuthCheckOrgPolicyDenied(t *testing.T) {
 	t.Setenv(authpkg.AgentCodeEnv, "")
 	originalClientID := authpkg.ClientID()
 	originalClientSecret := authpkg.ClientSecret()

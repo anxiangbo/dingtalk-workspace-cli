@@ -284,7 +284,7 @@ func TestClassifyToolResultContent_PATAuthRequired(t *testing.T) {
 	}
 }
 
-func TestClassifyToolResultContent_PATOrgPolicyDenied(t *testing.T) {
+func TestCrossPlatformCoverageClassifyToolResultContentPATOrgPolicyDenied(t *testing.T) {
 	t.Parallel()
 	content := map[string]any{
 		"success": false,
@@ -442,7 +442,7 @@ func TestClassifyMCPResponseText_PATBatchAuthPending(t *testing.T) {
 	}
 }
 
-func TestClassifyMCPResponseText_PATOrgPolicyDenied(t *testing.T) {
+func TestCrossPlatformCoverageClassifyMCPResponseTextPATOrgPolicyDenied(t *testing.T) {
 	t.Parallel()
 	text := `{"success":false,"code":"PAT_ORG_POLICY_DENIED","message":"business error: code PAT_ORG_POLICY_DENIED"}`
 	err := ClassifyMCPResponseText(text)
