@@ -29,7 +29,7 @@ func setTestHome(t *testing.T, home string) {
 	}
 }
 
-func TestConfigureLogLevelTerminatesReplacedFileLoggers(t *testing.T) {
+func TestCrossPlatformCoverageConfigureLogLevelTerminatesReplacedFileLoggers(t *testing.T) {
 	firstConfig := t.TempDir()
 	secondConfig := t.TempDir()
 	t.Cleanup(CloseFileLogger)

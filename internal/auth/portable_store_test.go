@@ -28,7 +28,7 @@ import (
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/keychain"
 )
 
-func TestPortableExportSupported(t *testing.T) {
+func TestCrossPlatformCoveragePortableExportSupported(t *testing.T) {
 	switch runtime.GOOS {
 	case "windows":
 		if PortableExportSupported() {
@@ -60,7 +60,7 @@ func TestPortableExportSupported(t *testing.T) {
 	}
 }
 
-func TestPortableExportSupportError(t *testing.T) {
+func TestCrossPlatformCoveragePortableExportSupportError(t *testing.T) {
 	tests := []struct {
 		name            string
 		goos            string
@@ -89,7 +89,7 @@ func TestPortableExportSupportError(t *testing.T) {
 	}
 }
 
-func TestPortableImportSupportError(t *testing.T) {
+func TestCrossPlatformCoveragePortableImportSupportError(t *testing.T) {
 	tests := []struct {
 		name      string
 		goos      string
@@ -116,7 +116,7 @@ func TestPortableImportSupportError(t *testing.T) {
 	}
 }
 
-func TestImportPortableAuthBundleRejectsWindowsDPAPIWithoutMutation(t *testing.T) {
+func TestCrossPlatformCoverageImportPortableAuthBundleRejectsWindowsDPAPIWithoutMutation(t *testing.T) {
 	if runtime.GOOS != "windows" {
 		t.Skip("Windows DPAPI contract requires a native Windows runner")
 	}

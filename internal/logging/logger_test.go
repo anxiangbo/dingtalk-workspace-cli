@@ -123,7 +123,7 @@ func TestCloseOnNilLogger(t *testing.T) {
 	}
 }
 
-func TestFileLoggerCloseIsTerminal(t *testing.T) {
+func TestCrossPlatformCoverageFileLoggerCloseIsTerminal(t *testing.T) {
 	t.Parallel()
 
 	dir := t.TempDir()
@@ -135,6 +135,15 @@ func TestFileLoggerCloseIsTerminal(t *testing.T) {
 	}
 	if err := os.Remove(logPath); err != nil {
 		t.Fatalf("remove closed log file: %v", err)
+	}
+	if err := fl.writer.open(); !errors.Is(err, os.ErrClosed) {
+		t.Fatalf("open after close = %v, want os.ErrClosed", err)
+	}
+	fl.writer.mu.Lock()
+	err := fl.writer.reopenLocked()
+	fl.writer.mu.Unlock()
+	if !errors.Is(err, os.ErrClosed) {
+		t.Fatalf("reopen after close = %v, want os.ErrClosed", err)
 	}
 
 	n, err := fl.Writer().Write([]byte("late write"))

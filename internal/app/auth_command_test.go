@@ -102,7 +102,7 @@ func TestAuthExportImportBase64RoundTrip(t *testing.T) {
 	}
 }
 
-func TestAuthExportUnsupportedBackendIsValidationError(t *testing.T) {
+func TestCrossPlatformCoverageAuthExportUnsupportedBackendIsValidationError(t *testing.T) {
 	exportCmd := newAuthExportCommandWithSupport(func() error {
 		return errors.New("portable auth export is unavailable for the test backend")
 	})
@@ -123,7 +123,7 @@ func TestAuthExportUnsupportedBackendIsValidationError(t *testing.T) {
 	}
 }
 
-func TestAuthExportRejectsWindowsDPAPIBackend(t *testing.T) {
+func TestCrossPlatformCoverageAuthExportRejectsWindowsDPAPIBackend(t *testing.T) {
 	if runtime.GOOS != "windows" {
 		t.Skip("Windows DPAPI contract requires a native Windows runner")
 	}
@@ -149,7 +149,7 @@ func TestAuthExportRejectsWindowsDPAPIBackend(t *testing.T) {
 	}
 }
 
-func TestAuthImportUnsupportedBackendIsValidationErrorBeforeReadingInput(t *testing.T) {
+func TestCrossPlatformCoverageAuthImportUnsupportedBackendIsValidationErrorBeforeReadingInput(t *testing.T) {
 	root := t.TempDir()
 	configDir := filepath.Join(root, ".dws")
 	keychainDir := filepath.Join(root, "keychain")
@@ -181,7 +181,7 @@ func TestAuthImportUnsupportedBackendIsValidationErrorBeforeReadingInput(t *test
 	}
 }
 
-func TestAuthImportRejectsWindowsDPAPIBackend(t *testing.T) {
+func TestCrossPlatformCoverageAuthImportRejectsWindowsDPAPIBackend(t *testing.T) {
 	if runtime.GOOS != "windows" {
 		t.Skip("Windows DPAPI contract requires a native Windows runner")
 	}
@@ -222,7 +222,7 @@ func TestAuthImportRejectsWindowsDPAPIBackend(t *testing.T) {
 	}
 }
 
-func TestAuthImportRequiresForceWhenPopulated(t *testing.T) {
+func TestCrossPlatformCoverageAuthImportRequiresForceWhenPopulated(t *testing.T) {
 	t.Setenv(keychain.DisableKeychainEnv, "1")
 	root := t.TempDir()
 	t.Cleanup(CloseFileLogger)
