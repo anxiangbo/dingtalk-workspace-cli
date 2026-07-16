@@ -731,13 +731,12 @@ func newAuthImportCommandWithSupport(supportError func() error) *cobra.Command {
 			if err != nil {
 				return apperrors.NewInternal("failed to read --force")
 			}
-			if err := supportError(); err != nil {
-				return apperrors.NewValidation(err.Error())
-			}
-
 			configDir := defaultConfigDir()
 			if !force && authpkg.PortableAuthTargetPopulated(configDir) {
 				return apperrors.NewValidation("检测到已有登录态，请使用 --force 确认覆盖")
+			}
+			if err := supportError(); err != nil {
+				return apperrors.NewValidation(err.Error())
 			}
 
 			payload, err := os.ReadFile(input)
