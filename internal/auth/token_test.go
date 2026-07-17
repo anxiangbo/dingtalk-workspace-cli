@@ -14,8 +14,10 @@
 package auth
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -715,6 +717,45 @@ func TestSameCorpDifferentUsersAreStoredSeparately(t *testing.T) {
 	}
 	if loadedOrg.UserID != "user_2" {
 		t.Fatalf("org current user = %q, want user_2", loadedOrg.UserID)
+	}
+}
+
+func TestSaveTokenDataLogsIdentitySlotDecisionWithoutCredentials(t *testing.T) {
+	cleanupKeychain(t)
+	t.Setenv("DWS_DEBUG_AUTH", "1")
+	configDir := t.TempDir()
+	var logs bytes.Buffer
+	previousLogger := slog.Default()
+	slog.SetDefault(slog.New(slog.NewJSONHandler(&logs, &slog.HandlerOptions{Level: slog.LevelDebug})))
+	t.Cleanup(func() { slog.SetDefault(previousLogger) })
+
+	token := testToken("secret-access-token", "corp_same", "同一组织")
+	token.RefreshToken = "secret-refresh-token"
+	token.UserID = "user_two"
+	token.UserName = "账号二"
+	if err := SaveTokenData(configDir, token); err != nil {
+		t.Fatalf("SaveTokenData() error = %v", err)
+	}
+
+	got := logs.String()
+	for _, want := range []string{
+		`"msg":"auth.token.persist.plan"`,
+		`"msg":"auth.token.persist.done"`,
+		`"corp_id":"corp_same"`,
+		`"user_id":"user_two"`,
+		`"identity_selector":"corp_same:user_two"`,
+		`"write_identity_slot":true`,
+		`"write_org_mirror":true`,
+		`"write_global_mirror":true`,
+	} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("diagnostic logs missing %q:\n%s", want, got)
+		}
+	}
+	for _, secret := range []string{"secret-access-token", "secret-refresh-token"} {
+		if strings.Contains(got, secret) {
+			t.Fatalf("diagnostic logs exposed credential %q:\n%s", secret, got)
+		}
 	}
 }
 

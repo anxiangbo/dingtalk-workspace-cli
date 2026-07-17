@@ -70,12 +70,16 @@ func authCoverageRunLogin(t *testing.T, caller edition.ToolCaller, format string
 
 func TestCrossPlatformCoverageAuthCoverageFormsParentAndTargets(t *testing.T) {
 	oldEdition := edition.Get()
+	oldClientID := authpkg.ClientID()
+	oldClientSecret := authpkg.ClientSecret()
 	oldRunForm := authRunForm
 	oldPrompt := authLoginManualCredentialsPrompt
 	oldSaveConfig := authSaveAppConfig
 	oldResolve := authResolveProfile
 	t.Cleanup(func() {
 		edition.Override(oldEdition)
+		authpkg.SetClientID(oldClientID)
+		authpkg.SetClientSecret(oldClientSecret)
 		authRunForm = oldRunForm
 		authLoginManualCredentialsPrompt = oldPrompt
 		authSaveAppConfig = oldSaveConfig
@@ -401,6 +405,7 @@ func TestCrossPlatformCoverageAuthCoverageDefaultSeamClosures(t *testing.T) {
 	device := authpkg.NewDeviceFlowProvider(configDir, nil)
 	_, _ = authDeviceLogin(device, ctx)
 	oauth := authpkg.NewOAuthProvider(configDir, nil)
+	oauth.NoBrowser = true
 	_, _ = authOAuthStatus(oauth)
 	_, _ = authOAuthAccessToken(oauth, ctx)
 	_, _ = authOAuthLogin(oauth, ctx, true)

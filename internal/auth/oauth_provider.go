@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/i18n"
+	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/logging"
 )
 
 // oauthHTTPClient is a dedicated HTTP client for OAuth operations with
@@ -179,6 +180,14 @@ func (p *OAuthProvider) Login(ctx context.Context, force bool) (*TokenData, erro
 	}
 	port := listener.Addr().(*net.TCPAddr).Port
 	redirectURI := fmt.Sprintf("http://127.0.0.1:%d%s", port, CallbackPath)
+	logging.AuthDebug(
+		"auth.login.oauth.flow.start",
+		"client_id", strings.TrimSpace(p.clientID),
+		"target_corp_id", strings.TrimSpace(p.TargetCorpID),
+		"callback_port", port,
+		"force", force,
+		"no_browser", p.NoBrowser,
+	)
 
 	// Channel to pass callback result (token data or error with CLI auth status)
 	type callbackResult struct {
@@ -209,6 +218,11 @@ func (p *OAuthProvider) Login(ctx context.Context, force bool) (*TokenData, erro
 		if code == "" {
 			code = r.URL.Query().Get("code")
 		}
+		logging.AuthDebug(
+			"auth.login.oauth.callback.received",
+			"callback_port", port,
+			"has_authorization_code", code != "",
+		)
 
 		// Check state and handle page refresh or concurrent requests
 		callbackTokenMu.Lock()
@@ -268,6 +282,11 @@ func (p *OAuthProvider) Login(ctx context.Context, force bool) (*TokenData, erro
 		// Exchange code for token
 		tokenData, exchangeErr := oauthExchange(p, ctx, code)
 		if exchangeErr != nil {
+			logging.AuthDebug(
+				"auth.login.oauth.token_exchange.error",
+				"callback_port", port,
+				"error", exchangeErr,
+			)
 			// Clear in-progress state on error
 			callbackTokenMu.Lock()
 			if callbackCodeInProgress == code {
@@ -283,6 +302,16 @@ func (p *OAuthProvider) Login(ctx context.Context, force bool) (*TokenData, erro
 			}
 			return
 		}
+		logging.AuthDebug(
+			"auth.login.oauth.token_exchange.done",
+			"callback_port", port,
+			"corp_id", strings.TrimSpace(tokenData.CorpID),
+			"user_id", strings.TrimSpace(tokenData.UserID),
+			"user_name", strings.TrimSpace(tokenData.UserName),
+			"source", strings.TrimSpace(tokenData.Source),
+			"access_expires_at", tokenData.ExpiresAt,
+			"refresh_expires_at", tokenData.RefreshExpAt,
+		)
 
 		// Mark as processed immediately after successful exchange
 		callbackTokenMu.Lock()
@@ -306,6 +335,13 @@ func (p *OAuthProvider) Login(ctx context.Context, force bool) (*TokenData, erro
 			denialReason = classifyDenialReason(authStatus, os.Getenv("DWS_CHANNEL"))
 		}
 		cliAuthEnabled := denialReason == ""
+		logging.AuthDebug(
+			"auth.login.oauth.organization_access.checked",
+			"callback_port", port,
+			"corp_id", strings.TrimSpace(tokenData.CorpID),
+			"enabled", cliAuthEnabled,
+			"denial_reason", denialReason,
+		)
 
 		// Server-provided errorMsg (nil-safe), surfaced both on the page and to
 		// the terminal so portal can update copy without releasing the CLI.
@@ -559,9 +595,30 @@ continueLogin:
 
 	// Save token data with associated client ID for refresh
 	tokenData.ClientID = p.clientID
+	logging.AuthDebug(
+		"auth.login.oauth.persistence.start",
+		"callback_port", port,
+		"corp_id", strings.TrimSpace(tokenData.CorpID),
+		"user_id", strings.TrimSpace(tokenData.UserID),
+		"user_name", strings.TrimSpace(tokenData.UserName),
+	)
 	if err := p.persistLoginToken(ctx, tokenData); err != nil {
+		logging.AuthDebug(
+			"auth.login.oauth.persistence.error",
+			"callback_port", port,
+			"corp_id", strings.TrimSpace(tokenData.CorpID),
+			"user_id", strings.TrimSpace(tokenData.UserID),
+			"error", err,
+		)
 		return nil, fmt.Errorf("%s: %w", i18n.T("保存 token 失败"), err)
 	}
+	logging.AuthDebug(
+		"auth.login.oauth.persistence.done",
+		"callback_port", port,
+		"corp_id", strings.TrimSpace(tokenData.CorpID),
+		"user_id", strings.TrimSpace(tokenData.UserID),
+		"user_name", strings.TrimSpace(tokenData.UserName),
+	)
 
 	// Persist app credentials (with secret) if using custom client credentials.
 	// MUST run BEFORE os.Setenv below to avoid env-matching short circuit.
@@ -690,10 +747,31 @@ func (p *OAuthProvider) ExchangeAuthCode(ctx context.Context, authCode, uid stri
 }
 
 func (p *OAuthProvider) persistLoginToken(ctx context.Context, tokenData *TokenData) error {
+	corpID, userID, userName := "", "", ""
+	if tokenData != nil {
+		corpID = strings.TrimSpace(tokenData.CorpID)
+		userID = strings.TrimSpace(tokenData.UserID)
+		userName = strings.TrimSpace(tokenData.UserName)
+	}
+	logging.AuthDebug(
+		"auth.login.oauth.identity.before_enrich",
+		"corp_id", corpID,
+		"user_id", userID,
+		"user_name", userName,
+	)
 	if err := p.prepareLoginToken(ctx, tokenData); err != nil {
 		return err
 	}
-	return oauthSaveToken(p.configDir, tokenData)
+	logging.AuthDebug(
+		"auth.login.oauth.identity.after_enrich",
+		"corp_id", strings.TrimSpace(tokenData.CorpID),
+		"user_id", strings.TrimSpace(tokenData.UserID),
+		"user_name", strings.TrimSpace(tokenData.UserName),
+	)
+	if err := oauthSaveToken(p.configDir, tokenData); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (p *OAuthProvider) prepareLoginToken(ctx context.Context, tokenData *TokenData) error {

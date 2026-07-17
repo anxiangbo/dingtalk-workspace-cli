@@ -29,6 +29,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/keychain"
+	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/logging"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/edition"
 )
 
@@ -219,6 +220,22 @@ func saveTokenDataLocked(configDir string, data *TokenData) error {
 		exactSelector := profileSelector(corpID, userID)
 		mirrorOrg := makeCurrent ||
 			exactProfileSelectorForCorp(cfg, corpID, cfg.OrgCurrentProfiles[corpID]) == exactSelector
+		existingIdentity := profileIndexByIdentity(cfg, corpID, userID) >= 0
+		upgradesLegacyProfile := !existingIdentity && userID != "" && legacyProfileIndexByCorpID(cfg, corpID) >= 0
+		logging.AuthDebug(
+			"auth.token.persist.plan",
+			"corp_id", corpID,
+			"user_id", userID,
+			"user_name", strings.TrimSpace(data.UserName),
+			"identity_selector", exactSelector,
+			"existing_identity", existingIdentity,
+			"upgrades_legacy_profile", upgradesLegacyProfile,
+			"profiles_before", len(cfg.Profiles),
+			"runtime_profile", runtimeSelector,
+			"write_identity_slot", userID != "",
+			"write_org_mirror", mirrorOrg,
+			"write_global_mirror", makeCurrent,
+		)
 		snapshot, err := snapshotTokenPersistence(configDir, cfg, corpID, userID, mirrorOrg)
 		if err != nil {
 			return err
@@ -268,6 +285,16 @@ func saveTokenDataLocked(configDir string, data *TokenData) error {
 		} else if err := tokenWriteMarker(configDir); err != nil {
 			return rollback(err)
 		}
+		logging.AuthDebug(
+			"auth.token.persist.done",
+			"corp_id", corpID,
+			"user_id", userID,
+			"user_name", strings.TrimSpace(data.UserName),
+			"identity_selector", exactSelector,
+			"write_identity_slot", userID != "",
+			"write_org_mirror", mirrorOrg,
+			"write_global_mirror", makeCurrent,
+		)
 		return nil
 	}
 	legacySnapshot, err := snapshotTokenSlot(tokenLoadKeychain)

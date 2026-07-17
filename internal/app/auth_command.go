@@ -30,6 +30,7 @@ import (
 	apperrors "github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/errors"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/helpers"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/keychain"
+	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/logging"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/pat"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/config"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/edition"
@@ -1209,6 +1210,19 @@ func resolveAuthLoginConfig(cmd *cobra.Command) (authLoginConfig, error) {
 	if err != nil {
 		return authLoginConfig{}, err
 	}
+	flow := "oauth"
+	if strings.TrimSpace(token) != "" {
+		flow = "token"
+	} else if device {
+		flow = "device"
+	}
+	logging.AuthDebug(
+		"auth.login.request",
+		"flow", flow,
+		"profile_selector", strings.TrimSpace(profileSelector),
+		"target_corp_id", targetCorpID,
+		"recommend", recommend,
+	)
 	return authLoginConfig{
 		Token:        strings.TrimSpace(token),
 		Force:        force,
@@ -1256,7 +1270,22 @@ func enrichAuthLoginProfileFromContact(ctx context.Context, _ string, caller edi
 	if corpID == "" {
 		return nil
 	}
+	logging.AuthDebug(
+		"auth.login.identity.lookup.start",
+		"corp_id", corpID,
+		"user_id", strings.TrimSpace(data.UserID),
+		"user_name", strings.TrimSpace(data.UserName),
+		"corp_name", strings.TrimSpace(data.CorpName),
+	)
 	if strings.TrimSpace(data.CorpName) != "" && strings.TrimSpace(data.UserID) != "" && strings.TrimSpace(data.UserName) != "" {
+		logging.AuthDebug(
+			"auth.login.identity.lookup.result",
+			"source", "token_exchange",
+			"corp_id", corpID,
+			"user_id", strings.TrimSpace(data.UserID),
+			"user_name", strings.TrimSpace(data.UserName),
+			"corp_name", strings.TrimSpace(data.CorpName),
+		)
 		return nil
 	}
 
@@ -1273,6 +1302,12 @@ func enrichAuthLoginProfileFromContact(ctx context.Context, _ string, caller edi
 		return nil
 	}
 	if err != nil {
+		logging.AuthDebug(
+			"auth.login.identity.lookup.error",
+			"corp_id", corpID,
+			"existing_user_id", strings.TrimSpace(data.UserID),
+			"error", err,
+		)
 		if strings.TrimSpace(data.UserID) != "" {
 			return nil
 		}
@@ -1280,8 +1315,17 @@ func enrichAuthLoginProfileFromContact(ctx context.Context, _ string, caller edi
 	}
 	identity, ok := contactProfileIdentityFromToolResult(result)
 	if !ok {
+		logging.AuthDebug("auth.login.identity.lookup.empty", "corp_id", corpID)
 		return nil
 	}
+	logging.AuthDebug(
+		"auth.login.identity.lookup.result",
+		"source", "contact.get_current_user_profile",
+		"corp_id", strings.TrimSpace(identity.CorpID),
+		"user_id", strings.TrimSpace(identity.UserID),
+		"user_name", strings.TrimSpace(identity.UserName),
+		"corp_name", strings.TrimSpace(identity.CorpName),
+	)
 	if identity.CorpID != "" && identity.CorpID != corpID {
 		return fmt.Errorf("contact profile corpId %q does not match login corpId %q", identity.CorpID, corpID)
 	}
@@ -1297,9 +1341,23 @@ func enrichAuthLoginProfileFromContact(ctx context.Context, _ string, caller edi
 		updated.UserName = identity.UserName
 	}
 	if updated.CorpName == data.CorpName && updated.UserID == data.UserID && updated.UserName == data.UserName {
+		logging.AuthDebug(
+			"auth.login.identity.resolved",
+			"corp_id", corpID,
+			"user_id", strings.TrimSpace(data.UserID),
+			"user_name", strings.TrimSpace(data.UserName),
+			"changed", false,
+		)
 		return nil
 	}
 	*data = updated
+	logging.AuthDebug(
+		"auth.login.identity.resolved",
+		"corp_id", strings.TrimSpace(data.CorpID),
+		"user_id", strings.TrimSpace(data.UserID),
+		"user_name", strings.TrimSpace(data.UserName),
+		"changed", true,
+	)
 	return nil
 }
 

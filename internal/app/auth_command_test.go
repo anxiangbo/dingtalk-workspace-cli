@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -1011,8 +1012,15 @@ func TestLoginRecommendProductLabelMatchesTUITarget(t *testing.T) {
 }
 
 func TestResolveAuthLoginConfigReadsInheritedYes(t *testing.T) {
+	t.Setenv("DWS_DEBUG_AUTH", "1")
+	var logs bytes.Buffer
+	previousLogger := slog.Default()
+	slog.SetDefault(slog.New(slog.NewJSONHandler(&logs, &slog.HandlerOptions{Level: slog.LevelDebug})))
+	t.Cleanup(func() { slog.SetDefault(previousLogger) })
+
 	root := &cobra.Command{Use: "dws"}
 	root.PersistentFlags().Bool("yes", false, "")
+	root.PersistentFlags().String("profile", "", "")
 	login := &cobra.Command{Use: "login"}
 	login.Flags().String("token", "", "")
 	login.Flags().Bool("device", false, "")
@@ -1036,6 +1044,11 @@ func TestResolveAuthLoginConfigReadsInheritedYes(t *testing.T) {
 	}
 	if !cfg.Yes {
 		t.Fatal("Yes = false, want true")
+	}
+	if got := logs.String(); !strings.Contains(got, `"msg":"auth.login.request"`) ||
+		!strings.Contains(got, `"profile_selector":""`) ||
+		!strings.Contains(got, `"target_corp_id":""`) {
+		t.Fatalf("login request diagnostic log missing selector resolution:\n%s", got)
 	}
 }
 
@@ -1443,6 +1456,45 @@ func TestEnrichAuthLoginProfileFromContactBeforePersist(t *testing.T) {
 	}
 	if len(fake.tokens) != 1 || fake.tokens[0] != "access-token" {
 		t.Fatalf("token overrides = %v, want access-token", fake.tokens)
+	}
+}
+
+func TestEnrichAuthLoginProfileLogsIdentityResolutionWithoutCredentials(t *testing.T) {
+	t.Setenv("DWS_DEBUG_AUTH", "1")
+	var logs bytes.Buffer
+	previousLogger := slog.Default()
+	slog.SetDefault(slog.New(slog.NewJSONHandler(&logs, &slog.HandlerOptions{Level: slog.LevelDebug})))
+	t.Cleanup(func() { slog.SetDefault(previousLogger) })
+
+	token := &authpkg.TokenData{
+		AccessToken:  "secret-access-token",
+		RefreshToken: "secret-refresh-token",
+		CorpID:       "ding_same_corp",
+	}
+	fake := &authLoginRecommendSequenceCaller{responses: []string{
+		`{"success":true,"result":[{"orgEmployeeModel":{"corpId":"ding_same_corp","orgName":"同一组织","userId":"user_two","orgUserName":"账号二"}}]}`,
+	}}
+
+	if err := enrichAuthLoginProfileFromContact(context.Background(), t.TempDir(), fake, token); err != nil {
+		t.Fatalf("enrichAuthLoginProfileFromContact() error = %v", err)
+	}
+
+	got := logs.String()
+	for _, want := range []string{
+		`"msg":"auth.login.identity.lookup.start"`,
+		`"msg":"auth.login.identity.lookup.result"`,
+		`"corp_id":"ding_same_corp"`,
+		`"user_id":"user_two"`,
+		`"user_name":"账号二"`,
+	} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("diagnostic logs missing %q:\n%s", want, got)
+		}
+	}
+	for _, secret := range []string{"secret-access-token", "secret-refresh-token"} {
+		if strings.Contains(got, secret) {
+			t.Fatalf("diagnostic logs exposed credential %q:\n%s", secret, got)
+		}
 	}
 }
 
