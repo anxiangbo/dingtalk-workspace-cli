@@ -724,6 +724,86 @@ func TestReleaseWorkflowGovernancePreflightCannotPublish(t *testing.T) {
 	}
 }
 
+func TestReleaseWorkflowGiteeRepairUsesSealedReleaseAuthority(t *testing.T) {
+	t.Parallel()
+	workflow := readReleaseWorkflow(t)
+	dispatch := releaseWorkflowSection(t, workflow, "  dispatch-contract:\n", "\n  authorize-recovery:\n")
+	start := strings.Index(workflow, "  repair-gitee:\n")
+	if start == -1 {
+		t.Fatal("release workflow is missing the Gitee repair job")
+	}
+	repair := workflow[start:]
+
+	for _, required := range []string{
+		"repair_gitee_version:",
+		`format('Release Gitee repair {0}', inputs.repair_gitee_version)`,
+		`REPAIR_GITEE_VERSION: ${{ inputs.repair_gitee_version }}`,
+		"gitee_repair=0",
+		`test -z "$REPAIR_GITEE_VERSION" || gitee_repair=1`,
+		"npm_repair + gitee_repair + governance + recovery",
+		`echo "mode=repair_gitee" >> "$GITHUB_OUTPUT"`,
+	} {
+		if !strings.Contains(dispatch, required) && !strings.Contains(workflow, required) {
+			t.Errorf("Gitee repair dispatch contract is missing %q", required)
+		}
+	}
+
+	for _, required := range []string{
+		"needs: dispatch-contract",
+		`if: ${{ !cancelled() && needs.dispatch-contract.result == 'success' && needs.dispatch-contract.outputs.mode == 'repair_gitee'`,
+		`github.ref == format('refs/heads/{0}', github.event.repository.default_branch)`,
+		`github.repository == 'DingTalk-Real-AI/dingtalk-workspace-cli'`,
+		"actions: read",
+		`ref: ${{ github.sha }}`,
+		"path: tooling",
+		"persist-credentials: false",
+		"release_is_stable_version",
+		"release_is_prerelease_version",
+		`ref: ` + "`tags/${version}`",
+		`["ahead", "identical"].includes(comparison.data.status)`,
+		"!release.data.immutable",
+		`release.data.prerelease !== expectedPrerelease`,
+		"assetNames.length !== expectedAssets.size",
+		"new Set(assetNames).size !== expectedAssets.size",
+		`core.setOutput("tag_object", ref.data.object.sha)`,
+		"verify-github-tag-authority.sh",
+		"verify-release-workflow-delivery.sh",
+		`DWS_RELEASE_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}`,
+		"verify-release-artifacts.sh",
+		`--repo "$GITHUB_REPOSITORY"`,
+		`DWS_REQUIRE_GITEE: "1"`,
+		"working-directory: tooling\n        run: |\n          " +
+			`"$GITHUB_WORKSPACE/tooling/scripts/release/sync-to-gitee.sh"`,
+	} {
+		if !strings.Contains(repair, required) {
+			t.Errorf("Gitee repair authority is missing %q", required)
+		}
+	}
+	for _, asset := range []string{
+		"dws-darwin-amd64.tar.gz",
+		"dws-darwin-arm64.tar.gz",
+		"dws-linux-amd64.tar.gz",
+		"dws-linux-arm64.tar.gz",
+		"dws-windows-amd64.zip",
+		"dws-windows-arm64.zip",
+		"dws-skills.zip",
+		"checksums.txt",
+	} {
+		if strings.Count(repair, `"`+asset+`"`) != 1 {
+			t.Errorf("Gitee repair must require exactly one %s asset declaration", asset)
+		}
+	}
+	if strings.Contains(repair, "contents: write") {
+		t.Error("Gitee repair must not grant contents write permission")
+	}
+	if strings.Contains(repair, "ref: ${{ github.event.repository.default_branch }}") {
+		t.Error("Gitee repair must not check out a floating default branch")
+	}
+	if got := strings.Count(repair, "working-directory: tooling"); got < 4 {
+		t.Errorf("Gitee repair trusted tooling working-directory count = %d, want at least 4", got)
+	}
+}
+
 func TestReleaseWorkflowRecoveryReusesGuardedJobs(t *testing.T) {
 	t.Parallel()
 	workflow := readReleaseWorkflow(t)
@@ -978,11 +1058,7 @@ func TestReleaseWorkflowPublicationBypassesSkippedDispatchButStopsOnCancellation
 func TestReleaseWorkflowDeliveryGateFailsClosed(t *testing.T) {
 	t.Parallel()
 	workflow := readReleaseWorkflow(t)
-	start := strings.Index(workflow, "  release-delivery-gate:\n")
-	if start == -1 {
-		t.Fatal("release workflow is missing the terminal delivery gate")
-	}
-	gate := workflow[start:]
+	gate := releaseWorkflowSection(t, workflow, "  release-delivery-gate:\n", "\n  repair-gitee:\n")
 
 	for _, required := range []string{
 		"name: Release delivery gate",
@@ -997,6 +1073,8 @@ func TestReleaseWorkflowDeliveryGateFailsClosed(t *testing.T) {
 		"- publish-channels",
 		"- mirror-gitee-release",
 		"- repair-npm",
+		"- repair-gitee",
+		`REPAIR_GITEE_RESULT: ${{ needs.repair-gitee.result }}`,
 		"require_publication",
 		`require_result release-contract "$RELEASE_CONTRACT_RESULT" success`,
 		`require_result release "$RELEASE_RESULT" success`,
@@ -1006,6 +1084,9 @@ func TestReleaseWorkflowDeliveryGateFailsClosed(t *testing.T) {
 		"workflow_dispatch:recover_release",
 		"workflow_dispatch:governance_preflight",
 		"workflow_dispatch:repair_npm",
+		"workflow_dispatch:repair_gitee",
+		`require_result repair-gitee "$REPAIR_GITEE_RESULT" success`,
+		`require_result repair-gitee "$REPAIR_GITEE_RESULT" skipped`,
 		"unsupported release mode",
 	} {
 		if !strings.Contains(gate, required) {
