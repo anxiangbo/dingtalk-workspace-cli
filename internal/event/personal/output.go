@@ -201,10 +201,8 @@ func ProjectOutput(ev transport.Event) (any, error) {
 
 	if isMessageReceiveEvent(eventType) {
 		var payload personalMessagePayload
-		if len(bytes.TrimSpace(data.Payload)) > 0 && string(bytes.TrimSpace(data.Payload)) != "null" {
-			if err := json.Unmarshal(data.Payload, &payload); err != nil {
-				return ev, fmt.Errorf("decode personal message payload: %w", err)
-			}
+		if err := decodeRequiredPayload(data.Payload, &payload); err != nil {
+			return ev, fmt.Errorf("decode personal message payload: %w", err)
 		}
 		return MessageEventOutput{
 			Type:                 eventType,
@@ -241,7 +239,7 @@ func ProjectOutput(ev transport.Event) (any, error) {
 
 func projectReadEvent(ev transport.Event, base baseEventOutput, raw json.RawMessage) (any, error) {
 	var payload personalReadPayload
-	if err := decodeActionPayload(raw, &payload); err != nil {
+	if err := decodeRequiredPayload(raw, &payload); err != nil {
 		return ev, fmt.Errorf("decode personal read payload: %w", err)
 	}
 	return ReadEventOutput{
@@ -262,7 +260,7 @@ func projectReadEvent(ev transport.Event, base baseEventOutput, raw json.RawMess
 
 func projectRecallEvent(ev transport.Event, base baseEventOutput, raw json.RawMessage) (any, error) {
 	var payload personalRecallPayload
-	if err := decodeActionPayload(raw, &payload); err != nil {
+	if err := decodeRequiredPayload(raw, &payload); err != nil {
 		return ev, fmt.Errorf("decode personal recall payload: %w", err)
 	}
 	return RecallEventOutput{
@@ -283,7 +281,7 @@ func projectRecallEvent(ev transport.Event, base baseEventOutput, raw json.RawMe
 
 func projectReactionEvent(ev transport.Event, base baseEventOutput, raw json.RawMessage) (any, error) {
 	var payload personalReactionPayload
-	if err := decodeActionPayload(raw, &payload); err != nil {
+	if err := decodeRequiredPayload(raw, &payload); err != nil {
 		return ev, fmt.Errorf("decode personal reaction payload: %w", err)
 	}
 	return ReactionEventOutput{
@@ -305,11 +303,36 @@ func projectReactionEvent(ev transport.Event, base baseEventOutput, raw json.Raw
 	}, nil
 }
 
-func decodeActionPayload(raw json.RawMessage, target any) error {
+func decodeRequiredPayload(raw json.RawMessage, target any) error {
 	trimmed := bytes.TrimSpace(raw)
-	if len(trimmed) == 0 || string(trimmed) == "null" {
-		return nil
+	if len(trimmed) == 0 || bytes.Equal(trimmed, []byte("null")) {
+		return fmt.Errorf("payload is missing")
 	}
+
+	var payloadObject map[string]json.RawMessage
+	if err := json.Unmarshal(trimmed, &payloadObject); err != nil {
+		return err
+	}
+	if len(payloadObject) == 0 {
+		return fmt.Errorf("payload is empty")
+	}
+
+	body, ok := payloadObject["body"]
+	if !ok {
+		return fmt.Errorf("payload body is missing")
+	}
+	body = bytes.TrimSpace(body)
+	if len(body) == 0 || bytes.Equal(body, []byte("null")) {
+		return fmt.Errorf("payload body is missing")
+	}
+	var bodyObject map[string]json.RawMessage
+	if err := json.Unmarshal(body, &bodyObject); err != nil {
+		return fmt.Errorf("decode payload body: %w", err)
+	}
+	if len(bodyObject) == 0 {
+		return fmt.Errorf("payload body is empty")
+	}
+
 	return json.Unmarshal(trimmed, target)
 }
 

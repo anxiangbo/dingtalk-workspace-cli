@@ -151,7 +151,7 @@ func TestCompactFormatter_DispatchesPerEventType(t *testing.T) {
 	}
 }
 
-func TestStructuredFormatsUseProjector(t *testing.T) {
+func TestCrossPlatformCoverageStructuredFormatsUseProjector(t *testing.T) {
 	projector := Projector(func(ev transport.Event) (any, error) {
 		return map[string]any{"type": ev.EventType, "content": "hello"}, nil
 	})
@@ -179,7 +179,7 @@ func TestStructuredFormatsUseProjector(t *testing.T) {
 	}
 }
 
-func TestProjectionFailureWarnsAndEmitsFallback(t *testing.T) {
+func TestCrossPlatformCoverageProjectionFailureWarnsAndEmitsFallback(t *testing.T) {
 	var warnings bytes.Buffer
 	f, err := NewFormatter(
 		FormatNDJSON,
@@ -210,9 +210,9 @@ func TestProjectionFailureWarnsAndEmitsFallback(t *testing.T) {
 	}
 }
 
-func TestRawFormatBypassesProjector(t *testing.T) {
+func TestCrossPlatformCoverageRawFormatBypassesProjector(t *testing.T) {
 	called := false
-	raw := `{"payload":{"uid":147867,"clientId":"internal-client","filterSubId":"internal-filter","bizid":"internal-bizid"}}`
+	raw := `{"payload":{"uid":100001,"clientId":"internal-client","filterSubId":"internal-filter","bizid":"internal-bizid"}}`
 	f, err := NewFormatter(FormatRaw, WithProjector(func(transport.Event) (any, error) {
 		called = true
 		return map[string]any{"projected": true}, nil

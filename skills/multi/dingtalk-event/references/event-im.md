@@ -66,7 +66,7 @@ dws event consume user_im_message_receive_at -f ndjson
 
 # 指定单聊消息
 dws event consume user_im_message_receive_o2o \
-  --user 507971 \
+  --user test-user-001 \
   -f ndjson
 
 # 通过 openDingtalkId 指定单聊对端
@@ -81,7 +81,7 @@ dws event consume user_im_message_receive_group \
 
 # 指定发送人的消息（单聊和群聊）
 dws event consume user_im_message_receive_user \
-  --user 507971 \
+  --user test-user-001 \
   -f ndjson
 
 # 通过 openDingtalkId 指定发送人
@@ -91,7 +91,7 @@ dws event consume user_im_message_receive_user \
 
 # 指定单聊已读事件
 dws event consume user_im_message_read_o2o \
-  --user 507971 \
+  --user test-user-001 \
   -f ndjson
 
 # 指定群聊已读事件
@@ -101,7 +101,7 @@ dws event consume user_im_message_read_group \
 
 # 指定单聊撤回事件
 dws event consume user_im_message_recall_o2o \
-  --user 507971 \
+  --user test-user-001 \
   -f ndjson
 
 # 指定群聊撤回事件
@@ -111,7 +111,7 @@ dws event consume user_im_message_recall_group \
 
 # 指定单聊表情回应事件
 dws event consume user_im_message_reaction_o2o \
-  --user 507971 \
+  --user test-user-001 \
   -f ndjson
 
 # 指定群聊表情回应事件

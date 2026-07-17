@@ -57,10 +57,7 @@ func init() {
 	registerRequireOneOf("dev.search_open_platform_docs_rag", "query", "keyword")
 	registerRequireOneOf("devdoc.search_open_error_code_rag", "query", "request-id", "error-code", "error-message", "context")
 	registerRequireOneOf("devdoc.search_open_platform_docs_rag", "query", "keyword")
-	RegisterRuntimeSchemaConstraints("event.consume", RuntimeSchemaConstraints{
-		MutuallyExclusive: [][]string{{"user", "open-dingtalk-id", "group"}},
-		RequireOneOf:      [][]string{{"event_key", "subscribe-id"}},
-	})
+	registerRequireOneOf("event.consume", "event_key", "subscribe-id")
 	registerExclusiveOneOf("event.stop", "all", "subscribe_id")
 	registerRequireOneOf("doc.insert_document_block", "text", "heading", "element")
 	registerExclusiveOneOf("doc.update_document", "content", "content-file")

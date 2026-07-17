@@ -495,7 +495,7 @@ func TestBuildFilterQueryAndJSON(t *testing.T) {
 func TestIdempotencyKeyUsesLocalIdentityKey(t *testing.T) {
 	left := Identity{LocalSubject: "refresh:left", ClientID: "client-1", SourceID: "open"}
 	right := Identity{LocalSubject: "refresh:right", ClientID: "client-1", SourceID: "open"}
-	ruleParam := map[string]any{"targetUid": "507971", "targetUidType": "staffId"}
+	ruleParam := map[string]any{"targetUid": "test-user-001", "targetUidType": "staffId"}
 	leftKey := IdempotencyKey(left, EventSingleChat, "singleChat", ruleParam, "")
 	rightKey := IdempotencyKey(right, EventSingleChat, "singleChat", ruleParam, "")
 	if leftKey == rightKey {

@@ -62,7 +62,7 @@ func TestPersonalEventProjectorUsesRawEnvelopeForDebug(t *testing.T) {
 	}
 	ev := transport.Event{
 		EventID: "raw-event",
-		Data:    `{"payload":{"uid":147867,"bizid":"internal-bizid"}}`,
+		Data:    `{"payload":{"uid":100001,"bizid":"internal-bizid"}}`,
 		Headers: map[string]string{"TOPIC": "raw"},
 	}
 	projected, err := projector(ev)
@@ -143,7 +143,7 @@ func TestEventConsumeRetiredPersonalFlagsAreUnknown(t *testing.T) {
 
 func TestEventConsumeAsAppRejectedBeforePersonalParamSpecFlags(t *testing.T) {
 	for _, args := range [][]string{
-		{"--as", "app", "--user", "507971"},
+		{"--as", "app", "--user", "test-user-001"},
 		{"--as", "app", "--open-dingtalk-id", "open-user-1"},
 		{"--as", "app", "--group", "cid"},
 		{"--as", "app", "--query", "报警"},

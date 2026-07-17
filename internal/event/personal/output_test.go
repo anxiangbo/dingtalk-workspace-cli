@@ -32,7 +32,7 @@ func personalMessageData(eventKey string) string {
 		"payload":{
 			"body":{
 				"createTime":"2026-07-08 12:00:35",
-				"sender":"昊小淼",
+				"sender":"测试用户甲",
 				"openMessageId":"msg-1",
 				"senderOpenDingTalkId":"open-user-1",
 				"openConversationId":"cid-1",
@@ -55,16 +55,16 @@ func personalReadData(eventKey, messageID, conversationID string) string {
 				"msgReadTime":"2026-07-14 13:53:31",
 				"openConversationId":%q,
 				"openMessageId":%q,
-				"reader":"郑御白",
+				"reader":"测试用户乙",
 				"readerOpenDingTalkId":"reader-open-id",
-				"sender":"昊淼",
+				"sender":"测试用户甲",
 				"senderOpenDingTalkId":"sender-open-id"
 			},
 			"clientId":"internal-client",
 			"corpid":"internal-corp",
 			"event_time":1784008411652,
 			"filterSubId":"internal-filter",
-			"uid":147867
+			"uid":100001
 		}
 	}`, eventKey, conversationID, messageID)
 }
@@ -81,16 +81,16 @@ func personalRecallData(eventKey, messageID, conversationID string) string {
 				"msgRecallTime":"2026-07-14 13:56:32",
 				"openConversationId":%q,
 				"openMessageId":%q,
-				"recaller":"郑御白",
+				"recaller":"测试用户乙",
 				"recallerOpenDingTalkId":"recaller-open-id",
-				"sender":"郑御白",
+				"sender":"测试用户乙",
 				"senderOpenDingTalkId":"sender-open-id"
 			},
 			"clientId":"internal-client",
 			"corpid":"internal-corp",
 			"event_time":1784008592766,
 			"filterSubId":"internal-filter",
-			"uid":147867
+			"uid":100001
 		}
 	}`, eventKey, conversationID, messageID)
 }
@@ -108,23 +108,23 @@ func personalReactionData(eventKey, messageID, conversationID string) string {
 				"emotionText":"微笑",
 				"openConversationId":%q,
 				"openSourceMessageId":%q,
-				"oper":"郑御白",
+				"oper":"测试用户乙",
 				"operOpenDingtalkId":"operator-open-id",
 				"operateTime":"2026-07-14 13:57:59",
 				"operateType":"add",
-				"sender":"昊淼",
+				"sender":"测试用户甲",
 				"senderOpenDingTalkId":"sender-open-id"
 			},
 			"clientId":"internal-client",
 			"corpid":"internal-corp",
 			"event_time":1784008679217,
 			"filterSubId":"internal-filter",
-			"uid":147867
+			"uid":100001
 		}
 	}`, eventKey, conversationID, messageID)
 }
 
-func TestProjectOutputMessageEvents(t *testing.T) {
+func TestCrossPlatformCoverageProjectOutputMessageEvents(t *testing.T) {
 	for _, eventKey := range []string{EventMention, EventSingleChat, EventInChat, EventFromUser} {
 		t.Run(eventKey, func(t *testing.T) {
 			projected, err := ProjectOutput(transport.Event{
@@ -149,7 +149,7 @@ func TestProjectOutputMessageEvents(t *testing.T) {
 				SubscribeID:          "outer-sub",
 				MessageID:            "msg-1",
 				ConversationID:       "cid-1",
-				Sender:               "昊小淼",
+				Sender:               "测试用户甲",
 				SenderOpenDingTalkID: "open-user-1",
 				Content:              "在吗",
 				CreateTime:           "2026-07-08 12:00:35",
@@ -162,7 +162,7 @@ func TestProjectOutputMessageEvents(t *testing.T) {
 	}
 }
 
-func TestProjectOutputDecodesWrappedJSONString(t *testing.T) {
+func TestCrossPlatformCoverageProjectOutputDecodesWrappedJSONString(t *testing.T) {
 	wrapped, err := json.Marshal(personalMessageData(EventSingleChat))
 	if err != nil {
 		t.Fatal(err)
@@ -177,7 +177,7 @@ func TestProjectOutputDecodesWrappedJSONString(t *testing.T) {
 	}
 }
 
-func TestProjectOutputFallsBackToTransportFields(t *testing.T) {
+func TestCrossPlatformCoverageProjectOutputFallsBackToTransportFields(t *testing.T) {
 	projected, err := ProjectOutput(transport.Event{
 		EventID:       "outer-event",
 		EventBornTime: 123,
@@ -194,7 +194,7 @@ func TestProjectOutputFallsBackToTransportFields(t *testing.T) {
 	}
 }
 
-func TestProjectOutputReadEvents(t *testing.T) {
+func TestCrossPlatformCoverageProjectOutputReadEvents(t *testing.T) {
 	for _, eventKey := range []string{EventReadO2O, EventReadGroup} {
 		t.Run(eventKey, func(t *testing.T) {
 			projected, err := ProjectOutput(transport.Event{
@@ -211,9 +211,9 @@ func TestProjectOutputReadEvents(t *testing.T) {
 				SubscribeID:          "read-sub",
 				MessageID:            "read-message",
 				ConversationID:       "read-conversation",
-				Reader:               "郑御白",
+				Reader:               "测试用户乙",
 				ReaderOpenDingTalkID: "reader-open-id",
-				Sender:               "昊淼",
+				Sender:               "测试用户甲",
 				SenderOpenDingTalkID: "sender-open-id",
 				ReadTime:             "2026-07-14 13:53:31",
 				EventTime:            1784008411652,
@@ -226,7 +226,7 @@ func TestProjectOutputReadEvents(t *testing.T) {
 	}
 }
 
-func TestProjectOutputRecallEvents(t *testing.T) {
+func TestCrossPlatformCoverageProjectOutputRecallEvents(t *testing.T) {
 	for _, eventKey := range []string{EventRecallO2O, EventRecallGroup} {
 		t.Run(eventKey, func(t *testing.T) {
 			projected, err := ProjectOutput(transport.Event{
@@ -243,9 +243,9 @@ func TestProjectOutputRecallEvents(t *testing.T) {
 				SubscribeID:            "recall-sub",
 				MessageID:              "recall-message",
 				ConversationID:         "recall-conversation",
-				Recaller:               "郑御白",
+				Recaller:               "测试用户乙",
 				RecallerOpenDingTalkID: "recaller-open-id",
-				Sender:                 "郑御白",
+				Sender:                 "测试用户乙",
 				SenderOpenDingTalkID:   "sender-open-id",
 				RecallTime:             "2026-07-14 13:56:32",
 				EventTime:              1784008592766,
@@ -258,7 +258,7 @@ func TestProjectOutputRecallEvents(t *testing.T) {
 	}
 }
 
-func TestProjectOutputReactionEvents(t *testing.T) {
+func TestCrossPlatformCoverageProjectOutputReactionEvents(t *testing.T) {
 	for _, eventKey := range []string{EventReactionO2O, EventReactionGroup} {
 		t.Run(eventKey, func(t *testing.T) {
 			projected, err := ProjectOutput(transport.Event{
@@ -275,13 +275,13 @@ func TestProjectOutputReactionEvents(t *testing.T) {
 				SubscribeID:            "reaction-sub",
 				MessageID:              "reaction-message",
 				ConversationID:         "reaction-conversation",
-				Operator:               "郑御白",
+				Operator:               "测试用户乙",
 				OperatorOpenDingTalkID: "operator-open-id",
 				ReactionName:           "微笑",
 				ReactionText:           "微笑",
 				OperationType:          "add",
 				OperationTime:          "2026-07-14 13:57:59",
-				Sender:                 "昊淼",
+				Sender:                 "测试用户甲",
 				SenderOpenDingTalkID:   "sender-open-id",
 				EventTime:              1784008679217,
 			}
@@ -293,7 +293,7 @@ func TestProjectOutputReactionEvents(t *testing.T) {
 	}
 }
 
-func TestProjectOutputReactionRejectsLegacyOperatorOpenIDSpellings(t *testing.T) {
+func TestCrossPlatformCoverageProjectOutputReactionRejectsLegacyOperatorOpenIDSpellings(t *testing.T) {
 	for _, legacyField := range []string{"operOpenDingtlkId", "operOpenDingTalkId"} {
 		t.Run(legacyField, func(t *testing.T) {
 			data := strings.Replace(
@@ -327,7 +327,53 @@ func assertNoInternalActionFields(t *testing.T, projected any) {
 	}
 }
 
-func TestProjectOutputMalformedDataReturnsRawEnvelope(t *testing.T) {
+func TestCrossPlatformCoverageProjectOutputRejectsEmptyPayloads(t *testing.T) {
+	eventKeys := []string{
+		EventMention,
+		EventSingleChat,
+		EventInChat,
+		EventFromUser,
+		EventReadO2O,
+		EventReadGroup,
+		EventRecallO2O,
+		EventRecallGroup,
+		EventReactionO2O,
+		EventReactionGroup,
+	}
+	payloads := []struct {
+		name string
+		json string
+	}{
+		{name: "missing", json: ""},
+		{name: "null", json: `,"payload":null`},
+		{name: "empty object", json: `,"payload":{}`},
+		{name: "missing body", json: `,"payload":{"event_time":1}`},
+		{name: "null body", json: `,"payload":{"body":null}`},
+		{name: "empty body", json: `,"payload":{"body":{}}`},
+	}
+
+	for _, eventKey := range eventKeys {
+		for _, payload := range payloads {
+			t.Run(eventKey+"/"+payload.name, func(t *testing.T) {
+				ev := transport.Event{
+					EventID:   "outer-event",
+					EventType: eventKey,
+					Data:      fmt.Sprintf(`{"eventKey":%q%s}`, eventKey, payload.json),
+				}
+				projected, err := ProjectOutput(ev)
+				if err == nil {
+					t.Fatal("ProjectOutput() error = nil, want payload validation error")
+				}
+				got, ok := projected.(transport.Event)
+				if !ok || !reflect.DeepEqual(got, ev) {
+					t.Fatalf("ProjectOutput() fallback = %#v, want %#v", projected, ev)
+				}
+			})
+		}
+	}
+}
+
+func TestCrossPlatformCoverageProjectOutputMalformedDataReturnsRawEnvelope(t *testing.T) {
 	ev := transport.Event{EventID: "outer-event", Data: "not-json"}
 	projected, err := ProjectOutput(ev)
 	if err == nil {

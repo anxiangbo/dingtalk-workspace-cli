@@ -405,7 +405,7 @@ func TestPersonalEventFromUserIsPubliclyAvailable(t *testing.T) {
 	consumeCmd := newEventConsumeCommand()
 	consumeCmd.SilenceUsage = true
 	consumeCmd.SilenceErrors = true
-	consumeCmd.SetArgs([]string{personal.EventFromUser, "--user", "507971", "--dry-run"})
+	consumeCmd.SetArgs([]string{personal.EventFromUser, "--user", "test-user-001", "--dry-run"})
 	if err := consumeCmd.Execute(); err != nil {
 		t.Fatalf("consume dry-run Execute() error = %v", err)
 	}
@@ -420,7 +420,7 @@ func TestPersonalEventFromUserIsPubliclyAvailable(t *testing.T) {
 	conflictingTargetCmd := newEventConsumeCommand()
 	conflictingTargetCmd.SilenceUsage = true
 	conflictingTargetCmd.SilenceErrors = true
-	conflictingTargetCmd.SetArgs([]string{personal.EventFromUser, "--user", "507971", "--open-dingtalk-id", "open-user-1", "--dry-run"})
+	conflictingTargetCmd.SetArgs([]string{personal.EventFromUser, "--user", "test-user-001", "--open-dingtalk-id", "open-user-1", "--dry-run"})
 	err := conflictingTargetCmd.Execute()
 	if err == nil || !strings.Contains(err.Error(), "--user and --open-dingtalk-id are mutually exclusive for "+personal.EventFromUser) {
 		t.Fatalf("conflicting target identity error = %v", err)
@@ -469,17 +469,13 @@ func TestEventConsumeCobraSchemaIncludesOpenDingTalkID(t *testing.T) {
 	if _, ok := params["odid"]; ok {
 		t.Fatalf("schema parameters unexpectedly include odid alias: %#v", params)
 	}
-	for name, want := range map[string]string{
-		"user":             "--subscribe-id is absent, event_key uses singleChat or sender, and --open-dingtalk-id is absent",
-		"open-dingtalk-id": "--subscribe-id is absent, event_key uses singleChat or sender, and --user is absent",
-		"group":            "--subscribe-id is absent and event_key uses group",
-	} {
+	for _, name := range []string{"user", "open-dingtalk-id", "group"} {
 		param, ok := params[name].(map[string]any)
 		if !ok {
 			t.Fatalf("schema parameter %s = %#v", name, params[name])
 		}
-		if got := param["required_when"]; got != want {
-			t.Fatalf("schema parameter %s required_when = %#v, want %q", name, got, want)
+		if got, exists := param["required_when"]; exists {
+			t.Fatalf("schema parameter %s unexpectedly declares required_when = %#v", name, got)
 		}
 	}
 	constraints, ok := doc["constraints"].(map[string]any)
@@ -511,7 +507,6 @@ func TestEventConsumeCobraSchemaIncludesOpenDingTalkID(t *testing.T) {
 		t.Fatalf("schema constraint %s = %#v, missing %#v", field, groups, want)
 	}
 	assertJSONConstraintGroup("require_one_of", []string{"event_key", "subscribe-id"})
-	assertJSONConstraintGroup("mutually_exclusive", []string{"user", "open-dingtalk-id", "group"})
 }
 
 func TestPersonalEventSchemaRejectsTableFormat(t *testing.T) {

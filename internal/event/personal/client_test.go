@@ -72,7 +72,7 @@ func TestClientCreateSubscriptionDWSRequestAndArrayResponse(t *testing.T) {
 		RuleType: "singleChat",
 		Name:     "test-o2o",
 		RuleParam: map[string]any{
-			"targetUid":     "507971",
+			"targetUid":     "test-user-001",
 			"targetUidType": "staffId",
 		},
 		Filter:         map[string]any{"field": "payload.body.content", "op": "contains", "value": "P0"},
@@ -94,7 +94,7 @@ func TestClientCreateSubscriptionDWSRequestAndArrayResponse(t *testing.T) {
 	if err := json.Unmarshal([]byte(gotReq.FilterRule), &filterRule); err != nil {
 		t.Fatalf("filterRule is not JSON: %q: %v", gotReq.FilterRule, err)
 	}
-	if filterRule["targetUid"] != "507971" || filterRule["targetUidType"] != "staffId" {
+	if filterRule["targetUid"] != "test-user-001" || filterRule["targetUidType"] != "staffId" {
 		t.Fatalf("filterRule = %#v", filterRule)
 	}
 	if gotReq.Ext["ruleType"] != "singleChat" || gotReq.Ext["name"] != "test-o2o" || gotReq.Ext["idempotencyKey"] != "idem-1" {
@@ -218,7 +218,7 @@ func TestClientDebugLogCreateSubscriptionRequestResponse(t *testing.T) {
 		EventKey: EventSingleChat,
 		RuleType: "singleChat",
 		RuleParam: map[string]any{
-			"targetUid":     "507971",
+			"targetUid":     "test-user-001",
 			"targetUidType": "staffId",
 		},
 		IdempotencyKey: "idem-1",
@@ -234,7 +234,7 @@ func TestClientDebugLogCreateSubscriptionRequestResponse(t *testing.T) {
 		EventSingleChat,
 		"filterRule",
 		"targetUid",
-		"507971",
+		"test-user-001",
 		"sub-1",
 		"req-ok",
 	} {

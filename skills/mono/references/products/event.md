@@ -43,16 +43,16 @@
 | 用户说 | 下一步 |
 |---|---|
 | "监听有人 @ 我的消息" | `event consume`，事件码 `user_im_message_receive_at`，参数 `-f ndjson` |
-| "监听我和 userId 507971 的单聊消息" | `event consume`，事件码 `user_im_message_receive_o2o`，参数 `--user 507971 -f ndjson` |
+| "监听我和 userId test-user-001 的单聊消息" | `event consume`，事件码 `user_im_message_receive_o2o`，参数 `--user test-user-001 -f ndjson` |
 | "监听我和 openDingtalkId abc 的单聊消息" | `event consume`，事件码 `user_im_message_receive_o2o`，参数 `--open-dingtalk-id abc -f ndjson` |
 | "监听 XX 群消息" | 先 `dws chat search --query "XX" --format json`，确认后 consume group |
-| "监听 userId 507971 发给我的消息" | `event consume`，事件码 `user_im_message_receive_user`，参数 `--user 507971 -f ndjson` |
+| "监听 userId test-user-001 发给我的消息" | `event consume`，事件码 `user_im_message_receive_user`，参数 `--user test-user-001 -f ndjson` |
 | "监听 openDingtalkId abc 发给我的消息" | `event consume`，事件码 `user_im_message_receive_user`，参数 `--open-dingtalk-id abc -f ndjson` |
-| "监听我发给 userId 507971 的消息是否已读" | `event consume`，事件码 `user_im_message_read_o2o`，参数 `--user 507971 -f ndjson` |
+| "监听我发给 userId test-user-001 的消息是否已读" | `event consume`，事件码 `user_im_message_read_o2o`，参数 `--user test-user-001 -f ndjson` |
 | "监听 XX 群消息已读" | 先解析群 ID，再 consume `user_im_message_read_group --group <id>` |
-| "监听我和 userId 507971 的消息撤回" | `event consume`，事件码 `user_im_message_recall_o2o`，参数 `--user 507971 -f ndjson` |
+| "监听我和 userId test-user-001 的消息撤回" | `event consume`，事件码 `user_im_message_recall_o2o`，参数 `--user test-user-001 -f ndjson` |
 | "监听 XX 群消息撤回" | 先解析群 ID，再 consume `user_im_message_recall_group --group <id>` |
-| "监听我和 userId 507971 的消息贴表情" | `event consume`，事件码 `user_im_message_reaction_o2o`，参数 `--user 507971 -f ndjson` |
+| "监听我和 userId test-user-001 的消息贴表情" | `event consume`，事件码 `user_im_message_reaction_o2o`，参数 `--user test-user-001 -f ndjson` |
 | "监听 XX 群消息表情回应" | 先解析群 ID，再 consume `user_im_message_reaction_group --group <id>` |
 | "监听并自动回复某人的单聊消息" | 先解析对端 userId，再启动 o2o consume；不要写轮询脚本 |
 | "查看个人消息事件 schema" | `dws event schema <event_key>` |
@@ -89,16 +89,16 @@ dws event schema user_im_message_reaction_group
 
 ```bash
 dws event consume user_im_message_receive_at -f ndjson
-dws event consume user_im_message_receive_o2o --user 507971 -f ndjson
+dws event consume user_im_message_receive_o2o --user test-user-001 -f ndjson
 dws event consume user_im_message_receive_o2o --open-dingtalk-id abc -f ndjson
 dws event consume user_im_message_receive_group --group <openConversationId> -f ndjson
-dws event consume user_im_message_receive_user --user 507971 -f ndjson
+dws event consume user_im_message_receive_user --user test-user-001 -f ndjson
 dws event consume user_im_message_receive_user --open-dingtalk-id abc -f ndjson
-dws event consume user_im_message_read_o2o --user 507971 -f ndjson
+dws event consume user_im_message_read_o2o --user test-user-001 -f ndjson
 dws event consume user_im_message_read_group --group <openConversationId> -f ndjson
-dws event consume user_im_message_recall_o2o --user 507971 -f ndjson
+dws event consume user_im_message_recall_o2o --user test-user-001 -f ndjson
 dws event consume user_im_message_recall_group --group <openConversationId> -f ndjson
-dws event consume user_im_message_reaction_o2o --user 507971 -f ndjson
+dws event consume user_im_message_reaction_o2o --user test-user-001 -f ndjson
 dws event consume user_im_message_reaction_group --group <openConversationId> -f ndjson
 ```
 

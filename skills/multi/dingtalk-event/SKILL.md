@@ -92,7 +92,7 @@ dws event consume user_im_message_receive_at -f ndjson
 
 # 当前用户与指定用户的单聊消息
 dws event consume user_im_message_receive_o2o \
-  --user 507971 \
+  --user test-user-001 \
   -f ndjson
 
 # 使用 openDingtalkId 监听外部联系人、机器人或跨组织身份的单聊消息
@@ -107,7 +107,7 @@ dws event consume user_im_message_receive_group \
 
 # 指定发送人的消息（单聊和群聊）
 dws event consume user_im_message_receive_user \
-  --user 507971 \
+  --user test-user-001 \
   -f ndjson
 
 # 使用 openDingtalkId 监听指定发送人的消息
@@ -117,7 +117,7 @@ dws event consume user_im_message_receive_user \
 
 # 指定单聊消息已读
 dws event consume user_im_message_read_o2o \
-  --user 507971 \
+  --user test-user-001 \
   -f ndjson
 
 # 指定群聊消息撤回
@@ -127,7 +127,7 @@ dws event consume user_im_message_recall_group \
 
 # 指定单聊消息收到表情回应
 dws event consume user_im_message_reaction_o2o \
-  --user 507971 \
+  --user test-user-001 \
   -f ndjson
 
 # 有界自测
@@ -137,7 +137,7 @@ dws event consume user_im_message_receive_at \
 
 # 抓一条样本
 dws event consume user_im_message_receive_o2o \
-  --user 507971 \
+  --user test-user-001 \
   --max-events 1 \
   -f json
 ```

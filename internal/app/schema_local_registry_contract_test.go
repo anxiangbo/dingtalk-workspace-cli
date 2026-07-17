@@ -74,13 +74,9 @@ func TestEventRegistryDeliversOneTypedSchemaPath(t *testing.T) {
 	if _, exists := consumeParams["odid"]; exists {
 		t.Error("event.consume exposes unsupported --odid alias")
 	}
-	for name, want := range map[string]string{
-		"user":             "--subscribe-id is absent, event_key uses singleChat or sender, and --open-dingtalk-id is absent",
-		"open-dingtalk-id": "--subscribe-id is absent, event_key uses singleChat or sender, and --user is absent",
-		"group":            "--subscribe-id is absent and event_key uses group",
-	} {
-		if got := schemaContractString(consumeParams[name]["required_when"]); got != want {
-			t.Errorf("event.consume --%s required_when = %q, want %q", name, got, want)
+	for _, name := range []string{"user", "open-dingtalk-id", "group"} {
+		if _, exists := consumeParams[name]["required_when"]; exists {
+			t.Errorf("event.consume --%s unexpectedly declares required_when", name)
 		}
 	}
 	if _, exists := consumeParams["duration"]["default"]; exists {
@@ -91,7 +87,6 @@ func TestEventRegistryDeliversOneTypedSchemaPath(t *testing.T) {
 	}
 	assertSchemaContractPositional(t, consume, "event_key", false)
 	assertSchemaContractConstraintGroup(t, consume, "require_one_of", []string{"event_key", "subscribe-id"})
-	assertSchemaContractConstraintGroup(t, consume, "mutually_exclusive", []string{"user", "open-dingtalk-id", "group"})
 
 	eventSchema := payload.Tools["event.schema"]
 	assertSchemaContractPositional(t, eventSchema, "event_key", true)

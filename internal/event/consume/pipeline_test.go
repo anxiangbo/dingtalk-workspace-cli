@@ -62,7 +62,7 @@ func TestPipeline_OutputDirFallback(t *testing.T) {
 	}
 }
 
-func TestPipeline_StdoutAndOutputDirUseSameProjection(t *testing.T) {
+func TestCrossPlatformCoveragePipelineStdoutAndOutputDirUseSameProjection(t *testing.T) {
 	ev := transport.Event{
 		EventType:        "personal.message",
 		EventID:          "ev1",
