@@ -43,6 +43,7 @@ const (
 type PersonalConfig struct {
 	AccessToken         string
 	AccessTokenProvider AccessTokenProvider
+	ForceRefreshToken   ForceRefreshTokenFn
 	ClientID            string
 	ClientSecret        string
 	SourceID            string
@@ -56,6 +57,13 @@ type PersonalConfig struct {
 }
 
 type AccessTokenProvider func(context.Context) (string, error)
+
+// ForceRefreshTokenFn rotates an access token that the server has just
+// rejected (HTTP 401). It receives the exact rejected token so the caller's
+// compare-and-refresh logic can skip the refresh when another goroutine has
+// already rotated it, and returns the fresh token to retry with. Optional:
+// when nil a 401 stays fatal, matching the previous behavior.
+type ForceRefreshTokenFn func(ctx context.Context, rejectedToken string) (string, error)
 
 type PersonalSource struct {
 	cfg     PersonalConfig
@@ -199,6 +207,19 @@ func (s *PersonalSource) fetchTicket(ctx context.Context) (*ticketResponse, erro
 	if err != nil {
 		return nil, err
 	}
+	ticket, status, err := s.fetchTicketAttempt(ctx, accessToken)
+	if status == http.StatusUnauthorized && s.cfg.ForceRefreshToken != nil {
+		refreshed, refreshErr := refreshRejectedSourceToken(ctx, s.cfg.ForceRefreshToken, accessToken, "personal source", err)
+		if refreshErr != nil {
+			return nil, refreshErr
+		}
+		// Retry once with the freshly rotated token; a second 401 stays fatal.
+		ticket, _, err = s.fetchTicketAttempt(ctx, refreshed)
+	}
+	return ticket, err
+}
+
+func (s *PersonalSource) fetchTicketAttempt(ctx context.Context, accessToken string) (*ticketResponse, int, error) {
 	body := map[string]any{
 		"sourceId": s.cfg.SourceID,
 		"mode":     s.cfg.TicketMode,
@@ -210,7 +231,7 @@ func (s *PersonalSource) fetchTicket(ctx context.Context) (*ticketResponse, erro
 	b, _ := json.Marshal(body)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, s.cfg.TicketURL, bytes.NewReader(b))
 	if err != nil {
-		return nil, fmt.Errorf("personal source: create ticket request: %w", err)
+		return nil, 0, fmt.Errorf("personal source: create ticket request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
@@ -221,28 +242,44 @@ func (s *PersonalSource) fetchTicket(ctx context.Context) (*ticketResponse, erro
 
 	resp, err := s.cfg.HTTPClient.Do(req)
 	if err != nil {
-		return nil, retryPersonal(fmt.Errorf("personal source: fetch ticket: %w", err))
+		return nil, 0, retryPersonal(fmt.Errorf("personal source: fetch ticket: %w", err))
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(io.LimitReader(resp.Body, config.MaxResponseBodySize))
 	if err != nil {
-		return nil, retryPersonal(fmt.Errorf("personal source: read ticket response: %w", err))
+		return nil, resp.StatusCode, retryPersonal(fmt.Errorf("personal source: read ticket response: %w", err))
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		err := fmt.Errorf("personal source: ticket HTTP %d", resp.StatusCode)
 		if retryableTicketStatus(resp.StatusCode) {
-			return nil, retryPersonal(err)
+			return nil, resp.StatusCode, retryPersonal(err)
 		}
-		return nil, err
+		return nil, resp.StatusCode, err
 	}
 	ticket, err := decodeTicket(data)
 	if err != nil {
-		return nil, err
+		return nil, resp.StatusCode, err
 	}
 	if ticket.Endpoint == "" || ticket.Ticket == "" {
-		return nil, errors.New("personal source: ticket response missing endpoint or ticket")
+		return nil, resp.StatusCode, errors.New("personal source: ticket response missing endpoint or ticket")
 	}
-	return ticket, nil
+	return ticket, resp.StatusCode, nil
+}
+
+// refreshRejectedSourceToken funnels a server-side 401 into the optional
+// force-refresh callback. It hands the actual rejected token to the caller's
+// compare-and-refresh logic and returns the rotated token for an immediate
+// retry. Refresh failures keep the original 401 as context instead of being
+// dropped.
+func refreshRejectedSourceToken(ctx context.Context, refresh ForceRefreshTokenFn, rejectedToken, component string, cause error) (string, error) {
+	token, err := refresh(ctx, rejectedToken)
+	if err != nil {
+		return "", fmt.Errorf("%s: refresh rejected access token: %w", component, errors.Join(cause, err))
+	}
+	if token = strings.TrimSpace(token); token == "" {
+		return "", fmt.Errorf("%s: refresh rejected access token returned empty token: %w", component, cause)
+	}
+	return token, nil
 }
 
 func resolveSourceAccessToken(ctx context.Context, provider AccessTokenProvider, fallback, component string) (string, error) {

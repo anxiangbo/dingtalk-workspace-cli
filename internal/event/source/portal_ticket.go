@@ -42,6 +42,7 @@ type PortalTicketConfig struct {
 	TicketURL           string
 	AccessToken         string
 	AccessTokenProvider AccessTokenProvider
+	ForceRefreshToken   ForceRefreshTokenFn
 	SourceID            string
 	Mode                string
 	ClientID            string
@@ -170,6 +171,19 @@ func requestPortalTicket(ctx context.Context, cfg *PortalTicketConfig) (portalSt
 	if httpClient == nil {
 		httpClient = &http.Client{Timeout: 20 * time.Second}
 	}
+	ticket, status, err := requestPortalTicketAttempt(ctx, cfg, httpClient, accessToken)
+	if status == http.StatusUnauthorized && cfg.ForceRefreshToken != nil {
+		refreshed, refreshErr := refreshRejectedSourceToken(ctx, cfg.ForceRefreshToken, accessToken, "source: portal ticket", err)
+		if refreshErr != nil {
+			return portalStreamTicket{}, refreshErr
+		}
+		// Retry once with the freshly rotated token; a second 401 stays fatal.
+		ticket, _, err = requestPortalTicketAttempt(ctx, cfg, httpClient, refreshed)
+	}
+	return ticket, err
+}
+
+func requestPortalTicketAttempt(ctx context.Context, cfg *PortalTicketConfig, httpClient *http.Client, accessToken string) (portalStreamTicket, int, error) {
 	body := map[string]string{
 		"sourceId":    strings.TrimSpace(cfg.SourceID),
 		"channelType": strings.TrimSpace(cfg.SourceID),
@@ -182,7 +196,7 @@ func requestPortalTicket(ctx context.Context, cfg *PortalTicketConfig) (portalSt
 	rawBody, _ := json.Marshal(body)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, strings.TrimSpace(cfg.TicketURL), bytes.NewReader(rawBody))
 	if err != nil {
-		return portalStreamTicket{}, err
+		return portalStreamTicket{}, 0, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
@@ -193,18 +207,18 @@ func requestPortalTicket(ctx context.Context, cfg *PortalTicketConfig) (portalSt
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return portalStreamTicket{}, fmt.Errorf("source: portal ticket request: %w", err)
+		return portalStreamTicket{}, 0, fmt.Errorf("source: portal ticket request: %w", err)
 	}
 	defer resp.Body.Close()
 	raw, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 	if resp.StatusCode >= 400 {
-		return portalStreamTicket{}, fmt.Errorf("source: portal ticket HTTP %d: %s",
+		return portalStreamTicket{}, resp.StatusCode, fmt.Errorf("source: portal ticket HTTP %d: %s",
 			resp.StatusCode, truncatePortalTicketLog(string(raw), 300))
 	}
 
 	var direct portalStreamTicket
 	if err := json.Unmarshal(raw, &direct); err == nil && direct.Endpoint != "" && direct.Ticket != "" {
-		return direct, nil
+		return direct, resp.StatusCode, nil
 	}
 
 	var envelope struct {
@@ -214,16 +228,16 @@ func requestPortalTicket(ctx context.Context, cfg *PortalTicketConfig) (portalSt
 		ErrorMsg  string             `json:"errorMsg"`
 	}
 	if err := json.Unmarshal(raw, &envelope); err != nil {
-		return portalStreamTicket{}, fmt.Errorf("source: portal ticket parse: %w", err)
+		return portalStreamTicket{}, resp.StatusCode, fmt.Errorf("source: portal ticket parse: %w", err)
 	}
 	if !envelope.Success {
-		return portalStreamTicket{}, fmt.Errorf("source: portal ticket failed: %s %s",
+		return portalStreamTicket{}, resp.StatusCode, fmt.Errorf("source: portal ticket failed: %s %s",
 			envelope.ErrorCode, envelope.ErrorMsg)
 	}
 	if envelope.Result.Endpoint == "" || envelope.Result.Ticket == "" {
-		return portalStreamTicket{}, errors.New("source: portal ticket result missing endpoint/ticket")
+		return portalStreamTicket{}, resp.StatusCode, errors.New("source: portal ticket result missing endpoint/ticket")
 	}
-	return envelope.Result, nil
+	return envelope.Result, resp.StatusCode, nil
 }
 
 func websocketURL(ticket portalStreamTicket) (string, error) {
