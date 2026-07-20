@@ -717,7 +717,7 @@ func (p *OAuthProvider) lockedRefresh(ctx context.Context) (*TokenData, error) {
 
 	// Double-check: re-load from disk — another goroutine/process may have refreshed
 	// while we were waiting for the lock.
-	data, err := oauthLoadTokenLocked(p.configDir, RuntimeProfile())
+	data, err := loadOAuthTokenUnderHeldLock(p.configDir, RuntimeProfile())
 	if err != nil {
 		return nil, err
 	}

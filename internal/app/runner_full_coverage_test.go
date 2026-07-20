@@ -197,7 +197,7 @@ func TestCrossPlatformCoverageRunnerRemainingExecutionCoverage(t *testing.T) {
 		return nil
 	}
 
-	authErr := apperrors.NewAuth("expired")
+	authErr := apperrors.NewAuth("expired", apperrors.WithReason("http_401"))
 	runnerCallTool = func(*transport.Client, context.Context, string, string, map[string]any) (transport.ToolCallResult, error) {
 		return transport.ToolCallResult{}, authErr
 	}

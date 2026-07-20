@@ -623,6 +623,12 @@ func (r *runtimeRunner) executeInvocation(ctx context.Context, endpoint string, 
 			}
 			return runnerHandlePatAuthCheck(ctx, r, invocation, patCheck, defaultConfigDir(), os.Stderr)
 		}
+		if result, retryErr, handled := r.retryAuthRefreshRequired(ctx, endpoint, invocation, authToken, err, hasPluginAuth); handled {
+			if retryErr != nil {
+				runnerCaptureRuntimeFailure(invocation, err, retryErr)
+			}
+			return result, retryErr
+		}
 		runnerCaptureRuntimeFailure(invocation, err, err)
 		return executor.Result{}, err
 	}
@@ -631,9 +637,15 @@ func (r *runtimeRunner) executeInvocation(ctx context.Context, endpoint string, 
 	callResult, err := runnerCallTool(tc, callCtx, endpoint, invocation.Tool, invocation.Params)
 	RecordTiming(ctx, "mcp_call", time.Since(callStart))
 	if err != nil {
-		if isAuthError(err) {
+		if isRefreshableTransportAuthError(err) {
 			if fn := edition.Get().OnAuthError; fn != nil {
 				if overrideErr := fn(defaultConfigDir(), err); overrideErr != nil {
+					if result, retryErr, handled := r.retryAuthRefreshRequired(ctx, endpoint, invocation, authToken, overrideErr, hasPluginAuth); handled {
+						if retryErr != nil {
+							runnerCaptureRuntimeFailure(invocation, err, retryErr)
+						}
+						return result, retryErr
+					}
 					runnerCaptureRuntimeFailure(invocation, err, overrideErr)
 					return executor.Result{}, overrideErr
 				}
@@ -658,6 +670,12 @@ func (r *runtimeRunner) executeInvocation(ctx context.Context, endpoint string, 
 				}
 				return runnerHandlePatAuthCheck(ctx, r, invocation, patCheck, defaultConfigDir(), os.Stderr)
 			}
+			if result, retryErr, handled := r.retryAuthRefreshRequired(ctx, endpoint, invocation, authToken, editionErr, hasPluginAuth); handled {
+				if retryErr != nil {
+					runnerCaptureRuntimeFailure(invocation, editionErr, retryErr)
+				}
+				return result, retryErr
+			}
 			return executor.Result{}, editionErr
 		}
 	}
@@ -678,6 +696,12 @@ func (r *runtimeRunner) executeInvocation(ctx context.Context, endpoint string, 
 		// patterns (PAT permission, gateway-auth) before generic handling.
 		if classify := edition.Get().ClassifyToolResult; classify != nil {
 			if hookErr := classify(callResult.Content); hookErr != nil {
+				if result, retryErr, handled := r.retryAuthRefreshRequired(ctx, endpoint, invocation, authToken, hookErr, hasPluginAuth); handled {
+					if retryErr != nil {
+						runnerCaptureRuntimeFailure(invocation, hookErr, retryErr)
+					}
+					return result, retryErr
+				}
 				runnerCaptureRuntimeFailure(invocation, hookErr, hookErr)
 				return executor.Result{}, hookErr
 			}

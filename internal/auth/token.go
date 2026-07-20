@@ -210,13 +210,10 @@ func DeleteTokenMarker(configDir string) error {
 	return nil
 }
 
-// SaveTokenData persists TokenData. When an edition hook (SaveToken) is
-// registered, it delegates entirely to the hook; otherwise it falls back
-// to the default keychain-based storage.
+// SaveTokenData persists TokenData under the auth dual lock. When an edition
+// hook (SaveToken) is registered, the locked write delegates to that hook;
+// otherwise it falls back to the default keychain-based storage.
 func SaveTokenData(configDir string, data *TokenData) error {
-	if h := edition.Get(); h.SaveToken != nil {
-		return saveTokenViaHook(h, configDir, data)
-	}
 	return withProfilesLock(configDir, func() error {
 		return saveTokenDataLocked(configDir, data)
 	})
@@ -490,9 +487,8 @@ func tokenLoadProfileIdentity(profile Profile) (*TokenData, error) {
 	return orgData, nil
 }
 
-// DeleteTokenData removes token data. When an edition hook (DeleteToken) is
-// registered, it delegates entirely to the hook; otherwise it falls back
-// to keychain + legacy cleanup.
+// DeleteTokenData removes token data. Edition hooks and the default keychain
+// path are both serialized with refresh through the auth dual lock.
 func DeleteTokenData(configDir string) error {
 	return DeleteTokenDataForProfile(configDir, RuntimeProfile())
 }
@@ -504,7 +500,9 @@ func DeleteTokenDataForProfile(configDir, profile string) error {
 		if strings.TrimSpace(profile) != "" {
 			return fmt.Errorf("profile selection is not supported by the current auth backend")
 		}
-		return h.DeleteToken(configDir)
+		return withProfilesLock(configDir, func() error {
+			return h.DeleteToken(configDir)
+		})
 	}
 	return withProfilesLock(configDir, func() error {
 		return deleteTokenDataForProfileLocked(configDir, profile)
@@ -939,7 +937,9 @@ func restoreTokenMarker(configDir string, marker tokenMarkerSnapshot) error {
 // DeleteAllTokenData removes all profile-scoped and legacy token data.
 func DeleteAllTokenData(configDir string) error {
 	if h := edition.Get(); h.DeleteToken != nil {
-		return h.DeleteToken(configDir)
+		return withProfilesLock(configDir, func() error {
+			return h.DeleteToken(configDir)
+		})
 	}
 	return withProfilesLock(configDir, func() error {
 		var firstErr error

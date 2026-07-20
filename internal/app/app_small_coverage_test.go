@@ -34,6 +34,10 @@ func (g fakeAccessTokenGetter) GetAccessToken(context.Context) (string, error) {
 	return g.token, g.err
 }
 
+func (g fakeAccessTokenGetter) ForceRefreshRejectedToken(context.Context, string) (string, error) {
+	return g.token, g.err
+}
+
 type fakeLegacyTokenGetter struct {
 	token string
 	err   error
@@ -248,10 +252,10 @@ func TestCrossPlatformCoverageConfigAndTokenSeamsCoverage(t *testing.T) {
 }
 
 func TestCrossPlatformCoverageForceRefreshAndStdioFailureCoverage(t *testing.T) {
-	oldMark, oldFactory := markAccessTokenStale, newRefreshProvider
+	oldLoad, oldFactory := loadRefreshTokenData, newRefreshProvider
 	oldStop := stopStdio
 	t.Cleanup(func() {
-		markAccessTokenStale, newRefreshProvider = oldMark, oldFactory
+		loadRefreshTokenData, newRefreshProvider = oldLoad, oldFactory
 		stopStdio = oldStop
 		stdioMu.Lock()
 		stdioClients = make(map[string]*transport.StdioClient)
@@ -259,11 +263,13 @@ func TestCrossPlatformCoverageForceRefreshAndStdioFailureCoverage(t *testing.T) 
 	})
 	fail := errors.New("failure")
 	_ = oldFactory(t.TempDir())
-	markAccessTokenStale = func(string) error { return fail }
+	loadRefreshTokenData = func(string) (*authpkg.TokenData, error) { return nil, fail }
 	if _, err := ForceRefreshAccessToken(context.Background(), "config"); !errors.Is(err, fail) {
-		t.Fatalf("mark stale error = %v", err)
+		t.Fatalf("load rejected token error = %v", err)
 	}
-	markAccessTokenStale = func(string) error { return nil }
+	loadRefreshTokenData = func(string) (*authpkg.TokenData, error) {
+		return &authpkg.TokenData{AccessToken: "rejected"}, nil
+	}
 	for _, tc := range []struct {
 		getter fakeAccessTokenGetter
 		want   string
@@ -272,7 +278,7 @@ func TestCrossPlatformCoverageForceRefreshAndStdioFailureCoverage(t *testing.T) 
 		{getter: fakeAccessTokenGetter{token: "  "}, want: "empty"},
 		{getter: fakeAccessTokenGetter{token: " refreshed "}},
 	} {
-		newRefreshProvider = func(string) accessTokenGetter { return tc.getter }
+		newRefreshProvider = func(string) rejectedAccessTokenRefresher { return tc.getter }
 		got, err := ForceRefreshAccessToken(context.Background(), "config")
 		if tc.want != "" && (err == nil || !strings.Contains(err.Error(), tc.want)) {
 			t.Fatalf("refresh error = %v, want %q", err, tc.want)
