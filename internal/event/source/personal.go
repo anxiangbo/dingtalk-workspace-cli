@@ -27,6 +27,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	authpkg "github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/auth"
 	dwsevent "github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/event"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/config"
 	"github.com/gorilla/websocket"
@@ -205,12 +206,20 @@ func (s *PersonalSource) runAttempt(ctx context.Context, emit dwsevent.EmitFn) (
 func (s *PersonalSource) fetchTicket(ctx context.Context) (*ticketResponse, error) {
 	accessToken, err := resolveSourceAccessToken(ctx, s.cfg.AccessTokenProvider, s.cfg.AccessToken, "personal source")
 	if err != nil {
+		// Transient provider failures (network, 429, 5xx) must not kill a
+		// long-running source; the reconnect loop retries after backoff.
+		if authpkg.ClassifyRefreshFailure(err) == authpkg.RefreshFailureTransient {
+			return nil, retryPersonal(err)
+		}
 		return nil, err
 	}
 	ticket, status, err := s.fetchTicketAttempt(ctx, accessToken)
 	if status == http.StatusUnauthorized && s.cfg.ForceRefreshToken != nil {
 		refreshed, refreshErr := refreshRejectedSourceToken(ctx, s.cfg.ForceRefreshToken, accessToken, "personal source", err)
 		if refreshErr != nil {
+			if authpkg.ClassifyRefreshFailure(refreshErr) == authpkg.RefreshFailureTransient {
+				return nil, retryPersonal(refreshErr)
+			}
 			return nil, refreshErr
 		}
 		// Retry once with the freshly rotated token; a second 401 stays fatal.
@@ -424,6 +433,13 @@ func isRetryablePersonalError(err error) bool {
 func personalRetryLogError(err error) string {
 	message := err.Error()
 	switch {
+	case strings.Contains(message, "resolve access token"), strings.Contains(message, "refresh rejected access token"):
+		// Token resolution/refresh errors may carry provider details; log
+		// only the structured HTTP status.
+		if status := refreshHTTPStatus(err); status != 0 {
+			return fmt.Sprintf("personal source: token refresh HTTP %d", status)
+		}
+		return "personal source: token refresh: temporary network error"
 	case strings.Contains(message, "ticket HTTP"):
 		return message
 	case strings.Contains(message, "fetch ticket"):
@@ -439,6 +455,14 @@ func personalRetryLogError(err error) string {
 	default:
 		return "personal source: retryable stream error"
 	}
+}
+
+func refreshHTTPStatus(err error) int {
+	var statusErr *authpkg.HTTPStatusError
+	if !errors.As(err, &statusErr) || statusErr == nil {
+		return 0
+	}
+	return statusErr.StatusCode
 }
 
 func retryableTicketStatus(status int) bool {

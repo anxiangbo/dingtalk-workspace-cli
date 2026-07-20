@@ -20,11 +20,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
+	authpkg "github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/auth"
 	dwsevent "github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/event"
 	"github.com/gorilla/websocket"
 	"github.com/open-dingtalk/dingtalk-stream-sdk-go/payload"
@@ -33,6 +35,8 @@ import (
 const (
 	PortalTicketModeNormal = "normal"
 	PortalTicketModeCustom = "custom"
+	portalReconnectMin     = time.Second
+	portalReconnectMax     = 30 * time.Second
 )
 
 // PortalTicketConfig describes the portal-managed user Stream ticket flow.
@@ -49,6 +53,38 @@ type PortalTicketConfig struct {
 	ClientSecret        string
 	UserAgent           string
 	HTTPClient          *http.Client
+	WebSocketDialer     *websocket.Dialer
+	ReconnectMin        time.Duration
+	ReconnectMax        time.Duration
+	DisableReconnect    bool
+}
+
+// portalStageError tags a portal stream failure with the stage it happened
+// in and whether the reconnect loop may retry it. Error() stays free of
+// untrusted response content so it is safe to log on every reconnect.
+type portalStageError struct {
+	stage     string
+	status    int
+	retryable bool
+	cause     error
+}
+
+func (e *portalStageError) Error() string {
+	if e == nil {
+		return "source: portal stream failed"
+	}
+	message := "source: portal " + strings.ReplaceAll(strings.TrimSpace(e.stage), "_", " ") + " failed"
+	if e.status != 0 {
+		message += fmt.Sprintf(" (HTTP %d)", e.status)
+	}
+	return message
+}
+
+func (e *portalStageError) Unwrap() error {
+	if e == nil {
+		return nil
+	}
+	return e.cause
 }
 
 var portalWriteMessage = func(conn *websocket.Conn, messageType int, data []byte) error {
@@ -98,62 +134,122 @@ func normalizePortalTicketMode(mode string) string {
 
 func (s *DingtalkSource) startPortalTicket(ctx context.Context, emit dwsevent.EmitFn) error {
 	s.machine.OnConnecting()
+	defer s.machine.OnStopped()
 
+	minBackoff := s.cfg.PortalTicket.ReconnectMin
+	if minBackoff <= 0 {
+		minBackoff = portalReconnectMin
+	}
+	maxBackoff := s.cfg.PortalTicket.ReconnectMax
+	if maxBackoff <= 0 {
+		maxBackoff = portalReconnectMax
+	}
+	if maxBackoff < minBackoff {
+		maxBackoff = minBackoff
+	}
+	backoff := minBackoff
+	for {
+		acked, err := s.runPortalTicketAttempt(ctx, emit)
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		var stageErr *portalStageError
+		if !errors.As(err, &stageErr) || stageErr == nil || !stageErr.retryable || s.cfg.PortalTicket.DisableReconnect {
+			return err
+		}
+		if acked {
+			backoff = minBackoff
+		}
+		s.machine.OnReconnect()
+		slog.Warn("portal source reconnecting",
+			"stage", stageErr.stage,
+			"http_status", stageErr.status,
+			"error_type", fmt.Sprintf("%T", stageErr.cause),
+			"retry_in", backoff,
+			"reconnect_count", s.machine.Snapshot().ReconnectCount,
+		)
+		if err := waitPersonalReconnect(ctx, backoff); err != nil {
+			return err
+		}
+		backoff = nextPersonalBackoff(backoff, maxBackoff)
+	}
+}
+
+func (s *DingtalkSource) runPortalTicketAttempt(ctx context.Context, emit dwsevent.EmitFn) (bool, error) {
 	ticket, err := requestPortalTicket(ctx, s.cfg.PortalTicket)
 	if err != nil {
-		s.machine.OnStopped()
-		return err
+		return false, err
 	}
 	wsURL, err := websocketURL(ticket)
 	if err != nil {
-		s.machine.OnStopped()
-		return err
+		return false, err
 	}
 
 	userAgent := strings.TrimSpace(s.cfg.PortalTicket.UserAgent)
 	if userAgent == "" {
 		userAgent = "dws-event-consume"
 	}
-	conn, resp, err := (&websocket.Dialer{HandshakeTimeout: 20 * time.Second}).DialContext(ctx, wsURL, http.Header{
+	dialer := s.cfg.PortalTicket.WebSocketDialer
+	if dialer == nil {
+		dialer = &websocket.Dialer{HandshakeTimeout: 20 * time.Second}
+	}
+	conn, resp, err := dialer.DialContext(ctx, wsURL, http.Header{
 		"User-Agent": []string{userAgent},
 	})
 	if err != nil {
-		s.machine.OnStopped()
+		status := 0
+		cause := fmt.Errorf("source: portal stream connect: %w", err)
 		if resp != nil {
 			defer resp.Body.Close()
+			status = resp.StatusCode
 			raw, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
-			return fmt.Errorf("source: portal stream connect HTTP %d: %s: %w",
+			cause = fmt.Errorf("source: portal stream connect HTTP %d: %s: %w",
 				resp.StatusCode, truncatePortalTicketLog(string(raw), 300), err)
 		}
-		return fmt.Errorf("source: portal stream connect: %w", err)
+		return false, &portalStageError{
+			stage:     "stream_connect",
+			status:    status,
+			retryable: status == 0 || retryableTicketStatus(status),
+			cause:     cause,
+		}
 	}
-	defer conn.Close()
+	attemptCtx, cancel := context.WithCancel(ctx)
+	defer func() {
+		cancel()
+		_ = conn.Close()
+	}()
+	closeOnContext(attemptCtx, conn)
 	s.machine.OnConnected()
 
-	closeOnContext(ctx, conn)
 	handler := s.makeHandler(emit)
+	acked := false
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
-			s.machine.OnStopped()
 			if isContextDone(ctx) {
-				return ctx.Err()
+				return acked, ctx.Err()
 			}
-			return fmt.Errorf("source: portal stream read: %w", err)
+			return acked, &portalStageError{stage: "stream_read", retryable: true, cause: fmt.Errorf("source: portal stream read: %w", err)}
 		}
 		df, err := payload.DecodeDataFrame(message)
 		if err != nil {
 			continue
 		}
-		resp, _ := handler(ctx, df)
+		resp, err := handler(ctx, df)
+		if err != nil {
+			return acked, fmt.Errorf("source: portal event handler: %w", err)
+		}
+		if resp == nil {
+			continue
+		}
 		ensurePortalAckHeaders(resp, df)
 		if err := portalWriteMessage(conn, websocket.TextMessage, resp.Encode()); err != nil {
-			s.machine.OnStopped()
 			if isContextDone(ctx) {
-				return ctx.Err()
+				return acked, ctx.Err()
 			}
-			return fmt.Errorf("source: portal stream ack: %w", err)
+			return acked, &portalStageError{stage: "stream_ack", retryable: true, cause: fmt.Errorf("source: portal stream ack: %w", err)}
 		}
+		acked = true
 	}
 }
 
@@ -165,6 +261,11 @@ type portalStreamTicket struct {
 func requestPortalTicket(ctx context.Context, cfg *PortalTicketConfig) (portalStreamTicket, error) {
 	accessToken, err := resolveSourceAccessToken(ctx, cfg.AccessTokenProvider, cfg.AccessToken, "source: portal ticket")
 	if err != nil {
+		// Transient provider failures (network, 429, 5xx) must not kill a
+		// long-running source; the reconnect loop retries after backoff.
+		if authpkg.ClassifyRefreshFailure(err) == authpkg.RefreshFailureTransient {
+			return portalStreamTicket{}, &portalStageError{stage: "ticket_auth", status: refreshHTTPStatus(err), retryable: true, cause: err}
+		}
 		return portalStreamTicket{}, err
 	}
 	httpClient := cfg.HTTPClient
@@ -175,6 +276,9 @@ func requestPortalTicket(ctx context.Context, cfg *PortalTicketConfig) (portalSt
 	if status == http.StatusUnauthorized && cfg.ForceRefreshToken != nil {
 		refreshed, refreshErr := refreshRejectedSourceToken(ctx, cfg.ForceRefreshToken, accessToken, "source: portal ticket", err)
 		if refreshErr != nil {
+			if authpkg.ClassifyRefreshFailure(refreshErr) == authpkg.RefreshFailureTransient {
+				return portalStreamTicket{}, &portalStageError{stage: "ticket_auth_refresh", status: refreshHTTPStatus(refreshErr), retryable: true, cause: refreshErr}
+			}
 			return portalStreamTicket{}, refreshErr
 		}
 		// Retry once with the freshly rotated token; a second 401 stays fatal.
@@ -207,13 +311,17 @@ func requestPortalTicketAttempt(ctx context.Context, cfg *PortalTicketConfig, ht
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return portalStreamTicket{}, 0, fmt.Errorf("source: portal ticket request: %w", err)
+		return portalStreamTicket{}, 0, &portalStageError{stage: "ticket_request", retryable: true, cause: fmt.Errorf("source: portal ticket request: %w", err)}
 	}
 	defer resp.Body.Close()
 	raw, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 	if resp.StatusCode >= 400 {
-		return portalStreamTicket{}, resp.StatusCode, fmt.Errorf("source: portal ticket HTTP %d: %s",
+		httpErr := fmt.Errorf("source: portal ticket HTTP %d: %s",
 			resp.StatusCode, truncatePortalTicketLog(string(raw), 300))
+		if retryableTicketStatus(resp.StatusCode) {
+			return portalStreamTicket{}, resp.StatusCode, &portalStageError{stage: "ticket_request", status: resp.StatusCode, retryable: true, cause: httpErr}
+		}
+		return portalStreamTicket{}, resp.StatusCode, httpErr
 	}
 
 	var direct portalStreamTicket
