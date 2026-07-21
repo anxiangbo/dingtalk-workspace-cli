@@ -97,7 +97,7 @@ func TestMCPURLGetRejectsBlankID(t *testing.T) {
 	}
 }
 
-func TestMCPURLGetPropagatesCallErrorWithoutSensitiveResponse(t *testing.T) {
+func TestMCPURLGetPropagatesCallError(t *testing.T) {
 	caller := &mcpURLTestCaller{err: errors.New("permission denied")}
 	_, err := executeMCPURLCommand(t, caller, "url", "get", "10043")
 	if err == nil || !strings.Contains(err.Error(), "permission denied") {
@@ -117,6 +117,13 @@ func TestMCPURLGetRejectsInvalidJSON(t *testing.T) {
 
 func TestRootRegistersMCPURLGet(t *testing.T) {
 	root := NewRootCommand(t.Context())
+	mcp, _, err := root.Find([]string{"mcp"})
+	if err != nil {
+		t.Fatalf("find mcp: %v", err)
+	}
+	if mcp.Hidden {
+		t.Fatal("mcp command must be public when it contains reviewed public helpers")
+	}
 	cmd, _, err := root.Find([]string{"mcp", "url", "get"})
 	if err != nil {
 		t.Fatalf("find mcp url get: %v", err)

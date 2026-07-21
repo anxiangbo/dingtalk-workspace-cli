@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/cli"
 	apperrors "github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/errors"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/output"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/pkg/edition"
@@ -44,7 +45,7 @@ func newMCPURLGroup(caller edition.ToolCaller) *cobra.Command {
 }
 
 func newMCPURLGetCommand(caller edition.ToolCaller) *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "get <mcpId>",
 		Short: "按 mcpId 获取 MCP 的 Streamable HTTP 服务地址",
 		Long: "输入 MCP 市场 mcpId，返回以当前用户和组织身份访问该 MCP 的 " +
@@ -73,12 +74,22 @@ func newMCPURLGetCommand(caller edition.ToolCaller) *cobra.Command {
 			return writeMCPURLResult(cmd, result)
 		},
 	}
+	cli.AnnotateRuntimePositionals(cmd, cli.RuntimeSchemaPositional{
+		Name:        "mcp_id",
+		Type:        "string",
+		Description: "钉钉 MCP 市场中的 mcpId",
+		Required:    true,
+		Index:       0,
+	})
+	return cmd
 }
 
 func writeMCPURLResult(cmd *cobra.Command, result *edition.ToolResult) error {
 	if result == nil {
 		return fmt.Errorf("MCP 元服务返回空结果")
 	}
+	// get_mcp_server_url returns one JSON document in its first non-empty text
+	// block. Other block types and trailing blocks are intentionally ignored.
 	for _, block := range result.Content {
 		if block.Type != "text" || strings.TrimSpace(block.Text) == "" {
 			continue
