@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "source_hash": "sha256:d3982371ebe60d745b300ec66d6c15528a2d1ba915d211b57eec78e59d724364",
-  "surface_hash": "sha256:7ef588f38052f0104e027c8daff5fefd68698781f2c87715461183d4058288ed",
-  "source_files": 151,
-  "hint_files": 46,
-  "hint_products": 39,
-  "hint_tools": 1296,
+  "source_hash": "sha256:09d4941b8f70c4351e515ad3808b9f440d4c5ea7b656a97b38572124467c5804",
+  "surface_hash": "sha256:35dc29b69062c135574c6bc5edd7895654a259aa3b593728bb6b29694d926cc4",
+  "source_files": 153,
+  "hint_files": 48,
+  "hint_products": 40,
+  "hint_tools": 1318,
   "interface_metadata": {
     "source": "mcp-tools-list+cli-registry",
     "revision": "4574f7022c32cf4c033e9b7b4156e2fec815fed8",
@@ -27,17 +27,17 @@
     ]
   },
   "coverage": {
-    "surface_products": 22,
-    "products_with_metadata": 22,
-    "surface_tools": 572,
-    "tools_with_metadata": 572,
-    "tools_with_agent_summary": 572,
-    "tools_with_use_when": 572,
-    "tools_with_avoid_when": 572,
-    "tools_with_examples": 572,
-    "tools_with_interface_mode": 572,
-    "unmatched_skill_tools": 131,
-    "unreviewed_skill_tools": 18
+    "surface_products": 23,
+    "products_with_metadata": 23,
+    "surface_tools": 583,
+    "tools_with_metadata": 583,
+    "tools_with_agent_summary": 583,
+    "tools_with_use_when": 583,
+    "tools_with_avoid_when": 583,
+    "tools_with_examples": 583,
+    "tools_with_interface_mode": 583,
+    "unmatched_skill_tools": 120,
+    "unreviewed_skill_tools": 7
   },
   "source_products": [
     "agoal",
@@ -78,7 +78,6 @@
     "conference",
     "extension",
     "generate-topic-report",
-    "hrbrain",
     "meeting-followup",
     "template-based-generation",
     "write-doc"
@@ -162,7 +161,7 @@
     {
       "tool_path": "calendar participant delete",
       "source": "skills/mono/SKILL.md",
-      "line": 145,
+      "line": 146,
       "candidates": [
         "calendar attendee delete",
         "calendar event delete",
@@ -677,6 +676,7 @@
       "source": "skills/mono/references/products/agoal.md",
       "line": 65,
       "candidates": [
+        "hrbrain talent-pool detail",
         "oa approval detail"
       ],
       "review": {
@@ -717,7 +717,8 @@
       "source": "skills/mono/references/products/agoal.md",
       "line": 70,
       "candidates": [
-        "contact user profile fields"
+        "contact user profile fields",
+        "hrbrain search fields"
       ],
       "review": {
         "status": "out_of_surface",
@@ -729,6 +730,7 @@
       "source": "skills/mono/references/products/agoal.md",
       "line": 71,
       "candidates": [
+        "hrbrain talent-pool detail",
         "oa approval detail"
       ],
       "review": {
@@ -755,6 +757,7 @@
       "source": "skills/mono/references/products/agoal.md",
       "line": 75,
       "candidates": [
+        "hrbrain talent-pool detail",
         "oa approval detail"
       ],
       "review": {
@@ -875,6 +878,7 @@
       "source": "skills/mono/references/products/agoal.md",
       "line": 97,
       "candidates": [
+        "hrbrain talent-pool detail",
         "oa approval detail"
       ],
       "review": {
@@ -915,7 +919,8 @@
       "source": "skills/mono/references/products/agoal.md",
       "line": 106,
       "candidates": [
-        "contact user profile fields"
+        "contact user profile fields",
+        "hrbrain search fields"
       ],
       "review": {
         "status": "out_of_surface",
@@ -927,6 +932,7 @@
       "source": "skills/mono/references/products/agoal.md",
       "line": 107,
       "candidates": [
+        "hrbrain talent-pool detail",
         "oa approval detail"
       ],
       "review": {
@@ -953,6 +959,7 @@
       "source": "skills/mono/references/products/agoal.md",
       "line": 115,
       "candidates": [
+        "hrbrain talent-pool detail",
         "oa approval detail"
       ],
       "review": {
@@ -2867,141 +2874,6 @@
         "status": "stale",
         "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
       }
-    },
-    {
-      "tool_path": "hrbrain talent-pool list",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 42,
-      "candidates": [
-        "aitable base list",
-        "aitable field list",
-        "aitable form field list"
-      ]
-    },
-    {
-      "tool_path": "hrbrain talent-pool detail",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 43,
-      "candidates": [
-        "oa approval detail"
-      ]
-    },
-    {
-      "tool_path": "hrbrain talent-pool employees",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 44
-    },
-    {
-      "tool_path": "hrbrain profile metadata",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 47
-    },
-    {
-      "tool_path": "hrbrain profile query",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 48,
-      "candidates": [
-        "aitable record query",
-        "minutes tag query"
-      ]
-    },
-    {
-      "tool_path": "hrbrain search employees",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 60
-    },
-    {
-      "tool_path": "hrbrain search fields",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 61,
-      "candidates": [
-        "contact user profile fields"
-      ]
-    },
-    {
-      "tool_path": "hrbrain talent-pool list",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 67,
-      "candidates": [
-        "aitable base list",
-        "aitable field list",
-        "aitable form field list"
-      ]
-    },
-    {
-      "tool_path": "hrbrain talent-pool list",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 68,
-      "candidates": [
-        "aitable base list",
-        "aitable field list",
-        "aitable form field list"
-      ]
-    },
-    {
-      "tool_path": "hrbrain talent-pool detail",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 69,
-      "candidates": [
-        "oa approval detail"
-      ]
-    },
-    {
-      "tool_path": "hrbrain talent-pool employees",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 70
-    },
-    {
-      "tool_path": "hrbrain profile metadata",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 73
-    },
-    {
-      "tool_path": "hrbrain profile query",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 74,
-      "candidates": [
-        "aitable record query",
-        "minutes tag query"
-      ]
-    },
-    {
-      "tool_path": "hrbrain profile labels",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 79
-    },
-    {
-      "tool_path": "hrbrain profile career",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 80
-    },
-    {
-      "tool_path": "hrbrain profile performance",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 81
-    },
-    {
-      "tool_path": "hrbrain search employees",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 84
-    },
-    {
-      "tool_path": "hrbrain search employees",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 85
-    },
-    {
-      "tool_path": "hrbrain search fields",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 88,
-      "candidates": [
-        "contact user profile fields"
-      ]
-    },
-    {
-      "tool_path": "hrbrain search employees-structured",
-      "source": "skills/mono/references/products/hrbrain.md",
-      "line": 89
     },
     {
       "tool_path": "mail mailbox profile",

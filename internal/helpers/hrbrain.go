@@ -257,7 +257,7 @@ func newHrbrainCommand() *cobra.Command {
 		Use:   "employees-structured",
 		Short: "使用高级条件搜索人员",
 		Long: `使用高级条件（originJson 表达式）搜索人员。
-建议先调用 "dws hrbrain search search-fields" 获取有权限的字段与操作符列表。
+建议先调用 "dws hrbrain search fields" 获取有权限的字段与操作符列表。
 --origin-json 为 JSON 字符串，例如:
   {"rules":[{"field":"name","operator":"contains","value":"张"}],"combinator":"and"}
 --fields 为 JSON 数组，例如:
@@ -270,12 +270,17 @@ func newHrbrainCommand() *cobra.Command {
 			}
 			page, _ := cmd.Flags().GetInt("page")
 			pageSize, _ := cmd.Flags().GetInt("page-size")
+			originJSON := mustGetFlag(cmd, "origin-json")
+			var originObj map[string]any
+			if err := json.Unmarshal([]byte(originJSON), &originObj); err != nil {
+				return fmt.Errorf("--origin-json must be a valid JSON object: %w", err)
+			}
 			var fields []any
 			if err := json.Unmarshal([]byte(mustGetFlag(cmd, "fields")), &fields); err != nil {
 				return fmt.Errorf("--fields must be a valid JSON array: %w", err)
 			}
 			toolArgs := map[string]any{
-				"originJson":  mustGetFlag(cmd, "origin-json"),
+				"originJson":  originJSON,
 				"currentPage": page,
 				"pageSize":    pageSize,
 				"fields":      fields,
@@ -295,7 +300,7 @@ func newHrbrainCommand() *cobra.Command {
 	searchFieldsCmd := &cobra.Command{
 		Use:     "fields",
 		Short:   "获取高级搜索字段列表",
-		Long:    `获取当前操作人有权限使用的高级搜索字段列表，用于构造 search-structured 的参数。`,
+		Long:    `获取当前操作人有权限使用的高级搜索字段列表，用于构造 employees-structured 的参数。`,
 		Example: `  dws hrbrain search fields`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return callMCPTool("get_search_fields", nil)

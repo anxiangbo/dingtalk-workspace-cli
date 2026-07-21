@@ -1,19 +1,19 @@
 {
   "version": 1,
-  "source_hash": "sha256:d3982371ebe60d745b300ec66d6c15528a2d1ba915d211b57eec78e59d724364",
-  "surface_hash": "sha256:7ef588f38052f0104e027c8daff5fefd68698781f2c87715461183d4058288ed",
+  "source_hash": "sha256:09d4941b8f70c4351e515ad3808b9f440d4c5ea7b656a97b38572124467c5804",
+  "surface_hash": "sha256:35dc29b69062c135574c6bc5edd7895654a259aa3b593728bb6b29694d926cc4",
   "coverage": {
-    "surface_products": 22,
-    "products_with_metadata": 22,
-    "surface_tools": 572,
-    "tools_with_metadata": 572,
-    "tools_with_agent_summary": 572,
-    "tools_with_use_when": 572,
-    "tools_with_avoid_when": 572,
-    "tools_with_examples": 572,
-    "tools_with_interface_mode": 572,
-    "unmatched_skill_tools": 131,
-    "unreviewed_skill_tools": 18
+    "surface_products": 23,
+    "products_with_metadata": 23,
+    "surface_tools": 583,
+    "tools_with_metadata": 583,
+    "tools_with_agent_summary": 583,
+    "tools_with_use_when": 583,
+    "tools_with_avoid_when": 583,
+    "tools_with_examples": 583,
+    "tools_with_interface_mode": 583,
+    "unmatched_skill_tools": 120,
+    "unreviewed_skill_tools": 7
   },
   "products": {
     "aisearch": {
@@ -941,6 +941,78 @@
         "需要实时监听个人消息接收、已读、撤回或表情回应事件，或管理个人事件订阅生命周期"
       ]
     },
+    "hrbrain": {
+      "agent_summary": "钉钉组织大脑：人才池管理、员工档案查询与人才搜索",
+      "agent_summary_source": "dws-agent-selection/hrbrain",
+      "avoid_when": [
+        "要操作通讯录/组织架构基础信息时改用 contact 产品",
+        "要提交/查询战略解码、经营合约、目标等 OKR 能力时改用 agoal（CLI-only，未接入 Agent Schema）"
+      ],
+      "field_provenance": {
+        "agent_summary": {
+          "value": "钉钉组织大脑：人才池管理、员工档案查询与人才搜索",
+          "source": "internal/cli/schema_hints/selection/hrbrain.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": "钉钉组织大脑：人才池管理、员工档案查询与人才搜索",
+              "source": "internal/cli/schema_hints/selection/hrbrain.json",
+              "precedence": "reviewed_explicit",
+              "selected": true
+            }
+          ]
+        },
+        "avoid_when": {
+          "value": [
+            "要操作通讯录/组织架构基础信息时改用 contact 产品",
+            "要提交/查询战略解码、经营合约、目标等 OKR 能力时改用 agoal（CLI-only，未接入 Agent Schema）"
+          ],
+          "source": "internal/cli/schema_hints/selection/hrbrain.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": [
+                "要操作通讯录/组织架构基础信息时改用 contact 产品",
+                "要提交/查询战略解码、经营合约、目标等 OKR 能力时改用 agoal（CLI-only，未接入 Agent Schema）"
+              ],
+              "source": "internal/cli/schema_hints/selection/hrbrain.json",
+              "precedence": "reviewed_explicit",
+              "selected": true
+            }
+          ]
+        },
+        "use_when": {
+          "value": [
+            "需要查询人才池、员工档案（元数据/标签/职业历程/绩效）或搜索员工时"
+          ],
+          "source": "internal/cli/schema_hints/selection/hrbrain.json",
+          "precedence": "reviewed_explicit",
+          "resolution": "highest_precedence",
+          "candidates": [
+            {
+              "value": [
+                "需要查询人才池、员工档案（元数据/标签/职业历程/绩效）或搜索员工时"
+              ],
+              "source": "internal/cli/schema_hints/selection/hrbrain.json",
+              "precedence": "reviewed_explicit",
+              "selected": true
+            }
+          ]
+        }
+      },
+      "source_refs": [
+        "CommandRegistry:product=hrbrain",
+        "Skill:skills/mono/references/products/hrbrain.md",
+        "Skill:skills/multi/dingtalk-hrbrain/SKILL.md",
+        "internal/cli/schema_hints/selection/hrbrain.json",
+        "skills/mono/SKILL.md"
+      ],
+      "use_when": [
+        "需要查询人才池、员工档案（元数据/标签/职业历程/绩效）或搜索员工时"
+      ]
+    },
     "live": {
       "agent_summary": "查询当前用户发起的直播列表",
       "agent_summary_source": "dws-agent-selection/live",
@@ -1603,6 +1675,7 @@
     "doc",
     "drive",
     "event",
+    "hrbrain",
     "live",
     "mail",
     "minutes",

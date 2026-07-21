@@ -220,6 +220,34 @@ func TestHrbrainSearchEmployeesStructured(t *testing.T) {
 		t.Fatal("search employees-structured with invalid fields JSON should error")
 	}
 
+	invalidOriginJSONCaller := &scriptedToolCaller{dry: true}
+	installScriptedCaller(t, invalidOriginJSONCaller)
+	if err := executeHrbrainCommand(t, newHrbrainCommand(),
+		"search", "employees-structured",
+		"--origin-json", `not-json`,
+		"--fields", `[]`,
+	); err == nil {
+		t.Fatal("search employees-structured with invalid origin-json JSON should error")
+	}
+	if invalidOriginJSONCaller.calls != 0 {
+		t.Fatalf("search employees-structured with invalid origin-json must not call MCP, got %d call(s)", invalidOriginJSONCaller.calls)
+	}
+
+	// A bare JSON scalar (e.g. a number) is valid JSON per json.Valid, but it
+	// is not a JSON object, so it must still be rejected before dispatch.
+	nonObjectOriginJSONCaller := &scriptedToolCaller{dry: true}
+	installScriptedCaller(t, nonObjectOriginJSONCaller)
+	if err := executeHrbrainCommand(t, newHrbrainCommand(),
+		"search", "employees-structured",
+		"--origin-json", `111`,
+		"--fields", `[]`,
+	); err == nil {
+		t.Fatal("search employees-structured with non-object origin-json JSON should error")
+	}
+	if nonObjectOriginJSONCaller.calls != 0 {
+		t.Fatalf("search employees-structured with non-object origin-json must not call MCP, got %d call(s)", nonObjectOriginJSONCaller.calls)
+	}
+
 	if err := executeHrbrainCommand(t, newHrbrainCommand(),
 		"search", "employees-structured", "--fields", `[]`,
 	); err == nil {
