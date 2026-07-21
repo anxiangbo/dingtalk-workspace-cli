@@ -6,6 +6,10 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/) and th
 
 ## [Unreleased]
 
+### Changed
+
+- **Personal event output compatibility** — `event consume` once again preserves the transport envelope by default for `ndjson`/`json`/`pretty`, while retaining the existing `compact` processor. New Agent workflows opt into the event-specific top-level DTO with `--flatten`; `event schema --flatten` describes that DTO, while the default schema describes `type/event_type/data/headers` and points to `.data | fromjson`.
+
 ## [1.0.53] - 2026-07-21
 
 This release promotes the validated `v1.0.53-beta.7` baseline to stable. It adds enterprise onboarding, declarative shortcuts, Sheet/Aitable writes, multi-account profiles, and broader personal IM events, while hardening authentication and the guarded release path.
