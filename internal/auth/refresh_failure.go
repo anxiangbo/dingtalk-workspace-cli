@@ -17,6 +17,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 )
@@ -61,6 +62,9 @@ func ClassifyRefreshFailure(err error) RefreshFailureClass {
 		return RefreshFailureUnknown
 	}
 	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+		return RefreshFailureTransient
+	}
+	if errors.Is(err, io.ErrUnexpectedEOF) {
 		return RefreshFailureTransient
 	}
 	var netErr net.Error

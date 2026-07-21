@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -321,6 +322,60 @@ type brokenBody struct{}
 
 func (brokenBody) Read([]byte) (int, error) { return 0, io.ErrUnexpectedEOF }
 func (brokenBody) Close() error             { return nil }
+
+func TestCrossPlatformCoveragePortalTicketNon2xxTruncatedBodyKeepsStatus(t *testing.T) {
+	for _, tc := range []struct {
+		status    int
+		retryable bool
+	}{
+		{status: http.StatusUnauthorized},
+		{status: http.StatusTooManyRequests, retryable: true},
+		{status: http.StatusServiceUnavailable, retryable: true},
+	} {
+		t.Run(http.StatusText(tc.status), func(t *testing.T) {
+			client := &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
+				return &http.Response{StatusCode: tc.status, Body: brokenBody{}, Header: make(http.Header)}, nil
+			})}
+
+			_, status, err := requestPortalTicketAttempt(context.Background(), &PortalTicketConfig{
+				TicketURL: "https://ticket.test",
+				SourceID:  "source",
+			}, client, "token")
+			if status != tc.status || err == nil || !strings.Contains(err.Error(), fmt.Sprintf("HTTP %d", tc.status)) {
+				t.Fatalf("requestPortalTicketAttempt() status=%d err=%v, want HTTP %d", status, err, tc.status)
+			}
+			if errors.Is(err, io.ErrUnexpectedEOF) {
+				t.Fatalf("non-2xx status error should not expose diagnostic body read failure: %v", err)
+			}
+			var stageErr *portalStageError
+			if tc.retryable {
+				if !errors.As(err, &stageErr) || stageErr.status != tc.status || !stageErr.retryable {
+					t.Fatalf("retryable status should return retryable portalStageError, got %T %v", err, err)
+				}
+			} else if errors.As(err, &stageErr) && stageErr.retryable {
+				t.Fatalf("fatal status should not become retryable stage error: %v", err)
+			}
+		})
+	}
+}
+
+func TestCrossPlatformCoveragePortalTicket200TruncatedBodyIsRetryable(t *testing.T) {
+	client := &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
+		return &http.Response{StatusCode: http.StatusOK, Body: brokenBody{}, Header: make(http.Header)}, nil
+	})}
+
+	_, status, err := requestPortalTicketAttempt(context.Background(), &PortalTicketConfig{
+		TicketURL: "https://ticket.test",
+		SourceID:  "source",
+	}, client, "token")
+	if status != http.StatusOK || !errors.Is(err, io.ErrUnexpectedEOF) {
+		t.Fatalf("requestPortalTicketAttempt() status=%d err=%v, want 200 + io.ErrUnexpectedEOF", status, err)
+	}
+	var stageErr *portalStageError
+	if !errors.As(err, &stageErr) || !stageErr.retryable || stageErr.stage != "ticket_request" {
+		t.Fatalf("2xx truncated body should be retryable ticket_request stage, got %T %v", err, err)
+	}
+}
 
 // TestCrossPlatformCoveragePersonalFetchTicket401TruncatedBodyStaysFatal guards the single
 // refresh-retry protection: a 401 whose body fails with unexpected EOF must

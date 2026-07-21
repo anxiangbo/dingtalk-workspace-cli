@@ -308,14 +308,26 @@ func requestPortalTicketAttempt(ctx context.Context, cfg *PortalTicketConfig, ht
 		return portalStreamTicket{}, 0, &portalStageError{stage: "ticket_request", retryable: true, cause: fmt.Errorf("source: portal ticket request: %w", err)}
 	}
 	defer resp.Body.Close()
-	raw, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
-	if resp.StatusCode >= 400 {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		// Preserve HTTP status semantics before touching the body. A truncated
+		// 401 body must not become a retryable read error that bypasses the
+		// single token-refresh guard; the body is only best-effort diagnostics.
+		raw, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 		httpErr := fmt.Errorf("source: portal ticket HTTP %d: %s",
 			resp.StatusCode, truncatePortalTicketLog(string(raw), 300))
 		if retryableTicketStatus(resp.StatusCode) {
 			return portalStreamTicket{}, resp.StatusCode, &portalStageError{stage: "ticket_request", status: resp.StatusCode, retryable: true, cause: httpErr}
 		}
 		return portalStreamTicket{}, resp.StatusCode, httpErr
+	}
+	raw, readErr := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	if readErr != nil {
+		return portalStreamTicket{}, resp.StatusCode, &portalStageError{
+			stage:     "ticket_request",
+			status:    resp.StatusCode,
+			retryable: true,
+			cause:     fmt.Errorf("source: portal ticket read: %w", readErr),
+		}
 	}
 
 	var direct portalStreamTicket
