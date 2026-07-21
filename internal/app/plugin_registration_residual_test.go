@@ -163,6 +163,73 @@ func TestPluginDescriptorBlankIdentityAndDistributionOwnership(t *testing.T) {
 	}
 }
 
+func TestReplaceableFallbackIdentitySurvivesDistributionConflictChecks(t *testing.T) {
+	isolatePluginRuntime(t)
+	SetDynamicServers([]mcptypes.ServerDescriptor{
+		{
+			Key:      "conference",
+			Endpoint: "https://example.com/conference/mcp",
+			CLI:      mcptypes.CLIOverlay{ID: "conference"},
+		},
+		{
+			Key:      "chat",
+			Endpoint: "https://example.com/chat/mcp",
+			CLI:      mcptypes.CLIOverlay{ID: "chat"},
+		},
+	})
+
+	root := &cobra.Command{Use: "dws"}
+	root.AddCommand(&cobra.Command{Use: "conference", Hidden: true})
+	distributionProducts := DirectRuntimeProductIDs()
+
+	conferenceDescriptor := mcptypes.ServerDescriptor{
+		Key:         "conference-local",
+		DisplayName: "conference/conference-local",
+		CLI:         mcptypes.CLIOverlay{ID: "conference-local", Command: "conference"},
+	}
+	if pluginDescriptorConflictsWithDistribution(root, conferenceDescriptor, distributionProducts) {
+		t.Fatal("replaceable fallback identity blocked plugin server selection")
+	}
+
+	chatDescriptor := mcptypes.ServerDescriptor{
+		Key:         "chat-local",
+		DisplayName: "chat/chat-local",
+		CLI:         mcptypes.CLIOverlay{ID: "chat-local", Command: "chat"},
+	}
+	if !pluginDescriptorConflictsWithDistribution(root, chatDescriptor, distributionProducts) {
+		t.Fatal("non-replaceable distribution product no longer conflicts")
+	}
+
+	reservedDescriptor := mcptypes.ServerDescriptor{
+		Key:         "auth-local",
+		DisplayName: "auth/auth-local",
+		CLI:         mcptypes.CLIOverlay{ID: "auth-local", Command: "auth"},
+	}
+	if !pluginDescriptorConflictsWithDistribution(root, reservedDescriptor, distributionProducts) {
+		t.Fatal("reserved command name no longer conflicts")
+	}
+
+	first := &plugin.Plugin{Manifest: plugin.Manifest{Name: "conference"}}
+	second := &plugin.Plugin{Manifest: plugin.Manifest{Name: "other"}}
+	accepted := selectPluginServerCandidates(root, []pluginServerCandidate{
+		{owner: first, descriptor: conferenceDescriptor},
+		{
+			owner: second,
+			descriptor: mcptypes.ServerDescriptor{
+				Key:         "conference-other",
+				DisplayName: "other/conference-other",
+				CLI:         mcptypes.CLIOverlay{ID: "conference-other", Command: "conference"},
+			},
+		},
+	})
+	if len(accepted) != 1 {
+		t.Fatalf("accepted candidates = %d, want the first conference plugin only", len(accepted))
+	}
+	if accepted[0].owner != first {
+		t.Fatalf("accepted owner = %q, want the first conference plugin", accepted[0].owner.Manifest.Name)
+	}
+}
+
 func TestAddPluginCommandsSafeFiltersConflictingAliases(t *testing.T) {
 	root := &cobra.Command{Use: "dws"}
 	root.AddCommand(&cobra.Command{Use: "taken"})

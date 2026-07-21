@@ -1026,6 +1026,9 @@ func selectPluginServerCandidates(
 	distributionProducts := DirectRuntimeProductIDs()
 	owners := make(map[string]pluginIdentityOwner)
 	for identity := range distributionProducts {
+		if replaceablePluginFallbacks[identity] {
+			continue
+		}
 		owners[identity] = pluginIdentityOwner{serverKey: "distribution"}
 	}
 
@@ -1132,6 +1135,12 @@ func pluginDescriptorConflictsWithDistribution(
 	for _, candidate := range candidates {
 		candidate = strings.TrimSpace(candidate)
 		if candidate == "" {
+			continue
+		}
+		if !reservedCommands[candidate] && replaceablePluginFallbacks[candidate] {
+			// The distribution ships only a hidden compatibility fallback for
+			// this name; plugins may claim it and the later command merge in
+			// addPluginCommandsSafe still rejects visible non-fallback owners.
 			continue
 		}
 		if reservedCommands[candidate] ||
