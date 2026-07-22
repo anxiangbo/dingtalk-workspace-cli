@@ -6,6 +6,10 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/) and th
 
 ## [Unreleased]
 
+### Changed
+
+- **Chat local-file sending** — deprecates the open-source-only `chat media upload` compatibility command and removes its legacy AppKey/AppSecret OAPI path. Send local images and files through `chat message send --msg-type file --file-path`; callers that already hold a mediaId may continue to use `--msg-type image --media-id`.
+
 ## [1.0.54] - 2026-07-21
 
 This release promotes the validated `v1.0.54-beta.2` baseline to stable. It restores the default transport envelope for personal event output with opt-in flattening, plus Schema CLI path and plugin overlay compatibility fixes.

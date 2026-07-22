@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "source_hash": "sha256:5df496973c41b3b4f7ae8c856ff0e9e99bcabd4455419b7d41bb23c44df6f1af",
+  "source_hash": "sha256:ec2fc8a2722ea4ab3f4ae967b791b7b6c3ff84c945238778a68fbc2304639014",
   "surface_hash": "sha256:7ef588f38052f0104e027c8daff5fefd68698781f2c87715461183d4058288ed",
   "source_files": 150,
   "hint_files": 46,
@@ -36,7 +36,7 @@
     "tools_with_avoid_when": 572,
     "tools_with_examples": 572,
     "tools_with_interface_mode": 572,
-    "unmatched_skill_tools": 120,
+    "unmatched_skill_tools": 119,
     "unreviewed_skill_tools": 7
   },
   "source_products": [
@@ -1505,37 +1505,9 @@
       }
     },
     {
-      "tool_path": "chat media upload",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 610,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
-      "tool_path": "chat media upload",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 611,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
       "tool_path": "chat message list-emotion-replies",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1086,
+      "line": 1076,
       "candidates": [
         "chat message add-emoji",
         "chat message add-favorite",
@@ -1549,7 +1521,7 @@
     {
       "tool_path": "chat category create",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1441,
+      "line": 1431,
       "candidates": [
         "chat group create",
         "chat category create-smart",
@@ -1563,7 +1535,7 @@
     {
       "tool_path": "chat category delete",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1466,
+      "line": 1456,
       "candidates": [
         "chat category create-smart",
         "chat category list",
@@ -1577,7 +1549,7 @@
     {
       "tool_path": "chat category rename",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1477,
+      "line": 1467,
       "candidates": [
         "chat group rename",
         "chat category create-smart",
@@ -1591,7 +1563,7 @@
     {
       "tool_path": "chat category add-conv",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1489,
+      "line": 1479,
       "candidates": [
         "chat category create-smart",
         "chat category list",
@@ -1605,7 +1577,7 @@
     {
       "tool_path": "chat category remove-conv",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1502,
+      "line": 1492,
       "candidates": [
         "chat category create-smart",
         "chat category list",
@@ -1619,7 +1591,7 @@
     {
       "tool_path": "chat text translate",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1517,
+      "line": 1507,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1633,7 +1605,7 @@
     {
       "tool_path": "chat text translate",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1518,
+      "line": 1508,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1647,7 +1619,7 @@
     {
       "tool_path": "chat text translate",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1519,
+      "line": 1509,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1661,7 +1633,7 @@
     {
       "tool_path": "chat hide",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1556,
+      "line": 1546,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1675,7 +1647,7 @@
     {
       "tool_path": "chat hide",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1557,
+      "line": 1547,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1689,7 +1661,7 @@
     {
       "tool_path": "chat mute-at-all",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1579,
+      "line": 1569,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1703,7 +1675,7 @@
     {
       "tool_path": "chat mute-at-all",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1580,
+      "line": 1570,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1717,7 +1689,7 @@
     {
       "tool_path": "chat mute-red-envelope",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1602,
+      "line": 1592,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1731,7 +1703,7 @@
     {
       "tool_path": "chat mute-red-envelope",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1603,
+      "line": 1593,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1745,7 +1717,7 @@
     {
       "tool_path": "chat mark-unread",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1623,
+      "line": 1613,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1759,7 +1731,7 @@
     {
       "tool_path": "chat mark-unread",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1624,
+      "line": 1614,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1773,7 +1745,7 @@
     {
       "tool_path": "chat clear-red-point",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1642,
+      "line": 1632,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1787,7 +1759,7 @@
     {
       "tool_path": "chat clear-red-point",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1643,
+      "line": 1633,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1801,7 +1773,7 @@
     {
       "tool_path": "chat clear-all-red-point",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1659,
+      "line": 1649,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1815,7 +1787,7 @@
     {
       "tool_path": "chat clear-all-red-point",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1661,
+      "line": 1651,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1829,7 +1801,7 @@
     {
       "tool_path": "chat list-all-conversations",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1675,
+      "line": 1665,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1843,7 +1815,7 @@
     {
       "tool_path": "chat list-all-conversations",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1676,
+      "line": 1666,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1857,7 +1829,7 @@
     {
       "tool_path": "chat list-all-conversations",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1677,
+      "line": 1667,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1871,7 +1843,7 @@
     {
       "tool_path": "chat list-all-conversations",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1678,
+      "line": 1668,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1885,7 +1857,7 @@
     {
       "tool_path": "chat clear-messages",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1698,
+      "line": 1688,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1899,7 +1871,7 @@
     {
       "tool_path": "chat clear-messages",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1699,
+      "line": 1689,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1913,7 +1885,7 @@
     {
       "tool_path": "chat mark-read",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1717,
+      "line": 1707,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1927,7 +1899,7 @@
     {
       "tool_path": "chat mark-read",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1718,
+      "line": 1708,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -1941,7 +1913,7 @@
     {
       "tool_path": "chat group list-join-validations",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1761,
+      "line": 1751,
       "candidates": [
         "chat group bots",
         "chat group create",
@@ -1955,7 +1927,7 @@
     {
       "tool_path": "chat group list-join-validations",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1762,
+      "line": 1752,
       "candidates": [
         "chat group bots",
         "chat group create",
@@ -1969,7 +1941,7 @@
     {
       "tool_path": "chat group list-join-validations",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1763,
+      "line": 1753,
       "candidates": [
         "chat group bots",
         "chat group create",
@@ -1983,7 +1955,7 @@
     {
       "tool_path": "chat group audit-join-validation",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1783,
+      "line": 1773,
       "candidates": [
         "chat group bots",
         "chat group create",
@@ -1997,7 +1969,7 @@
     {
       "tool_path": "chat group audit-join-validation",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1784,
+      "line": 1774,
       "candidates": [
         "chat group bots",
         "chat group create",
@@ -2011,7 +1983,7 @@
     {
       "tool_path": "chat group members",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1816,
+      "line": 1806,
       "candidates": [
         "chat group members add",
         "chat group members add-bot",
@@ -2025,7 +1997,7 @@
     {
       "tool_path": "chat group update-alias",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1821,
+      "line": 1811,
       "candidates": [
         "chat group bots",
         "chat group create",
@@ -2039,7 +2011,7 @@
     {
       "tool_path": "chat group update-nick",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1822,
+      "line": 1812,
       "candidates": [
         "chat group bots",
         "chat group create",
@@ -2053,7 +2025,7 @@
     {
       "tool_path": "chat group members list-by-ids",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1823,
+      "line": 1813,
       "candidates": [
         "chat message list-by-ids",
         "chat group members add",
@@ -2067,7 +2039,7 @@
     {
       "tool_path": "chat category create",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1847,
+      "line": 1837,
       "candidates": [
         "chat group create",
         "chat category create-smart",
@@ -2081,7 +2053,7 @@
     {
       "tool_path": "chat category delete",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1849,
+      "line": 1839,
       "candidates": [
         "chat category create-smart",
         "chat category list",
@@ -2095,7 +2067,7 @@
     {
       "tool_path": "chat category rename",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1850,
+      "line": 1840,
       "candidates": [
         "chat group rename",
         "chat category create-smart",
@@ -2109,7 +2081,7 @@
     {
       "tool_path": "chat category add-conv",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1851,
+      "line": 1841,
       "candidates": [
         "chat category create-smart",
         "chat category list",
@@ -2123,7 +2095,7 @@
     {
       "tool_path": "chat category remove-conv",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1852,
+      "line": 1842,
       "candidates": [
         "chat category create-smart",
         "chat category list",
@@ -2137,7 +2109,7 @@
     {
       "tool_path": "chat group share-invite",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1863,
+      "line": 1853,
       "candidates": [
         "chat group bots",
         "chat group create",
@@ -2151,7 +2123,7 @@
     {
       "tool_path": "chat group notice create/edit/get/list",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1864,
+      "line": 1854,
       "candidates": [
         "chat group bots",
         "chat group create",
@@ -2165,7 +2137,7 @@
     {
       "tool_path": "chat message list-emotion-replies",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1866,
+      "line": 1856,
       "candidates": [
         "chat message add-emoji",
         "chat message add-favorite",
@@ -2179,7 +2151,7 @@
     {
       "tool_path": "chat hide",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1873,
+      "line": 1863,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2193,7 +2165,7 @@
     {
       "tool_path": "chat mute-at-all",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1874,
+      "line": 1864,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2207,7 +2179,7 @@
     {
       "tool_path": "chat mute-at-all",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1875,
+      "line": 1865,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2221,7 +2193,7 @@
     {
       "tool_path": "chat mute-red-envelope",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1876,
+      "line": 1866,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2235,7 +2207,7 @@
     {
       "tool_path": "chat mute-red-envelope",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1877,
+      "line": 1867,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2249,7 +2221,7 @@
     {
       "tool_path": "chat mark-unread",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1878,
+      "line": 1868,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2263,7 +2235,7 @@
     {
       "tool_path": "chat mark-read",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1879,
+      "line": 1869,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2277,7 +2249,7 @@
     {
       "tool_path": "chat clear-red-point",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1880,
+      "line": 1870,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2291,7 +2263,7 @@
     {
       "tool_path": "chat clear-all-red-point",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1881,
+      "line": 1871,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2305,7 +2277,7 @@
     {
       "tool_path": "chat list-all-conversations",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1882,
+      "line": 1872,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2319,7 +2291,7 @@
     {
       "tool_path": "chat clear-messages",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1883,
+      "line": 1873,
       "candidates": [
         "chat bot find",
         "chat bot search",
@@ -2333,7 +2305,7 @@
     {
       "tool_path": "chat group list-join-validations",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1885,
+      "line": 1875,
       "candidates": [
         "chat group bots",
         "chat group create",
@@ -2347,7 +2319,7 @@
     {
       "tool_path": "chat group audit-join-validation",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1886,
+      "line": 1876,
       "candidates": [
         "chat group bots",
         "chat group create",
@@ -2359,23 +2331,9 @@
       }
     },
     {
-      "tool_path": "chat media upload",
-      "source": "skills/mono/references/products/chat.md",
-      "line": 1893,
-      "candidates": [
-        "chat bot find",
-        "chat bot search",
-        "chat category create-smart"
-      ],
-      "review": {
-        "status": "stale",
-        "reason": "旧版 Skill 或说明性引用，当前公开命令面无等价 leaf，禁止词法模糊映射"
-      }
-    },
-    {
       "tool_path": "chat text translate",
       "source": "skills/mono/references/products/chat.md",
-      "line": 1905,
+      "line": 1896,
       "candidates": [
         "chat bot find",
         "chat bot search",
