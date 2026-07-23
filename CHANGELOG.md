@@ -6,6 +6,12 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/) and th
 
 ## [Unreleased]
 
+## [1.0.55-beta.2] - 2026-07-23
+
+This beta validates Wukong capability parity across Chat, Contacts, documents,
+Drive, Markdown, and Todos, together with faster guarded releases and legacy
+authentication migration.
+
 ### Added
 
 - **Chat editing and group management** — adds `chat message edit`, conversation-category lookups through `chat category list-by-conv` and `chat category batch-info`, and the confirmed, irreversible `chat group upgrade-to-external` flow.
