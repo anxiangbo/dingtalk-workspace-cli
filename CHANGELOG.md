@@ -6,6 +6,10 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/) and th
 
 ## [Unreleased]
 
+### Fixed
+
+- **Message-read shortcut projection** (#706) — the message-list shortcuts (`chat +chat-messages` / `+messages-list` / `+messages-list-direct` / `+at-me` / `+search-msg` / `+thread-replies`) now render card and out-of-office rich-content JSON as readable text (without ever rewriting ordinary text that merely embeds a JSON fragment), expand a forwarded chat record's nested `forwardMessages` instead of collapsing to a "[卡片]" summary, and mark undecryptable encrypted card messages as `[加密消息]`; the speaker is read from the bare `sender` key, nested `{name:…}` sender objects yield their display name, and the literal string `"null"` is treated as absent. Shared projection helpers now live in `internal/shortcut/chatmsg`. `chat message download-media` also gains `--msg-id` / `--open-message-id` aliases for its `--message-id` flag so agents copying the `openMessageId`/`msgId` output field no longer hit "unknown flag".
+
 ### Added
 
 - **HR Brain (`dws hrbrain`) command surface** — adds 11 commands across three groups: `talent-pool list/detail/employees` for talent pool browsing, `profile metadata/query/labels/career/performance` for employee profile data, and `search employees/employees-structured/fields` for basic and advanced (rule-based) people search. Ships with bundled mono/multi Skill guidance (`dingtalk-hrbrain`, `cli_version: ">=1.0.54"`); `search employees-structured` validates `--origin-json` as a JSON object and `--fields` as a JSON array before dispatch.
