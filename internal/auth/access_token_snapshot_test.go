@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"testing"
@@ -94,7 +95,7 @@ func TestCrossPlatformCoverageOAuthProviderLoginReauthorizesAfterLoadFailureAndR
 		return nil
 	}
 
-	provider := NewOAuthProvider(t.TempDir(), nil)
+	provider := NewOAuthProvider(t.TempDir(), slog.New(slog.NewTextHandler(io.Discard, nil)))
 	provider.Output = io.Discard
 	_, err := provider.Login(context.Background(), false)
 	if !errors.Is(err, targetErr) {

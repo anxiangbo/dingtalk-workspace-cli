@@ -1089,6 +1089,10 @@ func TestCrossPlatformCoverageOAuthHelperRemainingEdges(t *testing.T) {
 	if _, err := p.exchangeCode(context.Background(), "code"); !errors.Is(err, fail) {
 		t.Fatalf("direct exchange request error = %v", err)
 	}
+	oauthHTTPClient = networkClient
+	if _, err := ExchangeCodeForToken(context.Background(), p.configDir, "code"); !errors.Is(err, fail) {
+		t.Fatalf("exchange wrapper request error = %v", err)
+	}
 	p.httpClient = responseClient("{")
 	if _, err := p.exchangeCode(context.Background(), "code"); err == nil {
 		t.Fatal("malformed direct exchange succeeded")

@@ -72,6 +72,27 @@ func TestPersonalBusProfileSelectorPrefersExplicitRuntimeSelector(t *testing.T) 
 	}
 }
 
+func TestCrossPlatformCoveragePersonalBusProfileSelectorFallsBackToMatchingIdentity(t *testing.T) {
+	configDir, cfg, _, exactSelector := seedPersonalBusProfileSelectorConfig(t)
+	cfg.Profiles = append(cfg.Profiles, authpkg.Profile{
+		Name:     "Other Current",
+		CorpID:   "corp_event_other_fixture",
+		CorpName: "Other Fixture Organization",
+		UserID:   "identity_event_other_fixture",
+	})
+	cfg.CurrentProfile = authpkg.ProfileSelectionSelector(cfg.Profiles[2], cfg)
+	if err := authpkg.SaveProfiles(configDir, cfg); err != nil {
+		t.Fatalf("SaveProfiles() error = %v", err)
+	}
+	authpkg.SetRuntimeProfile("")
+	t.Cleanup(func() { authpkg.SetRuntimeProfile("") })
+
+	identity := personal.Identity{CorpID: cfg.Profiles[1].CorpID, UserID: cfg.Profiles[1].UserID}
+	if got := personalBusProfileSelector(configDir, identity); got != exactSelector {
+		t.Fatalf("personalBusProfileSelector() = %q, want identity fallback %q", got, exactSelector)
+	}
+}
+
 func seedPersonalBusProfileSelectorConfig(t *testing.T) (string, *authpkg.ProfilesConfig, string, string) {
 	t.Helper()
 	configDir := t.TempDir()
