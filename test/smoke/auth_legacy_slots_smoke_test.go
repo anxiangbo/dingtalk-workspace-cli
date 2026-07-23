@@ -2,6 +2,7 @@ package smoke_test
 
 import (
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -167,6 +168,69 @@ func TestCLISmoke_LegacyAuthSlotsMigrateThroughStatus(t *testing.T) {
 	})
 }
 
+// TestCLISmoke_ReservedUnresolvedAndExactProfilesStayIsolated protects the
+// schema-v3 selector boundary through real CLI subprocesses. A blank external
+// identity and a resolved account may legitimately coexist in one
+// organization; selecting either must never read or rewrite the other's slot.
+func TestCLISmoke_ReservedUnresolvedAndExactProfilesStayIsolated(t *testing.T) {
+	env, configDir := isolatedLegacyAuthCLIEnv(t)
+	corpID, exactUserID := legacyFixtureIdentity(t, "schema-v3-blank-exact")
+	reservedSelector := "@legacy/" + base64.RawURLEncoding.EncodeToString([]byte(corpID))
+	exactSelector := corpID + ":" + exactUserID
+	blankAccessToken := "fixture-access-schema-v3-blank"
+	exactAccessToken := "fixture-access-schema-v3-exact"
+	blankRawToken := legacyRawToken(
+		t, blankAccessToken, corpID, "Schema V3 Fixture Org", "", "",
+	)
+	exactRawToken := legacyRawToken(
+		t, exactAccessToken, corpID, "Schema V3 Fixture Org", exactUserID, "Exact Fixture Account",
+	)
+
+	writeCoexistingProfilesV3(t, configDir, corpID, exactUserID, reservedSelector, exactSelector)
+	organizationAccount := legacyOrganizationAccount(corpID)
+	identityAccount := legacyIdentityAccount(corpID, exactUserID)
+	seedRawLegacyKeychainSlot(t, organizationAccount, blankRawToken)
+	seedRawLegacyKeychainSlot(t, identityAccount, exactRawToken)
+
+	defaultStatus := runLegacyAuthStatus(t, env)
+	assertAuthenticatedStatus(t, defaultStatus, corpID, "")
+	exactStatus := runLegacyAuthStatus(t, env, exactSelector)
+	assertAuthenticatedStatus(t, exactStatus, corpID, exactUserID)
+
+	assertRawKeychainSlotUnchanged(t, organizationAccount, blankRawToken)
+	assertRawKeychainSlotUnchanged(t, identityAccount, exactRawToken)
+
+	var profiles legacyProfilesDocument
+	readJSONFile(t, filepath.Join(configDir, "profiles.json"), &profiles)
+	if profiles.Version != 3 {
+		t.Fatalf("profiles version = %d, want 3", profiles.Version)
+	}
+	if profiles.CurrentProfile != reservedSelector {
+		t.Fatalf("current profile = %q, want reserved blank selector %q", profiles.CurrentProfile, reservedSelector)
+	}
+	if profiles.OrgCurrentProfiles[corpID] != exactSelector {
+		t.Fatalf(
+			"orgCurrentProfiles[%q] = %q, want exact selector %q",
+			corpID,
+			profiles.OrgCurrentProfiles[corpID],
+			exactSelector,
+		)
+	}
+	if len(profiles.Profiles) != 2 {
+		t.Fatalf("profiles = %#v, want one blank and one exact identity", profiles.Profiles)
+	}
+	identities := map[string]int{}
+	for _, profile := range profiles.Profiles {
+		if profile.CorpID != corpID {
+			t.Fatalf("profile corpId = %q, want %q", profile.CorpID, corpID)
+		}
+		identities[profile.UserID]++
+	}
+	if identities[""] != 1 || identities[exactUserID] != 1 {
+		t.Fatalf("profile identities = %#v, want one blank and one exact %q", identities, exactUserID)
+	}
+}
+
 type legacySmokeProfile struct {
 	Name     string
 	CorpID   string
@@ -309,6 +373,54 @@ func writeHalfMigratedProfilesV2(t *testing.T, configDir string, profile legacyS
 	}
 }
 
+func writeCoexistingProfilesV3(
+	t *testing.T,
+	configDir string,
+	corpID string,
+	exactUserID string,
+	reservedSelector string,
+	exactSelector string,
+) {
+	t.Helper()
+	document := map[string]any{
+		"version":            3,
+		"primaryProfile":     exactSelector,
+		"currentProfile":     reservedSelector,
+		"previousProfile":    exactSelector,
+		"orgCurrentProfiles": map[string]string{corpID: exactSelector},
+		"profiles": []map[string]any{
+			{
+				"name":      "Schema V3 Fixture Org",
+				"corpId":    corpID,
+				"corpName":  "Schema V3 Fixture Org",
+				"clientId":  "fixture-legacy-client",
+				"status":    "active",
+				"expiresAt": "2099-01-02T03:04:05Z",
+			},
+			{
+				"name":      "Schema V3 Exact Fixture",
+				"corpId":    corpID,
+				"corpName":  "Schema V3 Fixture Org",
+				"userId":    exactUserID,
+				"userName":  "Exact Fixture Account",
+				"clientId":  "fixture-legacy-client",
+				"status":    "active",
+				"expiresAt": "2099-01-02T03:04:05Z",
+			},
+		},
+	}
+	data, err := json.MarshalIndent(document, "", "  ")
+	if err != nil {
+		t.Fatalf("marshal raw coexisting v3 profiles fixture: %v", err)
+	}
+	if err := os.MkdirAll(configDir, 0o700); err != nil {
+		t.Fatalf("create raw v3 config directory: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(configDir, "profiles.json"), append(data, '\n'), 0o600); err != nil {
+		t.Fatalf("write raw coexisting v3 profiles fixture: %v", err)
+	}
+}
+
 func legacyRawToken(t *testing.T, accessToken, corpID, corpName, userID, userName string) string {
 	t.Helper()
 	document := map[string]any{
@@ -341,6 +453,17 @@ func seedRawLegacyKeychainSlot(t *testing.T, account, rawToken string) {
 	// which would eagerly create the very identity slot this E2E must observe.
 	if err := keychain.Set(keychain.Service, account, rawToken); err != nil {
 		t.Fatalf("write raw historical keychain account %q: %v", account, err)
+	}
+}
+
+func assertRawKeychainSlotUnchanged(t *testing.T, account, want string) {
+	t.Helper()
+	got, err := keychain.Get(keychain.Service, account)
+	if err != nil {
+		t.Fatalf("read raw keychain account %q: %v", account, err)
+	}
+	if got != want {
+		t.Fatalf("raw keychain account %q changed\nwant:\n%s\ngot:\n%s", account, want, got)
 	}
 }
 

@@ -19,6 +19,7 @@ import (
 
 	authpkg "github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/auth"
 	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/event/personal"
+	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/keychain"
 )
 
 // A bounded run never arms the stdin-EOF watcher, regardless of stdin
@@ -67,6 +68,8 @@ func TestPersonalBusSpawnArgs_ForwardsProfile(t *testing.T) {
 
 func TestCrossPlatformCoveragePersonalBusSpawnArgsPreservesReservedBlankProfile(t *testing.T) {
 	configDir := t.TempDir()
+	t.Setenv(keychain.DisableKeychainEnv, "1")
+	t.Setenv(keychain.StorageDirEnv, t.TempDir())
 	cfg := &authpkg.ProfilesConfig{
 		Version: 2,
 		OrgCurrentProfiles: map[string]string{
@@ -86,29 +89,70 @@ func TestCrossPlatformCoveragePersonalBusSpawnArgsPreservesReservedBlankProfile(
 			},
 		},
 	}
+	blankSelector := authpkg.ProfileSelectionSelector(cfg.Profiles[0], cfg)
+	cfg.PrimaryProfile = blankSelector
+	cfg.CurrentProfile = blankSelector
 	if err := authpkg.SaveProfiles(configDir, cfg); err != nil {
 		t.Fatalf("SaveProfiles() error = %v", err)
 	}
-	identity := personal.Identity{CorpID: "corp_event_fixture", SourceID: "open"}
+	blankToken := &authpkg.TokenData{
+		AccessToken: "parent-blank-token",
+		CorpID:      "corp_event_fixture",
+		CorpName:    "Fixture Organization",
+	}
+	exactToken := &authpkg.TokenData{
+		AccessToken: "other-exact-token",
+		CorpID:      "corp_event_fixture",
+		CorpName:    "Fixture Organization",
+		UserID:      "identity_exact_fixture",
+	}
+	if err := authpkg.SaveTokenDataKeychainForCorpID(blankToken.CorpID, blankToken); err != nil {
+		t.Fatalf("save parent blank token: %v", err)
+	}
+	if err := authpkg.SaveTokenDataKeychainForIdentity(exactToken.CorpID, exactToken.UserID, exactToken); err != nil {
+		t.Fatalf("save other exact token: %v", err)
+	}
+
+	// Runtime identity enrichment points at the exact sibling, but the parent
+	// already loaded the persisted blank current profile.
+	identity := personal.Identity{
+		CorpID:   "corp_event_fixture",
+		UserID:   "identity_exact_fixture",
+		SourceID: "open",
+	}
 	selector := personalBusProfileSelector(configDir, identity)
-	want := authpkg.ProfileSelectionSelector(cfg.Profiles[0], cfg)
+	want := blankSelector
 	if selector != want || selector == identity.CorpID {
 		t.Fatalf("personalBusProfileSelector(blank) = %q, want reserved %q", selector, want)
 	}
 	args := personalBusSpawnArgs(identity, "", "", selector)
-	found := false
+	forwardedSelector := ""
 	for i := 0; i+1 < len(args); i++ {
 		if args[i] == "--profile" && args[i+1] == want {
-			found = true
+			forwardedSelector = args[i+1]
 			break
 		}
 	}
-	if !found {
+	if forwardedSelector == "" {
 		t.Fatalf("spawn args did not preserve reserved blank selector: %v", args)
+	}
+	parentToken, err := authpkg.LoadTokenDataForProfile(configDir, selector)
+	if err != nil {
+		t.Fatalf("load parent token: %v", err)
+	}
+	authpkg.SetRuntimeProfile(forwardedSelector)
+	t.Cleanup(func() { authpkg.SetRuntimeProfile("") })
+	childToken, err := authpkg.LoadTokenData(configDir)
+	if err != nil {
+		t.Fatalf("load detached child token: %v", err)
+	}
+	if parentToken.AccessToken != blankToken.AccessToken ||
+		childToken.AccessToken != parentToken.AccessToken ||
+		childToken.UserID != "" {
+		t.Fatalf("parent/child token drift: parent=%#v child=%#v", parentToken, childToken)
 	}
 
 	authpkg.SetRuntimeProfile(want)
-	t.Cleanup(func() { authpkg.SetRuntimeProfile("") })
 	inferredExact := personal.Identity{
 		CorpID:   "corp_event_fixture",
 		UserID:   "identity_exact_fixture",

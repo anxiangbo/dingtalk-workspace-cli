@@ -880,6 +880,19 @@ func personalBusProfileSelector(configDir string, identity personal.Identity) st
 		return selector
 	}
 	if cfg, err := authpkg.LoadProfiles(configDir); err == nil && cfg != nil {
+		// With no explicit process-local override, LoadTokenData selected the
+		// persisted current profile. Prefer that selection over the enriched
+		// identity: $currentUserId may describe an exact same-corp account even
+		// though the token came from the historical unresolved profile.
+		currentSelector := strings.TrimSpace(cfg.CurrentProfile)
+		for i := range cfg.Profiles {
+			profile := cfg.Profiles[i]
+			selector := authpkg.ProfileSelectionSelector(profile, cfg)
+			if selector == currentSelector &&
+				(strings.TrimSpace(identity.CorpID) == "" || strings.TrimSpace(profile.CorpID) == strings.TrimSpace(identity.CorpID)) {
+				return selector
+			}
+		}
 		for i := range cfg.Profiles {
 			profile := cfg.Profiles[i]
 			if strings.TrimSpace(profile.CorpID) == strings.TrimSpace(identity.CorpID) &&

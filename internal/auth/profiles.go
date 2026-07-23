@@ -76,9 +76,11 @@ func withProfilesLock(configDir string, fn func() error) error {
 }
 
 const (
-	profilesJSONFile                = "profiles.json"
-	profilesVersion                 = 2
-	unresolvedProfileSelectorPrefix = "@legacy/"
+	profilesJSONFile                  = "profiles.json"
+	profilesVersion                   = 2
+	profilesUnresolvedSelectorVersion = 3
+	profilesMaxVersion                = profilesUnresolvedSelectorVersion
+	unresolvedProfileSelectorPrefix   = "@legacy/"
 )
 
 const (
@@ -171,6 +173,7 @@ func SaveProfiles(configDir string, cfg *ProfilesConfig) error {
 		return err
 	}
 	normalizeProfilesConfig(cfg)
+	normalizeProfilesVersionForSelectors(cfg)
 	if err := profilesMkdirAll(configDir, config.DirPerm); err != nil {
 		return fmt.Errorf("create config dir: %w", err)
 	}
@@ -209,13 +212,16 @@ func ensureProfilesMigrationLocked(configDir string) error {
 	if err != nil {
 		return err
 	}
-	if cfg.Version > profilesVersion {
+	if cfg.Version > profilesMaxVersion {
 		return nil
 	}
 	if len(cfg.Profiles) == 0 {
 		// Version 2 with no profiles is an intentional logged-out tombstone.
 		// Never resurrect a stale legacy mirror after logout/reset.
 		if cfg.Version >= profilesVersion {
+			if normalizeProfilesVersionForSelectors(cfg) {
+				return profilesSave(configDir, cfg)
+			}
 			return nil
 		}
 		if !profilesTokenExists() {
@@ -417,6 +423,9 @@ func ensureProfilesMigrationLocked(configDir string) error {
 		cfg.Version = profilesVersion
 		changed = true
 	}
+	if normalizeProfilesVersionForSelectors(cfg) {
+		changed = true
+	}
 	if changed {
 		return profilesSave(configDir, cfg)
 	}
@@ -479,7 +488,9 @@ func upsertProfileFromToken(configDir string, cfg *ProfilesConfig, data *TokenDa
 		return err
 	}
 	normalizeProfilesConfig(cfg)
-	cfg.Version = profilesVersion
+	if cfg.Version < profilesVersion {
+		cfg.Version = profilesVersion
+	}
 	now := time.Now().Format(time.RFC3339)
 	userID := strings.TrimSpace(data.UserID)
 	var previousCurrent *Profile
@@ -835,6 +846,11 @@ func setCurrentProfileLocked(configDir, selector string) (*Profile, error) {
 	}
 	originalCfg := cloneProfilesConfig(cfg)
 	syncOrganization := shouldSyncOrganizationMirror(cfg, *p)
+	if !syncOrganization {
+		if err := validateIdentityOnlyProfileToken(*p); err != nil {
+			return nil, err
+		}
+	}
 	mirrors, err := snapshotProfileSelectionMirrors(configDir, p.CorpID, syncOrganization)
 	if err != nil {
 		return nil, err
@@ -902,6 +918,11 @@ func usePreviousProfileLocked(configDir string) (*Profile, error) {
 	}
 	originalCfg := cloneProfilesConfig(cfg)
 	syncOrganization := shouldSyncOrganizationMirror(cfg, *p)
+	if !syncOrganization {
+		if err := validateIdentityOnlyProfileToken(*p); err != nil {
+			return nil, err
+		}
+	}
 	mirrors, err := snapshotProfileSelectionMirrors(configDir, p.CorpID, syncOrganization)
 	if err != nil {
 		return nil, err
@@ -1053,6 +1074,19 @@ func removeProfileLocked(configDir, selector string) (*Profile, error) {
 			}
 		}
 	}
+	// Removing the exact identity that forced a blank sibling to use the v3
+	// reserved selector can make that blank profile the sole account in its
+	// organization. Re-canonicalize every surviving pointer against the final
+	// profile set before SaveProfiles derives the schema version, so the pointer
+	// collapses back to the v2 corpId grammar instead of pinning the file at v3.
+	for _, pointer := range pointers {
+		if canonical := canonicalStoredSelector(cfg, *pointer); canonical != "" {
+			*pointer = canonical
+		}
+	}
+	if cfg.PreviousProfile != "" && cfg.PreviousProfile == cfg.CurrentProfile {
+		cfg.PreviousProfile = ""
+	}
 	if len(cfg.Profiles) == 0 {
 		cfg.PrimaryProfile = ""
 		cfg.CurrentProfile = ""
@@ -1111,14 +1145,54 @@ func markProfileStatusLocked(configDir, selector, status string) error {
 }
 
 func ensureProfilesWritable(cfg *ProfilesConfig) error {
-	if cfg != nil && cfg.Version > profilesVersion {
+	if cfg != nil && cfg.Version > profilesMaxVersion {
 		return fmt.Errorf(
 			"profiles.json version %d is newer than supported version %d; upgrade dws before changing profiles",
 			cfg.Version,
-			profilesVersion,
+			profilesMaxVersion,
 		)
 	}
 	return nil
+}
+
+// normalizeProfilesVersionForSelectors derives the persisted schema version
+// from the final normalized selector grammar. Keep v3 only while a legal
+// reserved unresolved-identity selector remains on disk; once completion,
+// deletion, or canonicalization removes that grammar, the file is again safe
+// for v2 clients and should downgrade to v2.
+func normalizeProfilesVersionForSelectors(cfg *ProfilesConfig) bool {
+	if cfg == nil || cfg.Version > profilesMaxVersion {
+		return false
+	}
+
+	target := cfg.Version
+	if profilesConfigContainsUnresolvedSelector(cfg) {
+		target = profilesUnresolvedSelectorVersion
+	} else if cfg.Version >= profilesVersion {
+		target = profilesVersion
+	}
+	if target == cfg.Version {
+		return false
+	}
+	cfg.Version = target
+	return true
+}
+
+func profilesConfigContainsUnresolvedSelector(cfg *ProfilesConfig) bool {
+	if cfg == nil {
+		return false
+	}
+	for _, selector := range []string{cfg.PrimaryProfile, cfg.CurrentProfile, cfg.PreviousProfile} {
+		if _, unresolved := parseUnresolvedProfileSelector(selector); unresolved {
+			return true
+		}
+	}
+	for _, selector := range cfg.OrgCurrentProfiles {
+		if _, unresolved := parseUnresolvedProfileSelector(selector); unresolved {
+			return true
+		}
+	}
+	return false
 }
 
 type profileSelectionMirrorSnapshot struct {
@@ -1675,10 +1749,14 @@ func canonicalStoredSelector(cfg *ProfilesConfig, selector string) string {
 		return ""
 	}
 	// Older multi-account writers stored the unresolved profile's local name.
-	// Recover that intent before the organization grammar can capture a
-	// CorpName-like name, then persist the safe selector.
-	if profile := unresolvedProfileForLocalName(cfg, selector); profile != nil {
-		return storedProfileSelector(cfg, profile)
+	// Recover it only when no profile gives the same text organization-selector
+	// meaning. CorpId and CorpName have always outranked local names in the
+	// public resolver; migration must preserve that precedence instead of
+	// silently redirecting one organization's selector to another blank profile.
+	if !selectorConflictsWithOrganizationGrammar(cfg, selector) {
+		if profile := unresolvedProfileForLocalName(cfg, selector); profile != nil {
+			return storedProfileSelector(cfg, profile)
+		}
 	}
 	if profiles := profilesForCorpID(cfg, selector); len(profiles) > 0 {
 		if exact := exactProfileSelectorForCorp(cfg, selector, cfg.OrgCurrentProfiles[selector]); exact != "" {
@@ -1694,6 +1772,20 @@ func canonicalStoredSelector(cfg *ProfilesConfig, selector string) string {
 		return ""
 	}
 	return storedProfileSelector(cfg, p)
+}
+
+func selectorConflictsWithOrganizationGrammar(cfg *ProfilesConfig, selector string) bool {
+	if cfg == nil {
+		return false
+	}
+	selector = strings.TrimSpace(selector)
+	for i := range cfg.Profiles {
+		if strings.TrimSpace(cfg.Profiles[i].CorpID) == selector ||
+			strings.TrimSpace(cfg.Profiles[i].CorpName) == selector {
+			return true
+		}
+	}
+	return false
 }
 
 func setOrgCurrentProfile(cfg *ProfilesConfig, corpID, selector string) {
@@ -1821,6 +1913,34 @@ func unresolvedProfileForLocalName(cfg *ProfilesConfig, name string) *Profile {
 // overwriting the organization slot.
 func shouldSyncOrganizationMirror(cfg *ProfilesConfig, profile Profile) bool {
 	return strings.TrimSpace(profile.UserID) == "" || unresolvedProfileForCorp(cfg, profile.CorpID) == nil
+}
+
+// validateIdentityOnlyProfileToken verifies the canonical token slot before a
+// profile selection is persisted. This path is used only when an unresolved
+// profile owns the organization slot, so an exact identity must not fall back
+// to that slot. It is deliberately read-only: a rejected switch leaves every
+// selection pointer and compatibility mirror untouched.
+func validateIdentityOnlyProfileToken(profile Profile) error {
+	corpID := strings.TrimSpace(profile.CorpID)
+	userID := strings.TrimSpace(profile.UserID)
+	if corpID == "" || userID == "" {
+		return ErrTokenDataNotFound
+	}
+	data, err := profilesLoadIdentity(corpID, userID)
+	if err != nil {
+		return fmt.Errorf("load token for profile %q: %w", ProfileSelector(profile), err)
+	}
+	if data == nil {
+		return fmt.Errorf("load token for profile %q: %w", ProfileSelector(profile), ErrTokenDataNotFound)
+	}
+	if !sameProfileIdentity(data.CorpID, data.UserID, corpID, userID) {
+		return fmt.Errorf(
+			"token in profile slot %q belongs to %q; identity does not match selected profile",
+			ProfileSelector(profile),
+			profileSelector(data.CorpID, data.UserID),
+		)
+	}
+	return nil
 }
 
 func profileSelectorReferenceExists(cfg *ProfilesConfig, selector string) bool {

@@ -307,7 +307,7 @@ var (
 	migrateKeychainToFileDEK         = authpkg.MigrateKeychainToFileDEK
 	authMigrateTarget                = func(cmd *cobra.Command) (string, error) { return cmd.Flags().GetString("to") }
 	authRunForm                      = (*huh.Form).Run
-	authSaveTokenData                = authpkg.SaveTokenData
+	authSaveTokenData                = authpkg.SaveLoginTokenData
 	authSaveAppConfig                = authpkg.SaveAppConfig
 	authDeviceLogin                  = func(provider *authpkg.DeviceFlowProvider, ctx context.Context) (*authpkg.TokenData, error) {
 		return provider.Login(ctx)
@@ -1496,12 +1496,16 @@ func enrichAuthLoginProfileFromContact(
 	return nil
 }
 
-// enrichAuthLoginProfileFromHistory recovers identity metadata when the
-// contact service cannot describe an external-worker account. Explicit
-// profile selection wins; otherwise only a sole same-corp profile is
-// deterministic.
-// Historical v1 profiles without userId are still useful: selecting one is a
-// successful fallback that preserves org-scoped token storage semantics.
+// enrichAuthLoginProfileFromHistory recovers display metadata when the contact
+// service cannot describe an external-worker account. Historical profile
+// selection is never proof of the user who completed a fresh authorization:
+// only the token exchange or contact service may supply UserID.
+//
+// An explicit profile remains useful as a storage/selection hint. Keeping it in
+// LegacyOrgScopedProfile prevents the login from switching the process-global
+// current profile while SaveTokenData publishes the UID-less credential to the
+// unresolved organization slot. A historical blank profile is updated in
+// place; an exact historical profile and its token remain untouched.
 func enrichAuthLoginProfileFromHistory(configDir string, data *authpkg.TokenData, hints ...authLoginHistoryHint) (bool, error) {
 	if data == nil || strings.TrimSpace(data.UserID) != "" {
 		return false, nil
@@ -1552,8 +1556,7 @@ func enrichAuthLoginProfileFromHistory(configDir string, data *authpkg.TokenData
 	}
 
 	updated := *data
-	updated.UserID = strings.TrimSpace(candidate.UserID)
-	if updated.UserID == "" && hint.Explicit {
+	if hint.Explicit {
 		updated.LegacyOrgScopedProfile = strings.TrimSpace(hint.Selector)
 	}
 	if strings.TrimSpace(updated.CorpName) == "" {
@@ -1565,11 +1568,12 @@ func enrichAuthLoginProfileFromHistory(configDir string, data *authpkg.TokenData
 	*data = updated
 	logging.AuthDebug(
 		"auth.login.identity.resolved",
-		"source", "local_profile_history",
+		"source", "local_profile_history_display_only",
 		"corp_id", corpID,
 		"user_id", updated.UserID,
 		"user_name", updated.UserName,
 		"corp_name", updated.CorpName,
+		"identity_proven", false,
 	)
 	return true, nil
 }

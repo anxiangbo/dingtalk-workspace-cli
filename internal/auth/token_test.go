@@ -747,8 +747,8 @@ func assertProfileSwitchRolledBack(t *testing.T, configDir string, before *Profi
 func TestFutureProfilesVersionIsNotDowngradedOrOverwritten(t *testing.T) {
 	cleanupKeychain(t)
 	configDir := t.TempDir()
-	future := []byte(`{
-  "version": 3,
+	future := []byte(fmt.Sprintf(`{
+  "version": %d,
   "currentProfile": "corp_future:user_1",
   "orgCurrentProfiles": {"corp_future": "corp_future:user_1"},
   "futureField": {"preserve": true},
@@ -759,7 +759,7 @@ func TestFutureProfilesVersionIsNotDowngradedOrOverwritten(t *testing.T) {
     "futureProfileField": "preserve"
   }]
 }
-`)
+`, profilesMaxVersion+1))
 	if err := os.WriteFile(ProfilesPath(configDir), future, 0o600); err != nil {
 		t.Fatalf("write future profiles fixture: %v", err)
 	}

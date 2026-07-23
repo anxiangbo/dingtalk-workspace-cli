@@ -161,7 +161,10 @@ func TestCrossPlatformCoverageGetTokenSnapshotOnlyExpiresProfileForNonTransientR
 		}
 	}
 	_, err := provider.GetTokenSnapshot(context.Background())
-	if err == nil || !strings.Contains(err.Error(), `dws auth login --profile "corp:user"`) ||
+	if err == nil || !strings.Contains(err.Error(), "dws auth login") ||
+		!strings.Contains(err.Error(), "--profile") ||
+		!strings.Contains(err.Error(), `profile: "corp:user"`) ||
+		strings.Contains(err.Error(), `dws auth login --profile "corp:user"`) ||
 		!strings.Contains(err.Error(), legacyMCPRefreshRejectedCode) {
 		t.Fatalf("legacy MCP refresh guidance = %v", err)
 	}
@@ -176,8 +179,10 @@ func TestCrossPlatformCoverageGetTokenSnapshotOnlyExpiresProfileForNonTransientR
 	SetRuntimeProfile("External Worker")
 	_, err = provider.GetTokenSnapshot(context.Background())
 	SetRuntimeProfile("")
-	if err == nil || !strings.Contains(err.Error(), `dws auth login --profile "External Worker"`) {
-		t.Fatalf("legacy MCP refresh guidance did not quote spaced selector: %v", err)
+	if err == nil || !strings.Contains(err.Error(), "dws auth login") ||
+		!strings.Contains(err.Error(), `profile: "External Worker"`) ||
+		strings.Contains(err.Error(), `dws auth login --profile "External Worker"`) {
+		t.Fatalf("legacy MCP refresh guidance did not isolate spaced selector as display data: %v", err)
 	}
 	if markCalls != 3 {
 		t.Fatalf("spaced legacy MCP rejection marked profile expired %d times, want 3", markCalls)
@@ -222,7 +227,10 @@ func TestCrossPlatformCoverageLegacyRefreshFailureKeepsBlankCurrentSelectorIsola
 
 	provider := NewOAuthProvider(fixture.configDir, nil)
 	_, err := provider.GetTokenSnapshot(context.Background())
-	if err == nil || !strings.Contains(err.Error(), "--profile "+strconv.Quote(fixture.blankSelector)) {
+	if err == nil || !strings.Contains(err.Error(), "dws auth login") ||
+		!strings.Contains(err.Error(), "--profile") ||
+		!strings.Contains(err.Error(), "profile: "+strconv.Quote(fixture.blankSelector)) ||
+		strings.Contains(err.Error(), "dws auth login --profile") {
 		t.Fatalf("legacy blank refresh guidance = %v, want selector %q", err, fixture.blankSelector)
 	}
 	if markedSelector != fixture.blankSelector {

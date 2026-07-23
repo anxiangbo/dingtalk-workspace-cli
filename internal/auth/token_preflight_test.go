@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -249,10 +250,9 @@ func TestCrossPlatformCoverageExactRefreshAndSwitchIgnoreUnreadableReservedBlank
 	}
 }
 
-func TestExchangeAuthCodePreflightsOrphanProfileCiphertextBeforeHTTP(t *testing.T) {
+func TestFullTokenPersistenceInventoryDetectsOrphanProfileCiphertext(t *testing.T) {
 	cleanupKeychain(t)
 	t.Setenv(keychain.DisableKeychainEnv, "1")
-	setPreflightTestCredentials(t)
 	configDir := t.TempDir()
 	data := testToken("at_orphan", "corp_orphan", "Orphan Org")
 
@@ -269,21 +269,12 @@ func TestExchangeAuthCodePreflightsOrphanProfileCiphertextBeforeHTTP(t *testing.
 		t.Fatalf("WriteFile(replacement DEK) error = %v", err)
 	}
 
-	var calls atomic.Int32
-	provider := NewOAuthProvider(configDir, nil)
-	provider.httpClient = &http.Client{Transport: preflightRoundTripFunc(func(*http.Request) (*http.Response, error) {
-		calls.Add(1)
-		return nil, errors.New("unexpected HTTP request")
-	})}
-	_, err := provider.ExchangeAuthCode(context.Background(), "auth-code", "")
+	err := preflightTokenPersistence(configDir)
 	if err == nil || !strings.Contains(err.Error(), "auth token ciphertext inventory") {
-		t.Fatalf("ExchangeAuthCode() error = %v, want orphan ciphertext preflight error", err)
+		t.Fatalf("preflightTokenPersistence() error = %v, want orphan ciphertext inventory error", err)
 	}
 	if !keychain.IsCiphertextKeyMismatch(err) {
-		t.Fatalf("ExchangeAuthCode() error = %v, want ciphertext key mismatch in error chain", err)
-	}
-	if got := calls.Load(); got != 0 {
-		t.Fatalf("HTTP calls = %d, want 0", got)
+		t.Fatalf("preflightTokenPersistence() error = %v, want ciphertext key mismatch in error chain", err)
 	}
 }
 
@@ -343,7 +334,7 @@ func TestRefreshPreflightIgnoresUnreadableUnrelatedProfile(t *testing.T) {
 	}
 }
 
-func TestOAuthLoginPreflightsTokenPersistence(t *testing.T) {
+func TestOAuthLoginUnreadableGlobalFailsClosedBeforeAuthorizationStart(t *testing.T) {
 	setPreflightTestCredentials(t)
 	for _, force := range []bool{false, true} {
 		t.Run("force="+map[bool]string{false: "false", true: "true"}[force], func(t *testing.T) {
@@ -351,33 +342,60 @@ func TestOAuthLoginPreflightsTokenPersistence(t *testing.T) {
 			configDir := t.TempDir()
 			seedUnreadableTokenStorage(t, configDir, testToken("at_login", "corp_login", "Login Org"))
 
-			ctx, cancel := context.WithCancel(context.Background())
-			cancel()
+			listenErr := errors.New("authorization listener reached")
+			var calls atomic.Int32
+			oldListen := oauthListen
+			oauthListen = func(string, string) (net.Listener, error) {
+				calls.Add(1)
+				return nil, listenErr
+			}
+			t.Cleanup(func() { oauthListen = oldListen })
+
 			provider := NewOAuthProvider(configDir, nil)
 			provider.NoBrowser = true
-			_, err := provider.Login(ctx, force)
-			if err == nil || !strings.Contains(err.Error(), "legacy token slot") {
-				t.Fatalf("Login(force=%v) error = %v, want token persistence preflight error", force, err)
+			_, err := provider.Login(context.Background(), force)
+			if err == nil || !strings.Contains(err.Error(), "refusing to overwrite") {
+				t.Fatalf("Login(force=%v) error = %v, want unreadable-global protection", force, err)
+			}
+			if errors.Is(err, listenErr) {
+				t.Fatalf("Login(force=%v) reached authorization listener: %v", force, err)
+			}
+			if got := calls.Load(); got != 0 {
+				t.Fatalf("Login(force=%v) listener calls = %d, want 0", force, got)
 			}
 		})
 	}
 }
 
-func TestExchangeAuthCodePreflightsBeforeHTTP(t *testing.T) {
+func TestExchangeAuthCodeRejectsUnreadableGlobalBeforeHTTP(t *testing.T) {
 	cleanupKeychain(t)
 	setPreflightTestCredentials(t)
 	configDir := t.TempDir()
-	seedUnreadableTokenStorage(t, configDir, testToken("at_exchange", "corp_exchange", "Exchange Org"))
+	existing := testToken("at_exchange", "corp_exchange", "Exchange Org")
+	seedUnreadableTokenStorage(t, configDir, existing)
 
 	var calls atomic.Int32
+	var saveCalls atomic.Int32
+	oldSave := oauthSaveToken
+	oauthSaveToken = func(string, *TokenData) error {
+		saveCalls.Add(1)
+		return nil
+	}
+	t.Cleanup(func() { oauthSaveToken = oldSave })
 	provider := NewOAuthProvider(configDir, nil)
 	provider.httpClient = &http.Client{Transport: preflightRoundTripFunc(func(*http.Request) (*http.Response, error) {
 		calls.Add(1)
-		return nil, errors.New("unexpected HTTP request")
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     make(http.Header),
+			Body: io.NopCloser(strings.NewReader(
+				`{"accessToken":"new-access","refreshToken":"new-refresh","expiresIn":7200,"corpId":"corp_exchange"}`,
+			)),
+		}, nil
 	})}
-	_, err := provider.ExchangeAuthCode(context.Background(), "auth-code", "")
+	_, err := provider.ExchangeAuthCode(context.Background(), "auth-code", existing.UserID)
 	if err == nil || !strings.Contains(err.Error(), "legacy token slot") {
-		t.Fatalf("ExchangeAuthCode() error = %v, want token persistence preflight error", err)
+		t.Fatalf("ExchangeAuthCode() error = %v, want target token persistence error", err)
 	}
 	if !keychain.IsCiphertextKeyMismatch(err) {
 		t.Fatalf("ExchangeAuthCode() error = %v, want ciphertext key mismatch in error chain", err)
@@ -385,9 +403,12 @@ func TestExchangeAuthCodePreflightsBeforeHTTP(t *testing.T) {
 	if got := calls.Load(); got != 0 {
 		t.Fatalf("HTTP calls = %d, want 0", got)
 	}
+	if got := saveCalls.Load(); got != 0 {
+		t.Fatalf("SaveTokenData calls = %d, want 0", got)
+	}
 }
 
-func TestDeviceFlowLoginPreflightsBeforeDeviceCodeRequest(t *testing.T) {
+func TestDeviceFlowLoginRejectsUnreadableGlobalBeforeDeviceCodeRequest(t *testing.T) {
 	cleanupKeychain(t)
 	setPreflightTestCredentials(t)
 	configDir := t.TempDir()
@@ -405,7 +426,7 @@ func TestDeviceFlowLoginPreflightsBeforeDeviceCodeRequest(t *testing.T) {
 	provider.SetBaseURL(server.URL)
 	_, err := provider.Login(context.Background())
 	if err == nil || !strings.Contains(err.Error(), "legacy token slot") {
-		t.Fatalf("DeviceFlowProvider.Login() error = %v, want token persistence preflight error", err)
+		t.Fatalf("DeviceFlowProvider.Login() error = %v, want unreadable-global protection", err)
 	}
 	if got := calls.Load(); got != 0 {
 		t.Fatalf("device code requests = %d, want 0", got)
@@ -457,7 +478,7 @@ func TestLockedRefreshRejectsFutureProfilesVersionBeforeHTTP(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadProfiles() error = %v", err)
 	}
-	cfg.Version = profilesVersion + 1
+	cfg.Version = profilesMaxVersion + 1
 	raw, err := json.Marshal(cfg)
 	if err != nil {
 		t.Fatalf("json.Marshal() error = %v", err)

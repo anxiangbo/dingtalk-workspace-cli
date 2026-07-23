@@ -303,6 +303,72 @@ func TestCrossPlatformCoverageOAuthLoginCallbackAndAPIs(t *testing.T) {
 	}
 }
 
+func TestOAuthForcedLoginIgnoresUnreadableUnrelatedProfile(t *testing.T) {
+	f := newOAuthLoginFixture(t, func(int32) CLIAuthStatus {
+		return CLIAuthStatus{Success: true, Result: &CLIAuthResult{CLIAuthEnabled: true}}
+	})
+	if err := SaveProfiles(f.configDir, &ProfilesConfig{
+		Version: profilesVersion,
+		Profiles: []Profile{{
+			Name:   "unrelated",
+			CorpID: "corp-unrelated",
+			UserID: "user-unrelated",
+		}},
+	}); err != nil {
+		t.Fatalf("SaveProfiles() error = %v", err)
+	}
+
+	oldGet := authKeychainGet
+	oldValidate := authValidateEntries
+	t.Cleanup(func() {
+		authKeychainGet = oldGet
+		authValidateEntries = oldValidate
+	})
+	var unrelatedReads atomic.Int32
+	var inventoryCalls atomic.Int32
+	authKeychainGet = func(service, account string) (string, error) {
+		if account == TokenAccountForCorpID("corp-unrelated") ||
+			account == TokenAccountForIdentity("corp-unrelated", "user-unrelated") {
+			unrelatedReads.Add(1)
+			return "", errors.New("unrelated profile ciphertext is unreadable")
+		}
+		return oldGet(service, account)
+	}
+	authValidateEntries = func(string) error {
+		inventoryCalls.Add(1)
+		return errors.New("unrelated orphan ciphertext is unreadable")
+	}
+
+	loginDone := startOAuthLogin(t, context.Background(), f)
+	callbackDone := make(chan oauthHTTPResult, 1)
+	go func() {
+		callbackDone <- getHTTPBody(f.callbackBase + CallbackPath + "?code=unrelated-safe")
+	}()
+	waitOAuthSignal(t, f.exchangeEntered, loginDone, "token exchange")
+	closeOAuthRelease(f.exchangeRelease)
+	waitOAuthSignal(t, f.statusEntered, loginDone, "CLI auth status check")
+	closeOAuthRelease(f.statusRelease)
+
+	select {
+	case callback := <-callbackDone:
+		if callback.err != nil || !strings.Contains(callback.body, "<html") {
+			t.Fatalf("OAuth callback body = %q, %v", callback.body, callback.err)
+		}
+	case <-time.After(oauthTestWaitTimeout):
+		t.Fatal("timed out waiting for OAuth callback")
+	}
+	result := awaitOAuthLogin(t, loginDone)
+	if result.err != nil || result.token == nil || result.token.AccessToken != "access" {
+		t.Fatalf("OAuthProvider.Login() = %#v, %v", result.token, result.err)
+	}
+	if got := unrelatedReads.Load(); got != 0 {
+		t.Fatalf("unrelated profile token reads = %d, want 0", got)
+	}
+	if got := inventoryCalls.Load(); got != 0 {
+		t.Fatalf("full inventory validation calls = %d, want 0", got)
+	}
+}
+
 func TestCrossPlatformCoverageOAuthLoginMissingCallbackCode(t *testing.T) {
 	f := newOAuthLoginFixture(t, func(int32) CLIAuthStatus {
 		return CLIAuthStatus{Success: true, Result: &CLIAuthResult{CLIAuthEnabled: true}}

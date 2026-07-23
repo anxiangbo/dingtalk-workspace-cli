@@ -16,6 +16,7 @@ package auth
 import (
 	"encoding/json"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -43,12 +44,6 @@ func seedBlankProfileSelectorFixture(
 	corpID := "corp_selector_fixture"
 	exactUserID := "identity_exact_fixture"
 	exactSelector := profileSelector(corpID, exactUserID)
-	currentSelector := exactSelector
-	previousSelector := blankName
-	if blankCurrent {
-		currentSelector = blankName
-		previousSelector = exactSelector
-	}
 
 	blankToken := testToken("at_unresolved_fixture", corpID, corpName)
 	blankToken.UserID = ""
@@ -71,10 +66,8 @@ func seedBlankProfileSelectorFixture(
 	}
 
 	cfg := &ProfilesConfig{
-		Version:         profilesVersion,
-		PrimaryProfile:  exactSelector,
-		CurrentProfile:  currentSelector,
-		PreviousProfile: previousSelector,
+		Version:        profilesVersion,
+		PrimaryProfile: exactSelector,
 		OrgCurrentProfiles: map[string]string{
 			corpID: exactSelector,
 		},
@@ -95,6 +88,24 @@ func seedBlankProfileSelectorFixture(
 			},
 		},
 	}
+	blankSelector := ProfileSelectionSelector(cfg.Profiles[0], cfg)
+	persistedBlankPointer := strings.TrimSpace(blankName)
+	if selectorConflictsWithOrganizationGrammar(cfg, persistedBlankPointer) {
+		// An ambiguous local name has always been captured by CorpId/CorpName
+		// grammar in the public resolver. New writers must use the reserved
+		// selector to preserve exact blank-profile intent without changing that
+		// precedence.
+		persistedBlankPointer = blankSelector
+		if _, reserved := parseUnresolvedProfileSelector(persistedBlankPointer); reserved {
+			cfg.Version = profilesUnresolvedSelectorVersion
+		}
+	}
+	cfg.CurrentProfile = exactSelector
+	cfg.PreviousProfile = persistedBlankPointer
+	if blankCurrent {
+		cfg.CurrentProfile = persistedBlankPointer
+		cfg.PreviousProfile = exactSelector
+	}
 	data, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
 		t.Fatalf("json.MarshalIndent(profiles) error = %v", err)
@@ -108,7 +119,7 @@ func seedBlankProfileSelectorFixture(
 		configDir:     configDir,
 		corpID:        corpID,
 		blankName:     blankName,
-		blankSelector: ProfileSelectionSelector(cfg.Profiles[0], cfg),
+		blankSelector: blankSelector,
 		exactUserID:   exactUserID,
 		exactSelector: exactSelector,
 		blankToken:    blankToken,
