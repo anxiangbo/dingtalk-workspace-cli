@@ -71,9 +71,12 @@
       "risk": "low",
       "confirmation": "not_required",
       "idempotency": "idempotent",
-      "interface_mode": "composite",
+      "interface_ref": {
+        "product_id": "todo",
+        "rpc_name": "get_user_todos_in_current_org"
+      },
+      "interface_mode": "mcp",
       "availability": "available",
-      "interface_reason": "Reviewed conditional adapter: the same executable leaf calls todo/get_user_todos_in_current_org by default and todo/get_user_todos when --query-all is set.",
       "reviewed": true,
       "parameters": {
         "role-types": {
@@ -82,7 +85,6 @@
           "description": "角色类型列表；省略时运行时默认使用 executor"
         },
         "query-all": {
-          "property": "queryAll",
           "required": false,
           "interface_type": "boolean",
           "description": "为 true 时跨组织查询全部待办；默认仅查询当前组织待办"

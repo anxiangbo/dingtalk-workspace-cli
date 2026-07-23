@@ -22,14 +22,16 @@
       "effect": "write",
       "risk": "medium",
       "confirmation": "not_required",
-      "idempotency": "non_idempotent",
-      "interface_mode": "composite",
+      "idempotency": "unknown",
+      "interface_ref": {
+        "product_id": "doc-comment",
+        "rpc_name": "create_comment"
+      },
+      "interface_mode": "mcp",
       "availability": "available",
-      "interface_reason": "Reviewed evolving remote adapter: the executable CLI calls doc-comment/create_comment with optional group mentions that are newer than the pinned MCP metadata snapshot.",
       "reviewed": true,
       "parameters": {
         "mentioned-open-conversation-id": {
-          "property": "mentionedOpenConversationIds",
           "required": false,
           "interface_type": "array"
         }
@@ -106,37 +108,34 @@
       "risk": "low",
       "confirmation": "not_required",
       "idempotency": "idempotent",
-      "interface_mode": "composite",
+      "interface_ref": {
+        "product_id": "doc",
+        "rpc_name": "get_document_content"
+      },
+      "interface_mode": "mcp",
       "availability": "available",
-      "interface_reason": "Reviewed evolving remote adapter: the executable CLI calls doc/get_document_content with optional JSONML scope parameters that are newer than the pinned MCP metadata snapshot.",
       "reviewed": true,
-    "parameters": {
-      "content-format": {
-        "property": "format",
-        "required": false,
-        "required_when": "--scope or --tags is set"
-      },
-      "scope": {
-        "property": "scope",
-        "required": false
-      },
-      "tags": {
-        "property": "tags",
-        "required": false,
-        "required_when": "--scope=tags"
+      "parameters": {
+        "content-format": {
+          "property": "format",
+          "required": false
+        },
+        "scope": {
+          "required": false
+        },
+        "tags": {
+          "required": false,
+          "required_when": "--scope=tags"
         },
         "max-depth": {
-          "property": "maxDepth",
           "required": false,
           "interface_type": "integer"
         },
-      "start-block-id": {
-        "property": "startBlockId",
-        "required": false,
-        "required_when": "--scope=range or --scope=section"
+        "start-block-id": {
+          "required": false,
+          "required_when": "--scope=range or --scope=section"
         },
         "end-block-id": {
-          "property": "endBlockId",
           "required": false
         }
       },
@@ -225,14 +224,16 @@
       "effect": "write",
       "risk": "medium",
       "confirmation": "not_required",
-      "idempotency": "non_idempotent",
-      "interface_mode": "composite",
+      "idempotency": "unknown",
+      "interface_ref": {
+        "product_id": "doc-comment",
+        "rpc_name": "reply_comment"
+      },
+      "interface_mode": "mcp",
       "availability": "available",
-      "interface_reason": "Reviewed evolving remote adapter: the executable CLI calls doc-comment/reply_comment with optional group mentions that are newer than the pinned MCP metadata snapshot.",
       "reviewed": true,
       "parameters": {
         "mentioned-open-conversation-id": {
-          "property": "mentionedOpenConversationIds",
           "required": false,
           "interface_type": "array"
         }

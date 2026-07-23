@@ -862,7 +862,7 @@ func TestMarkdownFetchRemoteFileNamePropagatesLookupError(t *testing.T) {
 	}
 }
 
-func TestMarkdownAndDrivePublishTypedConstraints(t *testing.T) {
+func TestMarkdownPublishesTypedConstraints(t *testing.T) {
 	findLeaf := func(t *testing.T, root *cobra.Command, path ...string) *cobra.Command {
 		t.Helper()
 		leaf, remaining, err := root.Find(path)
@@ -894,12 +894,6 @@ func TestMarkdownAndDrivePublishTypedConstraints(t *testing.T) {
 			t.Fatalf("%s constraints: %v", command.CommandPath(), err)
 		}
 		return parsed
-	}
-
-	driveUpload := constraints(t, findLeaf(t, newDriveCommand(), "upload"))
-	if !hasGroup(driveUpload.MutuallyExclusive, "node", "folder") ||
-		!hasGroup(driveUpload.MutuallyExclusive, "space-id", "workspace") {
-		t.Fatalf("drive upload constraints = %#v", driveUpload)
 	}
 
 	markdown := newMarkdownCommand()

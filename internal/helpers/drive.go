@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/DingTalk-Real-AI/dingtalk-workspace-cli/internal/cli"
 	"github.com/spf13/cobra"
 )
 
@@ -559,9 +558,6 @@ func newDriveCommand() *cobra.Command {
 	driveUploadCmd.Flags().String("workspace", "", "目标知识库 ID，传入时路由到文档空间上传 (可选)")
 	driveUploadCmd.Flags().Bool("convert", false, "是否转换为钉钉在线文档 (仅文档空间上传时生效)")
 	driveUploadCmd.Flags().String("node", "", "覆盖目标文件 ID，传入即覆盖已有文件（与 --folder 互斥）(可选)")
-	cli.AnnotateRuntimeConstraints(driveUploadCmd, cli.RuntimeSchemaConstraints{
-		MutuallyExclusive: [][]string{{"node", "folder"}, {"space-id", "workspace"}},
-	})
 
 	driveListSpacesCmd := &cobra.Command{
 		Use:   "list-spaces",

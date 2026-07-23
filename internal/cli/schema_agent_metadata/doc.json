@@ -1242,14 +1242,14 @@
           ]
         },
         "idempotency": {
-          "value": "non_idempotent",
+          "value": "unknown",
           "source": "internal/cli/schema_hints/metadata/doc.json",
           "precedence": "reviewed_explicit",
           "resolution": "highest_precedence",
           "review_reason": "The reviewed handler normalizes repeated or comma-separated group conversation IDs into a stable de-duplicated array while preserving existing user mentions.",
           "candidates": [
             {
-              "value": "non_idempotent",
+              "value": "unknown",
               "source": "internal/cli/schema_hints/metadata/doc.json",
               "precedence": "reviewed_explicit",
               "selected": true,
@@ -1264,14 +1264,14 @@
           ]
         },
         "interface_mode": {
-          "value": "composite",
+          "value": "mcp",
           "source": "internal/cli/schema_hints/metadata/doc.json",
           "precedence": "reviewed_explicit",
           "resolution": "highest_precedence",
           "review_reason": "The reviewed handler normalizes repeated or comma-separated group conversation IDs into a stable de-duplicated array while preserving existing user mentions.",
           "candidates": [
             {
-              "value": "composite",
+              "value": "mcp",
               "source": "internal/cli/schema_hints/metadata/doc.json",
               "precedence": "reviewed_explicit",
               "selected": true,
@@ -1285,38 +1285,20 @@
             }
           ]
         },
-        "interface_reason": {
-          "value": "Reviewed evolving remote adapter: the executable CLI calls doc-comment/create_comment with optional group mentions that are newer than the pinned MCP metadata snapshot.",
+        "interface_ref": {
+          "value": "doc-comment.create_comment",
           "source": "internal/cli/schema_hints/metadata/doc.json",
           "precedence": "reviewed_explicit",
           "resolution": "highest_precedence",
           "review_reason": "The reviewed handler normalizes repeated or comma-separated group conversation IDs into a stable de-duplicated array while preserving existing user mentions.",
           "candidates": [
             {
-              "value": "Reviewed evolving remote adapter: the executable CLI calls doc-comment/create_comment with optional group mentions that are newer than the pinned MCP metadata snapshot.",
+              "value": "doc-comment.create_comment",
               "source": "internal/cli/schema_hints/metadata/doc.json",
               "precedence": "reviewed_explicit",
               "selected": true,
               "review_reason": "The reviewed handler normalizes repeated or comma-separated group conversation IDs into a stable de-duplicated array while preserving existing user mentions."
-            }
-          ]
-        },
-        "interface_ref": {
-          "value": null,
-          "source": "internal/cli/schema_hints/metadata/doc.json",
-          "precedence": "reviewed_explicit",
-          "resolution": "interface_disposition_matrix",
-          "review_reason": "final interface mode composite forbids a direct MCP interface_ref",
-          "candidates": [
-            {
-              "value": null,
-              "source": "internal/cli/schema_hints/metadata/doc.json",
-              "precedence": "reviewed_explicit",
-              "selected": true,
-              "review_reason": "final interface mode composite forbids a direct MCP interface_ref"
-            }
-          ],
-          "overridden_candidates": [
+            },
             {
               "value": "doc.create_comment",
               "source": "internal/cli/schema_hints/imported/wukong.json",
@@ -1397,9 +1379,12 @@
           ]
         }
       },
-      "idempotency": "non_idempotent",
-      "interface_mode": "composite",
-      "interface_reason": "Reviewed evolving remote adapter: the executable CLI calls doc-comment/create_comment with optional group mentions that are newer than the pinned MCP metadata snapshot.",
+      "idempotency": "unknown",
+      "interface_mode": "mcp",
+      "interface_ref": {
+        "product_id": "doc-comment",
+        "rpc_name": "create_comment"
+      },
       "reviewed": true,
       "risk": "medium",
       "source_refs": [
@@ -2393,14 +2378,14 @@
           ]
         },
         "idempotency": {
-          "value": "non_idempotent",
+          "value": "unknown",
           "source": "internal/cli/schema_hints/metadata/doc.json",
           "precedence": "reviewed_explicit",
           "resolution": "highest_precedence",
           "review_reason": "The reviewed handler normalizes group conversation IDs into a stable de-duplicated array and rejects group mentions for emoji replies, which the remote operation does not support.",
           "candidates": [
             {
-              "value": "non_idempotent",
+              "value": "unknown",
               "source": "internal/cli/schema_hints/metadata/doc.json",
               "precedence": "reviewed_explicit",
               "selected": true,
@@ -2415,14 +2400,14 @@
           ]
         },
         "interface_mode": {
-          "value": "composite",
+          "value": "mcp",
           "source": "internal/cli/schema_hints/metadata/doc.json",
           "precedence": "reviewed_explicit",
           "resolution": "highest_precedence",
           "review_reason": "The reviewed handler normalizes group conversation IDs into a stable de-duplicated array and rejects group mentions for emoji replies, which the remote operation does not support.",
           "candidates": [
             {
-              "value": "composite",
+              "value": "mcp",
               "source": "internal/cli/schema_hints/metadata/doc.json",
               "precedence": "reviewed_explicit",
               "selected": true,
@@ -2436,38 +2421,20 @@
             }
           ]
         },
-        "interface_reason": {
-          "value": "Reviewed evolving remote adapter: the executable CLI calls doc-comment/reply_comment with optional group mentions that are newer than the pinned MCP metadata snapshot.",
+        "interface_ref": {
+          "value": "doc-comment.reply_comment",
           "source": "internal/cli/schema_hints/metadata/doc.json",
           "precedence": "reviewed_explicit",
           "resolution": "highest_precedence",
           "review_reason": "The reviewed handler normalizes group conversation IDs into a stable de-duplicated array and rejects group mentions for emoji replies, which the remote operation does not support.",
           "candidates": [
             {
-              "value": "Reviewed evolving remote adapter: the executable CLI calls doc-comment/reply_comment with optional group mentions that are newer than the pinned MCP metadata snapshot.",
+              "value": "doc-comment.reply_comment",
               "source": "internal/cli/schema_hints/metadata/doc.json",
               "precedence": "reviewed_explicit",
               "selected": true,
               "review_reason": "The reviewed handler normalizes group conversation IDs into a stable de-duplicated array and rejects group mentions for emoji replies, which the remote operation does not support."
-            }
-          ]
-        },
-        "interface_ref": {
-          "value": null,
-          "source": "internal/cli/schema_hints/metadata/doc.json",
-          "precedence": "reviewed_explicit",
-          "resolution": "interface_disposition_matrix",
-          "review_reason": "final interface mode composite forbids a direct MCP interface_ref",
-          "candidates": [
-            {
-              "value": null,
-              "source": "internal/cli/schema_hints/metadata/doc.json",
-              "precedence": "reviewed_explicit",
-              "selected": true,
-              "review_reason": "final interface mode composite forbids a direct MCP interface_ref"
-            }
-          ],
-          "overridden_candidates": [
+            },
             {
               "value": "doc.reply_comment",
               "source": "internal/cli/schema_hints/imported/wukong.json",
@@ -2548,9 +2515,12 @@
           ]
         }
       },
-      "idempotency": "non_idempotent",
-      "interface_mode": "composite",
-      "interface_reason": "Reviewed evolving remote adapter: the executable CLI calls doc-comment/reply_comment with optional group mentions that are newer than the pinned MCP metadata snapshot.",
+      "idempotency": "unknown",
+      "interface_mode": "mcp",
+      "interface_ref": {
+        "product_id": "doc-comment",
+        "rpc_name": "reply_comment"
+      },
       "reviewed": true,
       "risk": "medium",
       "source_refs": [
@@ -7541,14 +7511,14 @@
           ]
         },
         "interface_mode": {
-          "value": "composite",
+          "value": "mcp",
           "source": "internal/cli/schema_hints/metadata/doc.json",
           "precedence": "reviewed_explicit",
           "resolution": "highest_precedence",
           "review_reason": "The reviewed handler preserves full Markdown/JSONML reads and adds validated outline, range, section, and tag-scoped JSONML fragment reads with optional file output.",
           "candidates": [
             {
-              "value": "composite",
+              "value": "mcp",
               "source": "internal/cli/schema_hints/metadata/doc.json",
               "precedence": "reviewed_explicit",
               "selected": true,
@@ -7562,38 +7532,20 @@
             }
           ]
         },
-        "interface_reason": {
-          "value": "Reviewed evolving remote adapter: the executable CLI calls doc/get_document_content with optional JSONML scope parameters that are newer than the pinned MCP metadata snapshot.",
+        "interface_ref": {
+          "value": "doc.get_document_content",
           "source": "internal/cli/schema_hints/metadata/doc.json",
           "precedence": "reviewed_explicit",
           "resolution": "highest_precedence",
           "review_reason": "The reviewed handler preserves full Markdown/JSONML reads and adds validated outline, range, section, and tag-scoped JSONML fragment reads with optional file output.",
           "candidates": [
             {
-              "value": "Reviewed evolving remote adapter: the executable CLI calls doc/get_document_content with optional JSONML scope parameters that are newer than the pinned MCP metadata snapshot.",
+              "value": "doc.get_document_content",
               "source": "internal/cli/schema_hints/metadata/doc.json",
               "precedence": "reviewed_explicit",
               "selected": true,
               "review_reason": "The reviewed handler preserves full Markdown/JSONML reads and adds validated outline, range, section, and tag-scoped JSONML fragment reads with optional file output."
-            }
-          ]
-        },
-        "interface_ref": {
-          "value": null,
-          "source": "internal/cli/schema_hints/metadata/doc.json",
-          "precedence": "reviewed_explicit",
-          "resolution": "interface_disposition_matrix",
-          "review_reason": "final interface mode composite forbids a direct MCP interface_ref",
-          "candidates": [
-            {
-              "value": null,
-              "source": "internal/cli/schema_hints/metadata/doc.json",
-              "precedence": "reviewed_explicit",
-              "selected": true,
-              "review_reason": "final interface mode composite forbids a direct MCP interface_ref"
-            }
-          ],
-          "overridden_candidates": [
+            },
             {
               "value": "doc.get_document_content",
               "source": "internal/cli/schema_hints/imported/wukong.json",
@@ -7679,8 +7631,11 @@
         }
       },
       "idempotency": "idempotent",
-      "interface_mode": "composite",
-      "interface_reason": "Reviewed evolving remote adapter: the executable CLI calls doc/get_document_content with optional JSONML scope parameters that are newer than the pinned MCP metadata snapshot.",
+      "interface_mode": "mcp",
+      "interface_ref": {
+        "product_id": "doc",
+        "rpc_name": "get_document_content"
+      },
       "reviewed": true,
       "risk": "low",
       "source_refs": [

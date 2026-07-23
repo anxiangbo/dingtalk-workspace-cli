@@ -4767,14 +4767,14 @@
           ]
         },
         "interface_mode": {
-          "value": "composite",
+          "value": "mcp",
           "source": "internal/cli/schema_hints/metadata/todo.json",
           "precedence": "reviewed_explicit",
           "resolution": "highest_precedence",
           "review_reason": "The reviewed handler defaults omitted role-types to executor, preserves current-organization behavior by default, and switches both single-page and auto-page calls to get_user_todos only when --query-all is explicitly true.",
           "candidates": [
             {
-              "value": "composite",
+              "value": "mcp",
               "source": "internal/cli/schema_hints/metadata/todo.json",
               "precedence": "reviewed_explicit",
               "selected": true,
@@ -4788,38 +4788,20 @@
             }
           ]
         },
-        "interface_reason": {
-          "value": "Reviewed conditional adapter: the same executable leaf calls todo/get_user_todos_in_current_org by default and todo/get_user_todos when --query-all is set.",
+        "interface_ref": {
+          "value": "todo.get_user_todos_in_current_org",
           "source": "internal/cli/schema_hints/metadata/todo.json",
           "precedence": "reviewed_explicit",
           "resolution": "highest_precedence",
           "review_reason": "The reviewed handler defaults omitted role-types to executor, preserves current-organization behavior by default, and switches both single-page and auto-page calls to get_user_todos only when --query-all is explicitly true.",
           "candidates": [
             {
-              "value": "Reviewed conditional adapter: the same executable leaf calls todo/get_user_todos_in_current_org by default and todo/get_user_todos when --query-all is set.",
+              "value": "todo.get_user_todos_in_current_org",
               "source": "internal/cli/schema_hints/metadata/todo.json",
               "precedence": "reviewed_explicit",
               "selected": true,
               "review_reason": "The reviewed handler defaults omitted role-types to executor, preserves current-organization behavior by default, and switches both single-page and auto-page calls to get_user_todos only when --query-all is explicitly true."
-            }
-          ]
-        },
-        "interface_ref": {
-          "value": null,
-          "source": "internal/cli/schema_hints/metadata/todo.json",
-          "precedence": "reviewed_explicit",
-          "resolution": "interface_disposition_matrix",
-          "review_reason": "final interface mode composite forbids a direct MCP interface_ref",
-          "candidates": [
-            {
-              "value": null,
-              "source": "internal/cli/schema_hints/metadata/todo.json",
-              "precedence": "reviewed_explicit",
-              "selected": true,
-              "review_reason": "final interface mode composite forbids a direct MCP interface_ref"
-            }
-          ],
-          "overridden_candidates": [
+            },
             {
               "value": "todo.get_user_todos_in_current_org",
               "source": "internal/cli/schema_mcp_metadata.json#tools.todo.get_user_todos_in_current_org.interface_ref",
@@ -4895,8 +4877,11 @@
         }
       },
       "idempotency": "idempotent",
-      "interface_mode": "composite",
-      "interface_reason": "Reviewed conditional adapter: the same executable leaf calls todo/get_user_todos_in_current_org by default and todo/get_user_todos when --query-all is set.",
+      "interface_mode": "mcp",
+      "interface_ref": {
+        "product_id": "todo",
+        "rpc_name": "get_user_todos_in_current_org"
+      },
       "reviewed": true,
       "risk": "low",
       "source_refs": [

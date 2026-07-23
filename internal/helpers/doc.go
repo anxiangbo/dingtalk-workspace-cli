@@ -1633,7 +1633,6 @@ WARNING: --mode overwrite 为破坏性写入，会清空原文档全部内容。
 	readCmd.Flags().String("start-block-id", "", "range/section 起始块 ID(节点 uuid); scope=range/section 时必填")
 	readCmd.Flags().String("end-block-id", "", "range 结束块 ID(节点 uuid); \"-1\"或空=到文档末尾(仅 scope=range 生效)")
 	cli.AnnotateRuntimeFlagEnum(readCmd, "scope", "outline", "range", "section", "tags")
-	cli.AnnotateRuntimeFlagRequiredWhen(readCmd, "content-format", "--scope or --tags is set")
 	cli.AnnotateRuntimeFlagRequiredWhen(readCmd, "tags", "--scope=tags")
 	cli.AnnotateRuntimeFlagRequiredWhen(readCmd, "start-block-id", "--scope=range or --scope=section")
 

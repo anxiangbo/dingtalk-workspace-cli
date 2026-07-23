@@ -139,19 +139,23 @@ func resolveMarkdownOutputPath(outputPath, remoteName string) (string, error) {
 		if name == "unnamed" {
 			name = "download.md"
 		}
-		dest := filepath.Join(outputPath, name)
-		rel, relErr := filepath.Rel(filepath.Clean(outputPath), filepath.Clean(dest))
-		if relErr != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
-			return "", fmt.Errorf("远程文件名解析后越过输出目录，已拒绝写入")
-		}
-		if destInfo, statErr := os.Lstat(dest); statErr == nil && destInfo.Mode()&os.ModeSymlink != 0 {
-			return "", fmt.Errorf("输出文件 %s 是符号链接，已拒绝覆盖", dest)
-		} else if statErr != nil && !os.IsNotExist(statErr) {
-			return "", fmt.Errorf("检查输出文件 %s 失败: %w", dest, statErr)
-		}
-		return dest, nil
+		return resolveMarkdownDirectoryOutputPath(outputPath, name)
 	}
 	return filepath.Clean(outputPath), nil
+}
+
+func resolveMarkdownDirectoryOutputPath(outputPath, name string) (string, error) {
+	dest := filepath.Join(outputPath, name)
+	rel, relErr := filepath.Rel(filepath.Clean(outputPath), filepath.Clean(dest))
+	if relErr != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return "", fmt.Errorf("远程文件名解析后越过输出目录，已拒绝写入")
+	}
+	if destInfo, statErr := os.Lstat(dest); statErr == nil && destInfo.Mode()&os.ModeSymlink != 0 {
+		return "", fmt.Errorf("输出文件 %s 是符号链接，已拒绝覆盖", dest)
+	} else if statErr != nil && !os.IsNotExist(statErr) {
+		return "", fmt.Errorf("检查输出文件 %s 失败: %w", dest, statErr)
+	}
+	return dest, nil
 }
 
 func resolveDownloadFilename(responseText, resourceURL string) string {
@@ -477,6 +481,7 @@ func runMarkdownPatch(cmd *cobra.Command, _ []string) error {
 	useRegex, _ := cmd.Flags().GetBool("regex")
 	spaceID, _ := cmd.Flags().GetString("space-id")
 	workspaceID := flagOrFallback(cmd, "workspace", "workspace-id")
+	replacementSet := cmd.Flags().Changed("content") || cmd.Flags().Changed("markdown")
 
 	if deps.Caller.DryRun() || markdownGlobalDryRun(cmd) {
 		return printMarkdownDryRun(map[string]any{
@@ -489,7 +494,7 @@ func runMarkdownPatch(cmd *cobra.Command, _ []string) error {
 			"workspace_id": workspaceID,
 		}, "替换 Markdown 内容", nodeID)
 	}
-	if nodeID == "" || pattern == "" || replacement == "" {
+	if nodeID == "" || pattern == "" || !replacementSet {
 		return fmt.Errorf("--node、--pattern 与 --content 均为必填")
 	}
 	if spaceID != "" && workspaceID != "" {

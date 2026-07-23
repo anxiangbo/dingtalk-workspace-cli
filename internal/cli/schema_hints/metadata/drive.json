@@ -213,7 +213,7 @@
     "drive.upload": {
       "effect": "write",
       "risk": "medium",
-      "confirmation": "user_required",
+      "confirmation": "not_required",
       "idempotency": "unknown",
       "interface_mode": "composite",
       "availability": "available",
@@ -225,9 +225,9 @@
           "required": false
         }
       },
-      "review_reason": "The reviewed helper creates a new file by default, while --node switches to a confirmed destructive overwrite; Schema uses the safer command-level confirmation contract for that conditional mode.",
+      "review_reason": "The reviewed helper preserves the stable command-level Schema contract for ordinary uploads; --node switches to overwrite mode and the runtime still requires explicit confirmation unless --yes is supplied.",
       "cli_path": "drive upload",
-      "runtime_gate": "confirm_dangerous"
+      "runtime_gate": "none"
     }
   }
 }
