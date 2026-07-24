@@ -62,32 +62,32 @@ make lint
 git diff --check
 ```
 
-## Homebrew Formula PR Automation
+## Homebrew Formula Delivery
 
-Official tag releases require the repository Actions secret
-`HOMEBREW_PR_TOKEN`. Prefer a fine-grained personal access token owned by a
-maintainer or release-bot account, limited to this repository with
-`Contents: write` and `Pull requests: write`. If organization policy prevents
-that account from targeting the repository, use a dedicated classic token with
-only the `public_repo` scope. Do not reuse a broad developer token.
+Official releases use the Release workflow's built-in `GITHUB_TOKEN` to update
+exactly one tracked Formula after the immutable GitHub assets and their
+checksums have passed verification. The publisher validates the rendered Ruby,
+commits only the configured Formula path, never force-pushes `main`, and retries
+from a fresh clone up to three times when `main` advances concurrently. Normal
+stable and beta releases do not create a Formula PR and do not require a
+personal PAT or permission canary. Because a built-in-token push does not start
+another CI run, the workflow creates the nine Code Admission checks for the
+Formula-only commit only after proving its sole parent already has all nine
+successful checks and the committed Formula exactly matches this release's
+verified bytes.
 
-Store the dedicated token as the `HOMEBREW_PR_TOKEN` repository Actions secret
-and rotate it before its configured expiration. Replace it immediately if it is
-exposed, its owner loses repository access, or the release-bot ownership
-changes. The Release workflow uses this
-dedicated token only to push an `automation/homebrew-*` branch and open the
-stable or beta Formula PR. It does not push Formula changes directly to `main`.
-The default-branch governance preflight and every tag contract authenticate the
-token before publication, reject over-scoped classic tokens, confirm its
-identity, and run a controlled write canary. The canary pushes a unique
-`automation/homebrew-token-canary-*` branch with a `[skip ci]` commit, creates a
-draft PR, closes it, and deletes the branch with the same token. This proves both
-Contents and Pull requests write access before publication without merging
-anything. The gate also rejects reuse of `RELEASE_GOVERNANCE_TOKEN`.
-No maintainer environment variable is required when creating a tag. Using the
-built-in `GITHUB_TOKEN` is insufficient because organization policy prevents
-Actions from creating pull requests, and its generated PR events may require
-separate workflow approval.
+Repository rules must allow the GitHub Actions integration used by the trusted
+Release workflow to push that Formula-only commit to `main`. This bypass is a
+platform setting and cannot be installed by repository code; keep it scoped to
+the GitHub Actions integration, audit changes to the Release workflow, and do
+not grant an equivalent bypass to a personal PAT. The workflow and publisher
+provide the path restriction; GitHub rulesets do not infer that restriction
+from the token.
+
+`HOMEBREW_PR_TOKEN` remains only for the withdrawal workflow while Homebrew
+rollback still uses an independently reviewed PR. Keep that credential
+repository-scoped with only `Contents: write` and `Pull requests: write`, and
+do not reuse `RELEASE_GOVERNANCE_TOKEN`.
 
 ## Release Governance and Recovery
 
@@ -98,15 +98,14 @@ administration setting and cannot be read by the workflow's built-in
 contract use this same credential so a missing or expired identity is detected
 before an irreversible tag is created.
 
-Create a protected `release-recovery` environment limited to protected
-branches, with a required reviewer, self-review disabled, and administrator
-bypass disabled. The workflow reads the environment through the GitHub API and
-fails closed unless the required-reviewer, prevent-self-review, and protected-
-branch rules are present.
 Recovery is restricted to an existing annotated tag whose exact tag object,
-commit, and failed tag-push run all match; it then reuses the normal release
-jobs. Do not put publication secrets in temporary branches or create ad-hoc
-recovery workflows.
+commit, sealed metadata, original failed run/attempt, requester identity and
+Release state all match; it then reuses the normal release jobs without a
+second-person environment approval. A same-run “Re-run failed jobs” is even
+lighter: the seal job may adopt an existing tag only when its complete
+authority matches that run and its original attempt is not newer than the
+current attempt. Do not put publication secrets in temporary branches or
+create ad-hoc recovery workflows.
 
 Cloud-sealed releases mirror to OSS only when the repository variable
 `ENABLE_OSS_MIRROR` is exactly `true`. Leave the variable unset while no Bucket

@@ -12,10 +12,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -26,47 +24,58 @@ func (markdownCIFailingReader) Read([]byte) (int, error) {
 	return 0, errors.New("forced read failure")
 }
 
-func startMarkdownCITempFileRemover(t *testing.T, root, dirPrefix, fileName string) <-chan error {
+func installMarkdownCITempFileDisappearance(t *testing.T) {
 	t.Helper()
-	result := make(chan error, 1)
-	go func() {
-		deadline := time.Now().Add(10 * time.Second)
-		for time.Now().Before(deadline) {
-			entries, err := os.ReadDir(root)
-			if err != nil {
-				result <- err
-				return
-			}
-			for _, entry := range entries {
-				if !entry.IsDir() || !strings.HasPrefix(entry.Name(), dirPrefix) {
-					continue
-				}
-				target := filepath.Join(root, entry.Name(), fileName)
-				if err := os.Remove(target); err == nil {
-					result <- nil
-					return
-				} else if !os.IsNotExist(err) {
-					result <- err
-					return
-				}
-			}
-			runtime.Gosched()
+	original := markdownUploadStat
+	markdownUploadStat = func(path string) (os.FileInfo, error) {
+		if err := os.Remove(path); err != nil {
+			return nil, err
 		}
-		result <- fmt.Errorf("timed out waiting for %s/%s", dirPrefix, fileName)
-	}()
-	return result
+		return os.Stat(path)
+	}
+	t.Cleanup(func() { markdownUploadStat = original })
 }
 
-func waitMarkdownCIRemover(t *testing.T, result <-chan error) {
-	t.Helper()
-	select {
-	case err := <-result:
-		if err != nil {
-			t.Fatal(err)
+func TestCrossPlatformCoverageMarkdownUploadStatFailures(t *testing.T) {
+	t.Run("create", func(t *testing.T) {
+		installMarkdownDriveDeps(t, &markdownDriveCaller{format: "json"})
+		installMarkdownCITempFileDisappearance(t)
+		err := executeMarkdownDriveCommand(t, newMarkdownCommand(), nil,
+			"markdown", "create", "--name", "a.md", "--content", "body")
+		if err == nil || !strings.Contains(err.Error(), "读取上传文件失败") {
+			t.Fatalf("error = %v", err)
 		}
-	case <-time.After(12 * time.Second):
-		t.Fatal("timed out waiting for temporary-file remover")
-	}
+	})
+
+	t.Run("overwrite", func(t *testing.T) {
+		installMarkdownDriveDeps(t, &markdownDriveCaller{format: "json"})
+		installMarkdownCITempFileDisappearance(t)
+		err := executeMarkdownDriveCommand(t, newMarkdownCommand(), nil,
+			"markdown", "overwrite", "--node", "node-1", "--space-id", "space-1",
+			"--name", "a.md", "--content", "body")
+		if err == nil || !strings.Contains(err.Error(), "读取上传文件失败") {
+			t.Fatalf("error = %v", err)
+		}
+	})
+
+	t.Run("patch", func(t *testing.T) {
+		caller := &markdownDriveCaller{
+			format: "json",
+			steps: []markdownDriveStep{
+				{text: `{"downloadUrl":"https://download.test/current.md","fileName":"current.md"}`},
+				{text: `{"fileName":"current.md"}`},
+			},
+		}
+		installMarkdownDriveDeps(t, caller)
+		installMarkdownHTTPGet(t, "old")
+		installMarkdownCITempFileDisappearance(t)
+		err := executeMarkdownDriveCommand(t, newMarkdownCommand(), nil,
+			"markdown", "patch", "--node", "node-1", "--space-id", "space-1",
+			"--pattern", "old", "--content", "new", "--yes")
+		if err == nil || !strings.Contains(err.Error(), "读取临时文件失败") {
+			t.Fatalf("error = %v", err)
+		}
+	})
 }
 
 func TestMarkdownCICoverageFetchAndOutputPaths(t *testing.T) {
@@ -189,13 +198,9 @@ func TestMarkdownCICoverageCreateEdges(t *testing.T) {
 
 	t.Run("temporary file disappears before stat", func(t *testing.T) {
 		installMarkdownDriveDeps(t, &markdownDriveCaller{format: "json"})
-		tempRoot := t.TempDir()
-		t.Setenv("TMPDIR", tempRoot)
-		removed := startMarkdownCITempFileRemover(t, tempRoot, "dws-markdown-create-", "a.md")
-		content := strings.Repeat("x", 16<<20)
+		installMarkdownCITempFileDisappearance(t)
 		err := executeMarkdownDriveCommand(t, newMarkdownCommand(), nil,
-			"markdown", "create", "--name", "a.md", "--content", content)
-		waitMarkdownCIRemover(t, removed)
+			"markdown", "create", "--name", "a.md", "--content", "body")
 		if err == nil || !strings.Contains(err.Error(), "读取上传文件失败") {
 			t.Fatalf("error = %v", err)
 		}
@@ -270,14 +275,10 @@ func TestMarkdownCICoverageOverwriteEdges(t *testing.T) {
 
 	t.Run("temporary file disappears before stat", func(t *testing.T) {
 		installMarkdownDriveDeps(t, &markdownDriveCaller{format: "json"})
-		tempRoot := t.TempDir()
-		t.Setenv("TMPDIR", tempRoot)
-		removed := startMarkdownCITempFileRemover(t, tempRoot, "dws-markdown-overwrite-", "a.md")
-		content := strings.Repeat("x", 16<<20)
+		installMarkdownCITempFileDisappearance(t)
 		err := executeMarkdownDriveCommand(t, newMarkdownCommand(), nil,
 			"markdown", "overwrite", "--node", "node-1", "--space-id", "space-1",
-			"--name", "a.md", "--content", content)
-		waitMarkdownCIRemover(t, removed)
+			"--name", "a.md", "--content", "body")
 		if err == nil || !strings.Contains(err.Error(), "读取上传文件失败") {
 			t.Fatalf("error = %v", err)
 		}
@@ -451,14 +452,10 @@ func TestMarkdownCICoveragePatchEdges(t *testing.T) {
 		}
 		installMarkdownDriveDeps(t, caller)
 		installMarkdownHTTPGet(t, "old")
-		tempRoot := t.TempDir()
-		t.Setenv("TMPDIR", tempRoot)
-		removed := startMarkdownCITempFileRemover(t, tempRoot, "dws-markdown-patch-", "current.md")
-		replacement := strings.Repeat("x", 16<<20)
+		installMarkdownCITempFileDisappearance(t)
 		err := executeMarkdownDriveCommand(t, newMarkdownCommand(), nil,
 			"markdown", "patch", "--node", "node-1", "--space-id", "space-1",
-			"--pattern", "old", "--content", replacement, "--yes")
-		waitMarkdownCIRemover(t, removed)
+			"--pattern", "old", "--content", "new", "--yes")
 		if err == nil || !strings.Contains(err.Error(), "读取临时文件失败") {
 			t.Fatalf("error = %v", err)
 		}
