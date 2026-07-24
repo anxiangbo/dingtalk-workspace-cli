@@ -6,6 +6,14 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com/) and th
 
 ## [Unreleased]
 
+### Changed
+
+- **Smoother guarded releases** — publishes verified stable and beta Homebrew Formula updates directly from the release workflow, retries transient tag-ref visibility failures, lets an exact same-run retry reuse its sealed tag, and allows machine-verified rebuild recovery without a separate approval wait.
+
+### Fixed
+
+- **Deterministic Markdown coverage** — replaces timing-dependent temporary-file deletion tests with synchronized file-stat failures so release admission no longer flakes on scheduler timing.
+
 ## [1.0.55-beta.2] - 2026-07-23
 
 This beta validates Wukong capability parity across Chat, Contacts, documents,
